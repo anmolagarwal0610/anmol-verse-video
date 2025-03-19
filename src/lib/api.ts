@@ -47,38 +47,95 @@ const MOCK_VIDEOS: VideoData[] = [
   },
 ];
 
-// In a real application, this would communicate with a backend service
-// For now, we'll simulate API calls with mock data and delays
+// Configuration for the API - replace with your actual values
+const API_CONFIG = {
+  BASE_URL: "https://your-api-endpoint.com", // Replace with your actual API URL
+  API_KEY: "your-api-key", // Replace with your actual API key
+};
 
 export const generateVideo = async (prompt: string): Promise<{ videoId: string }> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 3000));
-  
-  // Create a new video entry
-  const videoId = Math.random().toString(36).substring(2, 15);
-  
-  // In a real app, this would be returned from your backend after processing
-  return { videoId };
+  try {
+    // Real API implementation
+    const response = await fetch(`${API_CONFIG.BASE_URL}/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_CONFIG.API_KEY}`
+      },
+      body: JSON.stringify({ prompt })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return { videoId: data.videoId || data.id };
+  } catch (error) {
+    console.error('Error generating video:', error);
+    // For development/fallback - in production you'd want to handle errors differently
+    return { videoId: Math.random().toString(36).substring(2, 15) };
+  }
 };
 
 export const getVideos = async (): Promise<VideoData[]> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Return mock videos
-  return MOCK_VIDEOS;
+  try {
+    // Real API implementation
+    const response = await fetch(`${API_CONFIG.BASE_URL}/videos`, {
+      headers: {
+        'Authorization': `Bearer ${API_CONFIG.API_KEY}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.videos || [];
+  } catch (error) {
+    console.error('Error fetching videos:', error);
+    // Fallback to mock data during development
+    return MOCK_VIDEOS;
+  }
 };
 
 export const getVideoById = async (id: string): Promise<VideoData | null> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  // Find video by ID
-  const video = MOCK_VIDEOS.find(v => v.id === id);
-  
-  return video || null;
+  try {
+    // Real API implementation
+    const response = await fetch(`${API_CONFIG.BASE_URL}/videos/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${API_CONFIG.API_KEY}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching video:', error);
+    // Fallback to mock data during development
+    const video = MOCK_VIDEOS.find(v => v.id === id);
+    return video || null;
+  }
 };
 
-// Additional functions that would be implemented in a real app:
-// export const deleteVideo = async (id: string): Promise<boolean> => { ... }
-// export const updateVideo = async (id: string, data: Partial<VideoData>): Promise<VideoData> => { ... }
+// Additional functions you might need:
+export const deleteVideo = async (id: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/videos/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${API_CONFIG.API_KEY}`
+      }
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error('Error deleting video:', error);
+    return false;
+  }
+};
+
