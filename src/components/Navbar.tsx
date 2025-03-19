@@ -1,0 +1,118 @@
+
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Home, Video, Menu, X } from "lucide-react";
+
+const Navbar = () => {
+  const location = useLocation();
+  const [scrollY, setScrollY] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  const navItems = [
+    { path: '/', label: 'Create', icon: <Home className="h-4 w-4 mr-2" /> },
+    { path: '/gallery', label: 'Gallery', icon: <Video className="h-4 w-4 mr-2" /> },
+  ];
+
+  const isActive = (path: string) => location.pathname === path;
+
+  return (
+    <motion.header 
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-4 md:px-6 py-3",
+        scrollY > 20 ? "backdrop-blur-lg bg-white/70 dark:bg-black/70 shadow-sm" : "bg-transparent"
+      )}
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+    >
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <Link to="/" className="flex items-center space-x-2">
+          <motion.div 
+            className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Video className="h-4 w-4 text-white" />
+          </motion.div>
+          <span className="text-lg font-semibold">ShortsGen</span>
+        </Link>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-1">
+          {navItems.map((item) => (
+            <Button
+              key={item.path}
+              variant={isActive(item.path) ? "default" : "ghost"}
+              size="sm"
+              className={cn(
+                "transition-all duration-300",
+                isActive(item.path) ? "bg-primary text-primary-foreground" : ""
+              )}
+              asChild
+            >
+              <Link to={item.path} className="flex items-center">
+                {item.icon}
+                {item.label}
+              </Link>
+            </Button>
+          ))}
+        </nav>
+
+        {/* Mobile menu button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+        >
+          {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </Button>
+      </div>
+
+      {/* Mobile Navigation */}
+      {isMenuOpen && (
+        <motion.nav 
+          className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-950 shadow-lg border-t"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className="flex flex-col p-4 space-y-2">
+            {navItems.map((item) => (
+              <Button
+                key={item.path}
+                variant={isActive(item.path) ? "default" : "ghost"}
+                className={cn(
+                  "justify-start w-full",
+                  isActive(item.path) ? "bg-primary text-primary-foreground" : ""
+                )}
+                onClick={() => setIsMenuOpen(false)}
+                asChild
+              >
+                <Link to={item.path} className="flex items-center">
+                  {item.icon}
+                  {item.label}
+                </Link>
+              </Button>
+            ))}
+          </div>
+        </motion.nav>
+      )}
+    </motion.header>
+  );
+};
+
+export default Navbar;
