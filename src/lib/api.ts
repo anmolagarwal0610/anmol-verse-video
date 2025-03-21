@@ -159,7 +159,10 @@ export const generateTranscript = async (prompt: string): Promise<{ transcript: 
     }
 
     // ✅ Fetch transcript text
-    const transcriptResponse = await fetch(data.transcript_url);
+    const transcriptResponse = await fetch(data.transcript_url, {
+      method: "GET",
+      mode: "cors"  // 🔹 Add this to handle CORS properly
+    });
 
     if (!transcriptResponse.ok) {
       throw new Error(`Failed to fetch transcript content: ${transcriptResponse.status}`);
