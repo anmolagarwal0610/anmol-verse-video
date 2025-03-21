@@ -166,7 +166,7 @@ export const generateTranscript = async (prompt: string): Promise<{ transcript: 
     // Fallback for development/testing
     // In production, you'd want to handle errors differently
     return { 
-      transcript: `[Generated 30-second transcript based on prompt: "${prompt}"]\n\nHave you ever felt stuck, trapped by your own limitations? We all face challenges that seem insurmountable. But here's the truth: every obstacle is an opportunity in disguise. The moments that test us most are precisely the ones that transform us. When you push through discomfort, you discover strengths you never knew existed. Remember, growth happens outside your comfort zone. So embrace the challenge, take that first step, and watch as possibilities unfold before you. Your greatest achievements lie just beyond your biggest fears.`
+      transcript: `[Generated 30-second transcript based on prompt: "${prompt}"]\n\nHave you ever felt stuck`
     };
   }
 };
