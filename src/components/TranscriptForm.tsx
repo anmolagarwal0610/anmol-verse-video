@@ -49,7 +49,7 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
       }
     } catch (err) {
       console.error('Error in transcript generation:', err);
-      setError(`An unexpected error occurred: ${err.message}`);
+      setError(`An unexpected error occurred: ${err.message || 'Unknown error'}`);
       toast.error('Failed to generate transcript. Please try again.');
     } finally {
       setIsGenerating(false);

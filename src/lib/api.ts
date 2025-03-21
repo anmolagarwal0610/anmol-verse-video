@@ -46,7 +46,7 @@ const MOCK_VIDEOS: VideoData[] = [
   },
 ];
 
-// Configuration for the API - replace with your actual values
+// Configuration for the API
 const API_CONFIG = {
   BASE_URL: "https://flask-app-249297598302.asia-south1.run.app" // Flask API URL
 };
@@ -57,8 +57,7 @@ export const generateVideo = async (prompt: string): Promise<{ videoId: string }
     const response = await fetch(`${API_CONFIG.BASE_URL}/generate`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_CONFIG.API_KEY}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ prompt })
     });
@@ -79,11 +78,7 @@ export const generateVideo = async (prompt: string): Promise<{ videoId: string }
 export const getVideos = async (): Promise<VideoData[]> => {
   try {
     // Real API implementation
-    const response = await fetch(`${API_CONFIG.BASE_URL}/videos`, {
-      headers: {
-        'Authorization': `Bearer ${API_CONFIG.API_KEY}`
-      }
-    });
+    const response = await fetch(`${API_CONFIG.BASE_URL}/videos`);
 
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
@@ -101,11 +96,7 @@ export const getVideos = async (): Promise<VideoData[]> => {
 export const getVideoById = async (id: string): Promise<VideoData | null> => {
   try {
     // Real API implementation
-    const response = await fetch(`${API_CONFIG.BASE_URL}/videos/${id}`, {
-      headers: {
-        'Authorization': `Bearer ${API_CONFIG.API_KEY}`
-      }
-    });
+    const response = await fetch(`${API_CONFIG.BASE_URL}/videos/${id}`);
 
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
@@ -123,10 +114,7 @@ export const getVideoById = async (id: string): Promise<VideoData | null> => {
 export const deleteVideo = async (id: string): Promise<boolean> => {
   try {
     const response = await fetch(`${API_CONFIG.BASE_URL}/videos/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${API_CONFIG.API_KEY}`
-      }
+      method: 'DELETE'
     });
 
     return response.ok;
@@ -149,7 +137,7 @@ export const generateTranscript = async (prompt: string): Promise<{ transcript: 
     });
 
     if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+      throw new Error(`API error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -168,7 +156,7 @@ export const generateTranscript = async (prompt: string): Promise<{ transcript: 
     });
 
     if (!transcriptResponse.ok) {
-      throw new Error(`Failed to fetch transcript: ${transcriptResponse.status}`);
+      throw new Error(`Failed to fetch transcript: ${transcriptResponse.status} ${transcriptResponse.statusText}`);
     }
 
     const transcriptText = await transcriptResponse.text();
