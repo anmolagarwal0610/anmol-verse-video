@@ -48,8 +48,8 @@ const MOCK_VIDEOS: VideoData[] = [
 
 // Configuration for the API - replace with your actual values
 const API_CONFIG = {
-  BASE_URL: "https://your-api-endpoint.com", // Replace with your actual API URL
-  API_KEY: "your-api-key", // Replace with your actual API key
+  BASE_URL: "https://flask-app-249297598302.asia-south1.run.app", // Replace with your actual API URL
+  API_KEY: None, // Replace with your actual API key
 };
 
 export const generateVideo = async (prompt: string): Promise<{ videoId: string }> => {
@@ -141,17 +141,13 @@ export const deleteVideo = async (id: string): Promise<boolean> => {
 // New function for transcript generation
 export const generateTranscript = async (prompt: string): Promise<{ transcript: string }> => {
   try {
-    // Real API implementation
-    const response = await fetch(`${API_CONFIG.BASE_URL}/generate-transcript`, {
+    // Call your Flask API to generate the transcript
+    const response = await fetch(`${API_CONFIG.BASE_URL}/generate_transcript`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_CONFIG.API_KEY}`
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ 
-        prompt,
-        duration: 30 // 30 seconds duration
-      })
+      body: JSON.stringify({ prompt })
     });
 
     if (!response.ok) {
@@ -159,14 +155,29 @@ export const generateTranscript = async (prompt: string): Promise<{ transcript: 
     }
 
     const data = await response.json();
-    return { transcript: data.transcript };
+
+    if (!data.transcript_url) {
+      throw new Error("No transcript URL found in API response.");
+    }
+
+    // ✅ Fetch the transcript text from the URL
+    const transcriptResponse = await fetch(data.transcript_url);
+
+    if (!transcriptResponse.ok) {
+      throw new Error(`Failed to fetch transcript content: ${transcriptResponse.status}`);
+    }
+
+    const transcriptText = await transcriptResponse.text();
+
+    return { transcript: transcriptText };
+
   } catch (error) {
     console.error('Error generating transcript:', error);
     
-    // Fallback for development/testing
-    // In production, you'd want to handle errors differently
     return { 
-      transcript: `[Generated 30-second transcript based on prompt: "${prompt}"]\n\nHave you ever felt stuck, trapped by your own limitations? We all face challenges that seem insurmountable. But here's the truth: every obstacle is an opportunity in disguise. The moments that test us most are precisely the ones that transform us. When you push through discomfort, you discover strengths you never knew existed. Remember, growth happens outside your comfort zone. So embrace the challenge, take that first step, and watch as possibilities unfold before you. Your greatest achievements lie just beyond your biggest fears.`
+      transcript: "Error: Unable to generate transcript. Please try again."
     };
   }
 };
+
+
