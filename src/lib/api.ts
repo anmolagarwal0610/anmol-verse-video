@@ -48,8 +48,7 @@ const MOCK_VIDEOS: VideoData[] = [
 
 // Configuration for the API - replace with your actual values
 const API_CONFIG = {
-  BASE_URL: "https://flask-app-249297598302.asia-south1.run.app" // Replace with your actual API URL
-  //API_KEY: "your-api-key", // Replace with your actual API key
+  BASE_URL: "https://flask-app-249297598302.asia-south1.run.app" // Flask API URL
 };
 
 export const generateVideo = async (prompt: string): Promise<{ videoId: string }> => {
@@ -121,7 +120,6 @@ export const getVideoById = async (id: string): Promise<VideoData | null> => {
   }
 };
 
-// Additional functions you might need:
 export const deleteVideo = async (id: string): Promise<boolean> => {
   try {
     const response = await fetch(`${API_CONFIG.BASE_URL}/videos/${id}`, {
@@ -138,9 +136,12 @@ export const deleteVideo = async (id: string): Promise<boolean> => {
   }
 };
 
-// New function for transcript generation
+// Updated transcript generation function
 export const generateTranscript = async (prompt: string): Promise<{ transcript: string }> => {
   try {
+    console.log("Sending request to generate transcript with prompt:", prompt);
+    
+    // Make request to the transcript generation endpoint
     const response = await fetch(`${API_CONFIG.BASE_URL}/generate_transcript`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -152,31 +153,32 @@ export const generateTranscript = async (prompt: string): Promise<{ transcript: 
     }
 
     const data = await response.json();
-    console.log("API Response:", data); // 🔹 Debugging: Print API response in console
+    console.log("Transcript API response:", data);
 
     if (!data.transcript_url) {
-      throw new Error("No transcript URL found in API response.");
+      throw new Error("No transcript URL found in API response");
     }
 
-    // ✅ Fetch transcript text
+    // Fetch the transcript from the provided URL
     const transcriptResponse = await fetch(data.transcript_url, {
-      method: "GET",
-      mode: "cors"  // 🔹 Add this to handle CORS properly
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
     });
 
     if (!transcriptResponse.ok) {
-      throw new Error(`Failed to fetch transcript content: ${transcriptResponse.status}`);
+      throw new Error(`Failed to fetch transcript: ${transcriptResponse.status}`);
     }
 
     const transcriptText = await transcriptResponse.text();
+    console.log("Fetched transcript:", transcriptText);
+    
     return { transcript: transcriptText };
-
   } catch (error) {
     console.error('Error generating transcript:', error);
-    
     return { 
-      transcript: `Error: ${error.message}`
+      transcript: `Failed to generate transcript. Please try again later. Error: ${error.message}` 
     };
   }
 };
-

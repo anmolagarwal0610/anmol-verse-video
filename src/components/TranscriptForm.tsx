@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { generateTranscript } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CopyButton } from '@/components/CopyButton';
+import { Separator } from '@/components/ui/separator';
 
 interface TranscriptFormProps {
   onTranscriptGenerated?: (transcript: string) => void;
@@ -17,6 +18,7 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
   const [prompt, setPrompt] = useState('');
   const [transcript, setTranscript] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,17 +29,27 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
     }
     
     setIsGenerating(true);
+    setError(null);
     
     try {
+      console.log("Submitting prompt for transcript generation:", prompt);
       const result = await generateTranscript(prompt);
-      setTranscript(result.transcript);
-      toast.success('Your transcript has been generated!');
       
-      if (onTranscriptGenerated) {
-        onTranscriptGenerated(result.transcript);
+      if (result.transcript.startsWith('Failed to generate transcript') || 
+          result.transcript.startsWith('Error:')) {
+        setError(result.transcript);
+        toast.error('Failed to generate transcript');
+      } else {
+        setTranscript(result.transcript);
+        toast.success('Your transcript has been generated!');
+        
+        if (onTranscriptGenerated) {
+          onTranscriptGenerated(result.transcript);
+        }
       }
-    } catch (error) {
-      console.error('Error generating transcript:', error);
+    } catch (err) {
+      console.error('Error in transcript generation:', err);
+      setError(`An unexpected error occurred: ${err.message}`);
       toast.error('Failed to generate transcript. Please try again.');
     } finally {
       setIsGenerating(false);
@@ -89,7 +101,28 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
         </div>
       </form>
 
-      {transcript && (
+      {error && (
+        <motion.div
+          className="mt-8"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="border-destructive/50 bg-destructive/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-destructive">Error</CardTitle>
+              <CardDescription className="text-destructive/80">
+                There was a problem generating your transcript
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-destructive/90">{error}</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {transcript && !error && (
         <motion.div
           className="mt-8"
           initial={{ opacity: 0, height: 0 }}
@@ -103,6 +136,7 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
                 <CopyButton text={transcript} />
               </CardTitle>
               <CardDescription>30-second engaging transcript for your voiceover</CardDescription>
+              <Separator className="my-2" />
             </CardHeader>
             <CardContent>
               <div className="whitespace-pre-wrap bg-muted/50 p-4 rounded-md text-sm">
