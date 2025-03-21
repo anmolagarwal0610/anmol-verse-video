@@ -172,7 +172,7 @@ export const generateTranscript = async (prompt: string): Promise<{ transcript: 
     console.error('Error generating transcript:', error);
     
     return { 
-      transcript: "Error: Unable to generate transcript. Please try again..."
+      transcript: `Error: ${error.message}`
     };
   }
 };
