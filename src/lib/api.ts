@@ -49,7 +49,42 @@ const MOCK_VIDEOS: VideoData[] = [
 // Configuration for the API
 const API_CONFIG = {
   BASE_URL: "https://flask-app-249297598302.asia-south1.run.app", // Flask API URL
-  CORS_PROXY: "https://corsproxy.io/?" // CORS proxy URL
+  CORS_PROXIES: [
+    "https://corsproxy.io/?",
+    "https://cors-anywhere.herokuapp.com/",
+    "https://api.allorigins.win/raw?url="
+  ]
+};
+
+// Helper function to try different CORS proxies
+const fetchWithCorsProxy = async (url: string, options: RequestInit = {}, proxyIndex = 0): Promise<Response> => {
+  if (proxyIndex >= API_CONFIG.CORS_PROXIES.length) {
+    // If all proxies fail, try direct request as last resort
+    console.log("All proxies failed, attempting direct request to:", url);
+    return fetch(url, options);
+  }
+
+  const proxy = API_CONFIG.CORS_PROXIES[proxyIndex];
+  const proxyUrl = `${proxy}${encodeURIComponent(url)}`;
+  
+  console.log(`Trying CORS proxy ${proxyIndex + 1}/${API_CONFIG.CORS_PROXIES.length}:`, proxy);
+  
+  try {
+    const response = await fetch(proxyUrl, options);
+    
+    if (response.ok) {
+      console.log(`Proxy ${proxyIndex + 1} successful`);
+      return response;
+    }
+    
+    console.log(`Proxy ${proxyIndex + 1} failed with status:`, response.status, response.statusText);
+    // Try next proxy
+    return fetchWithCorsProxy(url, options, proxyIndex + 1);
+  } catch (error) {
+    console.error(`Proxy ${proxyIndex + 1} threw error:`, error);
+    // Try next proxy
+    return fetchWithCorsProxy(url, options, proxyIndex + 1);
+  }
 };
 
 export const generateVideo = async (prompt: string): Promise<{ videoId: string }> => {
@@ -125,30 +160,32 @@ export const deleteVideo = async (id: string): Promise<boolean> => {
   }
 };
 
-// Updated transcript generation function with CORS proxy
+// Updated transcript generation function with multiple CORS proxy fallbacks
 export const generateTranscript = async (prompt: string): Promise<{ transcript: string }> => {
   try {
     console.log("Sending request to generate transcript with prompt:", prompt);
     
-    // Use CORS proxy to bypass CORS restrictions
-    const proxyUrl = `${API_CONFIG.CORS_PROXY}${encodeURIComponent(`${API_CONFIG.BASE_URL}/generate_transcript`)}`;
-    console.log("Using proxy URL:", proxyUrl);
+    // Add a timestamp to prevent browser caching
+    const timestamp = Date.now();
+    const apiUrl = `${API_CONFIG.BASE_URL}/generate_transcript`;
     
-    // Make request to the transcript generation endpoint through the CORS proxy
-    const response = await fetch(proxyUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt }),
-    });
+    // Make request with CORS proxy fallback mechanism
+    const response = await fetchWithCorsProxy(
+      apiUrl,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          prompt: `${prompt} (${timestamp})`,
+          bypass_cors: true
+        }),
+        mode: 'cors',
+        cache: 'no-cache'
+      }
+    );
 
     console.log("API Response status:", response.status, response.statusText);
     
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "Could not read error response");
-      console.error("Error response body:", errorText);
-      throw new Error(`API error: ${response.status} ${response.statusText} - ${errorText}`);
-    }
-
     // Parse JSON response safely
     let data;
     try {
@@ -159,55 +196,50 @@ export const generateTranscript = async (prompt: string): Promise<{ transcript: 
       throw new Error("Failed to parse API response as JSON");
     }
 
-    if (!data.transcript_url) {
-      console.error("Missing transcript_url in response:", data);
-      throw new Error("No transcript URL found in API response");
+    // If the API returns a transcript directly, use it
+    if (data.transcript) {
+      console.log("Received direct transcript:", data.transcript.substring(0, 100) + "...");
+      return { transcript: data.transcript };
     }
-
-    console.log("Attempting to fetch transcript from URL:", data.transcript_url);
     
-    // Use CORS proxy for the transcript URL as well
-    const proxyTranscriptUrl = `${API_CONFIG.CORS_PROXY}${encodeURIComponent(data.transcript_url)}`;
-    console.log("Using proxy for transcript URL:", proxyTranscriptUrl);
-    
-    // Fetch the transcript from the provided URL through the CORS proxy
-    const transcriptResponse = await fetch(proxyTranscriptUrl, {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
-    });
-
-    console.log("Transcript fetch status:", transcriptResponse.status, transcriptResponse.statusText);
-    
-    if (!transcriptResponse.ok) {
-      const errorText = await transcriptResponse.text().catch(() => "Could not read error response");
-      console.error("Transcript fetch error response:", errorText);
-      throw new Error(`Failed to fetch transcript: ${transcriptResponse.status} ${transcriptResponse.statusText} - ${errorText}`);
-    }
-
-    // Get transcript text with error handling
-    let transcriptText;
-    try {
-      transcriptText = await transcriptResponse.text();
+    // Handle case where API returns a URL to fetch the transcript
+    if (data.transcript_url) {
+      console.log("Attempting to fetch transcript from URL:", data.transcript_url);
+      
+      // Fetch the transcript from the provided URL through the CORS proxy
+      const transcriptResponse = await fetchWithCorsProxy(
+        data.transcript_url,
+        {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          },
+          mode: 'cors',
+          cache: 'no-cache'
+        }
+      );
+      
+      console.log("Transcript fetch status:", transcriptResponse.status);
+      
+      // Get transcript text with error handling
+      const transcriptText = await transcriptResponse.text();
       console.log("Fetched transcript (first 100 chars):", transcriptText.substring(0, 100));
-    } catch (textError) {
-      console.error("Text extraction error:", textError);
-      throw new Error("Failed to extract text from transcript response");
+      
+      if (!transcriptText || transcriptText.trim() === '') {
+        throw new Error("Received empty transcript from server");
+      }
+      
+      return { transcript: transcriptText };
     }
     
-    if (!transcriptText || transcriptText.trim() === '') {
-      console.error("Empty transcript received");
-      throw new Error("Received empty transcript from server");
-    }
+    // If we reach here, the API didn't provide either a transcript or a URL
+    throw new Error("Invalid API response: No transcript or transcript_url found");
     
-    return { transcript: transcriptText };
   } catch (error) {
     console.error('Error generating transcript:', error);
-    // Include the full error details for debugging
     return { 
-      transcript: `Failed to generate transcript. Please try again later. Error: ${error.message}` 
+      transcript: `Failed to generate transcript. Error: ${error.message}` 
     };
   }
 };

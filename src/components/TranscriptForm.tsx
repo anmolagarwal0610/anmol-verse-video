@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { FileText, Loader2, AlertTriangle, RefreshCcw } from 'lucide-react';
+import { FileText, Loader2, AlertTriangle, RefreshCcw, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { generateTranscript } from '@/lib/api';
@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { CopyButton } from '@/components/CopyButton';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
 
 interface TranscriptFormProps {
   onTranscriptGenerated?: (transcript: string) => void;
@@ -21,6 +22,8 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
+  const [proxyAttempt, setProxyAttempt] = useState(0);
+  const [showAdvancedDebug, setShowAdvancedDebug] = useState(false);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +37,7 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
     setError(null);
     setDebugInfo(null);
     setTranscript('');
+    setProxyAttempt(0);
     
     try {
       console.log("Submitting prompt for transcript generation:", prompt);
@@ -66,6 +70,7 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
   };
 
   const handleRetry = () => {
+    setProxyAttempt(prev => prev + 1);
     handleSubmit(new Event('submit') as any);
   };
 
@@ -122,11 +127,35 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
               disabled={isGenerating || !prompt.trim()}
             >
               <RefreshCcw className="mr-2 h-4 w-4" />
-              Retry with Proxy
+              Try Alternative Proxy
+            </Button>
+          )}
+          
+          {error && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="ml-auto"
+              onClick={() => setShowAdvancedDebug(!showAdvancedDebug)}
+              title="Toggle advanced debug info"
+            >
+              <Info className="h-4 w-4" />
             </Button>
           )}
         </div>
       </form>
+
+      {isGenerating && (
+        <motion.div 
+          className="mt-8 space-y-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <p className="text-sm text-muted-foreground">Generating your transcript. This may take a moment...</p>
+          <Progress value={Math.min(proxyAttempt * 25 + 25, 90)} className="h-2" />
+        </motion.div>
+      )}
 
       {error && (
         <motion.div
@@ -139,25 +168,41 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
             <CardHeader className="pb-3">
               <CardTitle className="text-destructive flex items-center">
                 <AlertTriangle className="mr-2 h-5 w-5" />
-                Error
+                API Connection Error
               </CardTitle>
               <CardDescription className="text-destructive/80">
-                There was a problem generating your transcript
+                There was a problem connecting to the transcript generation service
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-destructive/90">{error}</p>
               
-              {debugInfo && (
+              <Alert>
+                <AlertTitle>Try these troubleshooting steps:</AlertTitle>
+                <AlertDescription className="space-y-2 text-sm">
+                  <p>1. Click the "Try Alternative Proxy" button to attempt a different connection method</p>
+                  <p>2. Try a simpler, shorter prompt</p>
+                  <p>3. The server might be experiencing high traffic - wait a few minutes and try again</p>
+                </AlertDescription>
+              </Alert>
+              
+              {showAdvancedDebug && debugInfo && (
                 <Alert variant="destructive" className="bg-transparent border-dashed">
-                  <AlertTitle>Debug Information</AlertTitle>
+                  <AlertTitle className="flex items-center">
+                    Debug Information
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="ml-auto"
+                      onClick={() => navigator.clipboard.writeText(debugInfo)}
+                    >
+                      Copy
+                    </Button>
+                  </AlertTitle>
                   <AlertDescription>
                     <pre className="text-xs overflow-auto p-2 whitespace-pre-wrap">
                       {debugInfo}
                     </pre>
-                    <p className="text-xs mt-2">
-                      We're using a CORS proxy to handle cross-origin requests. If this doesn't work, please check the browser console (F12) for more detailed error logs.
-                    </p>
                   </AlertDescription>
                 </Alert>
               )}
