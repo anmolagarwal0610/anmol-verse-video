@@ -124,47 +124,82 @@ export const deleteVideo = async (id: string): Promise<boolean> => {
   }
 };
 
-// Updated transcript generation function
+// Updated transcript generation function with better debugging
 export const generateTranscript = async (prompt: string): Promise<{ transcript: string }> => {
   try {
     console.log("Sending request to generate transcript with prompt:", prompt);
+    console.log("Request URL:", `${API_CONFIG.BASE_URL}/generate_transcript`);
     
-    // Make request to the transcript generation endpoint
+    // Make request to the transcript generation endpoint with additional error handling
     const response = await fetch(`${API_CONFIG.BASE_URL}/generate_transcript`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt }),
+      mode: 'cors' // Explicitly setting CORS mode
     });
 
+    console.log("API Response status:", response.status, response.statusText);
+    
     if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
+      const errorText = await response.text().catch(() => "Could not read error response");
+      console.error("Error response body:", errorText);
+      throw new Error(`API error: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
-    const data = await response.json();
-    console.log("Transcript API response:", data);
+    // Parse JSON response safely
+    let data;
+    try {
+      data = await response.json();
+      console.log("Transcript API response data:", data);
+    } catch (jsonError) {
+      console.error("JSON parse error:", jsonError);
+      throw new Error("Failed to parse API response as JSON");
+    }
 
     if (!data.transcript_url) {
+      console.error("Missing transcript_url in response:", data);
       throw new Error("No transcript URL found in API response");
     }
 
-    // Fetch the transcript from the provided URL
+    console.log("Attempting to fetch transcript from URL:", data.transcript_url);
+    
+    // Fetch the transcript from the provided URL with additional error handling
     const transcriptResponse = await fetch(data.transcript_url, {
       headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      },
+      mode: 'cors' // Explicitly setting CORS mode
     });
 
+    console.log("Transcript fetch status:", transcriptResponse.status, transcriptResponse.statusText);
+    
     if (!transcriptResponse.ok) {
-      throw new Error(`Failed to fetch transcript: ${transcriptResponse.status} ${transcriptResponse.statusText}`);
+      const errorText = await transcriptResponse.text().catch(() => "Could not read error response");
+      console.error("Transcript fetch error response:", errorText);
+      throw new Error(`Failed to fetch transcript: ${transcriptResponse.status} ${transcriptResponse.statusText} - ${errorText}`);
     }
 
-    const transcriptText = await transcriptResponse.text();
-    console.log("Fetched transcript:", transcriptText);
+    // Get transcript text with error handling
+    let transcriptText;
+    try {
+      transcriptText = await transcriptResponse.text();
+      console.log("Fetched transcript (first 100 chars):", transcriptText.substring(0, 100));
+    } catch (textError) {
+      console.error("Text extraction error:", textError);
+      throw new Error("Failed to extract text from transcript response");
+    }
+    
+    if (!transcriptText || transcriptText.trim() === '') {
+      console.error("Empty transcript received");
+      throw new Error("Received empty transcript from server");
+    }
     
     return { transcript: transcriptText };
   } catch (error) {
     console.error('Error generating transcript:', error);
+    // Include the full error details for debugging
     return { 
       transcript: `Failed to generate transcript. Please try again later. Error: ${error.message}` 
     };

@@ -2,13 +2,14 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { FileText, Loader2 } from 'lucide-react';
+import { FileText, Loader2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { generateTranscript } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CopyButton } from '@/components/CopyButton';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface TranscriptFormProps {
   onTranscriptGenerated?: (transcript: string) => void;
@@ -19,6 +20,7 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
   const [transcript, setTranscript] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string | null>(null);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,14 +32,19 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
     
     setIsGenerating(true);
     setError(null);
+    setDebugInfo(null);
+    setTranscript('');
     
     try {
       console.log("Submitting prompt for transcript generation:", prompt);
-      const result = await generateTranscript(prompt);
+      
+      // Add timestamp to prevent browser caching
+      const result = await generateTranscript(`${prompt} (${Date.now()})`);
       
       if (result.transcript.startsWith('Failed to generate transcript') || 
           result.transcript.startsWith('Error:')) {
         setError(result.transcript);
+        setDebugInfo(`Time: ${new Date().toISOString()}, Prompt: "${prompt}"`);
         toast.error('Failed to generate transcript');
       } else {
         setTranscript(result.transcript);
@@ -49,7 +56,8 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
       }
     } catch (err) {
       console.error('Error in transcript generation:', err);
-      setError(`An unexpected error occurred: ${err.message || 'Unknown error'}`);
+      setError(`An unexpected error occurred: ${err?.message || 'Unknown error'}`);
+      setDebugInfo(`Error object: ${JSON.stringify(err)}`);
       toast.error('Failed to generate transcript. Please try again.');
     } finally {
       setIsGenerating(false);
@@ -110,13 +118,30 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
         >
           <Card className="border-destructive/50 bg-destructive/5">
             <CardHeader className="pb-3">
-              <CardTitle className="text-destructive">Error</CardTitle>
+              <CardTitle className="text-destructive flex items-center">
+                <AlertTriangle className="mr-2 h-5 w-5" />
+                Error
+              </CardTitle>
               <CardDescription className="text-destructive/80">
                 There was a problem generating your transcript
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <p className="text-sm text-destructive/90">{error}</p>
+              
+              {debugInfo && (
+                <Alert variant="destructive" className="bg-transparent border-dashed">
+                  <AlertTitle>Debug Information</AlertTitle>
+                  <AlertDescription>
+                    <pre className="text-xs overflow-auto p-2 whitespace-pre-wrap">
+                      {debugInfo}
+                    </pre>
+                    <p className="text-xs mt-2">
+                      Try checking the browser console (F12) for more detailed error logs.
+                    </p>
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardContent>
           </Card>
         </motion.div>
