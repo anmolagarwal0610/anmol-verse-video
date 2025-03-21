@@ -141,17 +141,10 @@ export const deleteVideo = async (id: string): Promise<boolean> => {
 // New function for transcript generation
 export const generateTranscript = async (prompt: string): Promise<{ transcript: string }> => {
   try {
-    // Real API implementation
-    const response = await fetch(`${API_CONFIG.BASE_URL}/generate-transcript`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/generate_transcript`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_CONFIG.API_KEY}`
-      },
-      body: JSON.stringify({ 
-        prompt,
-        duration: 30 // 30 seconds duration
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
     });
 
     if (!response.ok) {
@@ -159,14 +152,28 @@ export const generateTranscript = async (prompt: string): Promise<{ transcript: 
     }
 
     const data = await response.json();
-    return { transcript: data.transcript };
+    console.log("API Response:", data); // 🔹 Debugging: Print API response in console
+
+    if (!data.transcript_url) {
+      throw new Error("No transcript URL found in API response.");
+    }
+
+    // ✅ Fetch transcript text
+    const transcriptResponse = await fetch(data.transcript_url);
+
+    if (!transcriptResponse.ok) {
+      throw new Error(`Failed to fetch transcript content: ${transcriptResponse.status}`);
+    }
+
+    const transcriptText = await transcriptResponse.text();
+    return { transcript: transcriptText };
+
   } catch (error) {
     console.error('Error generating transcript:', error);
     
-    // Fallback for development/testing
-    // In production, you'd want to handle errors differently
     return { 
-      transcript: `[Generated 30-second transcript based on prompt: "${prompt}"]\n\nHave you ever felt stuck`
+      transcript: "Error: Unable to generate transcript. Please try again..."
     };
   }
 };
+
