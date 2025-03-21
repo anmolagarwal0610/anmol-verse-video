@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { FileText, Loader2, AlertTriangle } from 'lucide-react';
+import { FileText, Loader2, AlertTriangle, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { generateTranscript } from '@/lib/api';
@@ -39,12 +39,13 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
       console.log("Submitting prompt for transcript generation:", prompt);
       
       // Add timestamp to prevent browser caching
-      const result = await generateTranscript(`${prompt} (${Date.now()})`);
+      const timestamp = Date.now();
+      const result = await generateTranscript(`${prompt} (${timestamp})`);
       
       if (result.transcript.startsWith('Failed to generate transcript') || 
           result.transcript.startsWith('Error:')) {
         setError(result.transcript);
-        setDebugInfo(`Time: ${new Date().toISOString()}, Prompt: "${prompt}"`);
+        setDebugInfo(`Time: ${new Date().toISOString()}, Prompt: "${prompt}", Timestamp: ${timestamp}`);
         toast.error('Failed to generate transcript');
       } else {
         setTranscript(result.transcript);
@@ -54,14 +55,18 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
           onTranscriptGenerated(result.transcript);
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error in transcript generation:', err);
       setError(`An unexpected error occurred: ${err?.message || 'Unknown error'}`);
-      setDebugInfo(`Error object: ${JSON.stringify(err)}`);
+      setDebugInfo(`Error object: ${JSON.stringify(err, null, 2)}, Timestamp: ${Date.now()}`);
       toast.error('Failed to generate transcript. Please try again.');
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleRetry = () => {
+    handleSubmit(new Event('submit') as any);
   };
 
   return (
@@ -87,7 +92,7 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
           disabled={isGenerating}
         />
         
-        <div>
+        <div className="flex flex-wrap gap-3">
           <Button 
             type="submit" 
             className="w-full sm:w-auto font-medium transition-all" 
@@ -106,6 +111,20 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
               </>
             )}
           </Button>
+          
+          {error && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full sm:w-auto" 
+              size="lg"
+              onClick={handleRetry}
+              disabled={isGenerating || !prompt.trim()}
+            >
+              <RefreshCcw className="mr-2 h-4 w-4" />
+              Retry with Proxy
+            </Button>
+          )}
         </div>
       </form>
 
@@ -137,7 +156,7 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
                       {debugInfo}
                     </pre>
                     <p className="text-xs mt-2">
-                      Try checking the browser console (F12) for more detailed error logs.
+                      We're using a CORS proxy to handle cross-origin requests. If this doesn't work, please check the browser console (F12) for more detailed error logs.
                     </p>
                   </AlertDescription>
                 </Alert>

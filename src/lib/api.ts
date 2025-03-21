@@ -34,7 +34,7 @@ const MOCK_VIDEOS: VideoData[] = [
     id: '5',
     prompt: 'Space nebula with colorful stars',
     url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4',
-    thumbnail: 'https://images.unsplash.com/photo-1541873676-a18131494184?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bmVidWxhfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+    thumbnail: 'https://images.unsplash.com/photo-1541873676-a18131494184?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTB8fHRva3lvJTIwbWFya2V0fGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
     createdAt: '2023-08-18T14:20:00Z',
   },
   {
@@ -48,7 +48,8 @@ const MOCK_VIDEOS: VideoData[] = [
 
 // Configuration for the API
 const API_CONFIG = {
-  BASE_URL: "https://flask-app-249297598302.asia-south1.run.app" // Flask API URL
+  BASE_URL: "https://flask-app-249297598302.asia-south1.run.app", // Flask API URL
+  CORS_PROXY: "https://corsproxy.io/?" // CORS proxy URL
 };
 
 export const generateVideo = async (prompt: string): Promise<{ videoId: string }> => {
@@ -124,18 +125,20 @@ export const deleteVideo = async (id: string): Promise<boolean> => {
   }
 };
 
-// Updated transcript generation function with better debugging
+// Updated transcript generation function with CORS proxy
 export const generateTranscript = async (prompt: string): Promise<{ transcript: string }> => {
   try {
     console.log("Sending request to generate transcript with prompt:", prompt);
-    console.log("Request URL:", `${API_CONFIG.BASE_URL}/generate_transcript`);
     
-    // Make request to the transcript generation endpoint with additional error handling
-    const response = await fetch(`${API_CONFIG.BASE_URL}/generate_transcript`, {
+    // Use CORS proxy to bypass CORS restrictions
+    const proxyUrl = `${API_CONFIG.CORS_PROXY}${encodeURIComponent(`${API_CONFIG.BASE_URL}/generate_transcript`)}`;
+    console.log("Using proxy URL:", proxyUrl);
+    
+    // Make request to the transcript generation endpoint through the CORS proxy
+    const response = await fetch(proxyUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt }),
-      mode: 'cors' // Explicitly setting CORS mode
     });
 
     console.log("API Response status:", response.status, response.statusText);
@@ -163,14 +166,17 @@ export const generateTranscript = async (prompt: string): Promise<{ transcript: 
 
     console.log("Attempting to fetch transcript from URL:", data.transcript_url);
     
-    // Fetch the transcript from the provided URL with additional error handling
-    const transcriptResponse = await fetch(data.transcript_url, {
+    // Use CORS proxy for the transcript URL as well
+    const proxyTranscriptUrl = `${API_CONFIG.CORS_PROXY}${encodeURIComponent(data.transcript_url)}`;
+    console.log("Using proxy for transcript URL:", proxyTranscriptUrl);
+    
+    // Fetch the transcript from the provided URL through the CORS proxy
+    const transcriptResponse = await fetch(proxyTranscriptUrl, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'
-      },
-      mode: 'cors' // Explicitly setting CORS mode
+      }
     });
 
     console.log("Transcript fetch status:", transcriptResponse.status, transcriptResponse.statusText);
