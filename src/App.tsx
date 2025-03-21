@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Gallery from "./pages/Gallery";
 import Video from "./pages/Video";
+import Transcript from "./pages/Transcript";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/video/:id" element={<Video />} />
+          <Route path="/transcript" element={<Transcript />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

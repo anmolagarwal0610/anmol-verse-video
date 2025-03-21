@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Home, Video, Menu, X } from "lucide-react";
+import { Home, Video, Menu, X, FileText } from "lucide-react";
 
 const Navbar = () => {
   const location = useLocation();
@@ -22,6 +21,7 @@ const Navbar = () => {
   const navItems = [
     { path: '/', label: 'Create', icon: <Home className="h-4 w-4 mr-2" /> },
     { path: '/gallery', label: 'Gallery', icon: <Video className="h-4 w-4 mr-2" /> },
+    { path: '/transcript', label: 'Transcript', icon: <FileText className="h-4 w-4 mr-2" /> },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -48,7 +48,6 @@ const Navbar = () => {
           <span className="text-lg font-semibold">ShortsGen</span>
         </Link>
 
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1">
           {navItems.map((item) => (
             <Button
@@ -69,7 +68,6 @@ const Navbar = () => {
           ))}
         </nav>
 
-        {/* Mobile menu button */}
         <Button
           variant="ghost"
           size="icon"
@@ -81,7 +79,6 @@ const Navbar = () => {
         </Button>
       </div>
 
-      {/* Mobile Navigation */}
       {isMenuOpen && (
         <motion.nav 
           className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-950 shadow-lg border-t"

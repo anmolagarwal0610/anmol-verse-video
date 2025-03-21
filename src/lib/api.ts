@@ -1,4 +1,3 @@
-
 import { VideoData } from '@/components/VideoCard';
 
 // Mock data for videos
@@ -139,3 +138,35 @@ export const deleteVideo = async (id: string): Promise<boolean> => {
   }
 };
 
+// New function for transcript generation
+export const generateTranscript = async (prompt: string): Promise<{ transcript: string }> => {
+  try {
+    // Real API implementation
+    const response = await fetch(`${API_CONFIG.BASE_URL}/generate-transcript`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_CONFIG.API_KEY}`
+      },
+      body: JSON.stringify({ 
+        prompt,
+        duration: 30 // 30 seconds duration
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return { transcript: data.transcript };
+  } catch (error) {
+    console.error('Error generating transcript:', error);
+    
+    // Fallback for development/testing
+    // In production, you'd want to handle errors differently
+    return { 
+      transcript: `[Generated 30-second transcript based on prompt: "${prompt}"]\n\nHave you ever felt stuck, trapped by your own limitations? We all face challenges that seem insurmountable. But here's the truth: every obstacle is an opportunity in disguise. The moments that test us most are precisely the ones that transform us. When you push through discomfort, you discover strengths you never knew existed. Remember, growth happens outside your comfort zone. So embrace the challenge, take that first step, and watch as possibilities unfold before you. Your greatest achievements lie just beyond your biggest fears.`
+    };
+  }
+};
