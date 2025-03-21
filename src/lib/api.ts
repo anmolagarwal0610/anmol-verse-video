@@ -170,7 +170,7 @@ export const generateTranscript = async (prompt: string): Promise<{ transcript: 
     const apiUrl = `${API_CONFIG.BASE_URL}/generate_transcript`;
     
     // Make request with CORS proxy fallback mechanism
-    const response = await fetchWithCorsProxy(
+    const response = await fetch(
       apiUrl,
       {
         method: 'POST',
