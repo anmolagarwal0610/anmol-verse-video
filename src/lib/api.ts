@@ -48,8 +48,8 @@ const MOCK_VIDEOS: VideoData[] = [
 
 // Configuration for the API - replace with your actual values
 const API_CONFIG = {
-  BASE_URL: "https://your-api-endpoint.com", // Replace with your actual API URL
-  API_KEY: "your-api-key", // Replace with your actual API key
+  BASE_URL: "https://flask-app-249297598302.asia-south1.run.app" // Replace with your actual API URL
+  //API_KEY: "your-api-key", // Replace with your actual API key
 };
 
 export const generateVideo = async (prompt: string): Promise<{ videoId: string }> => {
