@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ASPECT_RATIOS } from '@/lib/imageApi';
-import { UseFormReturn, useFormContext } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 
 interface AspectRatioSelectProps {
   form: UseFormReturn<any>;
@@ -25,7 +25,7 @@ const AspectRatioSelect = ({ form }: AspectRatioSelectProps) => {
     if (ratio === 'custom' || !isInDropdown) return null;
     
     const [width, height] = ratio.split(':').map(Number);
-    const maxSize = 70;
+    const maxSize = 40; // Reduced size
     let previewWidth, previewHeight;
     
     if (width > height) {
@@ -38,7 +38,7 @@ const AspectRatioSelect = ({ form }: AspectRatioSelectProps) => {
     
     return (
       <div 
-        className="border-2 border-muted-foreground/30 bg-muted mx-auto"
+        className="border-2 border-purple-400/30 bg-purple-50/10"
         style={{ 
           width: `${previewWidth}px`, 
           height: `${previewHeight}px` 
@@ -71,10 +71,10 @@ const AspectRatioSelect = ({ form }: AspectRatioSelectProps) => {
               <SelectContent>
                 {Object.entries(ASPECT_RATIOS).map(([ratio, label]) => (
                   <SelectItem key={ratio} value={ratio} className="flex flex-col">
-                    <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center text-left w-full gap-3">
                       <span>{label}</span>
                       {ratio !== 'custom' && showAspectRatioPreview && (
-                        <div className="ml-2">
+                        <div>
                           {renderAspectRatioPreview(ratio, true)}
                         </div>
                       )}

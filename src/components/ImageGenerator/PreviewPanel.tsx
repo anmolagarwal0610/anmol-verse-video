@@ -1,7 +1,5 @@
 
-import { useState } from 'react';
-import { Loader2, ImageIcon, Download, Copy } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Loader2, ImageIcon } from 'lucide-react';
 import ImagePreview from '@/components/ImagePreview';
 import { toast } from 'sonner';
 
@@ -19,21 +17,15 @@ const PreviewPanel = ({ isGenerating, imageUrl, outputFormat }: PreviewPanelProp
     window.open(imageUrl, '_blank');
     toast.success('Image opened in new tab');
   };
-  
-  const copyImageUrl = () => {
-    if (!imageUrl) return;
-    
-    navigator.clipboard.writeText(imageUrl)
-      .then(() => toast.success('Image URL copied to clipboard!'))
-      .catch(() => toast.error('Failed to copy URL'));
-  };
 
   return (
-    <div className="flex-1 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden min-h-[500px]">
+    <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-100/80 to-purple-50/20 dark:from-gray-900/80 dark:to-purple-950/20 rounded-lg overflow-hidden min-h-[500px] backdrop-blur-sm border border-purple-200/10">
       {isGenerating ? (
         <div className="text-center p-8">
-          <Loader2 className="mx-auto h-12 w-12 animate-spin text-muted-foreground" />
-          <p className="mt-4 text-muted-foreground">Generating your image...</p>
+          <Loader2 className="mx-auto h-12 w-12 animate-spin text-purple-500" />
+          <p className="mt-4 text-muted-foreground bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent font-medium">
+            Generating your image...
+          </p>
         </div>
       ) : imageUrl ? (
         <div className="relative w-full h-full flex items-center justify-center p-4">
@@ -42,25 +34,10 @@ const PreviewPanel = ({ isGenerating, imageUrl, outputFormat }: PreviewPanelProp
             outputFormat={outputFormat} 
             onDownload={downloadImage} 
           />
-          <div className="absolute bottom-2 right-2 flex space-x-2">
-            <Button 
-              size="sm" 
-              variant="secondary" 
-              onClick={copyImageUrl}
-            >
-              <Copy className="h-4 w-4 mr-1" /> Copy URL
-            </Button>
-            <Button 
-              size="sm" 
-              onClick={downloadImage}
-            >
-              <Download className="h-4 w-4 mr-1" /> Open
-            </Button>
-          </div>
         </div>
       ) : (
         <div className="text-center p-8">
-          <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground" />
+          <ImageIcon className="mx-auto h-12 w-12 text-purple-400/70" />
           <p className="mt-4 text-muted-foreground">Your generated image will appear here</p>
         </div>
       )}
