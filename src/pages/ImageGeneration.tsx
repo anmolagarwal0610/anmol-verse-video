@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { Wand2, Loader2, ImageIcon, RatioIcon, Copy, Download } from 'lucide-react';
+import { Wand2, Loader2, ImageIcon, Download, Copy } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
+import { Toggle } from '@/components/ui/toggle';
 import { 
   Form, 
   FormControl, 
@@ -29,15 +30,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 import { generateImage, calculateDimensions, ASPECT_RATIOS } from '@/lib/api';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 // Form schema with validation
 const formSchema = z.object({
@@ -47,8 +41,8 @@ const formSchema = z.object({
   customRatio: z.string().regex(/^\d+:\d+$/, { message: 'Format must be width:height (e.g., 16:9)' }).optional(),
   guidance: z.number().min(1).max(10),
   outputFormat: z.enum(['jpeg', 'png']),
+  showSeed: z.boolean().default(false),
   seed: z.number().int().optional(),
-  showSeed: z.boolean().default(false)
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -345,18 +339,19 @@ const ImageGeneration = () => {
                           </FormDescription>
                         </div>
                         <FormControl>
-                          <Button
-                            type="button"
-                            variant={field.value ? "default" : "outline"}
-                            onClick={() => field.onChange(!field.value)}
+                          <Toggle
+                            pressed={field.value}
+                            onPressedChange={field.onChange}
+                            variant="outline"
                           >
-                            {field.value ? 'Hide Seed' : 'Show Seed'}
-                          </Button>
+                            {field.value ? 'Enabled' : 'Disabled'}
+                          </Toggle>
                         </FormControl>
                       </FormItem>
                     )}
                   />
                   
+                  {/* Seed Input (shows only when toggle is enabled) */}
                   {watchShowSeed && (
                     <FormField
                       control={form.control}

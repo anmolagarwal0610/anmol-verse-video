@@ -90,22 +90,22 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
   }
 };
 
-// Helper function to calculate dimensions based on aspect ratio
+// Helper function to calculate dimensions based on aspect ratio with max pixel constraint
 export const calculateDimensions = (ratio: string): { width: number, height: number } => {
   const [widthRatio, heightRatio] = ratio.split(':').map(Number);
+  const MAX_DIMENSION = 1792;
   
+  // Calculate which dimension should be maximized
   if (widthRatio > heightRatio) {
-    // Landscape or square
-    return {
-      width: 1024,
-      height: Math.round((heightRatio / widthRatio) * 1024)
-    };
+    // Landscape orientation - maximize width
+    const width = MAX_DIMENSION;
+    const height = Math.round((heightRatio / widthRatio) * width);
+    return { width, height };
   } else {
-    // Portrait
-    return {
-      width: Math.round((widthRatio / heightRatio) * 1024),
-      height: 1024
-    };
+    // Portrait or square orientation - maximize height
+    const height = MAX_DIMENSION;
+    const width = Math.round((widthRatio / heightRatio) * height);
+    return { width, height };
   }
 };
 
