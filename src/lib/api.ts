@@ -7,14 +7,12 @@ export { generateTranscript } from './transcriptApi';
 export { 
   generateImage, 
   calculateDimensions, 
-  ASPECT_RATIOS,
   IMAGE_STYLES,
-  MODEL_DESCRIPTIONS
+  MODEL_DESCRIPTIONS,
+  ASPECT_RATIOS
 } from './imageApi';
 export type { 
   ImageGenerationParams,
   GeneratedImage,
   ImageGenerationResponse
 } from './imageApi';
-
-// Removing the duplicate ASPECT_RATIOS export
