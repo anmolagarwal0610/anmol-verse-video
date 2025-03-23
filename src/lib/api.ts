@@ -7,10 +7,12 @@ export { generateTranscript } from './transcriptApi';
 export { 
   generateImage, 
   calculateDimensions, 
-  ASPECT_RATIOS 
+  ASPECT_RATIOS,
+  IMAGE_STYLES
 } from './imageApi';
 export type { 
   ImageGenerationParams,
   GeneratedImage,
   ImageGenerationResponse
 } from './imageApi';
+

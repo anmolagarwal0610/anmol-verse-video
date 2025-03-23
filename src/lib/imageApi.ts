@@ -8,6 +8,7 @@ export interface ImageGenerationParams {
   height: number;
   guidance: number;
   output_format: "jpeg" | "png";
+  negative_prompt?: string;
   seed?: number;
 }
 
@@ -28,7 +29,7 @@ export interface ImageGenerationResponse {
 // Map model selection to actual API model
 const MODEL_MAP = {
   basic: "black-forest-labs/FLUX.1-schnell-Free",
-  advanced: "black-forest-labs/FLUX.1-schnell-Free", // Using the same for now, can be changed later
+  advanced: "black-forest-labs/FLUX.1-schnell",
   pro: "pro-model-placeholder" // Disabled for now
 };
 
@@ -52,6 +53,11 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
       output_format: params.output_format,
       prompt: params.prompt
     };
+    
+    // Add negative prompt if provided
+    if (params.negative_prompt) {
+      payload.negative_prompt = params.negative_prompt;
+    }
     
     // Only add seed if it's provided
     if (params.seed !== undefined) {
@@ -118,3 +124,15 @@ export const ASPECT_RATIOS = {
   "3:2": "DSLR Camera (3:2)",
   "custom": "Custom Ratio"
 };
+
+// Image style preferences
+export const IMAGE_STYLES = {
+  "animated": "Animated (cartoon-like, stylized motion)",
+  "8k": "8K (ultra high resolution, detailed)",
+  "surreal": "Surreal/Fantasy (dreamlike, imaginative)",
+  "impressionistic": "Impressionistic (painterly, expressive)",
+  "minimalistic": "Minimalistic (simple, clean lines)",
+  "vintage": "Vintage/Retro (nostalgic, classic aesthetic)",
+  "hyperrealistic": "Hyperrealistic (photographic, true-to-life)"
+};
+

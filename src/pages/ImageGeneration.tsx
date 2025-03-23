@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -13,7 +12,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
-import { Toggle } from '@/components/ui/toggle';
+import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Form, 
   FormControl, 
@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-import { generateImage, calculateDimensions, ASPECT_RATIOS } from '@/lib/api';
+import { generateImage, calculateDimensions, ASPECT_RATIOS, IMAGE_STYLES } from '@/lib/api';
 
 // Form schema with validation
 const formSchema = z.object({
@@ -43,6 +43,8 @@ const formSchema = z.object({
   outputFormat: z.enum(['jpeg', 'png']),
   showSeed: z.boolean().default(false),
   seed: z.number().int().optional(),
+  negativePrompt: z.string().optional(),
+  imageStyles: z.array(z.string()).default([]),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -60,12 +62,15 @@ const ImageGeneration = () => {
       aspectRatio: '16:9',
       guidance: 3.5,
       outputFormat: 'png',
-      showSeed: false
+      showSeed: false,
+      imageStyles: [],
+      negativePrompt: 'text, weird shapes, random people, random brand logos, deformed hands, Men in jewellery, text, watermark, signature, paragraph, wording, letters, symbols, writing, nude, nudity, explicit content, obscene, inappropriate, offensive, forbidden, illegal, prohibited, sexual, graphic, violence, gore, blood, disturbing'
     }
   });
   
   const watchAspectRatio = form.watch('aspectRatio');
   const watchShowSeed = form.watch('showSeed');
+  const watchModel = form.watch('model');
   
   // Handle form submission
   const onSubmit = async (values: FormValues) => {
@@ -79,13 +84,20 @@ const ImageGeneration = () => {
         
       const dimensions = calculateDimensions(ratio);
       
+      // Append selected image styles to the prompt if any are selected
+      let enhancedPrompt = values.prompt;
+      if (values.imageStyles && values.imageStyles.length > 0) {
+        enhancedPrompt += `. Image style: ${values.imageStyles.join(', ')}`;
+      }
+      
       const result = await generateImage({
-        prompt: values.prompt,
+        prompt: enhancedPrompt,
         model: values.model,
         width: dimensions.width,
         height: dimensions.height,
         guidance: values.guidance,
         output_format: values.outputFormat,
+        negative_prompt: values.negativePrompt,
         seed: values.showSeed ? values.seed : undefined
       });
       
@@ -164,11 +176,11 @@ const ImageGeneration = () => {
           </p>
         </motion.div>
         
-        <div className="w-full max-w-4xl">
+        <div className="w-full max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             {/* Form Section */}
             <motion.div
-              className="glass-panel p-6 rounded-xl"
+              className="glass-panel p-6 rounded-xl md:order-1"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
@@ -197,13 +209,35 @@ const ImageGeneration = () => {
                     )}
                   />
                   
+                  {/* Negative Prompt */}
+                  <FormField
+                    control={form.control}
+                    name="negativePrompt"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Negative Prompt</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Things to exclude from your image (comma separated)..."
+                            className="min-h-[80px] resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          List things you want to avoid in the generated image.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
                   {/* Model Selection */}
                   <FormField
                     control={form.control}
                     name="model"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Model</FormLabel>
+                        <FormLabel>Image Model</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -222,6 +256,58 @@ const ImageGeneration = () => {
                         <FormDescription>
                           Choose the AI model to generate your image.
                         </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  {/* Image Styles */}
+                  <FormField
+                    control={form.control}
+                    name="imageStyles"
+                    render={() => (
+                      <FormItem>
+                        <div className="mb-4">
+                          <FormLabel>Image Preference (Optional)</FormLabel>
+                          <FormDescription>
+                            Select styles to enhance your image
+                          </FormDescription>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          {Object.entries(IMAGE_STYLES).map(([value, label]) => (
+                            <FormField
+                              key={value}
+                              control={form.control}
+                              name="imageStyles"
+                              render={({ field }) => {
+                                return (
+                                  <FormItem
+                                    key={value}
+                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                  >
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(value)}
+                                        onCheckedChange={(checked) => {
+                                          return checked
+                                            ? field.onChange([...field.value, value])
+                                            : field.onChange(
+                                                field.value?.filter(
+                                                  (val) => val !== value
+                                                )
+                                              )
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="text-sm font-normal">
+                                      {label}
+                                    </FormLabel>
+                                  </FormItem>
+                                )
+                              }}
+                            />
+                          ))}
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -276,30 +362,6 @@ const ImageGeneration = () => {
                     />
                   )}
                   
-                  {/* Guidance Value */}
-                  <FormField
-                    control={form.control}
-                    name="guidance"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Guidance: {field.value}</FormLabel>
-                        <FormControl>
-                          <Slider
-                            min={1}
-                            max={10}
-                            step={0.1}
-                            defaultValue={[field.value]}
-                            onValueChange={(value) => field.onChange(value[0])}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Adjusts the alignment of the generated image with the input prompt. Higher values (8-10) make the output more faithful to the prompt, while lower values (1-5) encourage more creative freedom.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
                   {/* Output Format */}
                   <FormField
                     control={form.control}
@@ -339,13 +401,10 @@ const ImageGeneration = () => {
                           </FormDescription>
                         </div>
                         <FormControl>
-                          <Toggle
-                            pressed={field.value}
-                            onPressedChange={field.onChange}
-                            variant="outline"
-                          >
-                            {field.value ? 'Enabled' : 'Disabled'}
-                          </Toggle>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
                         </FormControl>
                       </FormItem>
                     )}
@@ -376,6 +435,32 @@ const ImageGeneration = () => {
                     />
                   )}
                   
+                  {/* Guidance Value - Only show for Pro model, but keep disabled for now */}
+                  <FormField
+                    control={form.control}
+                    name="guidance"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Guidance: {field.value}</FormLabel>
+                        <FormControl>
+                          <Slider
+                            min={1}
+                            max={10}
+                            step={0.1}
+                            defaultValue={[field.value]}
+                            onValueChange={(value) => field.onChange(value[0])}
+                            disabled={watchModel !== 'pro'}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Adjusts the alignment of the generated image with the input prompt. Higher values (8-10) make the output more faithful to the prompt, while lower values (1-5) encourage more creative freedom.
+                          <p className="text-yellow-500 mt-1">(Only available with Pro plan)</p>
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
                   {/* Submit Button */}
                   <Button 
                     type="submit" 
@@ -401,25 +486,25 @@ const ImageGeneration = () => {
             
             {/* Image Preview Section */}
             <motion.div
-              className="glass-panel p-6 rounded-xl flex flex-col"
+              className="glass-panel p-6 rounded-xl md:order-2 flex flex-col"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
               <h3 className="text-lg font-medium mb-4">Preview</h3>
               
-              <div className="flex-1 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+              <div className="flex-1 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden min-h-[500px]">
                 {isGenerating ? (
                   <div className="text-center p-8">
                     <Loader2 className="mx-auto h-12 w-12 animate-spin text-muted-foreground" />
                     <p className="mt-4 text-muted-foreground">Generating your image...</p>
                   </div>
                 ) : imageUrl ? (
-                  <div className="relative w-full h-full">
+                  <div className="relative w-full h-full flex items-center justify-center">
                     <img 
                       src={imageUrl} 
                       alt="Generated" 
-                      className="w-full h-full object-contain"
+                      className="max-w-full max-h-[600px] object-contain"
                     />
                     <div className="absolute bottom-2 right-2 flex space-x-2">
                       <Button 
@@ -464,8 +549,8 @@ const ImageGeneration = () => {
                 description: "Include details like style, lighting, and composition in your prompts."
               },
               {
-                title: "Experiment with guidance",
-                description: "Lower values create more creative variations, higher values follow your prompt more closely."
+                title: "Use negative prompts",
+                description: "Exclude unwanted elements to refine your results and avoid common AI artifacts."
               },
               {
                 title: "Save your seeds",
