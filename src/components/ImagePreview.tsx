@@ -56,7 +56,7 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
         <Button 
           size="sm" 
           variant="secondary" 
-          className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/30 backdrop-blur-sm"
           onClick={openPreview}
         >
           <Maximize2 className="h-4 w-4 mr-1" /> Preview
@@ -74,7 +74,7 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
             onClick={closePreview} // Close preview when clicking the background
           >
             <motion.div 
-              className="relative w-full h-full flex items-center justify-center p-4"
+              className="relative w-[80vw] h-[80vh] flex items-center justify-center"
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.9 }}
@@ -84,7 +84,7 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
               <img 
                 src={imageUrl} 
                 alt="Generated full preview" 
-                className="max-w-[90%] max-h-[90vh] object-contain"
+                className="max-w-full max-h-full object-contain"
               />
               
               <div className="absolute top-4 right-4 flex space-x-2">
