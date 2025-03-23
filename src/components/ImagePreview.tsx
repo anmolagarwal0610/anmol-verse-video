@@ -71,6 +71,7 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
+            onClick={closePreview} // Close preview when clicking the background
           >
             <motion.div 
               className="relative w-full h-full flex items-center justify-center p-4"
@@ -78,6 +79,7 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
               animate={{ scale: 1 }}
               exit={{ scale: 0.9 }}
               transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()} // Prevent clicks on image from bubbling to background
             >
               <img 
                 src={imageUrl} 
@@ -89,7 +91,10 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
                 <Button 
                   size="icon" 
                   variant="outline" 
-                  onClick={() => window.open(imageUrl, '_blank')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(imageUrl, '_blank');
+                  }}
                   className="bg-white/10 backdrop-blur-sm hover:bg-white/20"
                 >
                   <Download className="h-5 w-5" />
@@ -97,7 +102,10 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
                 <Button 
                   size="icon" 
                   variant="outline" 
-                  onClick={closePreview}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    closePreview();
+                  }}
                   className="bg-white/10 backdrop-blur-sm hover:bg-white/20"
                 >
                   <X className="h-5 w-5" />

@@ -1,7 +1,8 @@
+
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { Wand2, Loader2, ImageIcon, Download, Copy } from 'lucide-react';
+import { Wand2, Loader2, ImageIcon, Download, Copy, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -67,6 +68,7 @@ const ImageGeneration = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
+  const [showAspectRatioPreview, setShowAspectRatioPreview] = useState(false);
   const isMobile = useIsMobile();
   
   const form = useForm<FormValues>({
@@ -88,8 +90,9 @@ const ImageGeneration = () => {
   const watchModel = form.watch('model');
   const watchImageStyles = form.watch('imageStyles');
   
-  const renderAspectRatioPreview = (ratio: string, isOpen: boolean) => {
-    if (ratio === 'custom' || !isOpen) return null;
+  const renderAspectRatioPreview = (ratio: string, isInDropdown: boolean) => {
+    // Only show preview in dropdown, not after selection
+    if (ratio === 'custom' || !isInDropdown) return null;
     
     const [width, height] = ratio.split(':').map(Number);
     const maxSize = 70;
@@ -160,26 +163,9 @@ const ImageGeneration = () => {
   const downloadImage = async () => {
     if (!imageUrl) return;
     
-    try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      
-      const blobUrl = window.URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = `generated-image-${Date.now()}.${form.getValues('outputFormat')}`;
-      document.body.appendChild(link);
-      link.click();
-      
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-      
-      toast.success('Image download started');
-    } catch (error) {
-      console.error('Error downloading image:', error);
-      toast.error(`Failed to download image: ${error.message || 'Unknown error'}`);
-    }
+    // Open the image in a new tab
+    window.open(imageUrl, '_blank');
+    toast.success('Image opened in new tab');
   };
   
   const copyImageUrl = () => {
@@ -205,6 +191,12 @@ const ImageGeneration = () => {
     } else {
       form.setValue('imageStyles', [...currentStyles, style]);
     }
+  };
+
+  const removeStyle = (styleToRemove: string) => {
+    const currentStyles = form.getValues('imageStyles');
+    form.setValue('imageStyles', currentStyles.filter(s => s !== styleToRemove));
+    setSelectedStyles(prev => prev.filter(s => s !== styleToRemove));
   };
 
   return (
@@ -313,15 +305,36 @@ const ImageGeneration = () => {
                       <FormItem>
                         <FormLabel>
                           Image Preference 
-                          <span className="text-xs ml-2 text-muted-foreground/70 font-normal">(optional)</span>
+                          <span className="text-xs ml-2 text-muted-foreground/70 font-normal">(multiple selections allowed)</span>
                         </FormLabel>
+                        <div className="mb-2">
+                          {field.value.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              {field.value.map((style) => (
+                                <div 
+                                  key={style} 
+                                  className="bg-secondary text-secondary-foreground px-2 py-1 text-xs rounded-full flex items-center gap-1"
+                                >
+                                  {style}
+                                  <button 
+                                    type="button" 
+                                    onClick={() => removeStyle(style)}
+                                    className="ml-1 hover:bg-muted p-0.5 rounded-full"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                         <DropdownMenu modal={false}>
                           <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="w-full justify-between">
                               {field.value.length === 0 ? (
                                 <span className="text-muted-foreground">Select style preferences...</span>
                               ) : (
-                                <span>{field.value.join(', ')}</span>
+                                <span>Edit preferences</span>
                               )}
                             </Button>
                           </DropdownMenuTrigger>
@@ -368,6 +381,7 @@ const ImageGeneration = () => {
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
+                          onOpenChange={setShowAspectRatioPreview}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -379,7 +393,7 @@ const ImageGeneration = () => {
                               <SelectItem key={ratio} value={ratio} className="flex flex-col">
                                 <div className="flex items-center justify-between w-full">
                                   <span>{label}</span>
-                                  {ratio !== 'custom' && (
+                                  {ratio !== 'custom' && showAspectRatioPreview && (
                                     <div className="ml-2">
                                       {renderAspectRatioPreview(ratio, true)}
                                     </div>
@@ -580,7 +594,7 @@ const ImageGeneration = () => {
                       </Button>
                       <Button 
                         size="sm" 
-                        onClick={() => window.open(imageUrl, '_blank')}
+                        onClick={downloadImage}
                       >
                         <Download className="h-4 w-4 mr-1" /> Open
                       </Button>

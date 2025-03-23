@@ -115,13 +115,11 @@ export const calculateDimensions = (ratio: string): { width: number, height: num
   }
 };
 
-// Predefined aspect ratios
+// Predefined aspect ratios - Removed Social Icons (1:1) and Widescreen Cinema (1.85:1) as requested
 export const ASPECT_RATIOS = {
   "9:16": "Smartphone Vertical (9:16)",
   "16:9": "Smartphone Horizontal (16:9)",
-  "1:1": "Social Icons (1:1)",
   "3:2": "DSLR Camera / Photography (3:2)",
-  "1.85:1": "Widescreen Cinema (1.85:1)",
   "21:9": "Ultrawide Monitors (21:9)",
   "custom": "Custom Ratio"
 };
