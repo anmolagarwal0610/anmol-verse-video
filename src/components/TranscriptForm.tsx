@@ -24,6 +24,7 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
   const [proxyAttempt, setProxyAttempt] = useState(0);
   const [showAdvancedDebug, setShowAdvancedDebug] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(0);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,18 +39,25 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
     setDebugInfo(null);
     setTranscript('');
     setProxyAttempt(0);
+    setGenerationProgress(10);
     
     try {
       console.log("Submitting prompt for transcript generation:", prompt);
       
-      // Add timestamp to prevent browser caching
-      const timestamp = Date.now();
-      const result = await generateTranscript(`${prompt} (${timestamp})`);
+      // Show loading progress
+      const progressInterval = setInterval(() => {
+        setGenerationProgress(prev => Math.min(prev + 5, 90));
+      }, 1000);
+      
+      const result = await generateTranscript(prompt);
+      
+      clearInterval(progressInterval);
+      setGenerationProgress(100);
       
       if (result.transcript.startsWith('Failed to generate transcript') || 
           result.transcript.startsWith('Error:')) {
         setError(result.transcript);
-        setDebugInfo(`Time: ${new Date().toISOString()}, Prompt: "${prompt}", Timestamp: ${timestamp}`);
+        setDebugInfo(`Time: ${new Date().toISOString()}, Prompt: "${prompt}"`);
         toast.error('Failed to generate transcript');
       } else {
         setTranscript(result.transcript);
@@ -127,7 +135,7 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
               disabled={isGenerating || !prompt.trim()}
             >
               <RefreshCcw className="mr-2 h-4 w-4" />
-              Try Alternative Proxy
+              Try Alternative Method
             </Button>
           )}
           
@@ -152,8 +160,8 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <p className="text-sm text-muted-foreground">Generating your transcript. This may take a moment...</p>
-          <Progress value={Math.min(proxyAttempt * 25 + 25, 90)} className="h-2" />
+          <p className="text-sm text-muted-foreground">Generating your transcript. This may take up to 30 seconds...</p>
+          <Progress value={generationProgress} className="h-2" />
         </motion.div>
       )}
 
@@ -180,7 +188,7 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
               <Alert>
                 <AlertTitle>Try these troubleshooting steps:</AlertTitle>
                 <AlertDescription className="space-y-2 text-sm">
-                  <p>1. Click the "Try Alternative Proxy" button to attempt a different connection method</p>
+                  <p>1. Click the "Try Alternative Method" button</p>
                   <p>2. Try a simpler, shorter prompt</p>
                   <p>3. The server might be experiencing high traffic - wait a few minutes and try again</p>
                 </AlertDescription>

@@ -1,19 +1,16 @@
 
 import { API_CONFIG, fetchWithCorsProxy } from './apiUtils';
 
-// Transcript generation function with multiple CORS proxy fallbacks
+// Transcript generation function with CORS proxy support
 export const generateTranscript = async (prompt: string): Promise<{ transcript: string }> => {
   try {
     console.log("Sending request to generate transcript with prompt:", prompt);
     
-    // Add a timestamp to prevent browser caching
-    const timestamp = Date.now();
     const apiUrl = `${API_CONFIG.BASE_URL}/generate_transcript`;
     
     // Prepare the request payload
     const payload = {
-      prompt: `${prompt} (${timestamp})`,
-      bypass_cors: true
+      prompt: prompt
     };
     
     // Prepare request options
@@ -25,15 +22,41 @@ export const generateTranscript = async (prompt: string): Promise<{ transcript: 
       cache: 'no-cache' as RequestCache
     };
     
-    // Make request with CORS proxy fallback mechanism
-    const response = await fetchWithCorsProxy(
-      apiUrl,
-      requestOptions
-    );
-
-    console.log("API Response status:", response.status, response.statusText);
+    // Try making a direct request first, as the server now has proper CORS headers
+    try {
+      console.log("Attempting direct request to:", apiUrl);
+      const response = await fetch(apiUrl, requestOptions);
+      console.log("Direct API Response status:", response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Direct API response data:", data);
+        
+        if (data.transcript) {
+          return { transcript: data.transcript };
+        }
+        
+        if (data.transcript_url) {
+          console.log("Fetching transcript from URL:", data.transcript_url);
+          const transcriptResponse = await fetch(data.transcript_url);
+          const transcriptText = await transcriptResponse.text();
+          console.log("Fetched transcript (first 100 chars):", transcriptText.substring(0, 100));
+          return { transcript: transcriptText };
+        }
+      }
+      // If direct request fails, continue to proxy fallbacks
+      console.log("Direct request failed, trying proxies");
+    } catch (directError) {
+      console.error("Direct API request failed:", directError);
+      // Continue to proxy fallbacks
+    }
     
-    // Parse JSON response safely
+    // If direct request fails, fall back to CORS proxies
+    console.log("Falling back to CORS proxies");
+    const response = await fetchWithCorsProxy(apiUrl, requestOptions);
+    
+    console.log("Proxy API Response status:", response.status);
+    
     let data;
     try {
       data = await response.json();
@@ -41,6 +64,12 @@ export const generateTranscript = async (prompt: string): Promise<{ transcript: 
     } catch (jsonError) {
       console.error("JSON parse error:", jsonError);
       throw new Error("Failed to parse API response as JSON");
+    }
+
+    // Check for error in the response
+    if (data.error) {
+      console.error("API returned error:", data.error);
+      throw new Error(`API error: ${data.error}`);
     }
 
     // If the API returns a transcript directly, use it
@@ -53,7 +82,27 @@ export const generateTranscript = async (prompt: string): Promise<{ transcript: 
     if (data.transcript_url) {
       console.log("Attempting to fetch transcript from URL:", data.transcript_url);
       
-      // Fetch the transcript from the provided URL through the CORS proxy
+      // Try direct fetch first
+      try {
+        const transcriptResponse = await fetch(data.transcript_url, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
+        
+        if (transcriptResponse.ok) {
+          const transcriptText = await transcriptResponse.text();
+          console.log("Fetched transcript (first 100 chars):", transcriptText.substring(0, 100));
+          return { transcript: transcriptText };
+        }
+      } catch (directFetchError) {
+        console.error("Direct transcript fetch failed:", directFetchError);
+        // Fall back to proxy
+      }
+      
+      // If direct fetch fails, try with proxy
       const transcriptResponse = await fetchWithCorsProxy(
         data.transcript_url,
         {
