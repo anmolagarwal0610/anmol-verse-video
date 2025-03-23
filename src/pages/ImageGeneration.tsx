@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -12,7 +13,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
-import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Form, 
   FormControl, 
@@ -46,6 +46,7 @@ import {
   IMAGE_STYLES,
   MODEL_DESCRIPTIONS 
 } from '@/lib/api';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Form schema with validation
 const formSchema = z.object({
@@ -59,7 +60,6 @@ const formSchema = z.object({
   seed: z.number().int().optional(),
   negativePrompt: z.string().optional(),
   imageStyles: z.array(z.string()).default([]),
-  customStyle: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -68,6 +68,7 @@ const ImageGeneration = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
+  const isMobile = useIsMobile();
   
   // Initialize form with default values
   const form = useForm<FormValues>({
@@ -80,7 +81,6 @@ const ImageGeneration = () => {
       outputFormat: 'png',
       showSeed: false,
       imageStyles: [],
-      customStyle: '',
       negativePrompt: ''
     }
   });
@@ -107,12 +107,6 @@ const ImageGeneration = () => {
       if (values.imageStyles && values.imageStyles.length > 0) {
         const styleNames = values.imageStyles.join(', ');
         enhancedPrompt += `. Image style: ${styleNames}`;
-        
-        if (values.customStyle) {
-          enhancedPrompt += `, ${values.customStyle}`;
-        }
-      } else if (values.customStyle) {
-        enhancedPrompt += `. Image style: ${values.customStyle}`;
       }
       
       const result = await generateImage({
@@ -145,24 +139,19 @@ const ImageGeneration = () => {
     if (!imageUrl) return;
     
     try {
-      const response = await fetch(imageUrl);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      // Create an anchor element and trigger download programmatically
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = `generated-image-${Date.now()}.${form.getValues('outputFormat')}`;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `generated-image-${Date.now()}.${form.getValues('outputFormat')}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-      
-      toast.success('Image downloaded successfully!');
+      toast.success('Image download started');
     } catch (error) {
       console.error('Error downloading image:', error);
-      toast.error(`Failed to download image: ${error.message || 'Network error'}`);
+      toast.error(`Failed to download image: ${error.message || 'Unknown error'}`);
     }
   };
   
@@ -191,6 +180,33 @@ const ImageGeneration = () => {
     } else {
       form.setValue('imageStyles', [...currentStyles, style]);
     }
+  };
+
+  // Render aspect ratio preview
+  const renderAspectRatioPreview = (ratio: string) => {
+    if (ratio === 'custom') return null;
+    
+    const [width, height] = ratio.split(':').map(Number);
+    const maxSize = 70;
+    let previewWidth, previewHeight;
+    
+    if (width > height) {
+      previewWidth = maxSize;
+      previewHeight = (height / width) * maxSize;
+    } else {
+      previewHeight = maxSize;
+      previewWidth = (width / height) * maxSize;
+    }
+    
+    return (
+      <div 
+        className="border-2 border-muted-foreground/30 bg-muted mx-auto"
+        style={{ 
+          width: `${previewWidth}px`, 
+          height: `${previewHeight}px` 
+        }}
+      />
+    );
   };
 
   return (
@@ -223,10 +239,10 @@ const ImageGeneration = () => {
         </motion.div>
         
         <div className="w-full max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className={`grid grid-cols-1 ${isMobile || !imageUrl ? 'md:grid-cols-2' : 'md:grid-cols-5'} gap-8 mb-8`}>
             {/* Form Section */}
             <motion.div
-              className="glass-panel p-6 rounded-xl md:order-1"
+              className={`glass-panel p-6 rounded-xl md:order-1 ${isMobile || !imageUrl ? '' : 'md:col-span-2'}`}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
@@ -239,7 +255,10 @@ const ImageGeneration = () => {
                     name="prompt"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Image Prompt</FormLabel>
+                        <FormLabel className="flex items-center">
+                          Image Prompt
+                          <span className="text-red-500 ml-1">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Textarea 
                             placeholder="Describe what you want to see in your image..."
@@ -255,35 +274,16 @@ const ImageGeneration = () => {
                     )}
                   />
                   
-                  {/* Negative Prompt */}
-                  <FormField
-                    control={form.control}
-                    name="negativePrompt"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Negative Prompt</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Things to exclude from your image (comma separated)..."
-                            className="min-h-[80px] resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          List things you want to avoid in the generated image.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
                   {/* Model Selection */}
                   <FormField
                     control={form.control}
                     name="model"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Image Model</FormLabel>
+                        <FormLabel className="flex items-center">
+                          Image Model
+                          <span className="text-red-500 ml-1">*</span>
+                        </FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -321,7 +321,7 @@ const ImageGeneration = () => {
                           Image Preference 
                           <span className="text-xs ml-2 text-muted-foreground font-normal">(optional)</span>
                         </FormLabel>
-                        <DropdownMenu>
+                        <DropdownMenu modal={false}>
                           <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="w-full justify-between">
                               {field.value.length === 0 ? (
@@ -331,7 +331,7 @@ const ImageGeneration = () => {
                               )}
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent className="w-56">
+                          <DropdownMenuContent className="w-80" align="start" sideOffset={5}>
                             <DropdownMenuLabel>Select styles</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             {Object.entries(IMAGE_STYLES).map(([value, label]) => (
@@ -339,8 +339,12 @@ const ImageGeneration = () => {
                                 key={value}
                                 checked={field.value.includes(value)}
                                 onCheckedChange={() => toggleStyle(value)}
+                                className="py-2"
                               >
-                                {label.split(' ')[0]}
+                                <div className="flex flex-col">
+                                  <span>{label.split(' ')[0]}</span>
+                                  <span className="text-xs text-muted-foreground">{label.split('(')[1]?.replace(')', '')}</span>
+                                </div>
                               </DropdownMenuCheckboxItem>
                             ))}
                           </DropdownMenuContent>
@@ -353,34 +357,16 @@ const ImageGeneration = () => {
                     )}
                   />
                   
-                  {/* Custom Style Input */}
-                  <FormField
-                    control={form.control}
-                    name="customStyle"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Custom Style (optional)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="e.g., cyberpunk, watercolor, etc."
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Add your own style description
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
                   {/* Aspect Ratio Selection */}
                   <FormField
                     control={form.control}
                     name="aspectRatio"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Image Ratio</FormLabel>
+                        <FormLabel className="flex items-center">
+                          Image Ratio
+                          <span className="text-red-500 ml-1">*</span>
+                        </FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -392,8 +378,15 @@ const ImageGeneration = () => {
                           </FormControl>
                           <SelectContent>
                             {Object.entries(ASPECT_RATIOS).map(([ratio, label]) => (
-                              <SelectItem key={ratio} value={ratio}>
-                                {label}
+                              <SelectItem key={ratio} value={ratio} className="flex flex-col">
+                                <div className="flex items-center justify-between w-full">
+                                  <span>{label}</span>
+                                  {ratio !== 'custom' && (
+                                    <div className="ml-2">
+                                      {renderAspectRatioPreview(ratio)}
+                                    </div>
+                                  )}
+                                </div>
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -429,7 +422,10 @@ const ImageGeneration = () => {
                     name="outputFormat"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Output Format</FormLabel>
+                        <FormLabel className="flex items-center">
+                          Output Format
+                          <span className="text-red-500 ml-1">*</span>
+                        </FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -444,6 +440,31 @@ const ImageGeneration = () => {
                             <SelectItem value="jpeg">JPEG</SelectItem>
                           </SelectContent>
                         </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  {/* Negative Prompt */}
+                  <FormField
+                    control={form.control}
+                    name="negativePrompt"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Negative Prompt
+                          <span className="text-xs ml-2 text-muted-foreground font-normal">(optional)</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Things to exclude from your image (comma separated)..."
+                            className="min-h-[40px] resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          List things you want to avoid in the generated image.
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -489,8 +510,11 @@ const ImageGeneration = () => {
                     control={form.control}
                     name="guidance"
                     render={({ field }) => (
-                      <FormItem className="opacity-60">
-                        <FormLabel>Guidance: {field.value}</FormLabel>
+                      <FormItem className="opacity-50">
+                        <FormLabel className="flex items-center">
+                          Guidance: {field.value}
+                          <span className="text-red-500 ml-1">*</span>
+                        </FormLabel>
                         <FormControl>
                           <Slider
                             min={1}
@@ -535,7 +559,7 @@ const ImageGeneration = () => {
             
             {/* Image Preview Section */}
             <motion.div
-              className="glass-panel p-6 rounded-xl md:order-2 flex flex-col"
+              className={`glass-panel p-6 rounded-xl md:order-2 flex flex-col ${isMobile || !imageUrl ? '' : 'md:col-span-3'}`}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
@@ -549,12 +573,11 @@ const ImageGeneration = () => {
                     <p className="mt-4 text-muted-foreground">Generating your image...</p>
                   </div>
                 ) : imageUrl ? (
-                  <div className="relative w-full h-full flex items-center justify-center">
+                  <div className="relative w-full h-full flex items-center justify-center p-4">
                     <img 
                       src={imageUrl} 
                       alt="Generated" 
-                      className="max-w-full max-h-[600px] object-contain"
-                      style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
+                      className="max-w-full max-h-[75vh] object-contain"
                     />
                     <div className="absolute bottom-2 right-2 flex space-x-2">
                       <Button 

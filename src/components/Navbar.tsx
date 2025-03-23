@@ -4,12 +4,14 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Home, Video, Menu, X, FileText, ImageIcon } from "lucide-react";
+import { Home, Video, Menu, X, FileText, ImageIcon, Film } from "lucide-react";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Navbar = () => {
   const location = useLocation();
   const [scrollY, setScrollY] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -22,7 +24,13 @@ const Navbar = () => {
   const navItems = [
     { path: '/images', label: 'Images', icon: <ImageIcon className="h-4 w-4 mr-2" /> },
     { path: '/transcript', label: 'Transcript', icon: <FileText className="h-4 w-4 mr-2" /> },
-    { path: '/', label: 'Create', icon: <Home className="h-4 w-4 mr-2" /> },
+    { 
+      path: '#', 
+      label: 'Video', 
+      icon: <Film className="h-4 w-4 mr-2" />,
+      disabled: true,
+      comingSoon: true
+    },
     { path: '/gallery', label: 'Gallery', icon: <Video className="h-4 w-4 mr-2" /> },
   ];
 
@@ -57,15 +65,27 @@ const Navbar = () => {
               variant={isActive(item.path) ? "default" : "ghost"}
               size="sm"
               className={cn(
-                "transition-all duration-300",
-                isActive(item.path) ? "bg-primary text-primary-foreground" : ""
+                "transition-all duration-300 relative",
+                isActive(item.path) ? "bg-primary text-primary-foreground" : "",
+                item.disabled ? "opacity-60 cursor-not-allowed" : ""
               )}
-              asChild
+              asChild={!item.disabled}
+              disabled={item.disabled}
             >
-              <Link to={item.path} className="flex items-center">
-                {item.icon}
-                {item.label}
-              </Link>
+              {!item.disabled ? (
+                <Link to={item.path} className="flex items-center">
+                  {item.icon}
+                  {item.label}
+                </Link>
+              ) : (
+                <div className="flex items-center">
+                  {item.icon}
+                  {item.label}
+                  {item.comingSoon && (
+                    <div className="absolute -top-2 -right-2 bg-yellow-500 text-black text-[8px] px-1 rounded-full">Soon</div>
+                  )}
+                </div>
+              )}
             </Button>
           ))}
         </nav>
@@ -83,7 +103,7 @@ const Navbar = () => {
 
       {isMenuOpen && (
         <motion.nav 
-          className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-950 shadow-lg border-t"
+          className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-950 shadow-lg border-t z-50"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
@@ -95,16 +115,28 @@ const Navbar = () => {
                 key={item.path}
                 variant={isActive(item.path) ? "default" : "ghost"}
                 className={cn(
-                  "justify-start w-full",
-                  isActive(item.path) ? "bg-primary text-primary-foreground" : ""
+                  "justify-start w-full relative",
+                  isActive(item.path) ? "bg-primary text-primary-foreground" : "",
+                  item.disabled ? "opacity-60 cursor-not-allowed" : ""
                 )}
-                onClick={() => setIsMenuOpen(false)}
-                asChild
+                onClick={() => !item.disabled && setIsMenuOpen(false)}
+                asChild={!item.disabled}
+                disabled={item.disabled}
               >
-                <Link to={item.path} className="flex items-center">
-                  {item.icon}
-                  {item.label}
-                </Link>
+                {!item.disabled ? (
+                  <Link to={item.path} className="flex items-center">
+                    {item.icon}
+                    {item.label}
+                  </Link>
+                ) : (
+                  <div className="flex items-center">
+                    {item.icon}
+                    {item.label}
+                    {item.comingSoon && (
+                      <div className="absolute top-1 -right-2 bg-yellow-500 text-black text-[8px] px-1 rounded-full">Soon</div>
+                    )}
+                  </div>
+                )}
               </Button>
             ))}
           </div>

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
@@ -9,11 +9,30 @@ import {
   ImageIcon,
   Video,
   FileText,
-  LayoutGrid
+  LayoutGrid,
+  Film,
+  Sun,
+  Moon
 } from 'lucide-react';
+import { Toggle } from '@/components/ui/toggle';
 
 const Index = () => {
   const navigate = useNavigate();
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Check system preference for dark mode on initial load
+  useEffect(() => {
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setIsDarkMode(isDark);
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.classList.toggle('dark');
+  };
 
   const features = [
     {
@@ -35,10 +54,12 @@ const Index = () => {
     {
       title: "Video Generation",
       description: "Transform your ideas into high-quality, engaging short videos.",
-      icon: <Video className="h-8 w-8 text-blue-500" />,
-      path: "/",
+      icon: <Film className="h-8 w-8 text-blue-500" />,
+      path: "#",
       color: "from-blue-500 to-cyan-500",
-      delay: 0.3
+      delay: 0.3,
+      comingSoon: true,
+      disabled: true
     },
     {
       title: "Media Gallery",
@@ -55,6 +76,17 @@ const Index = () => {
       <Navbar />
       
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 mt-12">
+        <div className="fixed top-20 right-4 z-40">
+          <Toggle 
+            pressed={isDarkMode} 
+            onPressedChange={toggleDarkMode}
+            aria-label="Toggle dark mode"
+            className="rounded-full p-2"
+          >
+            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Toggle>
+        </div>
+        
         <motion.div 
           className="max-w-4xl w-full text-center space-y-6 mb-12"
           initial={{ opacity: 0, y: 20 }}
@@ -89,11 +121,14 @@ const Index = () => {
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              className="glass-panel rounded-xl p-6 border border-transparent hover:border-primary/20 relative overflow-hidden group"
+              className={cn(
+                "glass-panel rounded-xl p-6 border border-transparent hover:border-primary/20 relative overflow-hidden group",
+                feature.disabled ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
+              )}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: feature.delay }}
-              onClick={() => navigate(feature.path)}
+              onClick={() => !feature.disabled && navigate(feature.path)}
             >
               <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 rounded-full bg-gradient-to-r opacity-20 blur-2xl group-hover:opacity-30 transition-opacity duration-500 ease-in-out"
                 style={{ backgroundImage: `linear-gradient(to right, ${feature.color.replace('from-', '').replace('to-', '')})` }}
@@ -104,16 +139,32 @@ const Index = () => {
                   {feature.icon}
                 </div>
                 
-                <h3 className="text-2xl font-semibold mb-3">{feature.title}</h3>
+                <h3 className="text-2xl font-semibold mb-3 flex items-center gap-2">
+                  {feature.title}
+                  {feature.comingSoon && (
+                    <span className="bg-yellow-500 text-black text-xs px-2 py-0.5 rounded-full">
+                      Coming Soon
+                    </span>
+                  )}
+                </h3>
                 <p className="text-muted-foreground mb-4">{feature.description}</p>
                 
-                <Button 
-                  variant="ghost" 
-                  className="group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300"
-                  onClick={() => navigate(feature.path)}
-                >
-                  Explore <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
+                {!feature.disabled ? (
+                  <Button 
+                    variant="ghost" 
+                    className="group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300"
+                  >
+                    Explore <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="ghost" 
+                    disabled
+                    className="opacity-50"
+                  >
+                    Coming Soon
+                  </Button>
+                )}
               </div>
             </motion.div>
           ))}
@@ -167,3 +218,7 @@ const Index = () => {
 };
 
 export default Index;
+
+function cn(...classes: (string | boolean | undefined)[]) {
+  return classes.filter(Boolean).join(' ');
+}
