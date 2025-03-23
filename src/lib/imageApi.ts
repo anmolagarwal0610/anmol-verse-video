@@ -119,9 +119,10 @@ export const calculateDimensions = (ratio: string): { width: number, height: num
 export const ASPECT_RATIOS = {
   "9:16": "Smartphone Vertical (9:16)",
   "16:9": "Smartphone Horizontal (16:9)",
-  "16:10": "Widescreen Display (16:10)",
-  "5:4": "Computer Display (5:4)",
-  "3:2": "DSLR Camera (3:2)",
+  "1:1": "Social Icons (1:1)",
+  "3:2": "DSLR Camera / Photography (3:2)",
+  "1.85:1": "Widescreen Cinema (1.85:1)",
+  "21:9": "Ultrawide Monitors (21:9)",
   "custom": "Custom Ratio"
 };
 

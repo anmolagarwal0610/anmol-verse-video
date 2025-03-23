@@ -123,12 +123,13 @@ const Index = () => {
               key={index}
               className={cn(
                 "glass-panel rounded-xl p-6 border border-transparent hover:border-primary/20 relative overflow-hidden group",
-                feature.disabled ? "opacity-70 cursor-not-allowed" : "cursor-pointer"
+                feature.disabled ? "opacity-70" : "cursor-pointer"
               )}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: feature.delay }}
               onClick={() => !feature.disabled && navigate(feature.path)}
+              style={{ pointerEvents: feature.disabled ? 'none' : 'auto' }}
             >
               <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 rounded-full bg-gradient-to-r opacity-20 blur-2xl group-hover:opacity-30 transition-opacity duration-500 ease-in-out"
                 style={{ backgroundImage: `linear-gradient(to right, ${feature.color.replace('from-', '').replace('to-', '')})` }}
@@ -160,7 +161,7 @@ const Index = () => {
                   <Button 
                     variant="ghost" 
                     disabled
-                    className="opacity-50"
+                    className="opacity-50 pointer-events-none"
                   >
                     Coming Soon
                   </Button>

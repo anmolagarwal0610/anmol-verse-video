@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -13,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
+import ImagePreview from '@/components/ImagePreview';
 import { 
   Form, 
   FormControl, 
@@ -88,6 +88,7 @@ const ImageGeneration = () => {
   const watchAspectRatio = form.watch('aspectRatio');
   const watchShowSeed = form.watch('showSeed');
   const watchModel = form.watch('model');
+  const watchImageStyles = form.watch('imageStyles');
   
   // Handle form submission
   const onSubmit = async (values: FormValues) => {
@@ -139,14 +140,23 @@ const ImageGeneration = () => {
     if (!imageUrl) return;
     
     try {
+      // Use fetch to get the image as a blob
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      
+      // Create a temporary URL for the blob
+      const blobUrl = window.URL.createObjectURL(blob);
+      
       // Create an anchor element and trigger download programmatically
       const link = document.createElement('a');
-      link.href = imageUrl;
+      link.href = blobUrl;
       link.download = `generated-image-${Date.now()}.${form.getValues('outputFormat')}`;
-      link.target = '_blank';
       document.body.appendChild(link);
       link.click();
+      
+      // Cleanup
       document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
       
       toast.success('Image download started');
     } catch (error) {
@@ -319,7 +329,7 @@ const ImageGeneration = () => {
                       <FormItem>
                         <FormLabel>
                           Image Preference 
-                          <span className="text-xs ml-2 text-muted-foreground font-normal">(optional)</span>
+                          <span className="text-xs ml-2 text-muted-foreground/70 font-normal">(optional)</span>
                         </FormLabel>
                         <DropdownMenu modal={false}>
                           <DropdownMenuTrigger asChild>
@@ -327,12 +337,17 @@ const ImageGeneration = () => {
                               {field.value.length === 0 ? (
                                 <span className="text-muted-foreground">Select style preferences...</span>
                               ) : (
-                                <span>{field.value.length} style{field.value.length !== 1 ? 's' : ''} selected</span>
+                                <span>{field.value.join(', ')}</span>
                               )}
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="w-80" align="start" sideOffset={5}>
-                            <DropdownMenuLabel>Select styles</DropdownMenuLabel>
+                            <DropdownMenuLabel>
+                              Select styles
+                              <span className="block text-xs text-muted-foreground mt-1">
+                                You can select multiple styles
+                              </span>
+                            </DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             {Object.entries(IMAGE_STYLES).map(([value, label]) => (
                               <DropdownMenuCheckboxItem
@@ -445,31 +460,6 @@ const ImageGeneration = () => {
                     )}
                   />
                   
-                  {/* Negative Prompt */}
-                  <FormField
-                    control={form.control}
-                    name="negativePrompt"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Negative Prompt
-                          <span className="text-xs ml-2 text-muted-foreground font-normal">(optional)</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Things to exclude from your image (comma separated)..."
-                            className="min-h-[40px] resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          List things you want to avoid in the generated image.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
                   {/* Seed Toggle and Input */}
                   <FormField
                     control={form.control}
@@ -505,6 +495,31 @@ const ImageGeneration = () => {
                     )}
                   />
                   
+                  {/* Negative Prompt */}
+                  <FormField
+                    control={form.control}
+                    name="negativePrompt"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Negative Prompt
+                          <span className="text-xs ml-2 text-muted-foreground/70 font-normal">(optional)</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Things to exclude from your image (comma separated)..."
+                            className="min-h-[40px] h-[40px] resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          List things you want to avoid in the generated image.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
                   {/* Guidance Value - Only show for Pro model, but keep disabled for now */}
                   <FormField
                     control={form.control}
@@ -527,7 +542,7 @@ const ImageGeneration = () => {
                         </FormControl>
                         <FormDescription>
                           Adjusts the alignment of the generated image with the input prompt. Higher values (8-10) make the output more faithful to the prompt, while lower values (1-5) encourage more creative freedom.
-                          <p className="text-yellow-500 mt-1">(Only available with Pro plan)</p>
+                          <span className="text-yellow-500 block mt-1">(Only available with Pro plan)</span>
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -574,10 +589,10 @@ const ImageGeneration = () => {
                   </div>
                 ) : imageUrl ? (
                   <div className="relative w-full h-full flex items-center justify-center p-4">
-                    <img 
-                      src={imageUrl} 
-                      alt="Generated" 
-                      className="max-w-full max-h-[75vh] object-contain"
+                    <ImagePreview 
+                      imageUrl={imageUrl} 
+                      outputFormat={form.getValues('outputFormat')} 
+                      onDownload={downloadImage} 
                     />
                     <div className="absolute bottom-2 right-2 flex space-x-2">
                       <Button 
