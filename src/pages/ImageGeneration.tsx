@@ -48,7 +48,6 @@ import {
 } from '@/lib/api';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-// Form schema with validation
 const formSchema = z.object({
   prompt: z.string().min(2, { message: 'Please enter a prompt with at least 2 characters' }),
   model: z.enum(['basic', 'advanced', 'pro']),
@@ -70,7 +69,6 @@ const ImageGeneration = () => {
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const isMobile = useIsMobile();
   
-  // Initialize form with default values
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -90,7 +88,32 @@ const ImageGeneration = () => {
   const watchModel = form.watch('model');
   const watchImageStyles = form.watch('imageStyles');
   
-  // Handle form submission
+  const renderAspectRatioPreview = (ratio: string, isOpen: boolean) => {
+    if (ratio === 'custom' || !isOpen) return null;
+    
+    const [width, height] = ratio.split(':').map(Number);
+    const maxSize = 70;
+    let previewWidth, previewHeight;
+    
+    if (width > height) {
+      previewWidth = maxSize;
+      previewHeight = (height / width) * maxSize;
+    } else {
+      previewHeight = maxSize;
+      previewWidth = (width / height) * maxSize;
+    }
+    
+    return (
+      <div 
+        className="border-2 border-muted-foreground/30 bg-muted mx-auto"
+        style={{ 
+          width: `${previewWidth}px`, 
+          height: `${previewHeight}px` 
+        }}
+      />
+    );
+  };
+
   const onSubmit = async (values: FormValues) => {
     setIsGenerating(true);
     setImageUrl(null);
@@ -102,7 +125,6 @@ const ImageGeneration = () => {
         
       const dimensions = calculateDimensions(ratio);
       
-      // Append selected image styles to the prompt if any are selected
       let enhancedPrompt = values.prompt;
       
       if (values.imageStyles && values.imageStyles.length > 0) {
@@ -135,26 +157,21 @@ const ImageGeneration = () => {
     }
   };
   
-  // Function to download the generated image
   const downloadImage = async () => {
     if (!imageUrl) return;
     
     try {
-      // Use fetch to get the image as a blob
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       
-      // Create a temporary URL for the blob
       const blobUrl = window.URL.createObjectURL(blob);
       
-      // Create an anchor element and trigger download programmatically
       const link = document.createElement('a');
       link.href = blobUrl;
       link.download = `generated-image-${Date.now()}.${form.getValues('outputFormat')}`;
       document.body.appendChild(link);
       link.click();
       
-      // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
       
@@ -165,7 +182,6 @@ const ImageGeneration = () => {
     }
   };
   
-  // Function to copy image URL to clipboard
   const copyImageUrl = () => {
     if (!imageUrl) return;
     
@@ -174,7 +190,6 @@ const ImageGeneration = () => {
       .catch(() => toast.error('Failed to copy URL'));
   };
 
-  // Toggle style selection
   const toggleStyle = (style: string) => {
     setSelectedStyles(prev => {
       if (prev.includes(style)) {
@@ -190,33 +205,6 @@ const ImageGeneration = () => {
     } else {
       form.setValue('imageStyles', [...currentStyles, style]);
     }
-  };
-
-  // Render aspect ratio preview
-  const renderAspectRatioPreview = (ratio: string) => {
-    if (ratio === 'custom') return null;
-    
-    const [width, height] = ratio.split(':').map(Number);
-    const maxSize = 70;
-    let previewWidth, previewHeight;
-    
-    if (width > height) {
-      previewWidth = maxSize;
-      previewHeight = (height / width) * maxSize;
-    } else {
-      previewHeight = maxSize;
-      previewWidth = (width / height) * maxSize;
-    }
-    
-    return (
-      <div 
-        className="border-2 border-muted-foreground/30 bg-muted mx-auto"
-        style={{ 
-          width: `${previewWidth}px`, 
-          height: `${previewHeight}px` 
-        }}
-      />
-    );
   };
 
   return (
@@ -250,7 +238,6 @@ const ImageGeneration = () => {
         
         <div className="w-full max-w-6xl">
           <div className={`grid grid-cols-1 ${isMobile || !imageUrl ? 'md:grid-cols-2' : 'md:grid-cols-5'} gap-8 mb-8`}>
-            {/* Form Section */}
             <motion.div
               className={`glass-panel p-6 rounded-xl md:order-1 ${isMobile || !imageUrl ? '' : 'md:col-span-2'}`}
               initial={{ opacity: 0, x: -20 }}
@@ -259,7 +246,6 @@ const ImageGeneration = () => {
             >
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  {/* Prompt Input */}
                   <FormField
                     control={form.control}
                     name="prompt"
@@ -284,7 +270,6 @@ const ImageGeneration = () => {
                     )}
                   />
                   
-                  {/* Model Selection */}
                   <FormField
                     control={form.control}
                     name="model"
@@ -321,7 +306,6 @@ const ImageGeneration = () => {
                     )}
                   />
                   
-                  {/* Image Styles Dropdown */}
                   <FormField
                     control={form.control}
                     name="imageStyles"
@@ -372,7 +356,6 @@ const ImageGeneration = () => {
                     )}
                   />
                   
-                  {/* Aspect Ratio Selection */}
                   <FormField
                     control={form.control}
                     name="aspectRatio"
@@ -398,7 +381,7 @@ const ImageGeneration = () => {
                                   <span>{label}</span>
                                   {ratio !== 'custom' && (
                                     <div className="ml-2">
-                                      {renderAspectRatioPreview(ratio)}
+                                      {renderAspectRatioPreview(ratio, true)}
                                     </div>
                                   )}
                                 </div>
@@ -411,7 +394,6 @@ const ImageGeneration = () => {
                     )}
                   />
                   
-                  {/* Custom Ratio Input */}
                   {watchAspectRatio === 'custom' && (
                     <FormField
                       control={form.control}
@@ -431,7 +413,6 @@ const ImageGeneration = () => {
                     />
                   )}
                   
-                  {/* Output Format */}
                   <FormField
                     control={form.control}
                     name="outputFormat"
@@ -460,7 +441,6 @@ const ImageGeneration = () => {
                     )}
                   />
                   
-                  {/* Seed Toggle and Input */}
                   <FormField
                     control={form.control}
                     name="showSeed"
@@ -495,7 +475,6 @@ const ImageGeneration = () => {
                     )}
                   />
                   
-                  {/* Negative Prompt */}
                   <FormField
                     control={form.control}
                     name="negativePrompt"
@@ -520,7 +499,6 @@ const ImageGeneration = () => {
                     )}
                   />
                   
-                  {/* Guidance Value - Only show for Pro model, but keep disabled for now */}
                   <FormField
                     control={form.control}
                     name="guidance"
@@ -549,7 +527,6 @@ const ImageGeneration = () => {
                     )}
                   />
                   
-                  {/* Submit Button */}
                   <Button 
                     type="submit" 
                     className="w-full" 
@@ -572,7 +549,6 @@ const ImageGeneration = () => {
               </Form>
             </motion.div>
             
-            {/* Image Preview Section */}
             <motion.div
               className={`glass-panel p-6 rounded-xl md:order-2 flex flex-col ${isMobile || !imageUrl ? '' : 'md:col-span-3'}`}
               initial={{ opacity: 0, x: 20 }}
@@ -604,9 +580,9 @@ const ImageGeneration = () => {
                       </Button>
                       <Button 
                         size="sm" 
-                        onClick={downloadImage}
+                        onClick={() => window.open(imageUrl, '_blank')}
                       >
-                        <Download className="h-4 w-4 mr-1" /> Download
+                        <Download className="h-4 w-4 mr-1" /> Open
                       </Button>
                     </div>
                   </div>
@@ -621,7 +597,6 @@ const ImageGeneration = () => {
           </div>
         </div>
         
-        {/* Tips Section */}
         <motion.div
           className="mt-16 w-full max-w-4xl"
           initial={{ opacity: 0 }}

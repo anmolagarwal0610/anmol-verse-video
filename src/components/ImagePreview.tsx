@@ -56,7 +56,7 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
         <Button 
           size="sm" 
           variant="secondary" 
-          className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           onClick={openPreview}
         >
           <Maximize2 className="h-4 w-4 mr-1" /> Preview
@@ -82,14 +82,14 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
               <img 
                 src={imageUrl} 
                 alt="Generated full preview" 
-                className="max-w-full max-h-full object-contain"
+                className="max-w-[90%] max-h-[90vh] object-contain"
               />
               
               <div className="absolute top-4 right-4 flex space-x-2">
                 <Button 
                   size="icon" 
                   variant="outline" 
-                  onClick={onDownload}
+                  onClick={() => window.open(imageUrl, '_blank')}
                   className="bg-white/10 backdrop-blur-sm hover:bg-white/20"
                 >
                   <Download className="h-5 w-5" />
