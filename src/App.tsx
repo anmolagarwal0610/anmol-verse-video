@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import Gallery from "./pages/Gallery";
 import Video from "./pages/Video";
 import Transcript from "./pages/Transcript";
+import ImageGeneration from "./pages/ImageGeneration";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/video/:id" element={<Video />} />
           <Route path="/transcript" element={<Transcript />} />
+          <Route path="/images" element={<ImageGeneration />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

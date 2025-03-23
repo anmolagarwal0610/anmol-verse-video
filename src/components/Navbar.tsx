@@ -1,9 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Home, Video, Menu, X, FileText } from "lucide-react";
+import { Home, Video, Menu, X, FileText, ImageIcon } from "lucide-react";
 
 const Navbar = () => {
   const location = useLocation();
@@ -22,6 +23,7 @@ const Navbar = () => {
     { path: '/', label: 'Create', icon: <Home className="h-4 w-4 mr-2" /> },
     { path: '/gallery', label: 'Gallery', icon: <Video className="h-4 w-4 mr-2" /> },
     { path: '/transcript', label: 'Transcript', icon: <FileText className="h-4 w-4 mr-2" /> },
+    { path: '/images', label: 'Images', icon: <ImageIcon className="h-4 w-4 mr-2" /> },
   ];
 
   const isActive = (path: string) => location.pathname === path;
