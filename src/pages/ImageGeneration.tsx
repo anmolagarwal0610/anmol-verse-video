@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
-import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
@@ -30,8 +29,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
-import { generateImage, calculateDimensions, ASPECT_RATIOS, IMAGE_STYLES } from '@/lib/api';
+import { 
+  generateImage, 
+  calculateDimensions, 
+  ASPECT_RATIOS, 
+  IMAGE_STYLES,
+  MODEL_DESCRIPTIONS 
+} from '@/lib/api';
 
 // Form schema with validation
 const formSchema = z.object({
@@ -45,6 +59,7 @@ const formSchema = z.object({
   seed: z.number().int().optional(),
   negativePrompt: z.string().optional(),
   imageStyles: z.array(z.string()).default([]),
+  customStyle: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -52,6 +67,7 @@ type FormValues = z.infer<typeof formSchema>;
 const ImageGeneration = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   
   // Initialize form with default values
   const form = useForm<FormValues>({
@@ -64,7 +80,8 @@ const ImageGeneration = () => {
       outputFormat: 'png',
       showSeed: false,
       imageStyles: [],
-      negativePrompt: 'text, weird shapes, random people, random brand logos, deformed hands, Men in jewellery, text, watermark, signature, paragraph, wording, letters, symbols, writing, nude, nudity, explicit content, obscene, inappropriate, offensive, forbidden, illegal, prohibited, sexual, graphic, violence, gore, blood, disturbing'
+      customStyle: '',
+      negativePrompt: ''
     }
   });
   
@@ -86,8 +103,16 @@ const ImageGeneration = () => {
       
       // Append selected image styles to the prompt if any are selected
       let enhancedPrompt = values.prompt;
+      
       if (values.imageStyles && values.imageStyles.length > 0) {
-        enhancedPrompt += `. Image style: ${values.imageStyles.join(', ')}`;
+        const styleNames = values.imageStyles.join(', ');
+        enhancedPrompt += `. Image style: ${styleNames}`;
+        
+        if (values.customStyle) {
+          enhancedPrompt += `, ${values.customStyle}`;
+        }
+      } else if (values.customStyle) {
+        enhancedPrompt += `. Image style: ${values.customStyle}`;
       }
       
       const result = await generateImage({
@@ -121,6 +146,8 @@ const ImageGeneration = () => {
     
     try {
       const response = await fetch(imageUrl);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       
@@ -134,7 +161,8 @@ const ImageGeneration = () => {
       
       toast.success('Image downloaded successfully!');
     } catch (error) {
-      toast.error('Failed to download image');
+      console.error('Error downloading image:', error);
+      toast.error(`Failed to download image: ${error.message || 'Network error'}`);
     }
   };
   
@@ -145,6 +173,24 @@ const ImageGeneration = () => {
     navigator.clipboard.writeText(imageUrl)
       .then(() => toast.success('Image URL copied to clipboard!'))
       .catch(() => toast.error('Failed to copy URL'));
+  };
+
+  // Toggle style selection
+  const toggleStyle = (style: string) => {
+    setSelectedStyles(prev => {
+      if (prev.includes(style)) {
+        return prev.filter(s => s !== style);
+      } else {
+        return [...prev, style];
+      }
+    });
+    
+    const currentStyles = form.getValues('imageStyles');
+    if (currentStyles.includes(style)) {
+      form.setValue('imageStyles', currentStyles.filter(s => s !== style));
+    } else {
+      form.setValue('imageStyles', [...currentStyles, style]);
+    }
   };
 
   return (
@@ -248,66 +294,81 @@ const ImageGeneration = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="basic">Basic</SelectItem>
-                            <SelectItem value="advanced">Advanced</SelectItem>
-                            <SelectItem value="pro" disabled>Pro (Coming Soon)</SelectItem>
+                            {['basic', 'advanced', 'pro'].map((model) => (
+                              <SelectItem key={model} value={model} disabled={model === 'pro'}>
+                                <div className="flex flex-col">
+                                  <span className="font-medium capitalize">{model}</span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {MODEL_DESCRIPTIONS[model]}
+                                  </span>
+                                </div>
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  {/* Image Styles Dropdown */}
+                  <FormField
+                    control={form.control}
+                    name="imageStyles"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Image Preference 
+                          <span className="text-xs ml-2 text-muted-foreground font-normal">(optional)</span>
+                        </FormLabel>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className="w-full justify-between">
+                              {field.value.length === 0 ? (
+                                <span className="text-muted-foreground">Select style preferences...</span>
+                              ) : (
+                                <span>{field.value.length} style{field.value.length !== 1 ? 's' : ''} selected</span>
+                              )}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-56">
+                            <DropdownMenuLabel>Select styles</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {Object.entries(IMAGE_STYLES).map(([value, label]) => (
+                              <DropdownMenuCheckboxItem
+                                key={value}
+                                checked={field.value.includes(value)}
+                                onCheckedChange={() => toggleStyle(value)}
+                              >
+                                {label.split(' ')[0]}
+                              </DropdownMenuCheckboxItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <FormDescription>
-                          Choose the AI model to generate your image.
+                          Choose one or more style preferences for your image
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                   
-                  {/* Image Styles */}
+                  {/* Custom Style Input */}
                   <FormField
                     control={form.control}
-                    name="imageStyles"
-                    render={() => (
+                    name="customStyle"
+                    render={({ field }) => (
                       <FormItem>
-                        <div className="mb-4">
-                          <FormLabel>Image Preference (Optional)</FormLabel>
-                          <FormDescription>
-                            Select styles to enhance your image
-                          </FormDescription>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          {Object.entries(IMAGE_STYLES).map(([value, label]) => (
-                            <FormField
-                              key={value}
-                              control={form.control}
-                              name="imageStyles"
-                              render={({ field }) => {
-                                return (
-                                  <FormItem
-                                    key={value}
-                                    className="flex flex-row items-start space-x-3 space-y-0"
-                                  >
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={field.value?.includes(value)}
-                                        onCheckedChange={(checked) => {
-                                          return checked
-                                            ? field.onChange([...field.value, value])
-                                            : field.onChange(
-                                                field.value?.filter(
-                                                  (val) => val !== value
-                                                )
-                                              )
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormLabel className="text-sm font-normal">
-                                      {label}
-                                    </FormLabel>
-                                  </FormItem>
-                                )
-                              }}
-                            />
-                          ))}
-                        </div>
+                        <FormLabel>Custom Style (optional)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="e.g., cyberpunk, watercolor, etc."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Add your own style description
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -400,47 +461,35 @@ const ImageGeneration = () => {
                             Used to reproduce the image or fine-tune it.
                           </FormDescription>
                         </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
+                        <div className="flex items-center space-x-3">
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          
+                          {watchShowSeed && (
+                            <Input 
+                              type="number" 
+                              placeholder="Enter seed" 
+                              className="w-[120px]"
+                              {...form.register("seed", {
+                                setValueAs: (v) => v === "" ? undefined : parseInt(v, 10)
+                              })}
+                            />
+                          )}
+                        </div>
                       </FormItem>
                     )}
                   />
-                  
-                  {/* Seed Input (shows only when toggle is enabled) */}
-                  {watchShowSeed && (
-                    <FormField
-                      control={form.control}
-                      name="seed"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Seed Value</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              placeholder="Enter a seed number" 
-                              {...field}
-                              onChange={e => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            Using the same seed with identical settings will create similar images.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
                   
                   {/* Guidance Value - Only show for Pro model, but keep disabled for now */}
                   <FormField
                     control={form.control}
                     name="guidance"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="opacity-60">
                         <FormLabel>Guidance: {field.value}</FormLabel>
                         <FormControl>
                           <Slider
@@ -449,7 +498,7 @@ const ImageGeneration = () => {
                             step={0.1}
                             defaultValue={[field.value]}
                             onValueChange={(value) => field.onChange(value[0])}
-                            disabled={watchModel !== 'pro'}
+                            disabled={true}
                           />
                         </FormControl>
                         <FormDescription>
@@ -505,6 +554,7 @@ const ImageGeneration = () => {
                       src={imageUrl} 
                       alt="Generated" 
                       className="max-w-full max-h-[600px] object-contain"
+                      style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
                     />
                     <div className="absolute bottom-2 right-2 flex space-x-2">
                       <Button 
@@ -575,7 +625,7 @@ const ImageGeneration = () => {
       <footer className="py-6 border-t">
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} ShortsGen. All rights reserved.
+            © {new Date().getFullYear()} AnmolVerse. All rights reserved.
           </p>
           <div className="flex items-center space-x-4 mt-4 md:mt-0">
             <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Terms</a>

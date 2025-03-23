@@ -20,10 +20,10 @@ const Navbar = () => {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const navItems = [
+    { path: '/images', label: 'Images', icon: <ImageIcon className="h-4 w-4 mr-2" /> },
+    { path: '/transcript', label: 'Transcript', icon: <FileText className="h-4 w-4 mr-2" /> },
     { path: '/', label: 'Create', icon: <Home className="h-4 w-4 mr-2" /> },
     { path: '/gallery', label: 'Gallery', icon: <Video className="h-4 w-4 mr-2" /> },
-    { path: '/transcript', label: 'Transcript', icon: <FileText className="h-4 w-4 mr-2" /> },
-    { path: '/images', label: 'Images', icon: <ImageIcon className="h-4 w-4 mr-2" /> },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -47,7 +47,7 @@ const Navbar = () => {
           >
             <Video className="h-4 w-4 text-white" />
           </motion.div>
-          <span className="text-lg font-semibold">ShortsGen</span>
+          <span className="text-lg font-semibold">AnmolVerse</span>
         </Link>
 
         <nav className="hidden md:flex items-center space-x-1">

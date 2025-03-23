@@ -136,3 +136,9 @@ export const IMAGE_STYLES = {
   "hyperrealistic": "Hyperrealistic (photographic, true-to-life)"
 };
 
+// Model descriptions for UI
+export const MODEL_DESCRIPTIONS = {
+  "basic": "Perfect for side projects and trying out ideas",
+  "advanced": "Ideal for content creation and social media assets",
+  "pro": "Coming soon - For professional quality outputs"
+};

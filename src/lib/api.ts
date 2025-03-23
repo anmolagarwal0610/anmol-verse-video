@@ -8,11 +8,11 @@ export {
   generateImage, 
   calculateDimensions, 
   ASPECT_RATIOS,
-  IMAGE_STYLES
+  IMAGE_STYLES,
+  MODEL_DESCRIPTIONS
 } from './imageApi';
 export type { 
   ImageGenerationParams,
   GeneratedImage,
   ImageGenerationResponse
 } from './imageApi';
-
