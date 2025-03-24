@@ -13,6 +13,8 @@ import Transcript from "./pages/Transcript";
 import ImageGeneration from "./pages/ImageGeneration";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +33,8 @@ const App = () => (
             <Route path="/images" element={<ImageGeneration />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

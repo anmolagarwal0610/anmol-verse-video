@@ -9,7 +9,7 @@ export default function AuthButtons() {
   const navigate = useNavigate();
 
   if (loading) {
-    return null;
+    return <div className="h-10 w-20 bg-muted animate-pulse rounded-md" />;
   }
 
   if (user) {

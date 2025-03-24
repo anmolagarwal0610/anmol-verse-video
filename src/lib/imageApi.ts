@@ -124,7 +124,7 @@ export const ASPECT_RATIOS = {
   "custom": "Custom Ratio"
 };
 
-// Image style preferences
+// Image style preferences - Removed "Illustration" and added "8K"
 export const IMAGE_STYLES = {
   "animated": "Animated (cartoon-like, stylized motion)",
   "8k": "8K (ultra high resolution, detailed)",
