@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -121,7 +122,7 @@ const ImageGeneration = () => {
             AI-powered image generation
           </motion.div>
           
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-balance">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight break-words">
             Generate stunning <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">images</span> from text
           </h1>
           
