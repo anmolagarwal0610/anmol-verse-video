@@ -10,6 +10,7 @@ interface AuthContextType {
   loading: boolean;
 }
 
+// Create the auth context with default values
 const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
