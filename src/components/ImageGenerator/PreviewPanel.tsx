@@ -22,10 +22,10 @@ const PreviewPanel = ({ isGenerating, imageUrl, outputFormat }: PreviewPanelProp
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-100/80 to-purple-50/20 dark:from-gray-900/80 dark:to-purple-950/20 rounded-lg overflow-hidden min-h-[400px] md:min-h-[500px] backdrop-blur-sm border border-purple-200/10">
+    <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-indigo-50/80 to-purple-50/20 dark:from-indigo-900/30 dark:to-purple-950/20 rounded-lg overflow-hidden min-h-[400px] md:min-h-[500px] backdrop-blur-sm border border-indigo-200/10">
       {isGenerating ? (
         <div className="text-center p-8">
-          <Loader2 className="mx-auto h-12 w-12 animate-spin text-purple-500" />
+          <Loader2 className="mx-auto h-12 w-12 animate-spin text-indigo-500" />
           <p className="mt-4 text-muted-foreground bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent font-medium">
             Generating your image...
           </p>
@@ -40,7 +40,7 @@ const PreviewPanel = ({ isGenerating, imageUrl, outputFormat }: PreviewPanelProp
         </div>
       ) : (
         <div className="text-center p-8">
-          <ImageIcon className="mx-auto h-12 w-12 text-purple-400/70" />
+          <ImageIcon className="mx-auto h-12 w-12 text-indigo-400/70" />
           <p className="mt-4 text-muted-foreground">Your generated image will appear here</p>
         </div>
       )}

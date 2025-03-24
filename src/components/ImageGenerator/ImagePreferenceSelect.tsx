@@ -76,14 +76,14 @@ const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
             {selectedStyles.map(styleKey => (
               <div 
                 key={styleKey}
-                className="flex items-center gap-1 bg-primary/10 text-primary rounded-full px-3 py-1 text-sm"
+                className="flex items-center gap-1 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 rounded-full px-3 py-1 text-sm"
               >
                 <span>{IMAGE_STYLES[styleKey]}</span>
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-4 w-4 p-0 text-primary hover:bg-primary/20 rounded-full"
+                  className="h-4 w-4 p-0 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200/50 dark:hover:bg-indigo-800/50 rounded-full"
                   onClick={() => removeStyle(styleKey)}
                 >
                   <X className="h-3 w-3" />

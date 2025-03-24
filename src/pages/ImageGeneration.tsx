@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -15,6 +16,11 @@ import {
   calculateDimensions
 } from '@/lib/api';
 import { useCredit } from '@/lib/creditService';
+import { useAuth } from '@/hooks/use-auth';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { ImageIcon, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const formSchema = z.object({
   prompt: z.string().min(2, { message: 'Please enter a prompt with at least 2 characters' }),
@@ -34,8 +40,10 @@ type FormValues = z.infer<typeof formSchema>;
 const ImageGeneration = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showGalleryMessage, setShowGalleryMessage] = useState(false);
   const isMobile = useIsMobile();
   const isSubmittingRef = useRef(false);
+  const { user } = useAuth();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -57,6 +65,7 @@ const ImageGeneration = () => {
     isSubmittingRef.current = true;
     setIsGenerating(true);
     setImageUrl(null);
+    setShowGalleryMessage(false);
     
     try {
       const hasSufficientCredits = await useCredit();
@@ -92,8 +101,27 @@ const ImageGeneration = () => {
       });
       
       if (result.data && result.data.length > 0) {
-        setImageUrl(result.data[0].url);
+        const generatedImageUrl = result.data[0].url;
+        setImageUrl(generatedImageUrl);
         toast.success('Image generated successfully!');
+        setShowGalleryMessage(true);
+        
+        // Save the image to the database if user is logged in
+        if (user) {
+          const { error } = await supabase.from('generated_images').insert({
+            prompt: values.prompt,
+            image_url: generatedImageUrl,
+            model: values.model,
+            width: dimensions.width,
+            height: dimensions.height,
+            preferences: values.imageStyles,
+            user_id: user.id
+          });
+          
+          if (error) {
+            console.error('Error saving image to database:', error);
+          }
+        }
       } else {
         toast.error('No image data was returned.');
       }
@@ -104,7 +132,7 @@ const ImageGeneration = () => {
       setIsGenerating(false);
       isSubmittingRef.current = false;
     }
-  }, [isGenerating]);
+  }, [isGenerating, user]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-black">
@@ -118,7 +146,7 @@ const ImageGeneration = () => {
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <motion.div 
-            className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-1 rounded-full text-sm font-medium mb-4"
+            className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium mb-4"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
@@ -127,7 +155,7 @@ const ImageGeneration = () => {
           </motion.div>
           
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight break-words">
-            Generate stunning <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">images</span> from text
+            Generate stunning <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">images</span> from text
           </h1>
           
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -163,6 +191,25 @@ const ImageGeneration = () => {
                 imageUrl={imageUrl}
                 outputFormat={form.getValues('outputFormat')}
               />
+              
+              {showGalleryMessage && imageUrl && (
+                <motion.div
+                  className="mt-4 p-3 bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 rounded-lg text-sm flex items-center justify-between"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                >
+                  <div className="flex items-center">
+                    <ImageIcon size={16} className="text-indigo-600 dark:text-indigo-400 mr-2" />
+                    <span className="text-indigo-800 dark:text-indigo-300">This image has been saved to your gallery</span>
+                  </div>
+                  <Button asChild variant="ghost" size="sm" className="text-indigo-700 dark:text-indigo-300">
+                    <Link to="/gallery" className="flex items-center">
+                      View <ArrowRight size={14} className="ml-1" />
+                    </Link>
+                  </Button>
+                </motion.div>
+              )}
             </motion.div>
           </div>
         </div>
