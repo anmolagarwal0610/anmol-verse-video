@@ -51,7 +51,7 @@ const UserCredits = () => {
           table: 'user_credits',
           filter: `user_id=eq.${user.id}`,
         }, (payload) => {
-          if (isMounted) {
+          if (isMounted && payload.new && typeof payload.new.remaining_credits === 'number') {
             setCredits(payload.new.remaining_credits);
           }
         })

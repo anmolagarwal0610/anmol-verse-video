@@ -52,6 +52,8 @@ const ImageGeneration = () => {
   });
   
   const onSubmit = async (values: FormValues) => {
+    if (isGenerating) return; // Prevent multiple submissions
+    
     setIsGenerating(true);
     setImageUrl(null);
     
@@ -59,7 +61,6 @@ const ImageGeneration = () => {
       const hasSufficientCredits = await useCredit();
       
       if (!hasSufficientCredits) {
-        toast.error('You have no credits remaining. Please add more credits to continue.');
         setIsGenerating(false);
         return;
       }
