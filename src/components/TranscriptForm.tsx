@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -244,5 +245,71 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
                         {debugInfo}
                       </pre>
                     </AlertDescription>
-                 
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
+        {transcript && !error && (
+          <motion.div
+            className="mt-8"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center">
+                  <FileText className="mr-2 h-5 w-5" />
+                  Your Generated Transcript
+                  <CopyButton value={transcript} variant="ghost" size="sm" className="ml-auto" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed">{transcript}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </motion.div>
+
+      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Sign in required</DialogTitle>
+            <DialogDescription>
+              You need to sign in to generate a transcript
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center space-x-2 py-4">
+            <div className="flex-1 text-sm">
+              Sign in to access all features and track your generations.
+            </div>
+          </div>
+          <DialogFooter className="sm:justify-start">
+            <Button
+              type="button"
+              variant="default"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+              onClick={redirectToAuth}
+            >
+              <LogIn className="mr-2 h-4 w-4" />
+              Sign In
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowAuthDialog(false)}
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
+
+export default TranscriptForm;
