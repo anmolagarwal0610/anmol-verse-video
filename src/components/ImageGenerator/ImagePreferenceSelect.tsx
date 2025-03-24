@@ -1,5 +1,5 @@
 
-import { FormField, FormItem, FormLabel, FormControl, FormDescription } from '@/components/ui/form';
+import { FormLabel, FormDescription } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { UseFormReturn } from 'react-hook-form';
 import { IMAGE_STYLES } from '@/lib/imageApi';
@@ -48,12 +48,14 @@ const ImagePreferenceSelect = memo(({ form }: ImagePreferenceSelectProps) => {
               onClick={() => toggleStyle(key)}
             >
               <div className="flex items-start space-x-2">
-                <Checkbox
-                  id={`style-${key}`}
-                  checked={isSelected}
-                  className="rounded-md data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                  onCheckedChange={() => toggleStyle(key)}
-                />
+                <div className="flex-shrink-0 mt-0.5">
+                  <Checkbox
+                    id={`style-${key}`}
+                    checked={isSelected}
+                    className="rounded-md"
+                    onCheckedChange={() => toggleStyle(key)}
+                  />
+                </div>
                 <label 
                   htmlFor={`style-${key}`}
                   className="text-sm cursor-pointer leading-tight"
