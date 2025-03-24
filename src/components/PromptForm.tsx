@@ -6,6 +6,8 @@ import { Wand2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { generateVideo } from '@/lib/api';
+import { useCredit } from '@/lib/creditService';
+import { useAuth } from '@/hooks/use-auth';
 
 interface PromptFormProps {
   onVideoGenerated: (videoId: string) => void;
@@ -14,6 +16,7 @@ interface PromptFormProps {
 const PromptForm = ({ onVideoGenerated }: PromptFormProps) => {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const { user } = useAuth();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,9 +26,22 @@ const PromptForm = ({ onVideoGenerated }: PromptFormProps) => {
       return;
     }
     
+    if (!user) {
+      toast.error('Please sign in to generate videos');
+      return;
+    }
+    
     setIsGenerating(true);
     
     try {
+      // Check and use a credit
+      const hasSufficientCredits = await useCredit();
+      
+      if (!hasSufficientCredits) {
+        toast.error('You have no credits remaining. Please add more credits to continue.');
+        return;
+      }
+      
       const result = await generateVideo(prompt);
       toast.success('Your video has been generated!');
       onVideoGenerated(result.videoId);

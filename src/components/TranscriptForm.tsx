@@ -11,6 +11,8 @@ import { CopyButton } from '@/components/CopyButton';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
+import { useCredit } from '@/lib/creditService';
+import { useAuth } from '@/hooks/use-auth';
 
 interface TranscriptFormProps {
   onTranscriptGenerated?: (transcript: string) => void;
@@ -25,12 +27,18 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
   const [proxyAttempt, setProxyAttempt] = useState(0);
   const [showAdvancedDebug, setShowAdvancedDebug] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
+  const { user } = useAuth();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!prompt.trim()) {
       toast.error('Please enter a prompt to generate your transcript');
+      return;
+    }
+    
+    if (!user) {
+      toast.error('Please sign in to generate transcripts');
       return;
     }
     
@@ -42,6 +50,14 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
     setGenerationProgress(10);
     
     try {
+      // Check and use a credit
+      const hasSufficientCredits = await useCredit();
+      
+      if (!hasSufficientCredits) {
+        setIsGenerating(false);
+        return;
+      }
+      
       console.log("Submitting prompt for transcript generation:", prompt);
       
       // Show loading progress

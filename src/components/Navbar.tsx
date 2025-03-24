@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Home, Video, Menu, X, FileText, ImageIcon, Film, Heart } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
+import AuthButtons from '@/components/AuthButtons';
+import UserCredits from '@/components/UserCredits';
 
 const Navbar = () => {
   const location = useLocation();
@@ -96,15 +98,19 @@ const Navbar = () => {
           ))}
         </nav>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={toggleMenu}
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </Button>
+        <div className="flex items-center gap-3">
+          <UserCredits />
+          <AuthButtons />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+          >
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
       </div>
 
       {isMenuOpen && (
