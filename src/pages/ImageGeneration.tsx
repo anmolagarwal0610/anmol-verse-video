@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -15,6 +14,7 @@ import {
   generateImage, 
   calculateDimensions
 } from '@/lib/api';
+import { useCredit } from '@/lib/creditService';
 
 const formSchema = z.object({
   prompt: z.string().min(2, { message: 'Please enter a prompt with at least 2 characters' }),
@@ -55,6 +55,14 @@ const ImageGeneration = () => {
     setImageUrl(null);
     
     try {
+      const hasSufficientCredits = await useCredit();
+      
+      if (!hasSufficientCredits) {
+        toast.error('You have no credits remaining. Please add more credits to continue.');
+        setIsGenerating(false);
+        return;
+      }
+      
       const ratio = values.aspectRatio === 'custom' && values.customRatio 
         ? values.customRatio 
         : values.aspectRatio;
