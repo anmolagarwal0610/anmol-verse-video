@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -7,15 +6,27 @@ import { Button } from '@/components/ui/button';
 import VideoCard, { VideoData } from '@/components/VideoCard';
 import EmptyState from '@/components/EmptyState';
 import { getVideos } from '@/lib/api';
+import { MOCK_VIDEOS } from '@/lib/mockData';
+import { useAuth } from '@/hooks/use-auth';
 
 const VideosTab = () => {
   const [videos, setVideos] = useState<VideoData[]>([]);
   const [isLoadingVideos, setIsLoadingVideos] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchVideos = async () => {
       try {
         setIsLoadingVideos(true);
+        
+        // If user is not logged in, show mock videos
+        if (!user) {
+          setVideos(MOCK_VIDEOS);
+          setIsLoadingVideos(false);
+          return;
+        }
+        
+        // Otherwise fetch real videos
         const data = await getVideos();
         setVideos(data);
       } catch (error) {
@@ -26,7 +37,7 @@ const VideosTab = () => {
     };
 
     fetchVideos();
-  }, []);
+  }, [user]);
 
   if (isLoadingVideos) {
     return (
@@ -39,11 +50,11 @@ const VideosTab = () => {
   if (videos.length === 0) {
     return (
       <EmptyState 
-        title="No videos yet"
-        description="Generate some videos to see them here"
+        title={user ? "No videos yet" : "Sign in to create videos"}
+        description={user ? "Generate some videos to see them here" : "Create an account to generate and save your own videos"}
         action={
           <Button asChild className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
-            <Link to="/">Create Video</Link>
+            <Link to={user ? "/" : "/auth"}>{user ? "Create Video" : "Sign In"}</Link>
           </Button>
         }
         className="py-24" 

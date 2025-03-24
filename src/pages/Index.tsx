@@ -88,8 +88,8 @@ const Index = () => {
       title: "Digital Future"
     },
     {
-      url: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=2000",
-      title: "AI Vision"
+      url: "https://images.unsplash.com/photo-1482881497185-d4a9ddbe4151?q=80&w=2000",
+      title: "Abstract Patterns"
     }
   ];
 
@@ -99,7 +99,7 @@ const Index = () => {
 
       <div className="relative w-full">
         <div className="absolute inset-0 bg-cover bg-center opacity-10 dark:opacity-20"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1567359781514-3b964e2b04d6?q=80&w=2000')" }}>
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1486718448742-163732cd1544?q=80&w=2000')" }}>
         </div>
         
         <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-8 mt-12 z-10">

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -23,6 +22,64 @@ interface GeneratedImage {
   height: number;
 }
 
+const DEFAULT_IMAGES: GeneratedImage[] = [
+  {
+    id: 'default-1',
+    image_url: 'https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?q=80&w=2000',
+    prompt: 'Starry night with cosmic energy',
+    created_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    model: 'advanced',
+    preferences: ['surreal', 'hyperrealistic'],
+    width: 1920,
+    height: 1080
+  },
+  {
+    id: 'default-2',
+    image_url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2000',
+    prompt: 'Mountain summit with fog rolling in',
+    created_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    model: 'basic',
+    preferences: ['8k', 'minimalistic'],
+    width: 1920,
+    height: 1080
+  },
+  {
+    id: 'default-3',
+    image_url: 'https://images.unsplash.com/photo-1482881497185-d4a9ddbe4151?q=80&w=2000',
+    prompt: 'Desert sand dunes with intricate patterns',
+    created_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    model: 'advanced',
+    preferences: ['minimalistic', 'vintage'],
+    width: 1920,
+    height: 1080
+  },
+  {
+    id: 'default-4',
+    image_url: 'https://images.unsplash.com/photo-1486718448742-163732cd1544?q=80&w=2000',
+    prompt: 'Abstract wave formations in cream tones',
+    created_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    model: 'basic',
+    preferences: ['minimalistic', 'hyperrealistic'],
+    width: 1080,
+    height: 1920
+  },
+  {
+    id: 'default-5',
+    image_url: 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?q=80&w=2000',
+    prompt: 'Architectural composition with flowing lines',
+    created_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    model: 'advanced',
+    preferences: ['minimalistic', '8k'],
+    width: 1920,
+    height: 1080
+  }
+];
+
 const ImagesTab = () => {
   const [images, setImages] = useState<GeneratedImage[]>([]);
   const [isLoadingImages, setIsLoadingImages] = useState(true);
@@ -30,10 +87,15 @@ const ImagesTab = () => {
 
   useEffect(() => {
     const fetchImages = async () => {
-      if (!user) return;
+      setIsLoadingImages(true);
+      
+      if (!user) {
+        setImages(DEFAULT_IMAGES);
+        setIsLoadingImages(false);
+        return;
+      }
       
       try {
-        setIsLoadingImages(true);
         const { data, error } = await supabase
           .from('generated_images')
           .select('*')
@@ -66,11 +128,11 @@ const ImagesTab = () => {
   if (images.length === 0) {
     return (
       <EmptyState
-        title="No images yet"
-        description="Generate some images to see them here"
+        title={user ? "No images yet" : "Sign in to create images"}
+        description={user ? "Generate some images to see them here" : "Create an account to generate and save your own images"}
         action={
           <Button asChild className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
-            <Link to="/images">Create Image</Link>
+            <Link to={user ? "/images" : "/auth"}>{user ? "Create Image" : "Sign In"}</Link>
           </Button>
         }
         className="py-24"
@@ -80,9 +142,11 @@ const ImagesTab = () => {
 
   return (
     <>
-      <div className="mb-4 p-3 bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 rounded-lg text-sm text-indigo-800 dark:text-indigo-300">
-        <p>Images are automatically deleted after 7 days. Download any images you want to keep.</p>
-      </div>
+      {user && (
+        <div className="mb-4 p-3 bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 rounded-lg text-sm text-indigo-800 dark:text-indigo-300">
+          <p>Images are automatically deleted after 7 days. Download any images you want to keep.</p>
+        </div>
+      )}
       <motion.div 
         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
         initial={{ opacity: 0 }}
