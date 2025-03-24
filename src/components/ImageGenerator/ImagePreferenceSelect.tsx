@@ -1,30 +1,29 @@
-
+import { useState, useEffect } from 'react';
 import { FormLabel, FormDescription } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { UseFormReturn } from 'react-hook-form';
 import { IMAGE_STYLES } from '@/lib/imageApi';
-import { useCallback, memo } from 'react';
 
 interface ImagePreferenceSelectProps {
   form: UseFormReturn<any>;
 }
 
-const ImagePreferenceSelect = memo(({ form }: ImagePreferenceSelectProps) => {
-  const selectedStyles = form.watch('imageStyles') || [];
+const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
+  const [selectedStyles, setSelectedStyles] = useState<string[]>(form.getValues('imageStyles') || []);
+  
+  useEffect(() => {
+    form.setValue('imageStyles', selectedStyles, { shouldValidate: true });
+  }, [selectedStyles, form]);
 
-  // Use useCallback to prevent re-renders causing infinite loops
-  const toggleStyle = useCallback((value: string) => {
-    const currentStyles = [...(form.getValues('imageStyles') || [])];
-    const index = currentStyles.indexOf(value);
-    
-    if (index === -1) {
-      currentStyles.push(value);
-    } else {
-      currentStyles.splice(index, 1);
-    }
-    
-    form.setValue('imageStyles', currentStyles, { shouldValidate: true });
-  }, [form]);
+  const handleStyleToggle = (styleKey: string, checked: boolean) => {
+    setSelectedStyles(prev => {
+      if (checked) {
+        return [...prev, styleKey];
+      } else {
+        return prev.filter(key => key !== styleKey);
+      }
+    });
+  };
 
   return (
     <div className="space-y-3">
@@ -45,17 +44,20 @@ const ImagePreferenceSelect = memo(({ form }: ImagePreferenceSelectProps) => {
                   ? 'bg-primary/10 border-primary/50 dark:bg-primary/20' 
                   : 'bg-background hover:bg-accent/50 border-border'}
               `}
-              onClick={() => toggleStyle(key)}
             >
               <div className="flex items-start space-x-2">
                 <Checkbox
                   id={`style-${key}`}
                   checked={isSelected}
-                  onCheckedChange={() => toggleStyle(key)}
+                  onCheckedChange={(checked) => handleStyleToggle(key, checked === true)}
+                  className="mt-0.5"
                 />
                 <label 
                   htmlFor={`style-${key}`}
-                  className="text-sm cursor-pointer leading-tight"
+                  className="text-sm cursor-pointer leading-tight flex-1"
+                  onClick={() => {
+                    handleStyleToggle(key, !isSelected);
+                  }}
                 >
                   {label}
                 </label>
@@ -66,8 +68,6 @@ const ImagePreferenceSelect = memo(({ form }: ImagePreferenceSelectProps) => {
       </div>
     </div>
   );
-});
-
-ImagePreferenceSelect.displayName = 'ImagePreferenceSelect';
+};
 
 export default ImagePreferenceSelect;
