@@ -52,8 +52,7 @@ const ImagePreferenceSelect = memo(({ form }: ImagePreferenceSelectProps) => {
                   id={`style-${key}`}
                   checked={isSelected}
                   className="rounded-sm data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                  // We can't use readOnly, so use onCheckedChange that does nothing
-                  onCheckedChange={() => {}}
+                  onCheckedChange={() => toggleStyle(key)}
                 />
                 <label 
                   htmlFor={`style-${key}`}

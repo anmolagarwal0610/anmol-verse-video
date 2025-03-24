@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -14,8 +13,7 @@ import {
   Sun,
   Moon,
   Sparkles,
-  Brain,
-  Zap
+  Star,
 } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -25,7 +23,6 @@ const Index = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const isMobile = useIsMobile();
 
-  // Check system preference for dark mode on initial load
   useEffect(() => {
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     setIsDarkMode(isDark);
@@ -76,8 +73,11 @@ const Index = () => {
     }
   ];
 
-  // Updated images with more impactful options
   const inspirationImages = [
+    {
+      url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=2000",
+      title: "Beautiful Portrait"
+    },
     {
       url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000",
       title: "Neural Dreamscape"
@@ -85,10 +85,6 @@ const Index = () => {
     {
       url: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=2000",
       title: "Digital Future"
-    },
-    {
-      url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2000",
-      title: "Data Flow"
     },
     {
       url: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=2000",
@@ -100,11 +96,9 @@ const Index = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-black">
       <Navbar />
 
-      {/* Hero section with background image */}
       <div className="relative w-full">
-        {/* Background image with overlay */}
         <div className="absolute inset-0 bg-cover bg-center opacity-10 dark:opacity-20"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2000')" }}>
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1567359781514-3b964e2b04d6?q=80&w=2000')" }}>
         </div>
         
         <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-8 mt-12 z-10">
@@ -131,16 +125,15 @@ const Index = () => {
               transition={{ delay: 0.2, duration: 0.5 }}
               className="mx-auto mb-6"
             >
-              {/* New futuristic logo with Brain/Zap instead of Heart */}
               <div className="relative w-32 h-32 mx-auto">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 animate-pulse blur-md opacity-70"></div>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 animate-pulse blur-md opacity-70"></div>
                 <div className="absolute inset-3 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden">
                   <div className="relative w-full h-full">
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Brain className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600" />
+                      <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600" />
                     </div>
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                      <Zap className="w-6 h-6 text-indigo-500 animate-pulse" />
+                      <Sparkles className="w-6 h-6 text-purple-500 animate-pulse" />
                     </div>
                   </div>
                 </div>
@@ -211,7 +204,6 @@ const Index = () => {
             ))}
           </div>
           
-          {/* Inspiration section with updated AI-generated images */}
           <motion.div
             className="w-full max-w-6xl mb-16"
             initial={{ opacity: 0 }}
