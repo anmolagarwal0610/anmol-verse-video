@@ -3,13 +3,14 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Check, Copy } from 'lucide-react';
 import { toast } from 'sonner';
+import { ButtonProps } from '@/components/ui/button';
 
-interface CopyButtonProps {
+export interface CopyButtonProps extends ButtonProps {
   text: string;
   className?: string;
 }
 
-export function CopyButton({ text, className }: CopyButtonProps) {
+export function CopyButton({ text, className, ...props }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
 
   const copyToClipboard = async () => {
@@ -32,6 +33,7 @@ export function CopyButton({ text, className }: CopyButtonProps) {
       size="sm"
       className={className}
       onClick={copyToClipboard}
+      {...props}
     >
       {copied ? (
         <Check className="h-4 w-4" />
