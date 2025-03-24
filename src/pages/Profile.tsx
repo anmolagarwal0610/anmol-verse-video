@@ -77,11 +77,6 @@ export default function Profile() {
             </div>
             <Separator />
             <div>
-              <Label>User ID</Label>
-              <div className="text-sm text-muted-foreground break-all">{user.id}</div>
-            </div>
-            <Separator />
-            <div>
               <Label>Authentication Method</Label>
               <div className="text-lg capitalize">
                 {user.app_metadata?.provider || "Email"}
