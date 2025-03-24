@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
@@ -36,6 +36,7 @@ const ImageGeneration = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const isMobile = useIsMobile();
+  const isSubmittingRef = useRef(false);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -52,8 +53,10 @@ const ImageGeneration = () => {
   });
   
   const onSubmit = useCallback(async (values: FormValues) => {
-    if (isGenerating) return; // Prevent multiple submissions
+    // Prevent double submissions
+    if (isGenerating || isSubmittingRef.current) return;
     
+    isSubmittingRef.current = true;
     setIsGenerating(true);
     setImageUrl(null);
     
@@ -62,6 +65,7 @@ const ImageGeneration = () => {
       
       if (!hasSufficientCredits) {
         setIsGenerating(false);
+        isSubmittingRef.current = false;
         return;
       }
       
@@ -100,6 +104,7 @@ const ImageGeneration = () => {
       toast.error(`Failed to generate image: ${error.message || 'Unknown error'}`);
     } finally {
       setIsGenerating(false);
+      isSubmittingRef.current = false;
     }
   }, [isGenerating]);
 

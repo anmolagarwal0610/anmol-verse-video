@@ -12,22 +12,22 @@ const UserCredits = () => {
   const [credits, setCredits] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const isMounted = useRef(true);
+  const channelRef = useRef<any>(null);
 
+  // Set up cleanup function for component unmount
   useEffect(() => {
-    // Set up cleanup function for component unmount
     return () => {
       isMounted.current = false;
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+      }
     };
   }, []);
 
   useEffect(() => {
-    let channel: any = null;
-    
     const fetchCredits = async () => {
-      if (!user) {
-        if (isMounted.current) {
-          setIsLoading(false);
-        }
+      if (!user || !isMounted.current) {
+        setIsLoading(false);
         return;
       }
 
@@ -49,8 +49,8 @@ const UserCredits = () => {
     fetchCredits();
 
     // Set up realtime subscription for credit updates
-    if (user) {
-      channel = supabase
+    if (user && !channelRef.current) {
+      channelRef.current = supabase
         .channel('credit_updates')
         .on('postgres_changes', {
           event: 'UPDATE',
@@ -65,11 +65,6 @@ const UserCredits = () => {
         .subscribe();
     }
 
-    return () => {
-      if (channel) {
-        supabase.removeChannel(channel);
-      }
-    };
   }, [user]);
 
   if (!user || (loading && isLoading)) {

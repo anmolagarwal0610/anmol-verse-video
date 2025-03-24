@@ -3,13 +3,13 @@ import { FormField, FormItem, FormLabel, FormControl, FormDescription } from '@/
 import { Checkbox } from '@/components/ui/checkbox';
 import { UseFormReturn } from 'react-hook-form';
 import { IMAGE_STYLES } from '@/lib/api';
-import { useCallback } from 'react';
+import { useCallback, memo } from 'react';
 
 interface ImagePreferenceSelectProps {
   form: UseFormReturn<any>;
 }
 
-const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
+const ImagePreferenceSelect = memo(({ form }: ImagePreferenceSelectProps) => {
   const selectedStyles = form.watch('imageStyles') || [];
 
   // Use useCallback to prevent re-renders causing infinite loops
@@ -52,7 +52,7 @@ const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
                   id={`style-${key}`}
                   checked={isSelected}
                   className="rounded-sm data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                  // Remove the onCheckedChange to avoid double event handling
+                  readOnly
                 />
                 <label 
                   htmlFor={`style-${key}`}
@@ -67,6 +67,8 @@ const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
       </div>
     </div>
   );
-};
+});
+
+ImagePreferenceSelect.displayName = 'ImagePreferenceSelect';
 
 export default ImagePreferenceSelect;

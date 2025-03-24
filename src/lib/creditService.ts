@@ -32,8 +32,8 @@ export const useCredit = async (): Promise<boolean> => {
       return false;
     }
     
-    // After using a credit, fetch the updated credit count
-    await checkCredits(true); // Force refresh cache
+    // Invalidate cache so next checkCredits will fetch the latest count
+    lastCheckedTime = 0;
     
     return true;
   } catch (error: any) {
