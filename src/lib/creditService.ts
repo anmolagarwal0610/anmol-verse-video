@@ -31,8 +31,9 @@ export const useCredit = async (): Promise<boolean> => {
       return false;
     }
     
-    // Update the cached credits after use
-    cachedCredits = data.remaining_credits || 0;
+    // After using a credit, fetch the updated credit count
+    const remainingCredits = await checkCredits();
+    cachedCredits = remainingCredits;
     lastCheckedTime = Date.now();
 
     return true;
