@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Coins } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { checkCredits } from '@/lib/creditService';
 
 const UserCredits = () => {
   const { user, loading } = useAuth();
@@ -19,21 +20,12 @@ const UserCredits = () => {
       }
 
       try {
-        const { data, error } = await supabase
-          .from('user_credits')
-          .select('remaining_credits')
-          .eq('user_id', user.id)
-          .single();
-
-        if (error) {
-          console.error('Error fetching credits:', error);
-          return;
-        }
-
-        setCredits(data?.remaining_credits || 0);
+        // Get initial credits immediately
+        const initialCredits = await checkCredits();
+        setCredits(initialCredits);
+        setIsLoading(false);
       } catch (error) {
         console.error('Unexpected error fetching credits:', error);
-      } finally {
         setIsLoading(false);
       }
     };
@@ -41,21 +33,23 @@ const UserCredits = () => {
     fetchCredits();
 
     // Set up realtime subscription for credit updates
-    const channel = supabase
-      .channel('credit_updates')
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'user_credits',
-        filter: `user_id=eq.${user?.id}`,
-      }, (payload) => {
-        setCredits(payload.new.remaining_credits);
-      })
-      .subscribe();
+    if (user) {
+      const channel = supabase
+        .channel('credit_updates')
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'user_credits',
+          filter: `user_id=eq.${user.id}`,
+        }, (payload) => {
+          setCredits(payload.new.remaining_credits);
+        })
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, [user]);
 
   if (!user || (loading && isLoading)) {
@@ -70,9 +64,12 @@ const UserCredits = () => {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Badge variant="outline" className="flex items-center gap-1 py-1 px-2 border-yellow-400/30 bg-yellow-400/10">
-            <Coins className="h-3.5 w-3.5 text-yellow-500" />
-            <span className="text-yellow-500 font-medium">{credits}</span>
+          <Badge 
+            variant="outline" 
+            className="flex items-center gap-1 py-1 px-2 border-yellow-500/50 bg-yellow-500/20 dark:bg-yellow-400/10 dark:border-yellow-400/30 shadow-sm"
+          >
+            <Coins className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
+            <span className="text-yellow-700 dark:text-yellow-500 font-medium">{credits !== null ? credits : '...'}</span>
           </Badge>
         </TooltipTrigger>
         <TooltipContent>

@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Home, Video, Menu, X, FileText, ImageIcon, Film, Heart } from "lucide-react";
+import { Home, Video, Menu, X, FileText, ImageIcon, Film, Brain, Zap } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
 import AuthButtons from '@/components/AuthButtons';
 import UserCredits from '@/components/UserCredits';
@@ -56,12 +56,13 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
           <motion.div 
-            className="relative h-8 w-8 rounded-lg bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center overflow-hidden"
+            className="relative h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center overflow-hidden"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Heart className="h-4 w-4 text-white z-10" />
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-500/50 to-purple-500/50 animate-pulse blur-sm"></div>
+            <Brain className="h-4 w-4 text-white z-10" />
+            <Zap className="absolute h-3 w-3 text-yellow-300 z-10 animate-pulse" />
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/50 to-purple-500/50 animate-pulse blur-sm"></div>
           </motion.div>
           <span className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">AnmolVerse</span>
         </Link>

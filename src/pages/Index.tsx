@@ -13,7 +13,9 @@ import {
   Film,
   Sun,
   Moon,
-  Sparkles
+  Sparkles,
+  Brain,
+  Zap
 } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -74,23 +76,23 @@ const Index = () => {
     }
   ];
 
-  // Sample AI-generated images for inspiration
+  // Updated images with more impactful options
   const inspirationImages = [
     {
-      url: "https://images.unsplash.com/photo-1508921108053-9f757ead871c?q=80&w=1000",
-      title: "Cosmic Dream"
+      url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000",
+      title: "Neural Dreamscape"
     },
     {
-      url: "https://images.unsplash.com/photo-1541512416146-3cf58d6b27cc?q=80&w=1000",
-      title: "Digital Landscape"
+      url: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=2000",
+      title: "Digital Future"
     },
     {
-      url: "https://images.unsplash.com/photo-1551103782-8ab07afd45c1?q=80&w=1000",
-      title: "Abstract Patterns"
+      url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2000",
+      title: "Data Flow"
     },
     {
-      url: "https://images.unsplash.com/photo-1575503802870-45de6a6217c8?q=80&w=1000",
-      title: "Future City"
+      url: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=2000",
+      title: "AI Vision"
     }
   ];
 
@@ -102,7 +104,7 @@ const Index = () => {
       <div className="relative w-full">
         {/* Background image with overlay */}
         <div className="absolute inset-0 bg-cover bg-center opacity-10 dark:opacity-20"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000')" }}>
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2000')" }}>
         </div>
         
         <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-8 mt-12 z-10">
@@ -129,28 +131,17 @@ const Index = () => {
               transition={{ delay: 0.2, duration: 0.5 }}
               className="mx-auto mb-6"
             >
-              {/* New glowing logo */}
+              {/* New futuristic logo with Brain/Zap instead of Heart */}
               <div className="relative w-32 h-32 mx-auto">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 animate-pulse blur-md opacity-70"></div>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 animate-pulse blur-md opacity-70"></div>
                 <div className="absolute inset-3 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden">
                   <div className="relative w-full h-full">
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <svg viewBox="0 0 24 24" fill="none" className="w-16 h-16">
-                        <path 
-                          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" 
-                          className="fill-current text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600"
-                          stroke="url(#paint0_linear)" 
-                          strokeWidth="1.5"
-                        />
-                        <defs>
-                          <linearGradient id="paint0_linear" x1="2" y1="3" x2="22" y2="21" gradientUnits="userSpaceOnUse">
-                            <stop stopColor="#ec4899" />
-                            <stop offset="1" stopColor="#8b5cf6" />
-                          </linearGradient>
-                        </defs>
-                      </svg>
+                      <Brain className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600" />
                     </div>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-pink-500 animate-ping"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                      <Zap className="w-6 h-6 text-indigo-500 animate-pulse" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -220,7 +211,7 @@ const Index = () => {
             ))}
           </div>
           
-          {/* Inspiration section with AI-generated images */}
+          {/* Inspiration section with updated AI-generated images */}
           <motion.div
             className="w-full max-w-6xl mb-16"
             initial={{ opacity: 0 }}

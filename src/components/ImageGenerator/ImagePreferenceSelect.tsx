@@ -45,6 +45,20 @@ const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
   const isMobile = useIsMobile();
   const watchPreferences = form.watch('preferences') || [];
 
+  const handleBoxClick = (optionId: string, currentValue: string[]) => {
+    if (currentValue.includes(optionId)) {
+      // Remove if already selected
+      form.setValue(
+        'preferences',
+        currentValue.filter((value: string) => value !== optionId),
+        { shouldValidate: true }
+      );
+    } else {
+      // Add if not selected
+      form.setValue('preferences', [...currentValue, optionId], { shouldValidate: true });
+    }
+  };
+
   return (
     <FormField
       control={form.control}
@@ -70,14 +84,16 @@ const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
                   return (
                     <FormItem
                       key={option.id}
-                      className={`flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 ${
+                      className={`flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 cursor-pointer transition-colors ${
                         watchPreferences.includes(option.id) 
                           ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' 
                           : 'hover:bg-accent'
                       }`}
+                      onClick={() => handleBoxClick(option.id, field.value || [])}
                     >
                       <FormControl>
                         <Checkbox
+                          className="rounded-sm data-[state=checked]:bg-purple-600"
                           checked={field.value?.includes(option.id)}
                           onCheckedChange={(checked) => {
                             return checked
@@ -88,6 +104,7 @@ const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
                                   )
                                 );
                           }}
+                          onClick={(e) => e.stopPropagation()} // Prevent double-triggering
                         />
                       </FormControl>
                       <div className="space-y-1 leading-none">
