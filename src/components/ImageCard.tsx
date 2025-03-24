@@ -16,6 +16,10 @@ interface ImageCardProps {
     created_at: string;
     expires_at: string;
     model: string;
+    preferences?: string[] | null;
+    user_id?: string | null;
+    width?: number;
+    height?: number;
   };
 }
 
