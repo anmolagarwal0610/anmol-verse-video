@@ -32,11 +32,11 @@ const OutputFormatSelect = ({ form }: OutputFormatSelectProps) => {
             defaultValue={field.value}
           >
             <FormControl>
-              <SelectTrigger className={isMobile ? "min-w-[260px]" : ""}>
+              <SelectTrigger className={isMobile ? "w-full" : ""}>
                 <SelectValue placeholder="Select format" />
               </SelectTrigger>
             </FormControl>
-            <SelectContent className={isMobile ? "w-[260px]" : ""}>
+            <SelectContent className={isMobile ? "w-full" : ""}>
               <SelectItem value="png">PNG</SelectItem>
               <SelectItem value="jpeg">JPEG</SelectItem>
             </SelectContent>

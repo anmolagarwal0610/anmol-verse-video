@@ -81,7 +81,7 @@ const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
                           checked={field.value?.includes(option.id)}
                           onCheckedChange={(checked) => {
                             return checked
-                              ? field.onChange([...field.value, option.id])
+                              ? field.onChange([...(field.value || []), option.id])
                               : field.onChange(
                                   field.value?.filter(
                                     (value: string) => value !== option.id
