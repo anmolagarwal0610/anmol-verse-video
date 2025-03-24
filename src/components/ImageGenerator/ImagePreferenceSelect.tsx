@@ -2,7 +2,7 @@
 import { FormField, FormItem, FormLabel, FormControl, FormDescription } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { UseFormReturn } from 'react-hook-form';
-import { IMAGE_STYLES } from '@/lib/api';
+import { IMAGE_STYLES } from '@/lib/imageApi';
 import { useCallback, memo } from 'react';
 
 interface ImagePreferenceSelectProps {
@@ -51,7 +51,7 @@ const ImagePreferenceSelect = memo(({ form }: ImagePreferenceSelectProps) => {
                 <Checkbox
                   id={`style-${key}`}
                   checked={isSelected}
-                  className="rounded-sm data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                  className="rounded-md data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                   onCheckedChange={() => toggleStyle(key)}
                 />
                 <label 

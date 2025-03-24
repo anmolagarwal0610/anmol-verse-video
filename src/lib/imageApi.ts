@@ -1,3 +1,4 @@
+
 import { API_CONFIG, fetchWithCorsProxy } from './apiUtils';
 
 export interface ImageGenerationParams {
@@ -128,7 +129,6 @@ export const IMAGE_STYLES = {
   "animated": "Animated (cartoon-like, stylized motion)",
   "8k": "8K (ultra high resolution, detailed)",
   "surreal": "Surreal/Fantasy (dreamlike, imaginative)",
-  "cyberpunk": "Cyberpunk (futuristic, neon-lit, dystopian)",
   "minimalistic": "Minimalistic (simple, clean lines)",
   "vintage": "Vintage/Retro (nostalgic, classic aesthetic)",
   "hyperrealistic": "Hyperrealistic (photographic, true-to-life)"
