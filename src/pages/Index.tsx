@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -75,12 +76,12 @@ const Index = () => {
 
   const inspirationImages = [
     {
-      url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=2000",
-      title: "Beautiful Portrait"
+      url: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=2000",
+      title: "Bold Portrait"
     },
     {
-      url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000",
-      title: "Neural Dreamscape"
+      url: "https://images.unsplash.com/photo-1604537466158-719b1972feb8?q=80&w=2000",
+      title: "Cosmic Dreams"
     },
     {
       url: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=2000",
@@ -126,14 +127,14 @@ const Index = () => {
               className="mx-auto mb-6"
             >
               <div className="relative w-32 h-32 mx-auto">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 animate-pulse blur-md opacity-70"></div>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 animate-pulse blur-md opacity-70"></div>
                 <div className="absolute inset-3 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden">
                   <div className="relative w-full h-full">
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600" />
+                      <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600" />
                     </div>
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                      <Sparkles className="w-6 h-6 text-purple-500 animate-pulse" />
+                      <Sparkles className="w-6 h-6 text-indigo-500 animate-pulse" />
                     </div>
                   </div>
                 </div>
@@ -141,7 +142,7 @@ const Index = () => {
             </motion.div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-              Welcome to <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">AnmolVerse</span>
+              Welcome to <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600">AnmolVerse</span>
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4">
@@ -212,9 +213,9 @@ const Index = () => {
           >
             <div className="text-center mb-8">
               <h2 className="text-2xl md:text-3xl font-bold flex items-center justify-center gap-2">
-                <Sparkles className="h-5 w-5 text-purple-500" />
+                <Sparkles className="h-5 w-5 text-indigo-500" />
                 AI Generation Inspiration
-                <Sparkles className="h-5 w-5 text-purple-500" />
+                <Sparkles className="h-5 w-5 text-indigo-500" />
               </h2>
               <p className="text-muted-foreground mt-2">Explore what's possible with our AI tools</p>
             </div>
@@ -245,7 +246,7 @@ const Index = () => {
             <div className="text-center mt-6">
               <Button 
                 onClick={() => navigate('/images')}
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+                className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white"
               >
                 Create Your Own <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -258,7 +259,7 @@ const Index = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.5 }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-xl blur-xl" />
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-blue-500/20 rounded-xl blur-xl" />
             
             <div className="relative glass-panel p-8 rounded-xl border border-indigo-200 dark:border-indigo-900">
               <h2 className="text-2xl font-semibold mb-4 text-center">The Future is Creative</h2>
@@ -272,7 +273,7 @@ const Index = () => {
               <div className="mt-8 flex justify-center">
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+                  className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white"
                   onClick={() => navigate('/images')}
                 >
                   Start Creating Now
