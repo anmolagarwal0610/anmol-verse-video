@@ -23,30 +23,30 @@ export const useCredit = async (): Promise<boolean> => {
 
     if (error) {
       console.error('Error using credit:', error);
+      toast.error(error.message || 'Failed to use credit');
       return false;
     }
 
-    if (!data) {
+    if (data !== true) {
       toast.error('You have no credits remaining. Please add more credits to continue.');
       return false;
     }
     
     // After using a credit, fetch the updated credit count
-    const remainingCredits = await checkCredits();
-    cachedCredits = remainingCredits;
-    lastCheckedTime = Date.now();
-
+    await checkCredits(true); // Force refresh cache
+    
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Unexpected error using credit:', error);
+    toast.error(error.message || 'An unexpected error occurred');
     return false;
   }
 };
 
-export const checkCredits = async (): Promise<number> => {
+export const checkCredits = async (forceRefresh = false): Promise<number> => {
   try {
     // If we have cached credits and the cache hasn't expired, return them
-    if (cachedCredits > 0 && Date.now() - lastCheckedTime < CACHE_DURATION) {
+    if (!forceRefresh && cachedCredits > 0 && Date.now() - lastCheckedTime < CACHE_DURATION) {
       return cachedCredits;
     }
     

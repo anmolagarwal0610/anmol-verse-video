@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
@@ -51,7 +51,7 @@ const ImageGeneration = () => {
     }
   });
   
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = useCallback(async (values: FormValues) => {
     if (isGenerating) return; // Prevent multiple submissions
     
     setIsGenerating(true);
@@ -101,7 +101,7 @@ const ImageGeneration = () => {
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [isGenerating]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-black">
