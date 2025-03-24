@@ -1,28 +1,44 @@
+
 import { useState, useEffect } from 'react';
 import { FormLabel, FormDescription } from '@/components/ui/form';
-import { Checkbox } from '@/components/ui/checkbox';
 import { UseFormReturn } from 'react-hook-form';
 import { IMAGE_STYLES } from '@/lib/imageApi';
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 
 interface ImagePreferenceSelectProps {
   form: UseFormReturn<any>;
 }
 
 const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
+  // Get initial styles from form or empty array
   const [selectedStyles, setSelectedStyles] = useState<string[]>(form.getValues('imageStyles') || []);
   
+  // Sync state with form values
   useEffect(() => {
     form.setValue('imageStyles', selectedStyles, { shouldValidate: true });
   }, [selectedStyles, form]);
 
-  const handleStyleToggle = (styleKey: string, checked: boolean) => {
+  // Toggle a style in the selection
+  const toggleStyle = (styleKey: string) => {
     setSelectedStyles(prev => {
-      if (checked) {
-        return [...prev, styleKey];
-      } else {
+      if (prev.includes(styleKey)) {
         return prev.filter(key => key !== styleKey);
+      } else {
+        return [...prev, styleKey];
       }
     });
+  };
+  
+  // Remove a style from selection
+  const removeStyle = (styleKey: string) => {
+    setSelectedStyles(prev => prev.filter(key => key !== styleKey));
   };
 
   return (
@@ -32,39 +48,50 @@ const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
         Select styles to enhance your image (optional)
       </FormDescription>
       
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-        {Object.entries(IMAGE_STYLES).map(([key, label]) => {
-          const isSelected = selectedStyles.includes(key);
-          
-          return (
-            <div 
-              key={key}
-              className={`relative p-3 rounded-md border cursor-pointer transition-all
-                ${isSelected 
-                  ? 'bg-primary/10 border-primary/50 dark:bg-primary/20' 
-                  : 'bg-background hover:bg-accent/50 border-border'}
-              `}
+      <div className="space-y-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="outline" 
+              className="w-full justify-between bg-background text-left font-normal"
             >
-              <div className="flex items-start space-x-2">
-                <Checkbox
-                  id={`style-${key}`}
-                  checked={isSelected}
-                  onCheckedChange={(checked) => handleStyleToggle(key, checked === true)}
-                  className="mt-0.5"
-                />
-                <label 
-                  htmlFor={`style-${key}`}
-                  className="text-sm cursor-pointer leading-tight flex-1"
-                  onClick={() => {
-                    handleStyleToggle(key, !isSelected);
-                  }}
+              <span>Select image styles</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-full min-w-[200px]">
+            {Object.entries(IMAGE_STYLES).map(([key, label]) => (
+              <DropdownMenuCheckboxItem
+                key={key}
+                checked={selectedStyles.includes(key)}
+                onCheckedChange={() => toggleStyle(key)}
+              >
+                {label}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        
+        {selectedStyles.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {selectedStyles.map(styleKey => (
+              <div 
+                key={styleKey}
+                className="flex items-center gap-1 bg-primary/10 text-primary rounded-full px-3 py-1 text-sm"
+              >
+                <span>{IMAGE_STYLES[styleKey]}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-4 w-4 p-0 text-primary hover:bg-primary/20 rounded-full"
+                  onClick={() => removeStyle(styleKey)}
                 >
-                  {label}
-                </label>
+                  <X className="h-3 w-3" />
+                </Button>
               </div>
-            </div>
-          );
-        })}
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
