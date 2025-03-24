@@ -20,9 +20,9 @@ const preferenceOptions = [
     description: "Japanese animation style with distinctive characters and vibrant colors"
   },
   {
-    id: "illustration",
-    label: "Illustration",
-    description: "Hand-drawn or digital art with a focus on visual storytelling"
+    id: "8k",
+    label: "8K",
+    description: "Ultra high resolution imagery with exceptional detail and clarity"
   },
   {
     id: "3d_render",

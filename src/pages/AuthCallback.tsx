@@ -1,0 +1,43 @@
+
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+const AuthCallback = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleAuthCallback = async () => {
+      try {
+        const { error } = await supabase.auth.getSession();
+        
+        if (error) {
+          throw error;
+        }
+        
+        toast.success('Successfully signed in!');
+        navigate('/');
+      } catch (error) {
+        console.error('Error during auth callback:', error);
+        toast.error('Failed to complete authentication');
+        navigate('/auth');
+      }
+    };
+    
+    handleAuthCallback();
+  }, [navigate]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+        <h1 className="text-xl font-medium">Completing authentication...</h1>
+        <p className="text-muted-foreground">Please wait while we finish setting up your account.</p>
+      </div>
+    </div>
+  );
+};
+
+export default AuthCallback;
