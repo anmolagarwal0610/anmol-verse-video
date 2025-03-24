@@ -13,28 +13,37 @@ const UserCredits = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchCredits = async () => {
       if (!user) {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
         return;
       }
 
       try {
         // Get initial credits immediately
         const initialCredits = await checkCredits();
-        setCredits(initialCredits);
-        setIsLoading(false);
+        if (isMounted) {
+          setCredits(initialCredits);
+          setIsLoading(false);
+        }
       } catch (error) {
         console.error('Unexpected error fetching credits:', error);
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchCredits();
 
     // Set up realtime subscription for credit updates
+    let channel;
     if (user) {
-      const channel = supabase
+      channel = supabase
         .channel('credit_updates')
         .on('postgres_changes', {
           event: 'UPDATE',
@@ -42,14 +51,19 @@ const UserCredits = () => {
           table: 'user_credits',
           filter: `user_id=eq.${user.id}`,
         }, (payload) => {
-          setCredits(payload.new.remaining_credits);
+          if (isMounted) {
+            setCredits(payload.new.remaining_credits);
+          }
         })
         .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
     }
+
+    return () => {
+      isMounted = false;
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
   }, [user]);
 
   if (!user || (loading && isLoading)) {
@@ -66,7 +80,7 @@ const UserCredits = () => {
         <TooltipTrigger asChild>
           <Badge 
             variant="outline" 
-            className="flex items-center gap-1 py-1 px-2 border-yellow-500/50 bg-yellow-500/20 dark:bg-yellow-400/10 dark:border-yellow-400/30 shadow-sm"
+            className="flex items-center gap-1 py-1 px-2 border-yellow-500/50 bg-yellow-500/20 dark:bg-yellow-400/10 dark:border-yellow-400/30 text-yellow-800 dark:text-yellow-400 shadow-sm"
           >
             <Coins className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
             <span className="text-yellow-700 dark:text-yellow-500 font-medium">{credits !== null ? credits : '...'}</span>

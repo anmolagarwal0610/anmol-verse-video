@@ -94,7 +94,7 @@ const ImageGeneration = () => {
       } else {
         toast.error('No image data was returned.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating image:', error);
       toast.error(`Failed to generate image: ${error.message || 'Unknown error'}`);
     } finally {

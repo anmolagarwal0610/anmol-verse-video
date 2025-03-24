@@ -2,6 +2,10 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+let cachedCredits = 0;
+let lastCheckedTime = 0;
+const CACHE_DURATION = 5000; // 5 seconds
+
 export const useCredit = async (): Promise<boolean> => {
   try {
     const {
@@ -26,6 +30,10 @@ export const useCredit = async (): Promise<boolean> => {
       toast.error('You have no credits remaining. Please add more credits to continue.');
       return false;
     }
+    
+    // Update the cached credits after use
+    cachedCredits = data.remaining_credits || 0;
+    lastCheckedTime = Date.now();
 
     return true;
   } catch (error) {
@@ -36,6 +44,11 @@ export const useCredit = async (): Promise<boolean> => {
 
 export const checkCredits = async (): Promise<number> => {
   try {
+    // If we have cached credits and the cache hasn't expired, return them
+    if (cachedCredits > 0 && Date.now() - lastCheckedTime < CACHE_DURATION) {
+      return cachedCredits;
+    }
+    
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -55,7 +68,11 @@ export const checkCredits = async (): Promise<number> => {
       return 0;
     }
 
-    return data?.remaining_credits || 0;
+    // Update cache
+    cachedCredits = data?.remaining_credits || 0;
+    lastCheckedTime = Date.now();
+
+    return cachedCredits;
   } catch (error) {
     console.error('Unexpected error checking credits:', error);
     return 0;
