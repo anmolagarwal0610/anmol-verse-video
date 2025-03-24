@@ -124,7 +124,7 @@ export const ASPECT_RATIOS = {
   "custom": "Custom Ratio"
 };
 
-// Image style preferences - Removed "Impressionistic" and added new creative options
+// Image style preferences - exactly 6 options as requested
 export const IMAGE_STYLES = {
   "animated": "Animated (cartoon-like, stylized motion)",
   "8k": "8K (ultra high resolution, detailed)",

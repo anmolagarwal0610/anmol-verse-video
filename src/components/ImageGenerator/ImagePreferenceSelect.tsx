@@ -48,14 +48,11 @@ const ImagePreferenceSelect = memo(({ form }: ImagePreferenceSelectProps) => {
               onClick={() => toggleStyle(key)}
             >
               <div className="flex items-start space-x-2">
-                <div className="flex-shrink-0 mt-0.5">
-                  <Checkbox
-                    id={`style-${key}`}
-                    checked={isSelected}
-                    className="rounded-md"
-                    onCheckedChange={() => toggleStyle(key)}
-                  />
-                </div>
+                <Checkbox
+                  id={`style-${key}`}
+                  checked={isSelected}
+                  onCheckedChange={() => toggleStyle(key)}
+                />
                 <label 
                   htmlFor={`style-${key}`}
                   className="text-sm cursor-pointer leading-tight"
