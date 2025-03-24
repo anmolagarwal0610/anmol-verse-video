@@ -6,11 +6,12 @@ import { Form } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
 import PromptTextarea from './PromptTextarea';
 import ModelSelect from './ModelSelect';
-import ImagePreferenceSelect from './ImagePreferenceSelect';
 import AspectRatioSelect from './AspectRatioSelect';
+import ImagePreferenceSelect from './ImagePreferenceSelect';
 import OutputFormatSelect from './OutputFormatSelect';
 import SeedControl from './SeedControl';
 import GuidanceControl from './GuidanceControl';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ImageGenerationFormProps {
   form: UseFormReturn<any>;
@@ -19,6 +20,8 @@ interface ImageGenerationFormProps {
 }
 
 const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFormProps) => {
+  const isMobile = useIsMobile();
+  
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -34,9 +37,9 @@ const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFo
         
         <ModelSelect form={form} />
         
-        <ImagePreferenceSelect form={form} />
-        
         <AspectRatioSelect form={form} />
+        
+        <ImagePreferenceSelect form={form} />
         
         <OutputFormatSelect form={form} />
         
@@ -55,8 +58,8 @@ const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFo
         
         <Button 
           type="submit" 
-          className="w-full" 
-          size="lg"
+          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700" 
+          size={isMobile ? "default" : "lg"}
           disabled={isGenerating}
         >
           {isGenerating ? (

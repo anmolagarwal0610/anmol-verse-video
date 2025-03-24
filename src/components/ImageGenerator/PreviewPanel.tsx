@@ -2,6 +2,7 @@
 import { Loader2, ImageIcon } from 'lucide-react';
 import ImagePreview from '@/components/ImagePreview';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface PreviewPanelProps {
   isGenerating: boolean;
@@ -10,6 +11,8 @@ interface PreviewPanelProps {
 }
 
 const PreviewPanel = ({ isGenerating, imageUrl, outputFormat }: PreviewPanelProps) => {
+  const isMobile = useIsMobile();
+  
   const downloadImage = async () => {
     if (!imageUrl) return;
     
@@ -19,7 +22,7 @@ const PreviewPanel = ({ isGenerating, imageUrl, outputFormat }: PreviewPanelProp
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-100/80 to-purple-50/20 dark:from-gray-900/80 dark:to-purple-950/20 rounded-lg overflow-hidden min-h-[500px] backdrop-blur-sm border border-purple-200/10">
+    <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-100/80 to-purple-50/20 dark:from-gray-900/80 dark:to-purple-950/20 rounded-lg overflow-hidden min-h-[400px] md:min-h-[500px] backdrop-blur-sm border border-purple-200/10">
       {isGenerating ? (
         <div className="text-center p-8">
           <Loader2 className="mx-auto h-12 w-12 animate-spin text-purple-500" />

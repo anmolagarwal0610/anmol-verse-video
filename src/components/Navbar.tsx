@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Home, Video, Menu, X, FileText, ImageIcon, Film } from "lucide-react";
+import { Home, Video, Menu, X, FileText, ImageIcon, Film, Heart } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Navbar = () => {
@@ -18,6 +18,11 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    // Close mobile menu when route changes
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -49,13 +54,14 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
           <motion.div 
-            className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center"
+            className="relative h-8 w-8 rounded-lg bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center overflow-hidden"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Video className="h-4 w-4 text-white" />
+            <Heart className="h-4 w-4 text-white z-10" />
+            <div className="absolute inset-0 bg-gradient-to-br from-pink-500/50 to-purple-500/50 animate-pulse blur-sm"></div>
           </motion.div>
-          <span className="text-lg font-semibold">AnmolVerse</span>
+          <span className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">AnmolVerse</span>
         </Link>
 
         <nav className="hidden md:flex items-center space-x-1">
@@ -66,7 +72,7 @@ const Navbar = () => {
               size="sm"
               className={cn(
                 "transition-all duration-300 relative",
-                isActive(item.path) ? "bg-primary text-primary-foreground" : "",
+                isActive(item.path) ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white" : "",
                 item.disabled ? "opacity-60 cursor-not-allowed" : ""
               )}
               asChild={!item.disabled}
@@ -103,7 +109,7 @@ const Navbar = () => {
 
       {isMenuOpen && (
         <motion.nav 
-          className="md:hidden absolute top-full left-0 right-0 bg-white dark:bg-gray-950 shadow-lg border-t z-50"
+          className="md:hidden fixed top-[60px] left-0 right-0 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md shadow-lg border-t z-50 max-h-[calc(100vh-60px)] overflow-auto"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
@@ -116,7 +122,7 @@ const Navbar = () => {
                 variant={isActive(item.path) ? "default" : "ghost"}
                 className={cn(
                   "justify-start w-full relative",
-                  isActive(item.path) ? "bg-primary text-primary-foreground" : "",
+                  isActive(item.path) ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white" : "",
                   item.disabled ? "opacity-60 cursor-not-allowed" : ""
                 )}
                 onClick={() => !item.disabled && setIsMenuOpen(false)}
@@ -133,7 +139,7 @@ const Navbar = () => {
                     {item.icon}
                     {item.label}
                     {item.comingSoon && (
-                      <div className="absolute top-1 -right-2 bg-yellow-500 text-black text-[8px] px-1 rounded-full">Soon</div>
+                      <div className="absolute top-1 right-2 bg-yellow-500 text-black text-[8px] px-1 rounded-full">Soon</div>
                     )}
                   </div>
                 )}

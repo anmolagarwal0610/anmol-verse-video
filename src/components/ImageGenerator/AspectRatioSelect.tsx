@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { ASPECT_RATIOS } from '@/lib/imageApi';
 import { UseFormReturn } from 'react-hook-form';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AspectRatioSelectProps {
   form: UseFormReturn<any>;
@@ -19,13 +20,14 @@ interface AspectRatioSelectProps {
 const AspectRatioSelect = ({ form }: AspectRatioSelectProps) => {
   const [showAspectRatioPreview, setShowAspectRatioPreview] = useState(false);
   const watchAspectRatio = form.watch('aspectRatio');
+  const isMobile = useIsMobile();
 
   const renderAspectRatioPreview = (ratio: string, isInDropdown: boolean) => {
     // Only show preview in dropdown, not after selection
     if (ratio === 'custom' || !isInDropdown) return null;
     
     const [width, height] = ratio.split(':').map(Number);
-    const maxSize = 40; // Reduced size
+    const maxSize = 30; // Reduced size
     let previewWidth, previewHeight;
     
     if (width > height) {
@@ -64,15 +66,15 @@ const AspectRatioSelect = ({ form }: AspectRatioSelectProps) => {
               onOpenChange={setShowAspectRatioPreview}
             >
               <FormControl>
-                <SelectTrigger>
+                <SelectTrigger className={isMobile ? "min-w-[260px]" : ""}>
                   <SelectValue placeholder="Select aspect ratio" />
                 </SelectTrigger>
               </FormControl>
-              <SelectContent>
+              <SelectContent className={isMobile ? "w-[260px]" : ""}>
                 {Object.entries(ASPECT_RATIOS).map(([ratio, label]) => (
                   <SelectItem key={ratio} value={ratio} className="flex flex-col">
                     <div className="flex items-center text-left w-full gap-3">
-                      <span>{label}</span>
+                      <span className="flex-1">{label}</span>
                       {ratio !== 'custom' && showAspectRatioPreview && (
                         <div>
                           {renderAspectRatioPreview(ratio, true)}

@@ -12,13 +12,16 @@ import {
   LayoutGrid,
   Film,
   Sun,
-  Moon
+  Moon,
+  Sparkles
 } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
   const navigate = useNavigate();
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const isMobile = useIsMobile();
 
   // Check system preference for dark mode on initial load
   useEffect(() => {
@@ -71,136 +74,232 @@ const Index = () => {
     }
   ];
 
+  // Sample AI-generated images for inspiration
+  const inspirationImages = [
+    {
+      url: "https://images.unsplash.com/photo-1508921108053-9f757ead871c?q=80&w=1000",
+      title: "Cosmic Dream"
+    },
+    {
+      url: "https://images.unsplash.com/photo-1541512416146-3cf58d6b27cc?q=80&w=1000",
+      title: "Digital Landscape"
+    },
+    {
+      url: "https://images.unsplash.com/photo-1551103782-8ab07afd45c1?q=80&w=1000",
+      title: "Abstract Patterns"
+    },
+    {
+      url: "https://images.unsplash.com/photo-1575503802870-45de6a6217c8?q=80&w=1000",
+      title: "Future City"
+    }
+  ];
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-black">
       <Navbar />
-      
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 mt-12">
-        <div className="fixed top-20 right-4 z-40">
-          <Toggle 
-            pressed={isDarkMode} 
-            onPressedChange={toggleDarkMode}
-            aria-label="Toggle dark mode"
-            className="rounded-full p-2"
-          >
-            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </Toggle>
+
+      {/* Hero section with background image */}
+      <div className="relative w-full">
+        {/* Background image with overlay */}
+        <div className="absolute inset-0 bg-cover bg-center opacity-10 dark:opacity-20"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000')" }}>
         </div>
         
-        <motion.div 
-          className="max-w-4xl w-full text-center space-y-6 mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="mx-auto mb-6"
+        <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-8 mt-12 z-10">
+          <div className="fixed top-20 right-4 z-40">
+            <Toggle 
+              pressed={isDarkMode} 
+              onPressedChange={toggleDarkMode}
+              aria-label="Toggle dark mode"
+              className="rounded-full p-2"
+            >
+              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </Toggle>
+          </div>
+          
+          <motion.div 
+            className="max-w-4xl w-full text-center space-y-6 mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
           >
-            <div className="relative w-24 h-24 mx-auto">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-full animate-pulse" />
-              <div className="absolute inset-2 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center">
-                <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">AV</span>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="mx-auto mb-6"
+            >
+              {/* New glowing logo */}
+              <div className="relative w-32 h-32 mx-auto">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 animate-pulse blur-md opacity-70"></div>
+                <div className="absolute inset-3 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden">
+                  <div className="relative w-full h-full">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <svg viewBox="0 0 24 24" fill="none" className="w-16 h-16">
+                        <path 
+                          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" 
+                          className="fill-current text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600"
+                          stroke="url(#paint0_linear)" 
+                          strokeWidth="1.5"
+                        />
+                        <defs>
+                          <linearGradient id="paint0_linear" x1="2" y1="3" x2="22" y2="21" gradientUnits="userSpaceOnUse">
+                            <stop stopColor="#ec4899" />
+                            <stop offset="1" stopColor="#8b5cf6" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    </div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-pink-500 animate-ping"></div>
+                  </div>
+                </div>
               </div>
+            </motion.div>
+            
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
+              Welcome to <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">AnmolVerse</span>
+            </h1>
+            
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4">
+              Your futuristic creative studio powered by advanced AI. Create stunning images, 
+              videos, and transcripts with just a few clicks.
+            </p>
+          </motion.div>
+          
+          <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-16">
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                className={cn(
+                  "glass-panel rounded-xl p-4 md:p-6 border border-transparent hover:border-primary/20 relative overflow-hidden group",
+                  feature.disabled ? "opacity-70" : "cursor-pointer"
+                )}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: feature.delay }}
+                onClick={() => !feature.disabled && navigate(feature.path)}
+                style={{ pointerEvents: feature.disabled ? 'none' : 'auto' }}
+              >
+                <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 rounded-full bg-gradient-to-r opacity-20 blur-2xl group-hover:opacity-30 transition-opacity duration-500 ease-in-out"
+                  style={{ backgroundImage: `linear-gradient(to right, ${feature.color.replace('from-', '').replace('to-', '')})` }}
+                />
+                
+                <div className="relative z-10">
+                  <div className="mb-4 inline-flex items-center justify-center rounded-full w-14 h-14">
+                    {feature.icon}
+                  </div>
+                  
+                  <h3 className="text-xl md:text-2xl font-semibold mb-3 flex items-center gap-2">
+                    {feature.title}
+                    {feature.comingSoon && (
+                      <span className="bg-yellow-500 text-black text-xs px-2 py-0.5 rounded-full">
+                        Coming Soon
+                      </span>
+                    )}
+                  </h3>
+                  <p className="text-muted-foreground mb-4">{feature.description}</p>
+                  
+                  {!feature.disabled ? (
+                    <Button 
+                      variant="ghost" 
+                      className="group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300"
+                    >
+                      Explore <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="ghost" 
+                      disabled
+                      className="opacity-50 pointer-events-none"
+                    >
+                      Coming Soon
+                    </Button>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          
+          {/* Inspiration section with AI-generated images */}
+          <motion.div
+            className="w-full max-w-6xl mb-16"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold flex items-center justify-center gap-2">
+                <Sparkles className="h-5 w-5 text-purple-500" />
+                AI Generation Inspiration
+                <Sparkles className="h-5 w-5 text-purple-500" />
+              </h2>
+              <p className="text-muted-foreground mt-2">Explore what's possible with our AI tools</p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {inspirationImages.map((image, index) => (
+                <motion.div
+                  key={index}
+                  className="relative group rounded-lg overflow-hidden aspect-square glass-panel"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 + (index * 0.1), duration: 0.5 }}
+                >
+                  <img 
+                    src={image.url} 
+                    alt={image.title} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                    <div className="p-4 w-full">
+                      <p className="text-white font-medium text-lg">{image.title}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            
+            <div className="text-center mt-6">
+              <Button 
+                onClick={() => navigate('/images')}
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+              >
+                Create Your Own <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </div>
           </motion.div>
           
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-            Welcome to <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">AnmolVerse</span>
-          </h1>
-          
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mt-4">
-            Your futuristic creative studio powered by advanced AI. Create stunning images, 
-            videos, and transcripts with just a few clicks.
-          </p>
-        </motion.div>
-        
-        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              className={cn(
-                "glass-panel rounded-xl p-6 border border-transparent hover:border-primary/20 relative overflow-hidden group",
-                feature.disabled ? "opacity-70" : "cursor-pointer"
-              )}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: feature.delay }}
-              onClick={() => !feature.disabled && navigate(feature.path)}
-              style={{ pointerEvents: feature.disabled ? 'none' : 'auto' }}
-            >
-              <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 rounded-full bg-gradient-to-r opacity-20 blur-2xl group-hover:opacity-30 transition-opacity duration-500 ease-in-out"
-                style={{ backgroundImage: `linear-gradient(to right, ${feature.color.replace('from-', '').replace('to-', '')})` }}
-              />
+          <motion.div
+            className="relative w-full max-w-5xl"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7, duration: 0.5 }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-xl blur-xl" />
+            
+            <div className="relative glass-panel p-8 rounded-xl border border-indigo-200 dark:border-indigo-900">
+              <h2 className="text-2xl font-semibold mb-4 text-center">The Future is Creative</h2>
               
-              <div className="relative z-10">
-                <div className="mb-4 inline-flex items-center justify-center rounded-full w-14 h-14">
-                  {feature.icon}
-                </div>
-                
-                <h3 className="text-2xl font-semibold mb-3 flex items-center gap-2">
-                  {feature.title}
-                  {feature.comingSoon && (
-                    <span className="bg-yellow-500 text-black text-xs px-2 py-0.5 rounded-full">
-                      Coming Soon
-                    </span>
-                  )}
-                </h3>
-                <p className="text-muted-foreground mb-4">{feature.description}</p>
-                
-                {!feature.disabled ? (
-                  <Button 
-                    variant="ghost" 
-                    className="group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300"
-                  >
-                    Explore <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Button>
-                ) : (
-                  <Button 
-                    variant="ghost" 
-                    disabled
-                    className="opacity-50 pointer-events-none"
-                  >
-                    Coming Soon
-                  </Button>
-                )}
+              <p className="text-center text-muted-foreground max-w-3xl mx-auto">
+                AnmolVerse combines cutting-edge AI technologies to give you the most advanced 
+                creative tools available today. Start with any creative project and let our 
+                AI help you bring your vision to life.
+              </p>
+              
+              <div className="mt-8 flex justify-center">
+                <Button 
+                  size="lg" 
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+                  onClick={() => navigate('/images')}
+                >
+                  Start Creating Now
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
               </div>
-            </motion.div>
-          ))}
-        </div>
-        
-        <motion.div
-          className="relative w-full max-w-5xl"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7, duration: 0.5 }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-xl blur-xl" />
-          
-          <div className="relative glass-panel p-8 rounded-xl border border-indigo-200 dark:border-indigo-900">
-            <h2 className="text-2xl font-semibold mb-4 text-center">The Future is Creative</h2>
-            
-            <p className="text-center text-muted-foreground max-w-3xl mx-auto">
-              AnmolVerse combines cutting-edge AI technologies to give you the most advanced 
-              creative tools available today. Start with any creative project and let our 
-              AI help you bring your vision to life.
-            </p>
-            
-            <div className="mt-8 flex justify-center">
-              <Button 
-                size="lg" 
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
-                onClick={() => navigate('/images')}
-              >
-                Start Creating Now
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
             </div>
-          </div>
-        </motion.div>
-      </main>
+          </motion.div>
+        </main>
+      </div>
       
       <footer className="py-6 border-t">
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
