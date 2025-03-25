@@ -1,27 +1,20 @@
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FormControl, FormField, FormItem, FormLabel, FormDescription } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
 import { MODEL_DESCRIPTIONS } from '@/lib/imageApi';
 import { FormValues } from '@/hooks/use-image-generator';
-
 interface ModelSelectProps {
   form: UseFormReturn<FormValues>;
 }
-
-const ModelSelect = ({ form }: ModelSelectProps) => {
-  return (
-    <FormField
-      control={form.control}
-      name="model"
-      render={({ field }) => (
-        <FormItem>
+const ModelSelect = ({
+  form
+}: ModelSelectProps) => {
+  return <FormField control={form.control} name="model" render={({
+    field
+  }) => <FormItem>
           <FormLabel>Image Model</FormLabel>
           <FormControl>
-            <Select
-              value={field.value}
-              onValueChange={field.onChange}
-            >
+            <Select value={field.value} onValueChange={field.onChange}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select model" />
               </SelectTrigger>
@@ -47,13 +40,7 @@ const ModelSelect = ({ form }: ModelSelectProps) => {
               </SelectContent>
             </Select>
           </FormControl>
-          <FormDescription>
-            {MODEL_DESCRIPTIONS[field.value as keyof typeof MODEL_DESCRIPTIONS] || 'Select a model to generate your image'}
-          </FormDescription>
-        </FormItem>
-      )}
-    />
-  );
+          
+        </FormItem>} />;
 };
-
 export default ModelSelect;
