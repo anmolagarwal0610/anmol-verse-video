@@ -28,19 +28,19 @@ const ModelSelect = ({ form }: ModelSelectProps) => {
                 <SelectItem value="basic">
                   <div className="flex flex-col">
                     <span className="font-medium">Basic</span>
-                    <span className="text-xs text-muted-foreground">Perfect for side projects and trying out ideas</span>
+                    <span className="text-xs text-muted-foreground">{MODEL_DESCRIPTIONS.basic}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="advanced">
                   <div className="flex flex-col">
                     <span className="font-medium">Advanced</span>
-                    <span className="text-xs text-muted-foreground">Ideal for content creation and social media assets</span>
+                    <span className="text-xs text-muted-foreground">{MODEL_DESCRIPTIONS.advanced}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="pro" disabled>
                   <div className="flex flex-col">
                     <span className="font-medium">Pro</span>
-                    <span className="text-xs text-muted-foreground">Coming soon - For professional quality outputs</span>
+                    <span className="text-xs text-muted-foreground">{MODEL_DESCRIPTIONS.pro}</span>
                   </div>
                 </SelectItem>
               </SelectContent>

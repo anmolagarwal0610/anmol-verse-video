@@ -1,16 +1,15 @@
 
 import { useState, useCallback, useRef } from 'react';
-import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 
 import Navbar from '@/components/Navbar';
-import PreviewPanel from '@/components/ImageGenerator/PreviewPanel';
-import ImageGenerationForm from '@/components/ImageGenerator/ImageGenerationForm';
 import TipsSection from '@/components/ImageGenerator/TipsSection';
-import { useIsMobile } from '@/hooks/use-mobile';
+import HeaderSection from '@/components/ImageGenerator/HeaderSection';
+import MainContent from '@/components/ImageGenerator/MainContent';
+import FooterSection from '@/components/ImageGenerator/FooterSection';
 import { 
   generateImage, 
   calculateDimensions
@@ -18,9 +17,6 @@ import {
 import { useCredit } from '@/lib/creditService';
 import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { ImageIcon, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const formSchema = z.object({
   prompt: z.string().min(2, { message: 'Please enter a prompt with at least 2 characters' }),
@@ -41,7 +37,6 @@ const ImageGeneration = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showGalleryMessage, setShowGalleryMessage] = useState(false);
-  const isMobile = useIsMobile();
   const isSubmittingRef = useRef(false);
   const { user } = useAuth();
   
@@ -139,96 +134,20 @@ const ImageGeneration = () => {
       <Navbar />
       
       <main className="flex-1 flex flex-col items-center px-4 py-16 mt-10">
-        <motion.div 
-          className="max-w-3xl w-full text-center space-y-4 mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          <motion.div 
-            className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium mb-4"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            AI-powered image generation
-          </motion.div>
-          
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight break-words">
-            Generate stunning <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">images</span> from text
-          </h1>
-          
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Transform your ideas into high-quality visuals with just a few clicks.
-          </p>
-        </motion.div>
+        <HeaderSection />
         
-        <div className="w-full max-w-6xl">
-          <div className={`grid grid-cols-1 ${isMobile || !imageUrl ? 'md:grid-cols-2' : 'md:grid-cols-5'} gap-8 mb-8`}>
-            <motion.div
-              className={`glass-panel p-6 rounded-xl md:order-1 ${isMobile || !imageUrl ? '' : 'md:col-span-2'}`}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <ImageGenerationForm 
-                form={form} 
-                onSubmit={onSubmit} 
-                isGenerating={isGenerating} 
-              />
-            </motion.div>
-            
-            <motion.div
-              className={`glass-panel p-6 rounded-xl md:order-2 flex flex-col ${isMobile || !imageUrl ? '' : 'md:col-span-3'}`}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <h3 className="text-lg font-medium mb-4">Preview</h3>
-              
-              <PreviewPanel 
-                isGenerating={isGenerating}
-                imageUrl={imageUrl}
-                outputFormat={form.getValues('outputFormat')}
-              />
-              
-              {showGalleryMessage && imageUrl && (
-                <motion.div
-                  className="mt-4 p-3 bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 rounded-lg text-sm flex items-center justify-between"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.2 }}
-                >
-                  <div className="flex items-center">
-                    <ImageIcon size={16} className="text-indigo-600 dark:text-indigo-400 mr-2" />
-                    <span className="text-indigo-800 dark:text-indigo-300">This image has been saved to your gallery</span>
-                  </div>
-                  <Button asChild variant="ghost" size="sm" className="text-indigo-700 dark:text-indigo-300">
-                    <Link to="/gallery" className="flex items-center">
-                      View <ArrowRight size={14} className="ml-1" />
-                    </Link>
-                  </Button>
-                </motion.div>
-              )}
-            </motion.div>
-          </div>
-        </div>
+        <MainContent 
+          form={form}
+          onSubmit={onSubmit}
+          isGenerating={isGenerating}
+          imageUrl={imageUrl}
+          showGalleryMessage={showGalleryMessage}
+        />
         
         <TipsSection />
       </main>
       
-      <footer className="py-6 border-t">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} AnmolVerse. All rights reserved.
-          </p>
-          <div className="flex items-center space-x-4 mt-4 md:mt-0">
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Terms</a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Privacy</a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Contact</a>
-          </div>
-        </div>
-      </footer>
+      <FooterSection />
     </div>
   );
 };
