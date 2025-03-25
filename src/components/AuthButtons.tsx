@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import UserMenu from "./UserMenu";
+import { LogIn } from "lucide-react";
 
 export default function AuthButtons() {
   const { user, loading } = useAuth();
@@ -17,11 +18,12 @@ export default function AuthButtons() {
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Button variant="outline" onClick={() => navigate("/auth")}>
-        Sign In
-      </Button>
-      <Button onClick={() => navigate("/auth?tab=sign-up")}>Sign Up</Button>
-    </div>
+    <Button 
+      onClick={() => navigate("/auth")}
+      className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium px-4 flex items-center gap-2 rounded-full shadow-sm hover:shadow-md transition-all"
+    >
+      <LogIn className="h-4 w-4" />
+      <span>Sign In</span>
+    </Button>
   );
 }

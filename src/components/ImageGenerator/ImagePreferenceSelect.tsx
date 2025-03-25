@@ -1,99 +1,95 @@
 
-import { useState, useEffect } from 'react';
-import { FormLabel, FormDescription } from '@/components/ui/form';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
+import { CheckIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { IMAGE_STYLES } from '@/lib/imageApi';
-import { X } from 'lucide-react';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
+import { useState } from 'react';
 
 interface ImagePreferenceSelectProps {
   form: UseFormReturn<any>;
 }
 
 const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
-  // Get initial styles from form or empty array
-  const [selectedStyles, setSelectedStyles] = useState<string[]>(form.getValues('imageStyles') || []);
+  const [open, setOpen] = useState(false);
+  const selectedStyles = form.watch('imageStyles') || [];
   
-  // Sync state with form values
-  useEffect(() => {
-    form.setValue('imageStyles', selectedStyles, { shouldValidate: true });
-  }, [selectedStyles, form]);
-
-  // Toggle a style in the selection
-  const toggleStyle = (styleKey: string) => {
-    setSelectedStyles(prev => {
-      if (prev.includes(styleKey)) {
-        return prev.filter(key => key !== styleKey);
-      } else {
-        return [...prev, styleKey];
-      }
-    });
+  const handleSelect = (value: string) => {
+    const current = [...selectedStyles];
+    const index = current.indexOf(value);
+    
+    if (index === -1) {
+      // Add the style if not already selected
+      form.setValue('imageStyles', [...current, value]);
+    } else {
+      // Remove the style if already selected
+      current.splice(index, 1);
+      form.setValue('imageStyles', current);
+    }
   };
   
-  // Remove a style from selection
-  const removeStyle = (styleKey: string) => {
-    setSelectedStyles(prev => prev.filter(key => key !== styleKey));
-  };
-
   return (
-    <div className="space-y-3">
-      <FormLabel className="text-base">Image Style Preferences</FormLabel>
-      <FormDescription>
-        Select styles to enhance your image (optional)
-      </FormDescription>
-      
-      <div className="space-y-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button 
-              variant="outline" 
-              className="w-full justify-between bg-background text-left font-normal"
-            >
-              <span>Select image styles</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-full min-w-[200px]">
-            {Object.entries(IMAGE_STYLES).map(([key, label]) => (
-              <DropdownMenuCheckboxItem
-                key={key}
-                checked={selectedStyles.includes(key)}
-                onCheckedChange={() => toggleStyle(key)}
-              >
-                {label}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        
-        {selectedStyles.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
-            {selectedStyles.map(styleKey => (
-              <div 
-                key={styleKey}
-                className="flex items-center gap-1 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 rounded-full px-3 py-1 text-sm"
-              >
-                <span>{IMAGE_STYLES[styleKey]}</span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-4 w-4 p-0 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200/50 dark:hover:bg-indigo-800/50 rounded-full"
-                  onClick={() => removeStyle(styleKey)}
+    <FormField
+      control={form.control}
+      name="imageStyles"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Image Style</FormLabel>
+          <FormControl>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start text-left font-normal"
                 >
-                  <X className="h-3 w-3" />
+                  {selectedStyles.length > 0 
+                    ? `${selectedStyles.length} style${selectedStyles.length > 1 ? 's' : ''} selected` 
+                    : "Select styles..."}
                 </Button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0 z-50 bg-background border" side="bottom" align="start">
+                <Command>
+                  <CommandInput placeholder="Search styles..." />
+                  <CommandList>
+                    <CommandEmpty>No styles found.</CommandEmpty>
+                    <CommandGroup>
+                      {Object.entries(IMAGE_STYLES).map(([value, label]) => {
+                        const isSelected = selectedStyles.includes(value);
+                        return (
+                          <CommandItem
+                            key={value}
+                            value={value}
+                            onSelect={() => handleSelect(value)}
+                            className={cn(
+                              "flex items-center gap-2",
+                              isSelected && "bg-accent"
+                            )}
+                          >
+                            <div className={cn(
+                              "flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                              isSelected && "bg-primary text-primary-foreground"
+                            )}>
+                              {isSelected && <CheckIcon className="h-3 w-3" />}
+                            </div>
+                            <span>{label}</span>
+                          </CommandItem>
+                        );
+                      })}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </FormControl>
+          <FormDescription>
+            Select styles to enhance your image (optional)
+          </FormDescription>
+        </FormItem>
+      )}
+    />
   );
 };
 

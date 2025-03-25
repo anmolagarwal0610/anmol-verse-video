@@ -2,10 +2,21 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Badge } from '@/components/ui/badge';
-import { Coins } from 'lucide-react';
+import { Coins, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from '@/components/ui/tooltip';
 import { checkCredits } from '@/lib/creditService';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from '@/components/ui/button';
 
 const UserCredits = () => {
   const { user, loading } = useAuth();
@@ -67,31 +78,69 @@ const UserCredits = () => {
 
   }, [user]);
 
-  if (!user || (loading && isLoading)) {
+  if (!user || loading) {
     return null;
   }
 
-  if (!credits && !isLoading) {
-    return null;
+  if (isLoading) {
+    return (
+      <Badge 
+        variant="outline" 
+        className="flex items-center gap-1 py-1 px-2 border-yellow-500/50 bg-yellow-500/20 dark:bg-yellow-400/10 dark:border-yellow-400/30 text-yellow-800 dark:text-yellow-400 shadow-sm animate-pulse"
+      >
+        <Coins className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
+        <span className="text-yellow-700 dark:text-yellow-500 font-medium">...</span>
+      </Badge>
+    );
   }
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Badge 
-            variant="outline" 
-            className="flex items-center gap-1 py-1 px-2 border-yellow-500/50 bg-yellow-500/20 dark:bg-yellow-400/10 dark:border-yellow-400/30 text-yellow-800 dark:text-yellow-400 shadow-sm"
-          >
-            <Coins className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
-            <span className="text-yellow-700 dark:text-yellow-500 font-medium">{credits !== null ? credits : '...'}</span>
-          </Badge>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Your remaining credits</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Popover>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <PopoverTrigger asChild>
+              <Badge 
+                variant="outline" 
+                className="flex items-center gap-1 py-1 px-2 border-yellow-500/50 bg-yellow-500/20 dark:bg-yellow-400/10 dark:border-yellow-400/30 text-yellow-800 dark:text-yellow-400 shadow-sm cursor-pointer hover:bg-yellow-500/30 transition-colors duration-200"
+              >
+                <Coins className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
+                <span className="text-yellow-700 dark:text-yellow-500 font-medium">{credits !== null ? credits : '0'}</span>
+              </Badge>
+            </PopoverTrigger>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Your remaining credits</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      
+      <PopoverContent className="w-64 p-4">
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium">Credits Balance</h4>
+            <Badge variant="secondary">
+              <Coins className="h-3 w-3 mr-1 text-yellow-500" />
+              {credits !== null ? credits : '0'} remaining
+            </Badge>
+          </div>
+          
+          <div className="space-y-2">
+            <h5 className="text-sm text-muted-foreground">Need more credits?</h5>
+            <Button 
+              className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white"
+              disabled
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Top Up
+              <span className="absolute -top-2 -right-2 bg-indigo-600 text-white text-[8px] px-1 rounded-full">
+                Coming Soon
+              </span>
+            </Button>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 };
 

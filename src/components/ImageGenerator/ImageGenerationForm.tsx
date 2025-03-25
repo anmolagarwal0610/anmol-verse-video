@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Wand2, Loader2, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -62,9 +63,10 @@ const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFo
             className="min-h-[100px] resize-none"
           />
           
-          <ModelSelect form={form} />
-          
+          {/* Moved AspectRatioSelect to be the 2nd option as requested */}
           <AspectRatioSelect form={form} />
+          
+          <ModelSelect form={form} />
           
           <ImagePreferenceSelect form={form} />
           

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -80,16 +79,16 @@ const Index = () => {
       title: "Bold Portrait"
     },
     {
-      url: "https://images.unsplash.com/photo-1604537466158-719b1972feb8?q=80&w=2000",
-      title: "Cosmic Dreams"
+      url: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2000",
+      title: "Cosmic Frontier"
     },
     {
       url: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=2000",
       title: "Digital Future"
     },
     {
-      url: "https://images.unsplash.com/photo-1482881497185-d4a9ddbe4151?q=80&w=2000",
-      title: "Abstract Patterns"
+      url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2000",
+      title: "Enchanted Forest"
     }
   ];
 

@@ -1,47 +1,37 @@
 
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface OutputFormatSelectProps {
   form: UseFormReturn<any>;
 }
 
 const OutputFormatSelect = ({ form }: OutputFormatSelectProps) => {
-  const isMobile = useIsMobile();
-  
   return (
     <FormField
       control={form.control}
       name="outputFormat"
       render={({ field }) => (
         <FormItem>
-          <FormLabel className="flex items-center">
-            Output Format
-            <span className="text-red-500 ml-1">*</span>
-          </FormLabel>
-          <Select
-            onValueChange={field.onChange}
-            defaultValue={field.value}
-          >
-            <FormControl>
-              <SelectTrigger className={isMobile ? "w-full" : ""}>
-                <SelectValue placeholder="Select format" />
+          <FormLabel>Output Format</FormLabel>
+          <FormControl>
+            <Select
+              value={field.value}
+              onValueChange={field.onChange}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select output format" />
               </SelectTrigger>
-            </FormControl>
-            <SelectContent className={isMobile ? "w-full" : ""}>
-              <SelectItem value="png">PNG</SelectItem>
-              <SelectItem value="jpeg">JPEG</SelectItem>
-            </SelectContent>
-          </Select>
-          <FormMessage />
+              <SelectContent position="popper" className="w-full z-50 bg-background border" side="bottom">
+                <SelectItem value="png">PNG (Transparent Background)</SelectItem>
+                <SelectItem value="jpeg">JPEG (Smaller File Size)</SelectItem>
+              </SelectContent>
+            </Select>
+          </FormControl>
+          <FormDescription>
+            Choose file format for your generated image
+          </FormDescription>
         </FormItem>
       )}
     />

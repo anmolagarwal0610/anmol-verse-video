@@ -1,96 +1,65 @@
 
-import { useState } from 'react';
-import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ASPECT_RATIOS } from '@/lib/imageApi';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { Input } from '@/components/ui/input';
+import { useState, useEffect } from 'react';
+import { ASPECT_RATIOS } from '@/lib/imageApi';
 
 interface AspectRatioSelectProps {
   form: UseFormReturn<any>;
 }
 
 const AspectRatioSelect = ({ form }: AspectRatioSelectProps) => {
-  const [showAspectRatioPreview, setShowAspectRatioPreview] = useState(false);
-  const watchAspectRatio = form.watch('aspectRatio');
-  const isMobile = useIsMobile();
-
-  const renderAspectRatioPreview = (ratio: string, isInDropdown: boolean) => {
-    // Only show preview in dropdown, not after selection
-    if (ratio === 'custom' || !isInDropdown) return null;
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  
+  useEffect(() => {
+    // Show custom input if aspectRatio is 'custom'
+    setShowCustomInput(form.getValues('aspectRatio') === 'custom');
     
-    const [width, height] = ratio.split(':').map(Number);
-    const maxSize = 30; // Reduced size
-    let previewWidth, previewHeight;
+    // Add listener to aspectRatio changes
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'aspectRatio') {
+        setShowCustomInput(value.aspectRatio === 'custom');
+      }
+    });
     
-    if (width > height) {
-      previewWidth = maxSize;
-      previewHeight = (height / width) * maxSize;
-    } else {
-      previewHeight = maxSize;
-      previewWidth = (width / height) * maxSize;
-    }
-    
-    return (
-      <div 
-        className="border-2 border-purple-400/30 bg-purple-50/10"
-        style={{ 
-          width: `${previewWidth}px`, 
-          height: `${previewHeight}px` 
-        }}
-      />
-    );
-  };
-
+    return () => subscription.unsubscribe();
+  }, [form]);
+  
   return (
-    <>
+    <div className="space-y-3">
       <FormField
         control={form.control}
         name="aspectRatio"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex items-center">
-              Image Ratio
-              <span className="text-red-500 ml-1">*</span>
-            </FormLabel>
-            <Select
-              onValueChange={field.onChange}
-              defaultValue={field.value}
-              onOpenChange={setShowAspectRatioPreview}
-            >
-              <FormControl>
-                <SelectTrigger className={isMobile ? "min-w-[260px]" : ""}>
+            <FormLabel>Aspect Ratio</FormLabel>
+            <FormControl>
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+              >
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select aspect ratio" />
                 </SelectTrigger>
-              </FormControl>
-              <SelectContent className={isMobile ? "w-[260px]" : ""}>
-                {Object.entries(ASPECT_RATIOS).map(([ratio, label]) => (
-                  <SelectItem key={ratio} value={ratio} className="flex flex-col">
-                    <div className="flex items-center text-left w-full gap-3">
-                      <span className="flex-1">{label}</span>
-                      {ratio !== 'custom' && showAspectRatioPreview && (
-                        <div>
-                          {renderAspectRatioPreview(ratio, true)}
-                        </div>
-                      )}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
+                <SelectContent position="popper" className="w-full z-50 bg-background border" side="bottom">
+                  {Object.entries(ASPECT_RATIOS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormDescription>
+              Choose the dimensions for your generated image
+            </FormDescription>
           </FormItem>
         )}
       />
       
-      {watchAspectRatio === 'custom' && (
+      {showCustomInput && (
         <FormField
           control={form.control}
           name="customRatio"
@@ -98,17 +67,20 @@ const AspectRatioSelect = ({ form }: AspectRatioSelectProps) => {
             <FormItem>
               <FormLabel>Custom Ratio</FormLabel>
               <FormControl>
-                <Input placeholder="16:9" {...field} />
+                <Input
+                  {...field}
+                  placeholder="width:height (e.g. 16:9)"
+                  className="w-full"
+                />
               </FormControl>
               <FormDescription>
-                Enter a custom ratio as width:height (e.g., 16:9)
+                Format must be width:height (e.g., 16:9)
               </FormDescription>
-              <FormMessage />
             </FormItem>
           )}
         />
       )}
-    </>
+    </div>
   );
 };
 
