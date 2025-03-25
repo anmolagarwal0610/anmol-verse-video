@@ -2,9 +2,10 @@
 import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { UseFormReturn } from 'react-hook-form';
+import { FormValues } from '@/hooks/use-image-generator';
 
 interface PromptTextareaProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<FormValues>;
   label: string;
   name: "prompt" | "negativePrompt";
   description: string;

@@ -3,9 +3,10 @@ import { FormField, FormItem, FormLabel, FormDescription, FormControl, FormMessa
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { UseFormReturn } from 'react-hook-form';
+import { FormValues } from '@/hooks/use-image-generator';
 
 interface SeedControlProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<FormValues>;
 }
 
 const SeedControl = ({ form }: SeedControlProps) => {

@@ -2,9 +2,10 @@
 import { FormField, FormItem, FormLabel, FormDescription, FormControl, FormMessage } from '@/components/ui/form';
 import { Slider } from '@/components/ui/slider';
 import { UseFormReturn } from 'react-hook-form';
+import { FormValues } from '@/hooks/use-image-generator';
 
 interface GuidanceControlProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<FormValues>;
 }
 
 const GuidanceControl = ({ form }: GuidanceControlProps) => {

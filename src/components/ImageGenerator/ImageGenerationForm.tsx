@@ -14,6 +14,7 @@ import GuidanceControl from './GuidanceControl';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
+import { FormValues } from '@/hooks/use-image-generator';
 import {
   Dialog,
   DialogContent,
@@ -24,8 +25,8 @@ import {
 } from '@/components/ui/dialog';
 
 interface ImageGenerationFormProps {
-  form: UseFormReturn<any>;
-  onSubmit: (values: any) => Promise<void>;
+  form: UseFormReturn<FormValues>;
+  onSubmit: (values: FormValues) => Promise<void>;
   isGenerating: boolean;
 }
 
@@ -35,7 +36,7 @@ const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFo
   const navigate = useNavigate();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   
-  const handleFormSubmit = async (values: any) => {
+  const handleFormSubmit = async (values: FormValues) => {
     if (!user) {
       setShowAuthDialog(true);
       return;

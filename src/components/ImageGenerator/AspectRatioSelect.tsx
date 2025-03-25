@@ -5,9 +5,10 @@ import { UseFormReturn } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { useState, useEffect } from 'react';
 import { ASPECT_RATIOS } from '@/lib/imageApi';
+import { FormValues } from '@/hooks/use-image-generator';
 
 interface AspectRatioSelectProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<FormValues>;
 }
 
 const AspectRatioSelect = ({

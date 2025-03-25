@@ -9,9 +9,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { FormValues } from '@/hooks/use-image-generator';
 
 interface ImagePreferenceSelectProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<FormValues>;
 }
 
 const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {

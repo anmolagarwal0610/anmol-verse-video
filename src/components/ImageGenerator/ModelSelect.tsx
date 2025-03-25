@@ -3,9 +3,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FormControl, FormField, FormItem, FormLabel, FormDescription } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
 import { MODEL_DESCRIPTIONS } from '@/lib/imageApi';
+import { FormValues } from '@/hooks/use-image-generator';
 
 interface ModelSelectProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<FormValues>;
 }
 
 const ModelSelect = ({ form }: ModelSelectProps) => {
@@ -47,7 +48,7 @@ const ModelSelect = ({ form }: ModelSelectProps) => {
             </Select>
           </FormControl>
           <FormDescription>
-            {MODEL_DESCRIPTIONS[field.value] || 'Select a model to generate your image'}
+            {MODEL_DESCRIPTIONS[field.value as keyof typeof MODEL_DESCRIPTIONS] || 'Select a model to generate your image'}
           </FormDescription>
         </FormItem>
       )}

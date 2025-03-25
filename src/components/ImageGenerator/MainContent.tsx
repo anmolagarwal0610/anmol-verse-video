@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { UseFormReturn } from 'react-hook-form';
 import { Link } from 'react-router-dom';
@@ -8,10 +7,11 @@ import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import PreviewPanel from '@/components/ImageGenerator/PreviewPanel';
 import ImageGenerationForm from '@/components/ImageGenerator/ImageGenerationForm';
+import { FormValues } from '@/hooks/use-image-generator';
 
 interface MainContentProps {
-  form: UseFormReturn<any>;
-  onSubmit: (values: any) => Promise<void>;
+  form: UseFormReturn<FormValues>;
+  onSubmit: (values: FormValues) => Promise<void>;
   isGenerating: boolean;
   imageUrl: string | null;
   showGalleryMessage: boolean;

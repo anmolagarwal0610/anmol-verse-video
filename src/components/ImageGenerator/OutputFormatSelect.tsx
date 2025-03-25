@@ -2,9 +2,10 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
+import { FormValues } from '@/hooks/use-image-generator';
 
 interface OutputFormatSelectProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<FormValues>;
 }
 
 const OutputFormatSelect = ({ form }: OutputFormatSelectProps) => {
