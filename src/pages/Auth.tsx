@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { motion } from 'framer-motion';
-import { Star, Sparkles, Wand2 } from 'lucide-react';
+import { Star, Sparkles, Wand2, ShieldCheck, CloudLightning } from 'lucide-react';
 
 export default function Auth() {
   const { user, loading } = useAuth();
@@ -63,6 +63,20 @@ export default function Auth() {
                 <Wand2 className="h-4 w-4 text-pink-600 dark:text-pink-400" />
               </div>
               <p className="text-sm">Personalized content saved to your account</p>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              </div>
+              <p className="text-sm">Secure account with personalized experience</p>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <div className="flex-shrink-0 h-8 w-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <CloudLightning className="h-4 w-4 text-green-600 dark:text-green-400" />
+              </div>
+              <p className="text-sm">Fast, powerful AI processing in the cloud</p>
             </div>
           </div>
         </motion.div>

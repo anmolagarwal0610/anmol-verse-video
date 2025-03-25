@@ -1,14 +1,8 @@
 
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { MODEL_DESCRIPTIONS } from '@/lib/imageApi';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormControl, FormField, FormItem, FormLabel, FormDescription } from '@/components/ui/form';
 import { UseFormReturn } from 'react-hook-form';
+import { MODEL_DESCRIPTIONS } from '@/lib/imageApi';
 
 interface ModelSelectProps {
   form: UseFormReturn<any>;
@@ -21,33 +15,25 @@ const ModelSelect = ({ form }: ModelSelectProps) => {
       name="model"
       render={({ field }) => (
         <FormItem>
-          <FormLabel className="flex items-center">
-            Image Model
-            <span className="text-red-500 ml-1">*</span>
-          </FormLabel>
-          <Select
-            onValueChange={field.onChange}
-            defaultValue={field.value}
-          >
-            <FormControl>
-              <SelectTrigger>
+          <FormLabel>Image Model</FormLabel>
+          <FormControl>
+            <Select
+              value={field.value}
+              onValueChange={field.onChange}
+            >
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select model" />
               </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {['basic', 'advanced', 'pro'].map((model) => (
-                <SelectItem key={model} value={model} disabled={model === 'pro'}>
-                  <div className="flex flex-col">
-                    <span className="font-medium capitalize">{model}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {MODEL_DESCRIPTIONS[model]}
-                    </span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FormMessage />
+              <SelectContent position="popper" className="w-full z-50 bg-background border" side="bottom">
+                <SelectItem value="basic">Basic</SelectItem>
+                <SelectItem value="advanced">Advanced</SelectItem>
+                <SelectItem value="pro" disabled>Pro (Coming Soon)</SelectItem>
+              </SelectContent>
+            </Select>
+          </FormControl>
+          <FormDescription>
+            {MODEL_DESCRIPTIONS[field.value] || 'Select a model to generate your image'}
+          </FormDescription>
         </FormItem>
       )}
     />

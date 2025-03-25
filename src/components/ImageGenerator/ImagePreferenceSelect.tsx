@@ -8,6 +8,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 
 interface ImagePreferenceSelectProps {
   form: UseFormReturn<any>;
@@ -37,7 +38,12 @@ const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
       name="imageStyles"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Image Style</FormLabel>
+          <div className="flex items-center">
+            <FormLabel>Image Style</FormLabel>
+            <Badge className="ml-2 font-normal bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/50">
+              optional
+            </Badge>
+          </div>
           <FormControl>
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
@@ -50,7 +56,7 @@ const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
                     : "Select styles..."}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 z-50 bg-background border" side="bottom" align="start">
+              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 z-50 bg-background border" align="start" sideOffset={4}>
                 <Command>
                   <CommandInput placeholder="Search styles..." />
                   <CommandList>
@@ -85,7 +91,7 @@ const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
             </Popover>
           </FormControl>
           <FormDescription>
-            Select styles to enhance your image (optional)
+            Select styles to enhance your image
           </FormDescription>
         </FormItem>
       )}

@@ -97,22 +97,29 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
 };
 
 // Helper function to calculate dimensions based on aspect ratio with max pixel constraint
+// and ensure dimensions are multiples of 16
 export const calculateDimensions = (ratio: string): { width: number, height: number } => {
   const [widthRatio, heightRatio] = ratio.split(':').map(Number);
   const MAX_DIMENSION = 1792;
   
   // Calculate which dimension should be maximized
+  let width, height;
+  
   if (widthRatio > heightRatio) {
     // Landscape orientation - maximize width
-    const width = MAX_DIMENSION;
-    const height = Math.round((heightRatio / widthRatio) * width);
-    return { width, height };
+    width = MAX_DIMENSION;
+    height = Math.round((heightRatio / widthRatio) * width);
   } else {
     // Portrait or square orientation - maximize height
-    const height = MAX_DIMENSION;
-    const width = Math.round((widthRatio / heightRatio) * height);
-    return { width, height };
+    height = MAX_DIMENSION;
+    width = Math.round((widthRatio / heightRatio) * height);
   }
+  
+  // Ensure dimensions are multiples of 16 by rounding down
+  width = Math.floor(width / 16) * 16;
+  height = Math.floor(height / 16) * 16;
+  
+  return { width, height };
 };
 
 // Predefined aspect ratios

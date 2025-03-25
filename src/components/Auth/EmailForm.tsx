@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -16,12 +16,13 @@ interface EmailFormProps {
 const EmailForm = ({ isSignUp, isLoading, setIsLoading, onSuccess }: EmailFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!email || !password || (isSignUp && !name)) {
       toast.error('Please fill in all fields');
       return;
     }
@@ -38,6 +39,11 @@ const EmailForm = ({ isSignUp, isLoading, setIsLoading, onSuccess }: EmailFormPr
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              name: name,
+            }
+          }
         });
         
         if (error) throw error;
@@ -64,6 +70,22 @@ const EmailForm = ({ isSignUp, isLoading, setIsLoading, onSuccess }: EmailFormPr
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {isSignUp && (
+        <div>
+          <div className="relative">
+            <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="pl-10"
+              disabled={isLoading}
+            />
+          </div>
+        </div>
+      )}
+      
       <div>
         <div className="relative">
           <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />

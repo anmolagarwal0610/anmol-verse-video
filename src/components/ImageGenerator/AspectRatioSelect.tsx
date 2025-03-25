@@ -43,10 +43,22 @@ const AspectRatioSelect = ({ form }: AspectRatioSelectProps) => {
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select aspect ratio" />
                 </SelectTrigger>
-                <SelectContent position="popper" className="w-full z-50 bg-background border" side="bottom">
+                <SelectContent position="popper" alignOffset={0} className="w-[var(--radix-select-trigger-width)] z-50 bg-background border" sideOffset={4}>
                   {Object.entries(ASPECT_RATIOS).map(([value, label]) => (
                     <SelectItem key={value} value={value}>
-                      {label}
+                      <div className="flex items-center">
+                        {value !== 'custom' && (
+                          <div 
+                            className="mr-2 border border-muted-foreground/30 bg-muted/20 flex-shrink-0"
+                            style={{
+                              width: '1rem',
+                              height: '1rem',
+                              aspectRatio: value.replace(':', '/'),
+                            }}
+                          />
+                        )}
+                        <span>{label}</span>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>

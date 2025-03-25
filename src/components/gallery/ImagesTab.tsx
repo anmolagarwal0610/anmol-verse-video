@@ -3,12 +3,18 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ImageCard from '@/components/ImageCard';
 import EmptyState from '@/components/EmptyState';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from '@/components/ui/tooltip';
 
 interface GeneratedImage {
   id: string;
@@ -81,6 +87,12 @@ const DEFAULT_IMAGES: GeneratedImage[] = [
   }
 ];
 
+// Helper function to truncate text
+const truncateText = (text: string, maxLength: number) => {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + '...';
+};
+
 const ImagesTab = () => {
   const [images, setImages] = useState<GeneratedImage[]>([]);
   const [isLoadingImages, setIsLoadingImages] = useState(true);
@@ -117,6 +129,11 @@ const ImagesTab = () => {
 
     fetchImages();
   }, [user]);
+
+  const handleCopyPrompt = (prompt: string) => {
+    navigator.clipboard.writeText(prompt);
+    toast.success('Prompt copied to clipboard');
+  };
 
   if (isLoadingImages) {
     return (
@@ -155,7 +172,33 @@ const ImagesTab = () => {
         transition={{ duration: 0.3 }}
       >
         {images.map((image, index) => (
-          <ImageCard key={image.id} image={image} index={index} />
+          <div key={image.id} className="relative group">
+            <ImageCard image={image} index={index} />
+            
+            {/* Prompt display with copy button */}
+            <div className="mt-2 flex items-start">
+              <p className="text-xs text-muted-foreground flex-1">
+                {truncateText(image.prompt, 40)}
+              </p>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 w-6 p-0 ml-1"
+                      onClick={() => handleCopyPrompt(image.prompt)}
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Copy full prompt</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
         ))}
       </motion.div>
     </>
