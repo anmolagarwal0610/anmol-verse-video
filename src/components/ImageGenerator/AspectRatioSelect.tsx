@@ -51,8 +51,8 @@ const AspectRatioSelect = ({ form }: AspectRatioSelectProps) => {
                           <div 
                             className="mr-2 border border-muted-foreground/30 bg-muted/20 inline-flex flex-shrink-0"
                             style={{
-                              width: '16px',
-                              height: '16px',
+                              width: value === '9:16' || value === '3:2' ? '12px' : '24px',
+                              height: value === '9:16' ? '22px' : (value === '16:9' ? '13px' : '16px'),
                               aspectRatio: value.replace(':', '/'),
                             }}
                           />

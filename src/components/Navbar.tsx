@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Home, Video, Menu, X, FileText, ImageIcon, Film, Star, Sparkles, LogIn } from "lucide-react";
+import { Home, Video, Menu, X, FileText, ImageIcon, Film, Star, Sparkles } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
 import AuthButtons from '@/components/AuthButtons';
 import UserCredits from '@/components/UserCredits';

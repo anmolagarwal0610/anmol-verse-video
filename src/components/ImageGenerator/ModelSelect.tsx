@@ -25,9 +25,24 @@ const ModelSelect = ({ form }: ModelSelectProps) => {
                 <SelectValue placeholder="Select model" />
               </SelectTrigger>
               <SelectContent position="popper" className="w-full z-50 bg-background border" side="bottom">
-                <SelectItem value="basic">Basic - Perfect for side projects and trying out ideas</SelectItem>
-                <SelectItem value="advanced">Advanced - Ideal for content creation and social media assets</SelectItem>
-                <SelectItem value="pro" disabled>Pro - Coming Soon (For professional quality outputs)</SelectItem>
+                <SelectItem value="basic">
+                  <div className="flex flex-col">
+                    <span className="font-medium">Basic</span>
+                    <span className="text-xs text-muted-foreground">Perfect for side projects and trying out ideas</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="advanced">
+                  <div className="flex flex-col">
+                    <span className="font-medium">Advanced</span>
+                    <span className="text-xs text-muted-foreground">Ideal for content creation and social media assets</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="pro" disabled>
+                  <div className="flex flex-col">
+                    <span className="font-medium">Pro</span>
+                    <span className="text-xs text-muted-foreground">Coming soon - For professional quality outputs</span>
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
           </FormControl>
