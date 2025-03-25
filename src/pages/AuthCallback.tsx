@@ -11,14 +11,22 @@ const AuthCallback = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        const { error } = await supabase.auth.getSession();
+        // Get the current session
+        const { data, error } = await supabase.auth.getSession();
         
         if (error) {
           throw error;
         }
         
-        toast.success('Successfully signed in!');
-        navigate('/');
+        if (data?.session) {
+          toast.success('Successfully signed in!');
+          navigate('/');
+        } else {
+          // If no session was found but no error occurred, handle gracefully
+          console.log('No session found but no error occurred');
+          toast.error('Authentication failed. Please try again.');
+          navigate('/auth');
+        }
       } catch (error) {
         console.error('Error during auth callback:', error);
         toast.error('Failed to complete authentication');

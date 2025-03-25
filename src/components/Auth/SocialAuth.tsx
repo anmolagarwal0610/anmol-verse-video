@@ -23,7 +23,7 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
       });
       
       if (error) throw error;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error signing in with Google:', error);
       toast.error(error.message || 'An error occurred during Google sign in');
     }

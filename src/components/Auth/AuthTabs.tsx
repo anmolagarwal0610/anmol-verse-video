@@ -26,7 +26,6 @@ const AuthTabs = ({ isLoading, setIsLoading, defaultTab = "sign-in" }: AuthTabsP
           isSignUp={false} 
           isLoading={isLoading} 
           setIsLoading={setIsLoading}
-          onSuccess={() => navigate('/')}
         />
         
         <div className="relative">

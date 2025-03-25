@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 interface EmailFormProps {
   isSignUp: boolean;
@@ -18,6 +19,7 @@ const EmailForm = ({ isSignUp, isLoading, setIsLoading, onSuccess }: EmailFormPr
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +44,8 @@ const EmailForm = ({ isSignUp, isLoading, setIsLoading, onSuccess }: EmailFormPr
           options: {
             data: {
               name: name,
-            }
+            },
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
           }
         });
         
@@ -50,17 +53,21 @@ const EmailForm = ({ isSignUp, isLoading, setIsLoading, onSuccess }: EmailFormPr
         
         toast.success('Sign up successful! Please check your email for confirmation.');
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         
         if (error) throw error;
         
-        toast.success('Successfully signed in!');
-        if (onSuccess) onSuccess();
+        if (data.session) {
+          toast.success('Successfully signed in!');
+          navigate('/');
+        } else {
+          throw new Error('No session returned');
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error ${isSignUp ? 'signing up' : 'signing in'}:`, error);
       toast.error(error.message || `An error occurred during ${isSignUp ? 'sign up' : 'sign in'}`);
     } finally {
