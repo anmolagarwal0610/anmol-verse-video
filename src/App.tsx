@@ -12,10 +12,11 @@ import Profile from '@/pages/Profile'
 import Settings from '@/pages/Settings'
 import WelcomeMessage from '@/components/WelcomeMessage'
 import { Toaster } from '@/components/ui/sonner'
+import { AuthProvider } from '@/hooks/use-auth'
 
 const App = () => {
   return (
-    <>
+    <AuthProvider>
       <WelcomeMessage />
       <Routes>
         <Route path="/" element={<Index />} />
@@ -30,7 +31,7 @@ const App = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster position="bottom-center" />
-    </>
+    </AuthProvider>
   )
 }
 
