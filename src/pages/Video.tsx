@@ -79,7 +79,7 @@ const Video = () => {
             ) : (
               <div className="flex items-center text-sm text-muted-foreground">
                 <Clock className="h-4 w-4 mr-1" />
-                {video && new Date(video.createdAt).toLocaleString()}
+                {video && new Date(video.created_at).toLocaleString()}
               </div>
             )}
           </div>
@@ -132,7 +132,7 @@ const Video = () => {
                       
                       <div>
                         <h3 className="text-sm font-medium text-muted-foreground">Creation Date</h3>
-                        <p className="mt-1">{new Date(video.createdAt).toLocaleDateString()}</p>
+                        <p className="mt-1">{new Date(video.created_at).toLocaleDateString()}</p>
                       </div>
                       
                       <div>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -153,8 +154,8 @@ const ImagesTab = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        {images.map((image) => (
-          <ImageCard key={image.id} image={image} />
+        {images.map((image, index) => (
+          <ImageCard key={image.id} image={image} index={index} />
         ))}
       </motion.div>
     </>
