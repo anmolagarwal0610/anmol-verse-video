@@ -52,6 +52,7 @@ const EmailForm = ({ isSignUp, isLoading, setIsLoading, onSuccess }: EmailFormPr
         if (error) throw error;
         
         toast.success('Sign up successful! Please check your email for confirmation.');
+        if (onSuccess) onSuccess();
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
@@ -59,6 +60,8 @@ const EmailForm = ({ isSignUp, isLoading, setIsLoading, onSuccess }: EmailFormPr
         });
         
         if (error) throw error;
+        
+        console.log('Sign in successful, session:', data.session);
         
         if (data.session) {
           toast.success('Successfully signed in!');

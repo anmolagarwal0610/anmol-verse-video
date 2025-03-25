@@ -32,7 +32,7 @@ const App = () => {
       </Routes>
       <Toaster position="bottom-center" />
     </AuthProvider>
-  )
-}
+  );
+};
 
-export default App
+export default App;

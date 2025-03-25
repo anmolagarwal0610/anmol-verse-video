@@ -11,7 +11,8 @@ interface SocialAuthProps {
 const SocialAuth = ({ isLoading }: SocialAuthProps) => {
   const handleGoogleSignIn = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log('Starting Google sign in...');
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
@@ -23,6 +24,8 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
       });
       
       if (error) throw error;
+      
+      console.log('Google sign in initiated successfully:', data);
     } catch (error: any) {
       console.error('Error signing in with Google:', error);
       toast.error(error.message || 'An error occurred during Google sign in');
