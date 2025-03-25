@@ -49,10 +49,10 @@ const AspectRatioSelect = ({ form }: AspectRatioSelectProps) => {
                       <div className="flex items-center">
                         {value !== 'custom' && (
                           <div 
-                            className="mr-2 border border-muted-foreground/30 bg-muted/20 flex-shrink-0"
+                            className="mr-2 border border-muted-foreground/30 bg-muted/20 inline-flex flex-shrink-0"
                             style={{
-                              width: '1rem',
-                              height: '1rem',
+                              width: '16px',
+                              height: '16px',
                               aspectRatio: value.replace(':', '/'),
                             }}
                           />

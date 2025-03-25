@@ -23,7 +23,7 @@ const OutputFormatSelect = ({ form }: OutputFormatSelectProps) => {
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select output format" />
               </SelectTrigger>
-              <SelectContent position="popper" alignOffset={0} className="w-[var(--radix-select-trigger-width)] z-50 bg-background border" sideOffset={4}>
+              <SelectContent position="popper" className="w-full max-w-[var(--radix-select-trigger-width)] z-50 bg-background border" side="bottom">
                 <SelectItem value="png">PNG (Transparent Background)</SelectItem>
                 <SelectItem value="jpeg">JPEG (Smaller File Size)</SelectItem>
               </SelectContent>
