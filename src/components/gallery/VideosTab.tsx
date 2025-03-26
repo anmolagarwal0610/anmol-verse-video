@@ -1,5 +1,6 @@
+
 import { useEffect, useState } from 'react';
-import { getVideos } from '@/lib/api';
+import { getVideos } from '@/lib/videoApi';
 import VideoCard, { VideoData } from '@/components/video-card';
 import EmptyState from '@/components/EmptyState';
 import { toast } from 'sonner';
@@ -26,7 +27,7 @@ const VideosTab = () => {
   }, []);
   
   if (isLoading) {
-    return <p>Loading videos...</p>;
+    return <p className="text-center py-10">Loading videos...</p>;
   }
   
   if (!videos || videos.length === 0) {

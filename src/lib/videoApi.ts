@@ -1,5 +1,5 @@
 
-import { VideoData } from '@/components/VideoCard';
+import { VideoData } from '@/components/video-card/types';
 import { API_CONFIG } from './apiUtils';
 import { MOCK_VIDEOS } from './mockData';
 

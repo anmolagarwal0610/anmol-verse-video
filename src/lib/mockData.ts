@@ -1,5 +1,5 @@
 
-import { VideoData } from '@/components/VideoCard';
+import { VideoData } from '@/components/video-card/types';
 
 // Mock data for videos
 export const MOCK_VIDEOS: VideoData[] = [
