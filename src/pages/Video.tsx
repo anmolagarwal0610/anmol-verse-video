@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
-import VideoPlayer from '@/components/VideoPlayer';
+import VideoPlayer from '@/components/video-player';
 import { getVideoById } from '@/lib/api';
 import { VideoData } from '@/components/VideoCard';
 import { Button } from '@/components/ui/button';
