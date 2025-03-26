@@ -24,16 +24,26 @@ export const useGalleryImages = () => {
         const { data, error } = await supabase
           .from('generated_images')
           .select('*')
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
         
         if (error) {
           throw error;
         }
         
-        setImages(data || []);
+        // If no images found for user, show default images
+        if (!data || data.length === 0) {
+          setImages(DEFAULT_IMAGES);
+        } else {
+          setImages(data);
+        }
+        
+        console.log('Fetched images:', data);
       } catch (error) {
         console.error('Error fetching images:', error);
         toast.error('Failed to load your images');
+        // Fallback to default images on error
+        setImages(DEFAULT_IMAGES);
       } finally {
         setIsLoadingImages(false);
       }
