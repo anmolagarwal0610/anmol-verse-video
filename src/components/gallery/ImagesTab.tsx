@@ -16,11 +16,12 @@ const ImagesTab = () => {
     return (
       <div className="flex items-center justify-center py-24">
         <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+        <span className="ml-2 text-indigo-600">Loading gallery...</span>
       </div>
     );
   }
 
-  if (images.length === 0) {
+  if (!images || images.length === 0) {
     return (
       <EmptyState
         title={user ? "No images yet" : "Sign in to create images"}

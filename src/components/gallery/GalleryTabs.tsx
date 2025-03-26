@@ -1,20 +1,34 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ImageIcon, VideoIcon } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ImagesTab from './ImagesTab';
 import VideosTab from './VideosTab';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const GalleryTabs = () => {
   const [activeTab, setActiveTab] = useState('images');
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  console.log('Active gallery tab:', activeTab);
+  // Parse tab from URL hash if available
+  useEffect(() => {
+    const hash = location.hash.split('#')[1];
+    if (hash === 'videos' || hash === 'images') {
+      setActiveTab(hash);
+    }
+  }, [location]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    navigate(`/gallery#${value}`, { replace: true });
+  };
 
   return (
     <Tabs 
       defaultValue="images" 
       value={activeTab} 
-      onValueChange={setActiveTab}
+      onValueChange={handleTabChange}
       className="mb-8"
     >
       <TabsList className="grid w-full max-w-md grid-cols-2">

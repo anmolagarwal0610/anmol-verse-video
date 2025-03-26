@@ -14,15 +14,15 @@ export const useGalleryImages = () => {
     const fetchImages = async () => {
       setIsLoadingImages(true);
       
-      // Always set a fallback for non-authenticated users
-      if (!user) {
-        console.log('No user, using default images');
-        setImages(DEFAULT_IMAGES);
-        setIsLoadingImages(false);
-        return;
-      }
-      
       try {
+        // For non-authenticated users, always use default images
+        if (!user) {
+          console.log('No user, using default images');
+          setImages(DEFAULT_IMAGES);
+          setIsLoadingImages(false);
+          return;
+        }
+        
         console.log('Fetching images for user:', user.id);
         const { data, error } = await supabase
           .from('generated_images')
@@ -34,18 +34,17 @@ export const useGalleryImages = () => {
           throw error;
         }
         
-        // If no images found for user, show default images
         if (!data || data.length === 0) {
-          console.log('No images found, using default images');
+          console.log('No images found for user, using default images');
           setImages(DEFAULT_IMAGES);
         } else {
-          console.log('Fetched images:', data.length);
+          console.log(`Found ${data.length} images for user`);
           setImages(data);
         }
       } catch (error) {
         console.error('Error fetching images:', error);
-        toast.error('Failed to load your images');
-        // Fallback to default images on error
+        toast.error('Failed to load images. Using sample gallery.');
+        // Always fallback to default images on error
         setImages(DEFAULT_IMAGES);
       } finally {
         setIsLoadingImages(false);

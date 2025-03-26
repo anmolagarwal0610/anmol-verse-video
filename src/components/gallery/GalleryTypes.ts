@@ -18,7 +18,7 @@ export const truncateText = (text: string, maxLength: number) => {
   return text.slice(0, maxLength) + '...';
 };
 
-// Default images for non-authenticated users
+// Default images for non-authenticated users - using reliable Unsplash URLs
 export const DEFAULT_IMAGES: GeneratedImage[] = [
   {
     id: 'default-1',
