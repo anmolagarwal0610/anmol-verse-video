@@ -8,6 +8,8 @@ import VideosTab from './VideosTab';
 const GalleryTabs = () => {
   const [activeTab, setActiveTab] = useState('images');
 
+  console.log('Active gallery tab:', activeTab);
+
   return (
     <Tabs 
       defaultValue="images" 

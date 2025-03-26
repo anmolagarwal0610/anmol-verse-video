@@ -5,8 +5,8 @@ import { HashRouter } from 'react-router-dom';
 import App from './App.tsx';
 import './index.css';
 
-// Always use HashRouter for all environments to ensure consistent routing behavior
-// This prevents 404 errors with direct URL access in production/preview environments
+// Using HashRouter ensures that direct URL access works in all environments
+// HashRouter uses URL fragments (#) which don't require server-side configuration
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HashRouter>
