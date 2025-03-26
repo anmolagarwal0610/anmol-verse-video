@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import { Loader2, Copy, Check } from 'lucide-react';
+import { Loader2, Copy, Check, Download } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 import {
   Tooltip,
   TooltipContent,
@@ -61,6 +62,36 @@ const ImageCard = ({ image, index }: ImageCardProps) => {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
+  const handleDownloadImage = async () => {
+    try {
+      const response = await fetch(image.image_url);
+      const blob = await response.blob();
+      
+      // Create object URL for downloading
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create a temporary link element to trigger download
+      const a = document.createElement('a');
+      a.href = url;
+      // Generate filename based on prompt (or use a default)
+      const filename = image.prompt 
+        ? `${image.prompt.slice(0, 20).replace(/[^a-z0-9]/gi, '_').toLowerCase()}.jpg` 
+        : `image_${new Date().getTime()}.jpg`;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success('Image downloaded successfully');
+    } catch (err) {
+      console.error('Error downloading image:', err);
+      toast.error('Failed to download image');
+    }
+  };
+
   const formattedDate = image.created_at
     ? format(new Date(image.created_at), 'MMM d, yyyy')
     : 'Unknown date';
@@ -94,6 +125,18 @@ const ImageCard = ({ image, index }: ImageCardProps) => {
           />
           
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          
+          {/* Download button overlay */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="backdrop-blur-sm bg-white/20 hover:bg-white/30"
+              onClick={handleDownloadImage}
+            >
+              <Download className="mr-1 h-4 w-4" /> Download
+            </Button>
+          </div>
         </div>
         
         <div className="p-3 flex-grow flex flex-col justify-between">
