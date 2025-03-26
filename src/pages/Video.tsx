@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import VideoPlayer from '@/components/video-player';
 import { getVideoById } from '@/lib/api';
-import { VideoData } from '@/components/VideoCard';
+import { VideoData } from '@/components/video-card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, Download, Share, Clock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';

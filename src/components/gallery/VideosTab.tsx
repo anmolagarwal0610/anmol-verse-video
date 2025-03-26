@@ -1,78 +1,44 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import VideoCard, { VideoData } from '@/components/VideoCard';
-import EmptyState from '@/components/EmptyState';
+import { useEffect, useState } from 'react';
 import { getVideos } from '@/lib/api';
-import { MOCK_VIDEOS } from '@/lib/mockData';
-import { useAuth } from '@/hooks/use-auth';
+import VideoCard, { VideoData } from '@/components/video-card';
+import EmptyState from '@/components/EmptyState';
+import { toast } from 'sonner';
 
 const VideosTab = () => {
   const [videos, setVideos] = useState<VideoData[]>([]);
-  const [isLoadingVideos, setIsLoadingVideos] = useState(true);
-  const { user } = useAuth();
-
+  const [isLoading, setIsLoading] = useState(true);
+  
   useEffect(() => {
     const fetchVideos = async () => {
+      setIsLoading(true);
       try {
-        setIsLoadingVideos(true);
-        
-        // If user is not logged in, show mock videos
-        if (!user) {
-          setVideos(MOCK_VIDEOS);
-          setIsLoadingVideos(false);
-          return;
-        }
-        
-        // Otherwise fetch real videos
-        const data = await getVideos();
-        setVideos(data);
+        const fetchedVideos = await getVideos();
+        setVideos(fetchedVideos);
       } catch (error) {
         console.error('Error fetching videos:', error);
+        toast.error('Failed to load videos');
       } finally {
-        setIsLoadingVideos(false);
+        setIsLoading(false);
       }
     };
-
+    
     fetchVideos();
-  }, [user]);
-
-  if (isLoadingVideos) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-      </div>
-    );
+  }, []);
+  
+  if (isLoading) {
+    return <p>Loading videos...</p>;
   }
-
-  if (videos.length === 0) {
-    return (
-      <EmptyState 
-        title={user ? "No videos yet" : "Sign in to create videos"}
-        description={user ? "Generate some videos to see them here" : "Create an account to generate and save your own videos"}
-        action={
-          <Button asChild className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
-            <Link to={user ? "/" : "/auth"}>{user ? "Create Video" : "Sign In"}</Link>
-          </Button>
-        }
-        className="py-24" 
-      />
-    );
+  
+  if (!videos || videos.length === 0) {
+    return <EmptyState />;
   }
-
+  
   return (
-    <motion.div 
-      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {videos.map((video, index) => (
         <VideoCard key={video.id} video={video} index={index} />
       ))}
-    </motion.div>
+    </div>
   );
 };
 
