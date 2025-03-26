@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { motion } from 'framer-motion';
-import { SparklesIcon, WavingHandIcon } from 'lucide-react';
+import { SparklesIcon, Wave } from 'lucide-react';
 
 const WelcomeMessage = () => {
   const { user, loading } = useAuth();
@@ -44,7 +44,7 @@ const WelcomeMessage = () => {
     >
       <div className="flex items-start">
         <div className="flex-shrink-0 bg-white/20 rounded-full p-2 ring-2 ring-white/30">
-          <WavingHandIcon className="h-5 w-5 text-yellow-300" />
+          <Wave className="h-5 w-5 text-yellow-300" />
         </div>
         <div className="ml-3">
           <h3 className="font-medium text-lg">
