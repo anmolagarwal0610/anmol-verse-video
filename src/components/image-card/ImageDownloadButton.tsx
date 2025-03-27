@@ -16,7 +16,11 @@ const ImageDownloadButton = ({ imageUrl, prompt, variant = "normal" }: ImageDown
       const cleanImageUrl = imageUrl.split('?')[0];
       console.log('Attempting to download image from:', cleanImageUrl);
       
-      const response = await fetch(cleanImageUrl);
+      // Create a new URL object to handle CORS issues
+      const response = await fetch(cleanImageUrl, {
+        mode: 'cors',
+        cache: 'no-cache'
+      });
       
       if (!response.ok) {
         throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);

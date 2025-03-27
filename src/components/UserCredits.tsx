@@ -83,32 +83,18 @@ const UserCredits = () => {
     return null;
   }
 
-  const handleCreditsClick = () => {
-    setOpen(!open);
-  };
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <PopoverTrigger asChild>
-              <Badge 
-                variant="outline" 
-                className="flex items-center gap-1 py-1 px-2 border-yellow-500/50 bg-yellow-500/20 dark:bg-yellow-400/10 dark:border-yellow-400/30 text-yellow-800 dark:text-yellow-400 shadow-sm cursor-pointer hover:bg-yellow-500/30 transition-colors duration-200"
-                onClick={handleCreditsClick}
-                tabIndex={0}
-              >
-                <Coins className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
-                <span className="text-yellow-700 dark:text-yellow-500 font-medium">{credits !== null ? credits : '0'}</span>
-              </Badge>
-            </PopoverTrigger>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Your remaining credits</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <PopoverTrigger asChild>
+        <Badge 
+          variant="outline" 
+          className="flex items-center gap-1 py-1 px-2 border-yellow-500/50 bg-yellow-500/20 dark:bg-yellow-400/10 dark:border-yellow-400/30 text-yellow-800 dark:text-yellow-400 shadow-sm cursor-pointer hover:bg-yellow-500/30 transition-colors duration-200"
+          onClick={() => setOpen(true)}
+        >
+          <Coins className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
+          <span className="text-yellow-700 dark:text-yellow-500 font-medium">{credits !== null ? credits : '0'}</span>
+        </Badge>
+      </PopoverTrigger>
       
       <PopoverContent className="w-64 p-4">
         <div className="space-y-4">

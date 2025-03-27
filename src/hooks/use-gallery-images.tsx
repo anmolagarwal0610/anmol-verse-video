@@ -39,11 +39,18 @@ export const useGalleryImages = () => {
           setImages(DEFAULT_IMAGES);
         } else {
           console.log(`Found ${data.length} images for user`);
-          // Add a timestamp parameter to image URLs to prevent caching issues
-          const processedImages = data.map(img => ({
-            ...img,
-            image_url: `${img.image_url}${img.image_url.includes('?') ? '&' : '?'}t=${Date.now()}`
-          }));
+          // Create a unique timestamp for each image to prevent caching
+          const uniqueTimestamp = Date.now();
+          const processedImages = data.map((img, index) => {
+            const uniqueParam = `t=${uniqueTimestamp}-${index}`;
+            const url = img.image_url.includes('?') 
+              ? `${img.image_url}&${uniqueParam}` 
+              : `${img.image_url}?${uniqueParam}`;
+            return {
+              ...img,
+              image_url: url
+            };
+          });
           setImages(processedImages);
         }
       } catch (error) {
