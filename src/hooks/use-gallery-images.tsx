@@ -42,7 +42,7 @@ export const useGalleryImages = () => {
           // Create a unique timestamp for each image to prevent caching
           const uniqueTimestamp = Date.now();
           const processedImages = data.map((img, index) => {
-            const uniqueParam = `t=${uniqueTimestamp}-${index}`;
+            const uniqueParam = `t=${uniqueTimestamp}-${Math.random()}`;
             const url = img.image_url.includes('?') 
               ? `${img.image_url}&${uniqueParam}` 
               : `${img.image_url}?${uniqueParam}`;
