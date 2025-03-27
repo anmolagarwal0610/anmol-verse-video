@@ -12,7 +12,16 @@ interface ImageDownloadButtonProps {
 const ImageDownloadButton = ({ imageUrl, prompt, variant = "normal" }: ImageDownloadButtonProps) => {
   const handleDownloadImage = async () => {
     try {
-      const response = await fetch(imageUrl);
+      // Remove any timestamp or query parameters to get the original URL
+      const cleanImageUrl = imageUrl.split('?')[0];
+      console.log('Attempting to download image from:', cleanImageUrl);
+      
+      const response = await fetch(cleanImageUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+      }
+      
       const blob = await response.blob();
       
       // Create object URL for downloading

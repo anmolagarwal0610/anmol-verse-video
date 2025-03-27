@@ -4,6 +4,7 @@ import { getVideos } from '@/lib/videoApi';
 import VideoCard, { VideoData } from '@/components/video-card';
 import EmptyState from '@/components/EmptyState';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 const VideosTab = () => {
   const [videos, setVideos] = useState<VideoData[]>([]);
@@ -14,7 +15,12 @@ const VideosTab = () => {
       setIsLoading(true);
       try {
         const fetchedVideos = await getVideos();
-        setVideos(fetchedVideos);
+        // Add timestamp to thumbnail URLs to prevent caching issues
+        const processedVideos = fetchedVideos.map(video => ({
+          ...video,
+          thumbnail: `${video.thumbnail}${video.thumbnail.includes('?') ? '&' : '?'}t=${Date.now()}`
+        }));
+        setVideos(processedVideos);
       } catch (error) {
         console.error('Error fetching videos:', error);
         toast.error('Failed to load videos');
@@ -27,7 +33,12 @@ const VideosTab = () => {
   }, []);
   
   if (isLoading) {
-    return <p className="text-center py-10">Loading videos...</p>;
+    return (
+      <div className="flex items-center justify-center py-10">
+        <Loader2 className="h-6 w-6 animate-spin mr-2 text-primary" />
+        <span>Loading videos...</span>
+      </div>
+    );
   }
   
   if (!videos || videos.length === 0) {

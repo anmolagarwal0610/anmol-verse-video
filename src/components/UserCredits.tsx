@@ -24,6 +24,7 @@ const UserCredits = () => {
   const [isLoading, setIsLoading] = useState(true);
   const isMounted = useRef(true);
   const channelRef = useRef<any>(null);
+  const [open, setOpen] = useState(false);
 
   // Set up cleanup function for component unmount
   useEffect(() => {
@@ -82,8 +83,12 @@ const UserCredits = () => {
     return null;
   }
 
+  const handleCreditsClick = () => {
+    setOpen(!open);
+  };
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -91,6 +96,8 @@ const UserCredits = () => {
               <Badge 
                 variant="outline" 
                 className="flex items-center gap-1 py-1 px-2 border-yellow-500/50 bg-yellow-500/20 dark:bg-yellow-400/10 dark:border-yellow-400/30 text-yellow-800 dark:text-yellow-400 shadow-sm cursor-pointer hover:bg-yellow-500/30 transition-colors duration-200"
+                onClick={handleCreditsClick}
+                tabIndex={0}
               >
                 <Coins className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
                 <span className="text-yellow-700 dark:text-yellow-500 font-medium">{credits !== null ? credits : '0'}</span>

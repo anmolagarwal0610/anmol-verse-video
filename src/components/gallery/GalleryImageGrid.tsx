@@ -24,7 +24,16 @@ const GalleryImageGrid = ({ images }: GalleryImageGridProps) => {
 
   const handleDownloadImage = async (imageUrl: string, prompt: string) => {
     try {
-      const response = await fetch(imageUrl);
+      // Remove any timestamp or query parameters to get the original URL
+      const cleanImageUrl = imageUrl.split('?')[0];
+      console.log('Attempting to download image from:', cleanImageUrl);
+      
+      const response = await fetch(cleanImageUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+      }
+      
       const blob = await response.blob();
       
       // Create object URL for downloading
@@ -63,11 +72,8 @@ const GalleryImageGrid = ({ images }: GalleryImageGridProps) => {
         <div key={image.id} className="relative group">
           <ImageCard image={image} index={index} />
           
-          {/* Prompt display with copy and download buttons */}
-          <div className="mt-2 flex items-start">
-            <p className="text-xs text-muted-foreground flex-1">
-              {truncateText(image.prompt, 40)}
-            </p>
+          {/* Actions without the text display */}
+          <div className="mt-2 flex items-center justify-end">
             <div className="flex">
               <TooltipProvider>
                 <Tooltip>

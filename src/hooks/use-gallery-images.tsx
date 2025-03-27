@@ -39,7 +39,12 @@ export const useGalleryImages = () => {
           setImages(DEFAULT_IMAGES);
         } else {
           console.log(`Found ${data.length} images for user`);
-          setImages(data);
+          // Add a timestamp parameter to image URLs to prevent caching issues
+          const processedImages = data.map(img => ({
+            ...img,
+            image_url: `${img.image_url}${img.image_url.includes('?') ? '&' : '?'}t=${Date.now()}`
+          }));
+          setImages(processedImages);
         }
       } catch (error) {
         console.error('Error fetching images:', error);
