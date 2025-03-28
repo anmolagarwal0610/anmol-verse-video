@@ -15,43 +15,16 @@ const createSupabaseClient = () => {
   return createClient(supabaseUrl, supabaseServiceRole);
 };
 
-// Check if storage bucket exists, create if it doesn't
-async function ensureStorageBucket(supabase) {
-  const bucketName = 'generated-images';
-  
-  // Check if bucket exists
-  const { data: buckets, error: listError } = await supabase.storage.listBuckets();
-  
-  if (listError) {
-    console.error('Error checking storage buckets:', listError);
-    throw new Error(`Failed to check buckets: ${listError.message}`);
-  }
-  
-  const bucketExists = buckets.some(bucket => bucket.name === bucketName);
-  
-  if (!bucketExists) {
-    console.log(`Creating storage bucket: ${bucketName}`);
-    const { error: createError } = await supabase.storage.createBucket(bucketName, {
-      public: true,
-      fileSizeLimit: 10485760, // 10MB
-    });
-    
-    if (createError) {
-      console.error('Error creating storage bucket:', createError);
-      throw new Error(`Failed to create bucket: ${createError.message}`);
-    }
-  }
-  
-  return bucketName;
-}
-
 // Main function handler for scheduled cleanup
 Deno.serve(async (req) => {
   try {
     console.log('Starting cleanup of old generated images');
     
     const supabase = createSupabaseClient();
-    const bucketName = await ensureStorageBucket(supabase);
+    
+    // Correct bucket name
+    const bucketName = 'generated.images';
+    console.log(`Using storage bucket: ${bucketName}`);
     
     // Get images older than 7 days
     const sevenDaysAgo = new Date();

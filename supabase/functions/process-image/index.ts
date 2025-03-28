@@ -23,6 +23,9 @@ const createSupabaseClient = () => {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const supabaseServiceRole = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   
+  console.log('Creating Supabase client with URL present:', !!supabaseUrl);
+  console.log('Service role key present:', !!supabaseServiceRole);
+  
   if (!supabaseUrl || !supabaseServiceRole) {
     throw new Error('Missing Supabase credentials');
   }
@@ -31,79 +34,88 @@ const createSupabaseClient = () => {
   return createClient(supabaseUrl, supabaseServiceRole);
 };
 
-// Check if storage bucket exists, create if it doesn't
-async function ensureStorageBucket(supabase) {
-  const bucketName = 'generated-images';
-  
-  // Check if bucket exists
-  const { data: buckets, error: listError } = await supabase.storage.listBuckets();
-  
-  if (listError) {
-    console.error('Error checking storage buckets:', listError);
-    throw new Error(`Failed to check buckets: ${listError.message}`);
-  }
-  
-  const bucketExists = buckets.some(bucket => bucket.name === bucketName);
-  
-  if (!bucketExists) {
-    console.log(`Creating storage bucket: ${bucketName}`);
-    const { error: createError } = await supabase.storage.createBucket(bucketName, {
-      public: true,
-      fileSizeLimit: 10485760, // 10MB
-    });
-    
-    if (createError) {
-      console.error('Error creating storage bucket:', createError);
-      throw new Error(`Failed to create bucket: ${createError.message}`);
-    }
-  }
-  
-  return bucketName;
-}
-
 // Main function handler
 Deno.serve(async (req) => {
+  console.log(`Request received: ${req.method} ${new URL(req.url).pathname}`);
+  
   const { corsHeaders } = handleCors(req) as { corsHeaders: Record<string, string> };
   
   if (req.method === 'OPTIONS') {
+    console.log('Handling OPTIONS request - returning CORS headers');
     return new Response(null, { headers: corsHeaders });
   }
   
   try {
     if (req.method !== 'POST') {
+      console.error(`Method ${req.method} not allowed`);
       throw new Error(`Method ${req.method} not allowed`);
     }
     
-    const { imageUrl, userId, prompt } = await req.json();
+    // Parse request body
+    let requestBody;
+    try {
+      requestBody = await req.json();
+      console.log('Request body parsed successfully');
+    } catch (error) {
+      console.error('Failed to parse request body:', error);
+      throw new Error('Invalid request body');
+    }
+    
+    const { imageUrl, userId, prompt } = requestBody;
     
     if (!imageUrl) {
+      console.error('No image URL provided');
       throw new Error('No image URL provided');
     }
     
     if (!userId) {
+      console.error('No user ID provided');
       throw new Error('No user ID provided');
     }
     
-    console.log(`Processing image for user ${userId}, prompt: "${prompt}"`);
-    console.log(`Source image URL: ${imageUrl.substring(0, 30)}...`);
+    console.log(`Processing image for user ${userId}, prompt length: ${prompt?.length || 0} chars`);
+    console.log(`Source image URL starts with: ${imageUrl.substring(0, 30)}...`);
     
     // Download the image from the source URL
-    const imageResponse = await fetch(imageUrl);
-    
-    if (!imageResponse.ok) {
-      throw new Error(`Failed to download image: ${imageResponse.status} ${imageResponse.statusText}`);
+    console.log('Attempting to download image from source URL...');
+    let imageResponse;
+    try {
+      imageResponse = await fetch(imageUrl);
+      
+      if (!imageResponse.ok) {
+        console.error(`Failed to download image: ${imageResponse.status} ${imageResponse.statusText}`);
+        throw new Error(`Failed to download image: ${imageResponse.status} ${imageResponse.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error fetching image:', error);
+      throw new Error(`Failed to fetch image: ${error.message}`);
     }
     
-    const imageData = await imageResponse.arrayBuffer();
-    const contentType = imageResponse.headers.get('content-type') || 'image/png';
+    // Get image data
+    let imageData;
+    let contentType;
+    try {
+      imageData = await imageResponse.arrayBuffer();
+      contentType = imageResponse.headers.get('content-type') || 'image/png';
+      console.log(`Downloaded image (${(imageData.byteLength / 1024).toFixed(2)} KB)`);
+    } catch (error) {
+      console.error('Error processing image data:', error);
+      throw new Error(`Failed to process image data: ${error.message}`);
+    }
     
-    console.log(`Downloaded image (${(imageData.byteLength / 1024).toFixed(2)} KB)`);
+    // Create Supabase client
+    console.log('Creating Supabase client...');
+    let supabase;
+    try {
+      supabase = createSupabaseClient();
+    } catch (error) {
+      console.error('Error creating Supabase client:', error);
+      throw new Error(`Failed to create Supabase client: ${error.message}`);
+    }
     
-    // Upload to Supabase Storage
-    const supabase = createSupabaseClient();
-    
-    // Ensure the storage bucket exists
-    const bucketName = await ensureStorageBucket(supabase);
+    // The bucket name is now "generated.images" as specified by the user
+    const bucketName = 'generated.images';
+    console.log(`Using storage bucket: ${bucketName}`);
     
     // Generate a unique filename
     const timestamp = Date.now();
@@ -115,33 +127,49 @@ Deno.serve(async (req) => {
     console.log(`Uploading to ${bucketName}/${filePath}`);
     
     // Upload the image to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase
-      .storage
-      .from(bucketName)
-      .upload(filePath, imageData, {
-        contentType,
-        cacheControl: '3600',
-        upsert: false
-      });
-    
-    if (uploadError) {
-      console.error('Error uploading to Supabase Storage:', uploadError);
-      throw new Error(`Failed to upload image: ${uploadError.message}`);
+    let uploadData;
+    try {
+      const { data, error } = await supabase
+        .storage
+        .from(bucketName)
+        .upload(filePath, imageData, {
+          contentType,
+          cacheControl: '3600',
+          upsert: false
+        });
+      
+      if (error) {
+        console.error('Error uploading to Supabase Storage:', error);
+        throw new Error(`Failed to upload image: ${error.message}`);
+      }
+      
+      uploadData = data;
+      console.log('File uploaded successfully:', uploadData);
+    } catch (error) {
+      console.error('Exception during upload:', error);
+      throw new Error(`Exception during upload: ${error.message}`);
     }
     
     // Get the public URL
-    const { data: publicUrlData } = await supabase
-      .storage
-      .from(bucketName)
-      .getPublicUrl(filePath);
-    
-    const publicUrl = publicUrlData?.publicUrl;
-    
-    if (!publicUrl) {
-      throw new Error('Failed to get public URL for uploaded image');
+    let publicUrl;
+    try {
+      const { data: publicUrlData } = await supabase
+        .storage
+        .from(bucketName)
+        .getPublicUrl(filePath);
+      
+      publicUrl = publicUrlData?.publicUrl;
+      
+      if (!publicUrl) {
+        console.error('Failed to get public URL for uploaded image');
+        throw new Error('Failed to get public URL for uploaded image');
+      }
+      
+      console.log(`Successfully retrieved public URL: ${publicUrl}`);
+    } catch (error) {
+      console.error('Error getting public URL:', error);
+      throw new Error(`Failed to get public URL: ${error.message}`);
     }
-    
-    console.log(`Successfully uploaded image, public URL: ${publicUrl}`);
     
     return new Response(
       JSON.stringify({ 
