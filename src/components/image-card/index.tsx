@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import ImageLoadingOverlay from './ImageLoadingOverlay';
@@ -29,6 +29,15 @@ interface ImageCardProps {
 const ImageCard = ({ image, index, onLoad, onError }: ImageCardProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  
+  // Reset error state when image URL changes
+  useEffect(() => {
+    if (image.image_url) {
+      setHasError(false);
+      setIsLoading(true);
+    }
+  }, [image.image_url]);
   
   const fadeInVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -53,8 +62,20 @@ const ImageCard = ({ image, index, onLoad, onError }: ImageCardProps) => {
     console.error(`Failed to load image: ${image.id} from URL: ${image.image_url.substring(0, 30)}...`);
     setIsLoading(false);
     setHasError(true);
-    if (onError) onError();
+    
+    // Try one automatic retry with a cache-busting parameter
+    if (retryCount === 0 && image.image_url) {
+      setRetryCount(1);
+      // Don't call onError yet, we'll try once more
+    } else if (onError) {
+      onError();
+    }
   };
+
+  // Generate cache-busting URL for retry
+  const imageUrl = retryCount > 0 && image.image_url 
+    ? `${image.image_url}${image.image_url.includes('?') ? '&' : '?'}cache=${Date.now()}`
+    : image.image_url;
 
   return (
     <motion.div
@@ -76,13 +97,14 @@ const ImageCard = ({ image, index, onLoad, onError }: ImageCardProps) => {
             </div>
           ) : (
             <img
-              src={image.image_url}
+              src={imageUrl}
               alt={image.prompt}
               onLoad={handleImageLoad}
               onError={handleImageError}
               className={`w-full h-full object-cover transition-opacity duration-300 ${
                 isLoading ? 'opacity-0' : 'opacity-100'
               }`}
+              loading="lazy"
             />
           )}
           
