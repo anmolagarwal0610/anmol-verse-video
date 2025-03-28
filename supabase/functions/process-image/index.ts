@@ -38,11 +38,22 @@ async function handleRequest(req: Request) {
     );
   }
   
+  // Log request headers for debugging
+  const headersObj: Record<string, string> = {};
+  req.headers.forEach((value, key) => {
+    headersObj[key] = value;
+  });
+  console.log('Request headers:', JSON.stringify(headersObj, null, 2));
+  
   // Check content length
   const contentLength = req.headers.get('content-length');
   console.log(`Content-Length: ${contentLength || 'not provided'}`);
   
-  if (!contentLength || parseInt(contentLength) === 0) {
+  // Get the request body as text first to inspect it
+  const bodyText = await req.text();
+  console.log(`Request body text (${bodyText.length} bytes): ${bodyText.substring(0, 200)}...`);
+  
+  if (!bodyText || bodyText.trim() === '') {
     console.error('Empty request body received');
     return new Response(
       JSON.stringify({
@@ -59,14 +70,7 @@ async function handleRequest(req: Request) {
   // Parse request body
   let requestBody;
   try {
-    const text = await req.text();
-    console.log(`Request body text (first 100 chars): ${text.substring(0, 100)}...`);
-    
-    if (!text || text.trim() === '') {
-      throw new Error('Empty request body');
-    }
-    
-    requestBody = JSON.parse(text);
+    requestBody = JSON.parse(bodyText);
     console.log('Request body parsed successfully:', {
       hasImageUrl: !!requestBody.imageUrl,
       hasUserId: !!requestBody.userId,
@@ -77,7 +81,8 @@ async function handleRequest(req: Request) {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: `Invalid request body: ${error.message}` 
+        error: `Invalid request body: ${error.message}`,
+        receivedText: bodyText.substring(0, 100) // Include part of what we received for debugging
       }),
       { 
         status: 400, 

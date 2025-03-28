@@ -33,18 +33,17 @@ export async function processImage(apiImageUrl: string, prompt: string, userId: 
     try {
       console.log('Invoking process-image Edge Function...');
       
-      // Construct the request body
-      const requestBody = {
+      // Construct the request body as a stringified JSON object
+      const requestBody = JSON.stringify({
         imageUrl: apiImageUrl,
         userId: userId,
         prompt: prompt || 'Generated image'
-      };
+      });
       
-      console.log('Request body:', {
-        imageUrlStart: requestBody.imageUrl?.substring(0, 30) + '...',
-        userId: requestBody.userId,
-        promptLength: requestBody.prompt?.length || 0,
-        fullBody: JSON.stringify(requestBody)
+      console.log('Request payload:', {
+        type: typeof requestBody,
+        length: requestBody.length,
+        preview: requestBody.substring(0, 100) + '...'
       });
       
       // Make the request to the Edge Function with explicit content-type header
