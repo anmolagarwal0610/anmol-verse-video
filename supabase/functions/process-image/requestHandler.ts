@@ -42,8 +42,11 @@ export async function handleRequest(req: Request, corsHeaders: Record<string, st
   const contentLength = req.headers.get('content-length');
   console.log(`Content-Length: ${contentLength || 'not provided'}`);
   
+  // Clone the request to get the body as both text and JSON
+  const reqClone = req.clone();
+  
   // Get the request body as text first to inspect it
-  const bodyText = await req.text();
+  const bodyText = await reqClone.text();
   console.log(`Request body text (${bodyText.length} bytes): ${bodyText.substring(0, 200)}...`);
   
   if (!bodyText || bodyText.trim() === '') {
