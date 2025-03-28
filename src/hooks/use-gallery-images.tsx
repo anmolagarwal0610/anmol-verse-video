@@ -50,7 +50,7 @@ export const useGalleryImages = () => {
         return null;
       }
       
-      // For Google Cloud Storage or other URLs, just return the original
+      // For other URLs, just return the original
       return storageUrl;
     } catch (error) {
       console.error('Error getting fresh URL:', error);
@@ -121,7 +121,7 @@ export const useGalleryImages = () => {
                 };
               }
             } 
-            // For Google Cloud Storage or other external URLs, use them directly
+            // For other external URLs, use them directly
             else if (img.image_url.startsWith('http')) {
               console.log(`Image ${img.id} uses external URL: ${img.image_url.substring(0, 30)}...`);
               return img;

@@ -64,8 +64,7 @@ export function useImageGenerator() {
         body: {
           imageUrl: apiImageUrl,
           userId: user.id,
-          prompt: prompt,
-          useSupabase: true // Set to true to use Supabase Storage instead of Google Cloud
+          prompt: prompt
         }
       });
       

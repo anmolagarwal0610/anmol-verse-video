@@ -12,7 +12,6 @@ export type Database = {
       generated_images: {
         Row: {
           created_at: string
-          expires_at: string
           height: number
           id: string
           image_url: string
@@ -24,7 +23,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          expires_at?: string
           height: number
           id?: string
           image_url: string
@@ -36,7 +34,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          expires_at?: string
           height?: number
           id?: string
           image_url?: string

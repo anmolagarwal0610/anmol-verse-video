@@ -1,28 +1,6 @@
 
+// @ts-ignore
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.31.0';
-import { Storage } from 'https://cdn.skypack.dev/@google-cloud/storage@6.9.3?dts';
-
-// Set up Google Cloud Storage client
-const setupGoogleStorage = () => {
-  try {
-    const credentials = {
-      client_email: Deno.env.get('GOOGLE_CLOUD_CLIENT_EMAIL'),
-      private_key: Deno.env.get('GOOGLE_CLOUD_PRIVATE_KEY')?.replace(/\\n/g, '\n'),
-      project_id: Deno.env.get('GOOGLE_CLOUD_PROJECT_ID'),
-    };
-
-    if (!credentials.client_email || !credentials.private_key || !credentials.project_id) {
-      throw new Error('Missing Google Cloud credentials');
-    }
-
-    return new Storage({
-      credentials,
-    });
-  } catch (error) {
-    console.error('Error setting up Google Cloud Storage:', error);
-    throw error;
-  }
-};
 
 // Handle CORS preflight requests
 function handleCors(req: Request) {
@@ -59,60 +37,64 @@ Deno.serve(async (req) => {
   }
   
   try {
-    console.log('Starting cleanup of expired images...');
+    console.log('Starting cleanup of old images...');
     
     const supabase = createSupabaseClient();
     
-    // Get expired images
-    const { data: expiredImages, error } = await supabase
-      .from('generated_images')
-      .select('id, image_url')
-      .lt('expires_at', new Date().toISOString());
+    // Get images older than 7 days
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const cutoffDate = sevenDaysAgo.toISOString();
     
-    if (error) {
-      throw error;
+    // Find old images
+    const { data: oldImages, error: queryError } = await supabase
+      .from('generated_images')
+      .select('id, image_url, user_id, created_at')
+      .lt('created_at', cutoffDate);
+    
+    if (queryError) {
+      throw queryError;
     }
     
-    console.log(`Found ${expiredImages?.length || 0} expired images to clean up`);
+    console.log(`Found ${oldImages?.length || 0} images older than 7 days`);
     
-    if (!expiredImages || expiredImages.length === 0) {
+    if (!oldImages || oldImages.length === 0) {
       return new Response(
-        JSON.stringify({ message: 'No expired images found' }),
+        JSON.stringify({ message: 'No old images found to clean up' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
     
     const results = {
-      totalProcessed: expiredImages.length,
+      totalProcessed: oldImages.length,
       deleted: 0,
       errors: 0,
       skipped: 0,
     };
     
-    // Process each expired image
-    for (const image of expiredImages) {
+    // Process each old image
+    for (const image of oldImages) {
       try {
         const imageUrl = image.image_url;
         
-        if (!imageUrl) {
-          console.log(`Skipping image ${image.id} with no URL`);
+        if (!imageUrl || !image.user_id) {
+          console.log(`Skipping image ${image.id} with no URL or user_id`);
           results.skipped++;
           continue;
         }
         
         // Handle Supabase Storage URLs
-        if (imageUrl.includes('storage/v1/object/public/')) {
-          const match = imageUrl.match(/storage\/v1\/object\/public\/([^\/]+)\/(.+?)(?:\?|$)/);
+        if (imageUrl.includes('storage/v1/object/public/generated-images')) {
+          const match = imageUrl.match(/storage\/v1\/object\/public\/generated-images\/(.+?)(?:\?|$)/);
           
           if (match) {
-            const bucketName = match[1];
-            const filePath = match[2].split('?')[0]; // Remove query params
+            const filePath = match[1].split('?')[0]; // Remove query params
             
-            console.log(`Deleting file from Supabase Storage: bucket=${bucketName}, path=${filePath}`);
+            console.log(`Deleting file from Supabase Storage: path=${filePath}`);
             
             const { error: deleteError } = await supabase
               .storage
-              .from(bucketName)
+              .from('generated-images')
               .remove([filePath]);
             
             if (deleteError) {
@@ -125,40 +107,12 @@ Deno.serve(async (req) => {
             console.log(`Could not parse Supabase Storage URL: ${imageUrl}`);
             results.skipped++;
           }
-        }
-        // Handle Google Cloud Storage URLs
-        else if (imageUrl.includes('storage.googleapis.com')) {
-          const match = imageUrl.match(/storage\.googleapis\.com\/([^\/]+)\/(.+)/);
-          
-          if (match) {
-            const bucketName = match[1];
-            const filePath = match[2];
-            
-            console.log(`Deleting file from Google Cloud Storage: bucket=${bucketName}, path=${filePath}`);
-            
-            const storage = setupGoogleStorage();
-            const bucket = storage.bucket(bucketName);
-            const file = bucket.file(filePath);
-            
-            try {
-              await file.delete();
-              results.deleted++;
-            } catch (gcpError) {
-              console.error('Error deleting from Google Cloud Storage:', gcpError);
-              results.errors++;
-            }
-          } else {
-            console.log(`Could not parse Google Cloud Storage URL: ${imageUrl}`);
-            results.skipped++;
-          }
-        }
-        // Skip other external URLs
-        else {
+        } else {
           console.log(`Skipping external URL: ${imageUrl}`);
           results.skipped++;
         }
         
-        // Delete the database record regardless of storage outcome
+        // Delete the database record
         const { error: dbError } = await supabase
           .from('generated_images')
           .delete()
