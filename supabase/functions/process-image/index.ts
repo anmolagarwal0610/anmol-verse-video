@@ -31,6 +31,36 @@ const createSupabaseClient = () => {
   return createClient(supabaseUrl, supabaseServiceRole);
 };
 
+// Check if storage bucket exists, create if it doesn't
+async function ensureStorageBucket(supabase) {
+  const bucketName = 'generated-images';
+  
+  // Check if bucket exists
+  const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+  
+  if (listError) {
+    console.error('Error checking storage buckets:', listError);
+    throw new Error(`Failed to check buckets: ${listError.message}`);
+  }
+  
+  const bucketExists = buckets.some(bucket => bucket.name === bucketName);
+  
+  if (!bucketExists) {
+    console.log(`Creating storage bucket: ${bucketName}`);
+    const { error: createError } = await supabase.storage.createBucket(bucketName, {
+      public: true,
+      fileSizeLimit: 10485760, // 10MB
+    });
+    
+    if (createError) {
+      console.error('Error creating storage bucket:', createError);
+      throw new Error(`Failed to create bucket: ${createError.message}`);
+    }
+  }
+  
+  return bucketName;
+}
+
 // Main function handler
 Deno.serve(async (req) => {
   const { corsHeaders } = handleCors(req) as { corsHeaders: Record<string, string> };
@@ -40,10 +70,18 @@ Deno.serve(async (req) => {
   }
   
   try {
+    if (req.method !== 'POST') {
+      throw new Error(`Method ${req.method} not allowed`);
+    }
+    
     const { imageUrl, userId, prompt } = await req.json();
     
     if (!imageUrl) {
       throw new Error('No image URL provided');
+    }
+    
+    if (!userId) {
+      throw new Error('No user ID provided');
     }
     
     console.log(`Processing image for user ${userId}, prompt: "${prompt}"`);
@@ -64,17 +102,23 @@ Deno.serve(async (req) => {
     // Upload to Supabase Storage
     const supabase = createSupabaseClient();
     
+    // Ensure the storage bucket exists
+    const bucketName = await ensureStorageBucket(supabase);
+    
     // Generate a unique filename
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 10);
-    const fileExtension = contentType === 'image/jpeg' ? 'jpg' : 'png';
+    const fileExtension = contentType.includes('jpeg') ? 'jpg' : 'png';
     const filename = `${timestamp}-${randomString}.${fileExtension}`;
+    const filePath = `${userId}/${filename}`;
+    
+    console.log(`Uploading to ${bucketName}/${filePath}`);
     
     // Upload the image to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase
       .storage
-      .from('generated-images')
-      .upload(`${userId}/${filename}`, imageData, {
+      .from(bucketName)
+      .upload(filePath, imageData, {
         contentType,
         cacheControl: '3600',
         upsert: false
@@ -88,8 +132,8 @@ Deno.serve(async (req) => {
     // Get the public URL
     const { data: publicUrlData } = await supabase
       .storage
-      .from('generated-images')
-      .getPublicUrl(`${userId}/${filename}`);
+      .from(bucketName)
+      .getPublicUrl(filePath);
     
     const publicUrl = publicUrlData?.publicUrl;
     
@@ -97,7 +141,7 @@ Deno.serve(async (req) => {
       throw new Error('Failed to get public URL for uploaded image');
     }
     
-    console.log(`Successfully uploaded image, public URL: ${publicUrl.substring(0, 30)}...`);
+    console.log(`Successfully uploaded image, public URL: ${publicUrl}`);
     
     return new Response(
       JSON.stringify({ 

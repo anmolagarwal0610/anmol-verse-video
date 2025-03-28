@@ -74,16 +74,24 @@ export function useImageGenerator() {
         return apiImageUrl; // Fallback to original URL
       }
       
+      if (!data || !data.success) {
+        console.error('Process image function returned unsuccessful response:', data);
+        toast.error('Failed to process image. Using temporary URL.');
+        return apiImageUrl; // Fallback to original URL
+      }
+      
       console.log('Image processed successfully:', data);
       
       if (data?.url) {
         return data.url; // Return the permanent URL
       } else {
         console.warn('No URL returned from image processing');
+        toast.error('Failed to process image. Using temporary URL.');
         return apiImageUrl; // Fallback to original URL
       }
     } catch (err) {
       console.error('Error in processImage:', err);
+      toast.error('Failed to process image. Using temporary URL.');
       return apiImageUrl; // Fallback to original URL
     }
   };
@@ -138,24 +146,36 @@ export function useImageGenerator() {
         
         // Process and get permanent URL
         if (user) {
-          const permanentImageUrl = await processImage(temporaryImageUrl, values.prompt);
-          
-          // Save the image to the database with the permanent URL
-          const { error } = await supabase.from('generated_images').insert({
-            prompt: values.prompt,
-            image_url: permanentImageUrl,
-            model: values.model,
-            width: dimensions.width,
-            height: dimensions.height,
-            preferences: values.imageStyles,
-            user_id: user.id
-          });
-          
-          if (error) {
-            console.error('Error saving image to database:', error);
-            toast.error('Failed to save image to your gallery.');
-          } else {
-            setShowGalleryMessage(true);
+          try {
+            const permanentImageUrl = await processImage(temporaryImageUrl, values.prompt);
+            console.log('Permanent URL received:', permanentImageUrl);
+            
+            // Set the permanent URL if different from temporary
+            if (permanentImageUrl !== temporaryImageUrl) {
+              setImageUrl(permanentImageUrl);
+            }
+            
+            // Save the image to the database with the permanent URL
+            const { error } = await supabase.from('generated_images').insert({
+              prompt: values.prompt,
+              image_url: permanentImageUrl,
+              model: values.model,
+              width: dimensions.width,
+              height: dimensions.height,
+              preferences: values.imageStyles,
+              user_id: user.id
+            });
+            
+            if (error) {
+              console.error('Error saving image to database:', error);
+              toast.error('Failed to save image to your gallery.');
+            } else {
+              setShowGalleryMessage(true);
+            }
+          } catch (processError) {
+            console.error('Error during image processing:', processError);
+            // Continue with the temporary URL, already set above
+            toast.error('Failed to process image permanently. Using temporary URL.');
           }
         }
       } else {

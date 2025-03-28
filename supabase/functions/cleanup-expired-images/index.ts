@@ -2,19 +2,6 @@
 // @ts-ignore
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.31.0';
 
-// Handle CORS preflight requests
-function handleCors(req: Request) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  };
-
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-  return { corsHeaders };
-}
-
 // Create Supabase client
 const createSupabaseClient = () => {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -28,127 +15,138 @@ const createSupabaseClient = () => {
   return createClient(supabaseUrl, supabaseServiceRole);
 };
 
-// Main function handler
-Deno.serve(async (req) => {
-  const { corsHeaders } = handleCors(req) as { corsHeaders: Record<string, string> };
+// Check if storage bucket exists, create if it doesn't
+async function ensureStorageBucket(supabase) {
+  const bucketName = 'generated-images';
   
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+  // Check if bucket exists
+  const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+  
+  if (listError) {
+    console.error('Error checking storage buckets:', listError);
+    throw new Error(`Failed to check buckets: ${listError.message}`);
   }
   
+  const bucketExists = buckets.some(bucket => bucket.name === bucketName);
+  
+  if (!bucketExists) {
+    console.log(`Creating storage bucket: ${bucketName}`);
+    const { error: createError } = await supabase.storage.createBucket(bucketName, {
+      public: true,
+      fileSizeLimit: 10485760, // 10MB
+    });
+    
+    if (createError) {
+      console.error('Error creating storage bucket:', createError);
+      throw new Error(`Failed to create bucket: ${createError.message}`);
+    }
+  }
+  
+  return bucketName;
+}
+
+// Main function handler for scheduled cleanup
+Deno.serve(async (req) => {
   try {
-    console.log('Starting cleanup of old images...');
+    console.log('Starting cleanup of old generated images');
     
     const supabase = createSupabaseClient();
+    const bucketName = await ensureStorageBucket(supabase);
     
     // Get images older than 7 days
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const cutoffDate = sevenDaysAgo.toISOString();
     
-    // Find old images
     const { data: oldImages, error: queryError } = await supabase
       .from('generated_images')
-      .select('id, image_url, user_id, created_at')
-      .lt('created_at', cutoffDate);
+      .select('id, image_url, user_id')
+      .lt('created_at', sevenDaysAgo.toISOString());
     
     if (queryError) {
-      throw queryError;
+      throw new Error(`Failed to query old images: ${queryError.message}`);
     }
     
-    console.log(`Found ${oldImages?.length || 0} images older than 7 days`);
+    console.log(`Found ${oldImages?.length || 0} images to clean up`);
     
     if (!oldImages || oldImages.length === 0) {
-      return new Response(
-        JSON.stringify({ message: 'No old images found to clean up' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: 'No old images to clean up',
+        deleted: 0
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
     
-    const results = {
-      totalProcessed: oldImages.length,
-      deleted: 0,
-      errors: 0,
-      skipped: 0,
-    };
+    // Process each image
+    let deletedCount = 0;
+    const errors = [];
     
-    // Process each old image
     for (const image of oldImages) {
       try {
-        const imageUrl = image.image_url;
-        
-        if (!imageUrl || !image.user_id) {
-          console.log(`Skipping image ${image.id} with no URL or user_id`);
-          results.skipped++;
-          continue;
-        }
-        
-        // Handle Supabase Storage URLs
-        if (imageUrl.includes('storage/v1/object/public/generated-images')) {
-          const match = imageUrl.match(/storage\/v1\/object\/public\/generated-images\/(.+?)(?:\?|$)/);
+        // Extract the file path from the URL
+        // Format: https://...storage.googleapis.com/storage/v1/object/public/bucket-name/path/to/file
+        if (image.image_url && image.image_url.includes('/storage/v1/object/public/')) {
+          const urlPath = new URL(image.image_url).pathname;
+          const pathMatch = urlPath.match(/\/storage\/v1\/object\/public\/[^\/]+\/(.+)$/);
           
-          if (match) {
-            const filePath = match[1].split('?')[0]; // Remove query params
+          if (pathMatch && pathMatch[1]) {
+            const filePath = pathMatch[1];
             
-            console.log(`Deleting file from Supabase Storage: path=${filePath}`);
+            console.log(`Deleting file: ${filePath}`);
             
+            // Delete from storage
             const { error: deleteError } = await supabase
               .storage
-              .from('generated-images')
+              .from(bucketName)
               .remove([filePath]);
             
             if (deleteError) {
-              console.error(`Error deleting from Supabase Storage:`, deleteError);
-              results.errors++;
+              console.error(`Error deleting file ${filePath}:`, deleteError);
+              errors.push(`Failed to delete file ${filePath}: ${deleteError.message}`);
             } else {
-              results.deleted++;
+              deletedCount++;
             }
-          } else {
-            console.log(`Could not parse Supabase Storage URL: ${imageUrl}`);
-            results.skipped++;
           }
-        } else {
-          console.log(`Skipping external URL: ${imageUrl}`);
-          results.skipped++;
         }
         
         // Delete the database record
-        const { error: dbError } = await supabase
+        const { error: dbDeleteError } = await supabase
           .from('generated_images')
           .delete()
           .eq('id', image.id);
         
-        if (dbError) {
-          console.error(`Error deleting database record for image ${image.id}:`, dbError);
+        if (dbDeleteError) {
+          console.error(`Error deleting record ${image.id}:`, dbDeleteError);
+          errors.push(`Failed to delete record ${image.id}: ${dbDeleteError.message}`);
         }
-      } catch (imageError) {
-        console.error(`Error processing image ${image.id}:`, imageError);
-        results.errors++;
+        
+      } catch (err) {
+        console.error(`Error processing image ${image.id}:`, err);
+        errors.push(`Error processing image ${image.id}: ${err.message}`);
       }
     }
     
-    console.log('Cleanup completed with results:', results);
+    console.log(`Cleanup complete. Deleted ${deletedCount} images with ${errors.length} errors`);
     
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Cleanup completed',
-        results
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: 'Cleanup completed',
+      deleted: deletedCount,
+      errors: errors.length > 0 ? errors : undefined
+    }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
     
   } catch (error) {
     console.error('Error in cleanup function:', error);
     
-    return new Response(
-      JSON.stringify({ 
-        error: error.message || 'An error occurred during cleanup' 
-      }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: error.message || 'An unknown error occurred' 
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 });
