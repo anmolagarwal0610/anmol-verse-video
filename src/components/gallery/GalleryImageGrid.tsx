@@ -1,6 +1,6 @@
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GeneratedImage } from './GalleryTypes';
 import ImageCard from '@/components/ImageCard';
 import { Copy } from 'lucide-react';
@@ -19,6 +19,13 @@ interface GalleryImageGridProps {
 
 const GalleryImageGrid = ({ images }: GalleryImageGridProps) => {
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+  
+  useEffect(() => {
+    // Reset loaded and failed states when images array changes
+    setLoadedImages(new Set());
+    setFailedImages(new Set());
+  }, [images]);
   
   const handleImageLoad = (id: string) => {
     setLoadedImages(prev => {
@@ -26,10 +33,23 @@ const GalleryImageGrid = ({ images }: GalleryImageGridProps) => {
       newSet.add(id);
       return newSet;
     });
+    
+    // Remove from failed set if it was previously failed
+    setFailedImages(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(id);
+      return newSet;
+    });
   };
   
   const handleImageError = (id: string, url: string) => {
-    console.error(`Failed to load image ${id} from URL: ${url.substring(0, 30)}...`);
+    console.error(`Failed to load image ${id} from URL: ${url.substring(0, 50)}...`);
+    
+    setFailedImages(prev => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
   };
   
   const handleCopyPrompt = (prompt: string) => {
@@ -38,9 +58,7 @@ const GalleryImageGrid = ({ images }: GalleryImageGridProps) => {
   };
   
   console.log(`Rendering GalleryImageGrid with ${images.length} images`);
-  images.forEach((img, index) => {
-    console.log(`Image ${index}: ID=${img.id}, URL preview=${img.image_url?.substring(0, 30)}...`);
-  });
+  console.log(`Loaded images: ${loadedImages.size}, Failed images: ${failedImages.size}`);
 
   return (
     <motion.div 

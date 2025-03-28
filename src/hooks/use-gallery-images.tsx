@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { GeneratedImage, DEFAULT_IMAGES } from '@/components/gallery/GalleryTypes';
@@ -9,6 +9,42 @@ export const useGalleryImages = () => {
   const [images, setImages] = useState<GeneratedImage[]>([]);
   const [isLoadingImages, setIsLoadingImages] = useState(true);
   const { user } = useAuth();
+
+  // Define a function to get a fresh URL from Supabase storage
+  const getFreshPublicUrl = useCallback(async (storageUrl: string): Promise<string | null> => {
+    try {
+      // Extract bucket name and path using regex
+      const storagePathRegex = /storage\/v1\/object\/(?:public|authenticated)\/([^\/]+)\/([^?]+)/;
+      const storagePathMatch = storageUrl.match(storagePathRegex);
+      
+      if (!storagePathMatch) {
+        console.log('URL does not match Supabase Storage pattern:', storageUrl.substring(0, 30) + '...');
+        return storageUrl; // Return original URL if not a Supabase URL
+      }
+      
+      const bucketName = storagePathMatch[1];
+      const filePath = decodeURIComponent(storagePathMatch[2]);
+      
+      console.log(`Getting fresh URL for bucket: ${bucketName}, path: ${filePath}`);
+      
+      // Get a fresh public URL
+      const { data } = await supabase
+        .storage
+        .from(bucketName)
+        .getPublicUrl(filePath);
+      
+      if (data?.publicUrl) {
+        console.log(`Fresh URL generated: ${data.publicUrl.substring(0, 30)}...`);
+        return data.publicUrl;
+      }
+      
+      console.warn('No public URL returned from Supabase');
+      return null;
+    } catch (error) {
+      console.error('Error getting fresh URL:', error);
+      return null;
+    }
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -52,53 +88,30 @@ export const useGalleryImages = () => {
         
         console.log(`Found ${data.length} images for user`);
         
-        // Process the images with reliable URL generation
+        // Process the images and refresh URLs in parallel
         const processedImages = await Promise.all(data.map(async (img) => {
-          console.log(`Processing image ID: ${img.id}, Storage URL: ${typeof img.image_url === 'string' ? img.image_url.substring(0, 30) + '...' : 'invalid URL'}`);
-          
           try {
+            // Skip processing if not a valid URL
+            if (!img.image_url || typeof img.image_url !== 'string') {
+              console.warn(`Image ${img.id} has invalid URL: ${String(img.image_url)}`);
+              return { ...img, hasInvalidUrl: true };
+            }
+            
             // Check if URL is a Supabase Storage URL
-            if (img.image_url && typeof img.image_url === 'string' && img.image_url.includes('storage/v1/object')) {
-              console.log(`Image ${img.id} uses Supabase Storage`);
+            if (img.image_url.includes('storage/v1/object')) {
+              console.log(`Refreshing Supabase URL for image ${img.id}`);
+              const freshUrl = await getFreshPublicUrl(img.image_url);
               
-              // Extract bucket name and path using a more robust regex
-              const storagePathRegex = /storage\/v1\/object\/(?:public|authenticated)\/([^\/]+)\/([^?]+)/;
-              const storagePathMatch = img.image_url.match(storagePathRegex);
-              
-              if (storagePathMatch) {
-                const bucketName = storagePathMatch[1];
-                const filePath = storagePathMatch[2];
-                
-                console.log(`Extracted bucket: ${bucketName}, path: ${filePath}`);
-                
-                try {
-                  // Get a fresh public URL - Note the changed destructuring pattern here
-                  const { data: publicUrlData } = await supabase
-                    .storage
-                    .from(bucketName)
-                    .getPublicUrl(filePath);
-                  
-                  if (publicUrlData?.publicUrl) {
-                    console.log(`Generated fresh URL for ${img.id}: ${publicUrlData.publicUrl.substring(0, 30)}...`);
-                    return {
-                      ...img,
-                      image_url: publicUrlData.publicUrl
-                    };
-                  } else {
-                    console.warn(`No public URL generated for image ${img.id}`);
-                  }
-                } catch (urlGenError) {
-                  console.error(`Error in URL generation for image ${img.id}:`, urlGenError);
-                }
-              } else {
-                console.warn(`Could not parse storage path from URL for image ${img.id}: ${img.image_url.substring(0, 30)}...`);
+              if (freshUrl) {
+                return {
+                  ...img,
+                  image_url: freshUrl
+                };
               }
-            } else if (img.image_url && typeof img.image_url === 'string' && img.image_url.startsWith('http')) {
+            } else if (img.image_url.startsWith('http')) {
               // For external URLs, use them directly
               console.log(`Image ${img.id} uses external URL: ${img.image_url.substring(0, 30)}...`);
               return img;
-            } else {
-              console.warn(`Image ${img.id} has invalid URL: ${String(img.image_url).substring(0, 30)}...`);
             }
           } catch (processError) {
             console.error(`Error processing image ${img.id}:`, processError);
@@ -109,16 +122,15 @@ export const useGalleryImages = () => {
         }));
         
         if (isMounted) {
-          console.log(`Setting ${processedImages.length} processed images`);
-          
           // Filter out any images with invalid URLs
           const validImages = processedImages.filter(img => 
-            img.image_url && typeof img.image_url === 'string' && img.image_url.startsWith('http')
+            img.image_url && 
+            typeof img.image_url === 'string' && 
+            img.image_url.startsWith('http') &&
+            !img.hasInvalidUrl
           );
           
-          if (validImages.length < processedImages.length) {
-            console.warn(`Filtered out ${processedImages.length - validImages.length} images with invalid URLs`);
-          }
+          console.log(`Setting ${validImages.length} valid images out of ${processedImages.length} total`);
           
           setImages(validImages.length > 0 ? validImages : DEFAULT_IMAGES);
           setIsLoadingImages(false);
@@ -140,7 +152,7 @@ export const useGalleryImages = () => {
     return () => {
       isMounted = false;
     };
-  }, [user]);
+  }, [user, getFreshPublicUrl]);
 
   return { images, isLoadingImages };
 };
