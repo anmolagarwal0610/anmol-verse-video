@@ -2,31 +2,15 @@
 import { useState, useCallback, useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import * as z from 'zod';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  generateImage, 
-  calculateDimensions 
-} from '@/lib/api';
+import { generateImage, calculateDimensions } from '@/lib/api';
 import { useCredit } from '@/lib/creditService';
+import { imageGeneratorSchema, FormValues } from '@/lib/schemas/imageGeneratorSchema';
+import { processImage } from '@/lib/services/imageProcessingService';
 
-// Form validation schema
-const formSchema = z.object({
-  prompt: z.string().min(2, { message: 'Please enter a prompt with at least 2 characters' }),
-  model: z.enum(['basic', 'advanced', 'pro']),
-  aspectRatio: z.string(),
-  customRatio: z.string().regex(/^\d+:\d+$/, { message: 'Format must be width:height (e.g., 16:9)' }).optional(),
-  guidance: z.number().min(1).max(10),
-  outputFormat: z.enum(['jpeg', 'png']),
-  showSeed: z.boolean().default(false),
-  seed: z.number().int().optional(),
-  negativePrompt: z.string().optional(),
-  imageStyles: z.array(z.string()).default([]),
-});
-
-export type FormValues = z.infer<typeof formSchema>;
+export { type FormValues } from '@/lib/schemas/imageGeneratorSchema';
 
 export function useImageGenerator() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -36,7 +20,7 @@ export function useImageGenerator() {
   const { user } = useAuth();
   
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(imageGeneratorSchema),
     defaultValues: {
       prompt: '',
       model: 'basic',
@@ -48,61 +32,6 @@ export function useImageGenerator() {
       negativePrompt: ''
     }
   });
-  
-  // Process and store image permanently
-  const processImage = async (apiImageUrl: string, prompt: string) => {
-    try {
-      if (!user) {
-        console.warn('Cannot process image: No authenticated user');
-        return apiImageUrl; // Return original URL if no user
-      }
-
-      console.log('Processing image via Edge Function...');
-      
-      // Call our Supabase Edge Function with explicit error handling
-      try {
-        const { data, error } = await supabase.functions.invoke('process-image', {
-          body: {
-            imageUrl: apiImageUrl,
-            userId: user.id,
-            prompt: prompt
-          }
-        });
-        
-        console.log('Edge function response:', { data, error });
-        
-        if (error) {
-          console.error('Error invoking process-image function:', error);
-          toast.error('Failed to process image. Using temporary URL.');
-          return apiImageUrl; // Fallback to original URL
-        }
-        
-        if (!data || !data.success) {
-          console.error('Process image function returned unsuccessful response:', data);
-          toast.error('Failed to process image. Using temporary URL.');
-          return apiImageUrl; // Fallback to original URL
-        }
-        
-        console.log('Image processed successfully:', data);
-        
-        if (data?.url) {
-          return data.url; // Return the permanent URL
-        } else {
-          console.warn('No URL returned from image processing');
-          toast.error('Failed to process image. Using temporary URL.');
-          return apiImageUrl; // Fallback to original URL
-        }
-      } catch (invokeError) {
-        console.error('Exception during function invocation:', invokeError);
-        toast.error(`Failed to invoke process-image function: ${invokeError.message || 'Unknown error'}`);
-        return apiImageUrl; // Fallback to original URL
-      }
-    } catch (err) {
-      console.error('Error in processImage:', err);
-      toast.error('Failed to process image. Using temporary URL.');
-      return apiImageUrl; // Fallback to original URL
-    }
-  };
   
   const generateImageFromPrompt = useCallback(async (values: FormValues) => {
     if (isGenerating || isSubmittingRef.current) return;
@@ -155,7 +84,7 @@ export function useImageGenerator() {
         // Process and get permanent URL
         if (user) {
           try {
-            const permanentImageUrl = await processImage(temporaryImageUrl, values.prompt);
+            const permanentImageUrl = await processImage(temporaryImageUrl, values.prompt, user.id);
             console.log('Permanent URL received:', permanentImageUrl);
             
             // Set the permanent URL if different from temporary
