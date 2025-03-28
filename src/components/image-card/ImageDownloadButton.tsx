@@ -1,81 +1,83 @@
-
+import { useState } from 'react';
 import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 interface ImageDownloadButtonProps {
   imageUrl: string;
-  prompt: string;
-  variant?: "overlay" | "normal";
+  prompt?: string;
+  variant?: 'overlay' | 'standalone';
 }
 
-const ImageDownloadButton = ({ imageUrl, prompt, variant = "normal" }: ImageDownloadButtonProps) => {
-  const handleDownloadImage = async () => {
+const ImageDownloadButton = ({ 
+  imageUrl, 
+  prompt, 
+  variant = 'standalone'
+}: ImageDownloadButtonProps) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    
     try {
-      // Remove any timestamp or query parameters to get the original URL
-      const cleanImageUrl = imageUrl.split('?')[0];
-      console.log('Attempting to download image from:', cleanImageUrl);
+      // Clean up the URL by removing any query parameters
+      const cleanUrl = imageUrl.split('?')[0];
       
-      // Create a new URL object to handle CORS issues
-      const response = await fetch(cleanImageUrl, {
-        mode: 'cors',
-        cache: 'no-cache'
-      });
+      // If URL is from Supabase Storage, use it directly
+      // Otherwise, for external URLs, we need to fetch and convert to blob
+      const response = await fetch(imageUrl);
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+        throw new Error(`Failed to download image: ${response.status} ${response.statusText}`);
       }
       
       const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
       
-      // Create object URL for downloading
-      const url = window.URL.createObjectURL(blob);
+      // Create an anchor element and trigger download
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `image-${prompt ? prompt.substring(0, 20).replace(/\s+/g, '-').toLowerCase() : 'download'}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       
-      // Create a temporary link element to trigger download
-      const a = document.createElement('a');
-      a.href = url;
-      // Generate filename based on prompt (or use a default)
-      const filename = prompt 
-        ? `${prompt.slice(0, 20).replace(/[^a-z0-9]/gi, '_').toLowerCase()}.jpg` 
-        : `image_${new Date().getTime()}.jpg`;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      
-      // Clean up
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      // Clean up the blob URL
+      URL.revokeObjectURL(blobUrl);
       
       toast.success('Image downloaded successfully');
-    } catch (err) {
-      console.error('Error downloading image:', err);
-      toast.error('Failed to download image');
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      toast.error('Failed to download image. Please try again.');
+    } finally {
+      setIsDownloading(false);
     }
   };
-
-  if (variant === "overlay") {
+  
+  if (variant === 'overlay') {
     return (
-      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <Button
-          variant="secondary"
-          size="sm"
-          className="backdrop-blur-sm bg-white/20 hover:bg-white/30"
-          onClick={handleDownloadImage}
-        >
-          <Download className="mr-1 h-4 w-4" /> Download
-        </Button>
-      </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute bottom-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        onClick={handleDownload}
+        disabled={isDownloading}
+      >
+        <Download className={`h-4 w-4 ${isDownloading ? 'animate-pulse' : ''}`} />
+      </Button>
     );
   }
-
+  
   return (
-    <Button 
-      variant="ghost" 
-      size="sm" 
-      className="h-6 w-6 p-0"
-      onClick={handleDownloadImage}
+    <Button
+      variant="outline"
+      size="sm"
+      className="flex items-center gap-1"
+      onClick={handleDownload}
+      disabled={isDownloading}
     >
-      <Download className="h-3.5 w-3.5" />
+      <Download className={`h-3.5 w-3.5 ${isDownloading ? 'animate-pulse' : ''}`} />
+      <span>{isDownloading ? 'Downloading...' : 'Download'}</span>
     </Button>
   );
 };

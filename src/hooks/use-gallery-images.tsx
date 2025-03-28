@@ -39,18 +39,47 @@ export const useGalleryImages = () => {
           setImages(DEFAULT_IMAGES);
         } else {
           console.log(`Found ${data.length} images for user`);
-          // Create a unique timestamp for each image to prevent caching
-          const uniqueTimestamp = Date.now();
-          const processedImages = data.map((img, index) => {
-            const uniqueParam = `t=${uniqueTimestamp}-${index}`;
-            const url = img.image_url.includes('?') 
-              ? `${img.image_url}&${uniqueParam}` 
-              : `${img.image_url}?${uniqueParam}`;
-            return {
-              ...img,
-              image_url: url
-            };
-          });
+          
+          // Process the images and create public URLs when needed
+          const processedImages = await Promise.all(data.map(async (img) => {
+            // If the URL is already public or contains a valid full URL, use it directly
+            if (img.image_url.startsWith('http') && !img.image_url.includes('?token=')) {
+              return { ...img };
+            }
+            
+            // For URLs that might be from Supabase Storage, get a fresh public URL
+            if (img.image_url.includes('storage/v1/object')) {
+              try {
+                // Extract the path from the URL
+                const urlPath = img.image_url.split('/storage/v1/object/public/')[1]?.split('?')[0];
+                
+                if (urlPath) {
+                  const bucketName = urlPath.split('/')[0];
+                  const filePath = urlPath.split('/').slice(1).join('/');
+                  
+                  // Get a fresh public URL with longer expiry
+                  const { data: publicUrlData } = await supabase
+                    .storage
+                    .from(bucketName)
+                    .getPublicUrl(filePath);
+                    
+                  if (publicUrlData?.publicUrl) {
+                    return {
+                      ...img,
+                      image_url: publicUrlData.publicUrl
+                    };
+                  }
+                }
+              } catch (urlError) {
+                console.error('Error creating public URL:', urlError);
+                // Fall back to the original URL if there's an error
+              }
+            }
+            
+            // Return the original image if we couldn't process it
+            return { ...img };
+          }));
+          
           setImages(processedImages);
         }
       } catch (error) {

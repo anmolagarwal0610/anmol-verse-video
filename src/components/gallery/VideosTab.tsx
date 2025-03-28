@@ -15,19 +15,7 @@ const VideosTab = () => {
       setIsLoading(true);
       try {
         const fetchedVideos = await getVideos();
-        // Add unique timestamp to thumbnail URLs to prevent caching issues
-        const uniqueTimestamp = Date.now();
-        const processedVideos = fetchedVideos.map((video, index) => {
-          const uniqueParam = `t=${uniqueTimestamp}-${index}`;
-          const thumbnailUrl = video.thumbnail.includes('?') 
-            ? `${video.thumbnail}&${uniqueParam}` 
-            : `${video.thumbnail}?${uniqueParam}`;
-          return {
-            ...video,
-            thumbnail: thumbnailUrl
-          };
-        });
-        setVideos(processedVideos);
+        setVideos(fetchedVideos);
       } catch (error) {
         console.error('Error fetching videos:', error);
         toast.error('Failed to load videos');
