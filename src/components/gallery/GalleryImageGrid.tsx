@@ -1,5 +1,6 @@
 
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { GeneratedImage } from './GalleryTypes';
 import ImageCard from '@/components/ImageCard';
 import { Copy } from 'lucide-react';
@@ -17,10 +18,29 @@ interface GalleryImageGridProps {
 }
 
 const GalleryImageGrid = ({ images }: GalleryImageGridProps) => {
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+  
+  const handleImageLoad = (id: string) => {
+    setLoadedImages(prev => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      return newSet;
+    });
+  };
+  
+  const handleImageError = (id: string, url: string) => {
+    console.error(`Failed to load image ${id} from URL: ${url.substring(0, 30)}...`);
+  };
+  
   const handleCopyPrompt = (prompt: string) => {
     navigator.clipboard.writeText(prompt);
     toast.success('Prompt copied to clipboard');
   };
+  
+  console.log(`Rendering GalleryImageGrid with ${images.length} images`);
+  images.forEach((img, index) => {
+    console.log(`Image ${index}: ID=${img.id}, URL preview=${img.image_url?.substring(0, 30)}...`);
+  });
 
   return (
     <motion.div 
@@ -31,7 +51,16 @@ const GalleryImageGrid = ({ images }: GalleryImageGridProps) => {
     >
       {images.map((image, index) => (
         <div key={image.id} className="relative group">
-          <ImageCard image={image} index={index} />
+          <ImageCard 
+            image={{
+              ...image,
+              // Ensure image URL is valid
+              image_url: image.image_url || ''
+            }} 
+            index={index} 
+            onLoad={() => handleImageLoad(image.id)}
+            onError={() => handleImageError(image.id, image.image_url || '')}
+          />
           
           {/* Actions */}
           <div className="mt-2 flex items-center justify-end">
