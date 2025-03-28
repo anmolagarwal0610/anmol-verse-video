@@ -4,11 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
-import { supabase } from '@/integrations/supabase/client';
-import { generateImage, calculateDimensions } from '@/lib/api';
-import { useCredit } from '@/lib/creditService';
 import { imageGeneratorSchema, FormValues } from '@/lib/schemas/imageGeneratorSchema';
-import { processImage } from '@/lib/services/imageProcessingService';
+import { generateImageFromPrompt } from '@/lib/services/imageGenerationService';
 
 export { type FormValues } from '@/lib/schemas/imageGeneratorSchema';
 
@@ -33,7 +30,7 @@ export function useImageGenerator() {
     }
   });
   
-  const generateImageFromPrompt = useCallback(async (values: FormValues) => {
+  const handleGenerateImage = useCallback(async (values: FormValues) => {
     if (isGenerating || isSubmittingRef.current) return;
     
     isSubmittingRef.current = true;
@@ -42,85 +39,22 @@ export function useImageGenerator() {
     setShowGalleryMessage(false);
     
     try {
-      const hasSufficientCredits = await useCredit();
+      const result = await generateImageFromPrompt(values, user?.id);
       
-      if (!hasSufficientCredits) {
-        setIsGenerating(false);
-        isSubmittingRef.current = false;
-        return;
-      }
-      
-      const ratio = values.aspectRatio === 'custom' && values.customRatio 
-        ? values.customRatio 
-        : values.aspectRatio;
+      if (result) {
+        // First set the temporary URL while we process the permanent one
+        setImageUrl(result.temporaryImageUrl);
         
-      const dimensions = calculateDimensions(ratio);
-      
-      let enhancedPrompt = values.prompt;
-      
-      if (values.imageStyles && values.imageStyles.length > 0) {
-        const styleNames = values.imageStyles.join(', ');
-        enhancedPrompt += `. Image style: ${styleNames}`;
-      }
-      
-      const result = await generateImage({
-        prompt: enhancedPrompt,
-        model: values.model,
-        width: dimensions.width,
-        height: dimensions.height,
-        guidance: values.guidance,
-        output_format: values.outputFormat,
-        negative_prompt: values.negativePrompt,
-        seed: values.showSeed ? values.seed : undefined
-      });
-      
-      if (result.data && result.data.length > 0) {
-        const temporaryImageUrl = result.data[0].url;
-        
-        // Set the temporary URL while we process the permanent one
-        setImageUrl(temporaryImageUrl);
-        toast.success('Image generated successfully!');
-        
-        // Process and get permanent URL
-        if (user) {
-          try {
-            const permanentImageUrl = await processImage(temporaryImageUrl, values.prompt, user.id);
-            console.log('Permanent URL received:', permanentImageUrl);
-            
-            // Set the permanent URL if different from temporary
-            if (permanentImageUrl !== temporaryImageUrl) {
-              setImageUrl(permanentImageUrl);
-            }
-            
-            // Save the image to the database with the permanent URL
-            const { error } = await supabase.from('generated_images').insert({
-              prompt: values.prompt,
-              image_url: permanentImageUrl,
-              model: values.model,
-              width: dimensions.width,
-              height: dimensions.height,
-              preferences: values.imageStyles,
-              user_id: user.id
-            });
-            
-            if (error) {
-              console.error('Error saving image to database:', error);
-              toast.error('Failed to save image to your gallery.');
-            } else {
-              setShowGalleryMessage(true);
-            }
-          } catch (processError) {
-            console.error('Error during image processing:', processError);
-            // Continue with the temporary URL, already set above
-            toast.error('Failed to process image permanently. Using temporary URL.');
-          }
+        // If the permanent URL is different, update to it
+        if (result.permanentImageUrl !== result.temporaryImageUrl) {
+          setImageUrl(result.permanentImageUrl);
         }
-      } else {
-        toast.error('No image data was returned.');
+        
+        // Show gallery message if user is logged in
+        if (user) {
+          setShowGalleryMessage(true);
+        }
       }
-    } catch (error: any) {
-      console.error('Error generating image:', error);
-      toast.error(`Failed to generate image: ${error.message || 'Unknown error'}`);
     } finally {
       setIsGenerating(false);
       isSubmittingRef.current = false;
@@ -132,6 +66,6 @@ export function useImageGenerator() {
     imageUrl,
     isGenerating,
     showGalleryMessage,
-    generateImageFromPrompt
+    generateImageFromPrompt: handleGenerateImage
   };
 }
