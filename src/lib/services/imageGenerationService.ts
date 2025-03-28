@@ -21,9 +21,15 @@ export async function generateImageFromPrompt(
   userId?: string
 ): Promise<ImageGenerationResult | null> {
   try {
+    console.log('Starting image generation process with values:', {
+      ...values,
+      userId: userId || 'not provided'
+    });
+    
     const hasSufficientCredits = await useCredit();
     
     if (!hasSufficientCredits) {
+      toast.error('Insufficient credits to generate image');
       return null;
     }
     
@@ -40,6 +46,8 @@ export async function generateImageFromPrompt(
       enhancedPrompt += `. Image style: ${styleNames}`;
     }
     
+    console.log('Sending image generation request to API with dimensions:', dimensions);
+    
     const result = await generateImage({
       prompt: enhancedPrompt,
       model: values.model,
@@ -54,27 +62,41 @@ export async function generateImageFromPrompt(
     if (result.data && result.data.length > 0) {
       const temporaryImageUrl = result.data[0].url;
       toast.success('Image generated successfully!');
+      console.log('Got temporary image URL from API');
       
       // Process and get permanent URL if user is logged in
       if (userId) {
+        console.log('User is logged in, processing image for permanent storage');
         try {
+          console.log('Calling processImage with userId:', userId);
           const permanentImageUrl = await processImage(temporaryImageUrl, values.prompt, userId);
-          console.log('Permanent URL received:', permanentImageUrl);
+          console.log('Permanent URL received:', permanentImageUrl.substring(0, 30) + '...');
           
-          // Save the image to the database with the permanent URL
-          const { error } = await supabase.from('generated_images').insert({
-            prompt: values.prompt,
-            image_url: permanentImageUrl,
-            model: values.model,
-            width: dimensions.width,
-            height: dimensions.height,
-            preferences: values.imageStyles,
-            user_id: userId
-          });
+          // Check if we actually got a different URL back
+          const isPermanentUrlDifferent = permanentImageUrl !== temporaryImageUrl;
+          console.log('Did we get a different permanent URL?', isPermanentUrlDifferent);
           
-          if (error) {
-            console.error('Error saving image to database:', error);
-            toast.error('Failed to save image to your gallery.');
+          if (isPermanentUrlDifferent) {
+            // Save the image to the database with the permanent URL
+            console.log('Saving generated image to database with permanent URL');
+            const { error } = await supabase.from('generated_images').insert({
+              prompt: values.prompt,
+              image_url: permanentImageUrl,
+              model: values.model,
+              width: dimensions.width,
+              height: dimensions.height,
+              preferences: values.imageStyles,
+              user_id: userId
+            });
+            
+            if (error) {
+              console.error('Error saving image to database:', error);
+              toast.error('Failed to save image to your gallery.');
+            } else {
+              console.log('Successfully saved image to database');
+            }
+          } else {
+            console.warn('Permanent URL is same as temporary, not saving to database');
           }
           
           return {
@@ -96,6 +118,7 @@ export async function generateImageFromPrompt(
         }
       } else {
         // User not logged in, just return the temporary URL
+        console.log('User not logged in, using temporary URL only');
         return {
           temporaryImageUrl,
           permanentImageUrl: temporaryImageUrl,
@@ -104,6 +127,7 @@ export async function generateImageFromPrompt(
         };
       }
     } else {
+      console.error('No image data returned from API');
       toast.error('No image data was returned.');
       return null;
     }

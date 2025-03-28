@@ -113,18 +113,9 @@ Deno.serve(async (req) => {
       throw new Error(`Failed to create Supabase client: ${error.message}`);
     }
     
-    // The bucket name is "generated.images" as verified with the user
+    // The exact bucket name - make sure it's correct
     const bucketName = 'generated.images';
     console.log(`Using storage bucket: ${bucketName}`);
-    
-    // Generate a unique filename
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 10);
-    const fileExtension = contentType.includes('jpeg') ? 'jpg' : 'png';
-    const filename = `${timestamp}-${randomString}.${fileExtension}`;
-    const filePath = `${userId}/${filename}`;
-    
-    console.log(`Uploading to ${bucketName}/${filePath}`);
     
     // Check if bucket exists
     try {
@@ -149,6 +140,34 @@ Deno.serve(async (req) => {
       console.error('Error checking bucket existence:', error);
       throw new Error(`Failed to check bucket existence: ${error.message}`);
     }
+    
+    // Test bucket permissions
+    try {
+      console.log(`Testing bucket permissions for ${bucketName}`);
+      const { data: testData, error: testError } = await supabase
+        .storage
+        .from(bucketName)
+        .list(userId || 'test');
+        
+      if (testError) {
+        console.error(`Permission check error: ${testError.message}`);
+        // Don't throw here, we just want to log the error
+      } else {
+        console.log(`Permission check successful, found ${testData?.length || 0} existing files`);
+      }
+    } catch (error) {
+      console.error('Error during permission check:', error);
+      // Don't throw here, we just want to log the error
+    }
+    
+    // Generate a unique filename
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(2, 10);
+    const fileExtension = contentType.includes('jpeg') ? 'jpg' : 'png';
+    const filename = `${timestamp}-${randomString}.${fileExtension}`;
+    const filePath = `${userId}/${filename}`;
+    
+    console.log(`Uploading to ${bucketName}/${filePath}`);
     
     // Upload the image to Supabase Storage
     let uploadData;

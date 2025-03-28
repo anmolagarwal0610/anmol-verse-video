@@ -5,9 +5,15 @@ import { toast } from 'sonner';
 export async function processImage(apiImageUrl: string, prompt: string, userId: string): Promise<string> {
   try {
     console.log('Processing image via Edge Function...');
+    console.log('Params:', {
+      imageUrl: apiImageUrl?.substring(0, 30) + '...',
+      userId,
+      promptLength: prompt?.length || 0
+    });
     
     // Call our Supabase Edge Function with explicit error handling
     try {
+      console.log('Invoking process-image function...');
       const { data, error } = await supabase.functions.invoke('process-image', {
         body: {
           imageUrl: apiImageUrl,
@@ -20,13 +26,14 @@ export async function processImage(apiImageUrl: string, prompt: string, userId: 
       
       if (error) {
         console.error('Error invoking process-image function:', error);
-        toast.error('Failed to process image. Using temporary URL.');
+        toast.error(`Failed to process image: ${error.message || 'Unknown error'}`);
         return apiImageUrl; // Fallback to original URL
       }
       
       if (!data || !data.success) {
         console.error('Process image function returned unsuccessful response:', data);
-        toast.error('Failed to process image. Using temporary URL.');
+        const errorMessage = data?.error || 'Failed to process image';
+        toast.error(errorMessage);
         return apiImageUrl; // Fallback to original URL
       }
       
