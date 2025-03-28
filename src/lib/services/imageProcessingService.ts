@@ -2,57 +2,102 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+/**
+ * Process an image by sending it to our Supabase Edge Function,
+ * which will download and store it permanently in Supabase Storage
+ */
 export async function processImage(apiImageUrl: string, prompt: string, userId: string): Promise<string> {
   try {
-    console.log('Processing image via Edge Function...');
+    console.log('Starting image processing workflow...');
     console.log('Params:', {
-      imageUrl: apiImageUrl?.substring(0, 30) + '...',
+      imageUrlLength: apiImageUrl?.length || 0,
       userId,
       promptLength: prompt?.length || 0
     });
     
-    // Call our Supabase Edge Function with explicit error handling
+    // First verify the image URL is valid
+    if (!apiImageUrl || !apiImageUrl.startsWith('http')) {
+      console.error('Invalid image URL provided:', apiImageUrl?.substring(0, 30) + '...');
+      toast.error('Invalid image URL. Cannot process image.');
+      return apiImageUrl; // Return original URL
+    }
+    
+    // Verify user ID is provided
+    if (!userId) {
+      console.error('No user ID provided for image processing');
+      toast.error('Authentication required for image processing.');
+      return apiImageUrl; // Return original URL
+    }
+    
+    // Call our Edge Function with proper error handling
     try {
-      console.log('Invoking process-image function...');
+      console.log('Invoking process-image Edge Function...');
+      
+      // Construct the request body
+      const body = {
+        imageUrl: apiImageUrl,
+        userId: userId,
+        prompt: prompt || 'Generated image'
+      };
+      
+      console.log('Request body:', {
+        imageUrlStart: body.imageUrl?.substring(0, 30) + '...',
+        userId: body.userId,
+        promptLength: body.prompt?.length || 0
+      });
+      
+      // Make the request to the Edge Function
       const { data, error } = await supabase.functions.invoke('process-image', {
-        body: {
-          imageUrl: apiImageUrl,
-          userId: userId,
-          prompt: prompt
+        body: body,
+        headers: {
+          'Content-Type': 'application/json'
         }
       });
       
-      console.log('Edge function response:', data, error);
+      // Log the full response for debugging
+      console.log('Edge function response:', {
+        data: data,
+        error: error ? { message: error.message, name: error.name } : null
+      });
       
+      // Handle error responses
       if (error) {
-        console.error('Error invoking process-image function:', error);
-        toast.error(`Failed to process image: ${error.message || 'Unknown error'}`);
+        console.error('Error from Edge Function:', error);
+        toast.error(`Processing failed: ${error.message || 'Unknown error'}`);
         return apiImageUrl; // Fallback to original URL
       }
       
-      if (!data || !data.success) {
-        console.error('Process image function returned unsuccessful response:', data);
-        const errorMessage = data?.error || 'Failed to process image';
+      // Verify we got a valid response
+      if (!data) {
+        console.error('No data returned from Edge Function');
+        toast.error('No response from image processor');
+        return apiImageUrl; // Fallback to original URL
+      }
+      
+      // Check for success flag
+      if (!data.success) {
+        console.error('Processing returned unsuccessful:', data);
+        const errorMessage = data.error || 'Unknown processing error';
         toast.error(errorMessage);
         return apiImageUrl; // Fallback to original URL
       }
       
-      console.log('Image processed successfully:', data);
-      
-      if (data?.url) {
-        return data.url; // Return the permanent URL
-      } else {
-        console.warn('No URL returned from image processing');
-        toast.error('Failed to process image. Using temporary URL.');
+      // Verify we got a URL back
+      if (!data.url) {
+        console.warn('No URL returned from processing');
+        toast.error('Failed to get permanent image URL');
         return apiImageUrl; // Fallback to original URL
       }
-    } catch (invokeError) {
-      console.error('Exception during function invocation:', invokeError);
-      toast.error(`Failed to invoke process-image function: ${invokeError.message || 'Unknown error'}`);
+      
+      console.log('Successfully processed image, permanent URL:', data.url.substring(0, 50) + '...');
+      return data.url;
+    } catch (invokeError: any) {
+      console.error('Exception during Edge Function invocation:', invokeError);
+      toast.error(`Failed to send a request to the Edge Function: ${invokeError.message || 'Unknown error'}`);
       return apiImageUrl; // Fallback to original URL
     }
-  } catch (err) {
-    console.error('Error in processImage:', err);
+  } catch (err: any) {
+    console.error('Top-level error in processImage:', err);
     toast.error('Failed to process image. Using temporary URL.');
     return apiImageUrl; // Fallback to original URL
   }

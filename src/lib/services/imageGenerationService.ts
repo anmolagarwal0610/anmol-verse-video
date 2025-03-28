@@ -22,8 +22,10 @@ export async function generateImageFromPrompt(
 ): Promise<ImageGenerationResult | null> {
   try {
     console.log('Starting image generation process with values:', {
-      ...values,
-      userId: userId || 'not provided'
+      model: values.model,
+      aspectRatio: values.aspectRatio,
+      customRatio: values.customRatio,
+      hasUserId: !!userId
     });
     
     const hasSufficientCredits = await useCredit();
@@ -59,66 +61,65 @@ export async function generateImageFromPrompt(
       seed: values.showSeed ? values.seed : undefined
     });
     
-    if (result.data && result.data.length > 0) {
-      const temporaryImageUrl = result.data[0].url;
-      toast.success('Image generated successfully!');
-      console.log('Got temporary image URL from API');
-      
-      // Process and get permanent URL if user is logged in
-      if (userId) {
-        console.log('User is logged in, processing image for permanent storage');
-        try {
-          console.log('Calling processImage with userId:', userId);
-          const permanentImageUrl = await processImage(temporaryImageUrl, values.prompt, userId);
-          console.log('Permanent URL received:', permanentImageUrl.substring(0, 30) + '...');
+    if (!result.data || result.data.length === 0) {
+      console.error('No image data returned from API');
+      toast.error('No image data was returned from the generation API');
+      return null;
+    }
+    
+    // We got a temporary image URL from the API
+    const temporaryImageUrl = result.data[0].url;
+    console.log('Received temporary image URL from API:', temporaryImageUrl.substring(0, 30) + '...');
+    toast.success('Image generated successfully!');
+    
+    // Process and get permanent URL if user is logged in
+    if (userId) {
+      console.log('User is logged in, processing image for permanent storage');
+      try {
+        const permanentImageUrl = await processImage(temporaryImageUrl, values.prompt, userId);
+        
+        // If processImage was successful and returned a different URL
+        const isPermanentUrlDifferent = permanentImageUrl !== temporaryImageUrl;
+        console.log('Received permanent URL:', {
+          isDifferent: isPermanentUrlDifferent,
+          urlStart: permanentImageUrl.substring(0, 30) + '...'
+        });
+        
+        if (isPermanentUrlDifferent) {
+          // Save the image to the database with the permanent URL
+          console.log('Saving generated image to database with permanent URL');
+          const { error } = await supabase.from('generated_images').insert({
+            prompt: values.prompt,
+            image_url: permanentImageUrl,
+            model: values.model,
+            width: dimensions.width,
+            height: dimensions.height,
+            preferences: values.imageStyles,
+            user_id: userId
+          });
           
-          // Check if we actually got a different URL back
-          const isPermanentUrlDifferent = permanentImageUrl !== temporaryImageUrl;
-          console.log('Did we get a different permanent URL?', isPermanentUrlDifferent);
-          
-          if (isPermanentUrlDifferent) {
-            // Save the image to the database with the permanent URL
-            console.log('Saving generated image to database with permanent URL');
-            const { error } = await supabase.from('generated_images').insert({
-              prompt: values.prompt,
-              image_url: permanentImageUrl,
-              model: values.model,
-              width: dimensions.width,
-              height: dimensions.height,
-              preferences: values.imageStyles,
-              user_id: userId
-            });
-            
-            if (error) {
-              console.error('Error saving image to database:', error);
-              toast.error('Failed to save image to your gallery.');
-            } else {
-              console.log('Successfully saved image to database');
-            }
+          if (error) {
+            console.error('Error saving image to database:', error);
+            toast.error('Failed to save image to your gallery.');
           } else {
-            console.warn('Permanent URL is same as temporary, not saving to database');
+            console.log('Successfully saved image to database');
+            toast.success('Image saved to your gallery!');
           }
-          
-          return {
-            temporaryImageUrl,
-            permanentImageUrl,
-            dimensions,
-            success: true
-          };
-        } catch (processError) {
-          console.error('Error during image processing:', processError);
-          toast.error('Failed to process image permanently. Using temporary URL.');
-          
-          return {
-            temporaryImageUrl,
-            permanentImageUrl: temporaryImageUrl,
-            dimensions,
-            success: true
-          };
+        } else {
+          console.warn('Using temporary URL as permanent URL failed');
+          toast.error('Could not save image permanently. Using temporary URL.');
         }
-      } else {
-        // User not logged in, just return the temporary URL
-        console.log('User not logged in, using temporary URL only');
+        
+        return {
+          temporaryImageUrl,
+          permanentImageUrl,
+          dimensions,
+          success: true
+        };
+      } catch (processError: any) {
+        console.error('Error during image processing:', processError);
+        toast.error(`Failed to process image permanently: ${processError.message || 'Unknown error'}`);
+        
         return {
           temporaryImageUrl,
           permanentImageUrl: temporaryImageUrl,
@@ -127,9 +128,14 @@ export async function generateImageFromPrompt(
         };
       }
     } else {
-      console.error('No image data returned from API');
-      toast.error('No image data was returned.');
-      return null;
+      // User not logged in, just return the temporary URL
+      console.log('User not logged in, using temporary URL only');
+      return {
+        temporaryImageUrl,
+        permanentImageUrl: temporaryImageUrl,
+        dimensions,
+        success: true
+      };
     }
   } catch (error: any) {
     console.error('Error generating image:', error);
