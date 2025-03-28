@@ -12,7 +12,6 @@ import {
   generateImage, 
   getDimensionsFromRatio 
 } from './generators';
-import { saveImageToDatabase } from '../imageProcessingService';
 
 /**
  * Main entry point for generating images
@@ -66,29 +65,26 @@ export async function generateImageFromPrompt(
     // Save to database if user is logged in - using direct API URL 
     if (userId) {
       try {
-        // Save the API URL directly to the database
-        await saveImageToDatabase(
-          generatedImageUrl,
-          values.prompt,
-          userId,
-          {
-            width: dimensions.width,
-            height: dimensions.height,
-            model: values.model,
-            preferences: values.imageStyles
-          }
-        );
+        // Simply save the generated API URL directly to the database
+        const { error } = await supabase.from('generated_images').insert({
+          prompt: values.prompt,
+          image_url: generatedImageUrl,
+          user_id: userId,
+          width: dimensions.width,
+          height: dimensions.height,
+          model: values.model,
+          preferences: values.imageStyles
+        });
         
-        // Show gallery message if user is logged in
-        return {
-          temporaryImageUrl: generatedImageUrl,
-          permanentImageUrl: generatedImageUrl, // Same URL, no processing
-          dimensions,
-          success: true
-        };
+        if (error) {
+          console.error('Error saving image to database:', error);
+          toast.error(`Failed to save image to gallery: ${error.message || 'Unknown error'}`);
+        } else {
+          toast.success('Image saved to your gallery!');
+        }
       } catch (dbError: any) {
         console.error('Error saving image to database:', dbError);
-        toast.error(`Failed to save image to gallery: ${dbError.message || 'Unknown error'}`);
+        toast.error(`Failed to save to gallery: ${dbError.message || 'Unknown error'}`);
       }
     }
     
@@ -106,5 +102,5 @@ export async function generateImageFromPrompt(
   }
 }
 
-// Important: Export the ImageGenerationResult type from here as well
+// Export the type
 export type { ImageGenerationResult } from './types';

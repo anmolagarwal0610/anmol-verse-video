@@ -3,8 +3,8 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Simple function to log image URL to database
- * No processing or storage, just saves the API URL directly
+ * Simple function to save direct image URL to database
+ * No processing or storage, just logs the API URL directly
  */
 export async function saveImageToDatabase(
   apiImageUrl: string, 
@@ -38,7 +38,7 @@ export async function saveImageToDatabase(
       return apiImageUrl;
     }
     
-    // Insert the image URL directly into the database
+    // Simply save the API URL directly to the database
     const { error } = await supabase.from('generated_images').insert({
       prompt: prompt,
       image_url: apiImageUrl,

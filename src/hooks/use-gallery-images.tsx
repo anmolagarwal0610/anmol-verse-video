@@ -29,7 +29,7 @@ export const useGalleryImages = () => {
         
         console.log('Fetching images for user:', user.id);
         
-        // Get the database records
+        // Get the database records with direct API URLs
         const { data, error } = await supabase
           .from('generated_images')
           .select('*')
