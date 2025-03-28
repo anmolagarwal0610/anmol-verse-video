@@ -72,16 +72,11 @@ export const useGalleryImages = () => {
                 console.log(`Extracted bucket: ${bucketName}, path: ${filePath}`);
                 
                 try {
-                  // Get a fresh public URL
-                  const { data: publicUrlData, error: urlError } = await supabase
+                  // Get a fresh public URL - Note the changed destructuring pattern here
+                  const { data: publicUrlData } = await supabase
                     .storage
                     .from(bucketName)
                     .getPublicUrl(filePath);
-                  
-                  if (urlError) {
-                    console.error(`Error generating URL for image ${img.id}:`, urlError);
-                    return img; // Return original image data
-                  }
                   
                   if (publicUrlData?.publicUrl) {
                     console.log(`Generated fresh URL for ${img.id}: ${publicUrlData.publicUrl.substring(0, 30)}...`);
