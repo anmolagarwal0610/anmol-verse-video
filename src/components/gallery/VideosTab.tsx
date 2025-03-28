@@ -14,7 +14,9 @@ const VideosTab = () => {
     const fetchVideos = async () => {
       setIsLoading(true);
       try {
+        console.log('Fetching videos...');
         const fetchedVideos = await getVideos();
+        console.log(`Fetched ${fetchedVideos.length} videos`);
         setVideos(fetchedVideos);
       } catch (error) {
         console.error('Error fetching videos:', error);

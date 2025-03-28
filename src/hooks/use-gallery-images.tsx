@@ -11,6 +11,8 @@ export const useGalleryImages = () => {
   const { user } = useAuth();
 
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchImages = async () => {
       setIsLoadingImages(true);
       
@@ -18,12 +20,16 @@ export const useGalleryImages = () => {
         // For non-authenticated users, always use default images
         if (!user) {
           console.log('No user, using default images');
-          setImages(DEFAULT_IMAGES);
-          setIsLoadingImages(false);
+          if (isMounted) {
+            setImages(DEFAULT_IMAGES);
+            setIsLoadingImages(false);
+          }
           return;
         }
         
         console.log('Fetching images for user:', user.id);
+        
+        // First get the database records
         const { data, error } = await supabase
           .from('generated_images')
           .select('*')
@@ -36,63 +42,87 @@ export const useGalleryImages = () => {
         
         if (!data || data.length === 0) {
           console.log('No images found for user, using default images');
-          setImages(DEFAULT_IMAGES);
-        } else {
-          console.log(`Found ${data.length} images for user`);
+          if (isMounted) {
+            setImages(DEFAULT_IMAGES);
+            setIsLoadingImages(false);
+          }
+          return;
+        }
+        
+        console.log(`Found ${data.length} images for user`);
+        
+        // Process the images with guaranteed fresh public URLs for Supabase storage paths
+        const processedImages = await Promise.all(data.map(async (img) => {
+          console.log(`Processing image: ${img.id}, URL: ${img.image_url.substring(0, 50)}...`);
           
-          // Process the images and create public URLs when needed
-          const processedImages = await Promise.all(data.map(async (img) => {
-            // If the URL is already public or contains a valid full URL, use it directly
-            if (img.image_url.startsWith('http') && !img.image_url.includes('?token=')) {
+          try {
+            // Check if URL is from Supabase Storage (contains storage/v1/object)
+            if (img.image_url.includes('storage/v1/object')) {
+              // Extract bucket name and path
+              const storagePathMatch = img.image_url.match(/storage\/v1\/object\/public\/([^\/]+)\/(.+?)(?:\?|$)/);
+              
+              if (storagePathMatch) {
+                const bucketName = storagePathMatch[1];
+                let filePath = storagePathMatch[2];
+                
+                // Remove any query parameters from the file path
+                filePath = filePath.split('?')[0];
+                
+                console.log(`Generating fresh URL for bucket: ${bucketName}, path: ${filePath}`);
+                
+                // Get a fresh public URL
+                const { data: publicUrlData } = await supabase
+                  .storage
+                  .from(bucketName)
+                  .getPublicUrl(filePath);
+                
+                if (publicUrlData?.publicUrl) {
+                  console.log(`Generated fresh URL: ${publicUrlData.publicUrl.substring(0, 50)}...`);
+                  return {
+                    ...img,
+                    image_url: publicUrlData.publicUrl
+                  };
+                } else {
+                  console.warn(`Failed to generate public URL for: ${img.id}`);
+                }
+              } else {
+                console.warn(`Could not parse storage path from URL: ${img.image_url.substring(0, 50)}...`);
+              }
+            } else if (img.image_url.startsWith('http')) {
+              // For external URLs, use them directly
+              console.log(`Using external URL directly: ${img.image_url.substring(0, 50)}...`);
               return { ...img };
             }
-            
-            // For URLs that might be from Supabase Storage, get a fresh public URL
-            if (img.image_url.includes('storage/v1/object')) {
-              try {
-                // Extract the path from the URL
-                const urlPath = img.image_url.split('/storage/v1/object/public/')[1]?.split('?')[0];
-                
-                if (urlPath) {
-                  const bucketName = urlPath.split('/')[0];
-                  const filePath = urlPath.split('/').slice(1).join('/');
-                  
-                  // Get a fresh public URL with longer expiry
-                  const { data: publicUrlData } = await supabase
-                    .storage
-                    .from(bucketName)
-                    .getPublicUrl(filePath);
-                    
-                  if (publicUrlData?.publicUrl) {
-                    return {
-                      ...img,
-                      image_url: publicUrlData.publicUrl
-                    };
-                  }
-                }
-              } catch (urlError) {
-                console.error('Error creating public URL:', urlError);
-                // Fall back to the original URL if there's an error
-              }
-            }
-            
-            // Return the original image if we couldn't process it
-            return { ...img };
-          }));
+          } catch (error) {
+            console.error(`Error processing image ${img.id}:`, error);
+          }
           
+          // Return the original image if we couldn't process it
+          return { ...img };
+        }));
+        
+        if (isMounted) {
+          console.log(`Setting ${processedImages.length} processed images`);
           setImages(processedImages);
+          setIsLoadingImages(false);
         }
       } catch (error) {
         console.error('Error fetching images:', error);
         toast.error('Failed to load images. Using sample gallery.');
+        
         // Always fallback to default images on error
-        setImages(DEFAULT_IMAGES);
-      } finally {
-        setIsLoadingImages(false);
+        if (isMounted) {
+          setImages(DEFAULT_IMAGES);
+          setIsLoadingImages(false);
+        }
       }
     };
 
     fetchImages();
+    
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   return { images, isLoadingImages };

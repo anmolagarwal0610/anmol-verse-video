@@ -11,7 +11,6 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
-import ImageDownloadButton from '../image-card/ImageDownloadButton';
 
 interface GalleryImageGridProps {
   images: GeneratedImage[];

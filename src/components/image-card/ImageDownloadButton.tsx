@@ -1,7 +1,9 @@
+
 import { useState } from 'react';
 import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ImageDownloadButtonProps {
   imageUrl: string;
@@ -20,12 +22,36 @@ const ImageDownloadButton = ({
     setIsDownloading(true);
     
     try {
-      // Clean up the URL by removing any query parameters
-      const cleanUrl = imageUrl.split('?')[0];
+      console.log('Starting download for image URL:', imageUrl.substring(0, 50) + '...');
       
-      // If URL is from Supabase Storage, use it directly
-      // Otherwise, for external URLs, we need to fetch and convert to blob
-      const response = await fetch(imageUrl);
+      let downloadUrl = imageUrl;
+      
+      // Check if this is a Supabase Storage URL
+      if (imageUrl.includes('storage/v1/object')) {
+        // Try to extract bucket and path to generate a fresh URL
+        const storagePathMatch = imageUrl.match(/storage\/v1\/object\/public\/([^\/]+)\/(.+?)(?:\?|$)/);
+        
+        if (storagePathMatch) {
+          const bucketName = storagePathMatch[1];
+          let filePath = storagePathMatch[2].split('?')[0]; // Remove query params
+          
+          console.log(`Generating fresh download URL for: bucket=${bucketName}, path=${filePath}`);
+          
+          // Get a fresh URL for downloading
+          const { data } = await supabase
+            .storage
+            .from(bucketName)
+            .getPublicUrl(filePath);
+            
+          if (data?.publicUrl) {
+            downloadUrl = data.publicUrl;
+            console.log('Using fresh Supabase URL:', downloadUrl.substring(0, 50) + '...');
+          }
+        }
+      }
+      
+      // Now fetch the image with the proper URL
+      const response = await fetch(downloadUrl);
       
       if (!response.ok) {
         throw new Error(`Failed to download image: ${response.status} ${response.statusText}`);
@@ -37,7 +63,13 @@ const ImageDownloadButton = ({
       // Create an anchor element and trigger download
       const link = document.createElement('a');
       link.href = blobUrl;
-      link.download = `image-${prompt ? prompt.substring(0, 20).replace(/\s+/g, '-').toLowerCase() : 'download'}.png`;
+      
+      // Create a safe filename from the prompt or use a timestamp
+      const safeFileName = prompt 
+        ? prompt.substring(0, 20).replace(/[^a-z0-9]/gi, '-').toLowerCase() 
+        : `image-${Date.now()}`;
+        
+      link.download = `${safeFileName}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -46,6 +78,7 @@ const ImageDownloadButton = ({
       URL.revokeObjectURL(blobUrl);
       
       toast.success('Image downloaded successfully');
+      console.log('Download completed successfully');
     } catch (error) {
       console.error('Error downloading image:', error);
       toast.error('Failed to download image. Please try again.');
