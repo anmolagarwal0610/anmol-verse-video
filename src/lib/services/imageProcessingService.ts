@@ -22,7 +22,7 @@ export async function processImage(apiImageUrl: string, prompt: string, userId: 
         }
       });
       
-      console.log('Edge function response:', { data, error });
+      console.log('Edge function response:', data, error);
       
       if (error) {
         console.error('Error invoking process-image function:', error);

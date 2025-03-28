@@ -4,7 +4,10 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.31.0';
 // @ts-ignore
 import { decode as decodeBase64 } from 'https://deno.land/std@0.212.0/encoding/base64.ts';
 
-// Handle CORS preflight requests
+// Configuration
+const BUCKET_NAME = 'generated.images';
+
+// Core utility functions
 function handleCors(req: Request) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -19,23 +22,89 @@ function handleCors(req: Request) {
   return { corsHeaders };
 }
 
-// Create Supabase client
-const createSupabaseClient = () => {
+function createSupabaseClient() {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const supabaseServiceRole = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  
-  console.log('Creating Supabase client with URL present:', !!supabaseUrl);
-  console.log('Service role key present:', !!supabaseServiceRole);
   
   if (!supabaseUrl || !supabaseServiceRole) {
     throw new Error('Missing Supabase credentials');
   }
   
-  // Use service role key for admin privileges
+  console.log(`Creating Supabase client with URL: ${supabaseUrl.substring(0, 15)}...`);
   return createClient(supabaseUrl, supabaseServiceRole);
-};
+}
 
-// Main function handler
+async function downloadImage(imageUrl: string) {
+  console.log(`Downloading image from: ${imageUrl.substring(0, 30)}...`);
+  
+  const response = await fetch(imageUrl);
+  
+  if (!response.ok) {
+    throw new Error(`Failed to download image: ${response.status} ${response.statusText}`);
+  }
+  
+  const contentType = response.headers.get('content-type') || 'image/png';
+  const imageData = await response.arrayBuffer();
+  
+  console.log(`Downloaded image (${(imageData.byteLength / 1024).toFixed(2)} KB) with content type: ${contentType}`);
+  
+  return { imageData, contentType };
+}
+
+async function uploadImageToStorage(supabase, userId: string, imageData: ArrayBuffer, contentType: string) {
+  // Generate a unique filename
+  const timestamp = Date.now();
+  const randomString = Math.random().toString(36).substring(2, 10);
+  const fileExtension = contentType.includes('jpeg') ? 'jpg' : 'png';
+  const filename = `${timestamp}-${randomString}.${fileExtension}`;
+  const filePath = `${userId}/${filename}`;
+  
+  console.log(`Uploading to ${BUCKET_NAME}/${filePath}`);
+  
+  // First verify bucket exists
+  const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+  
+  if (bucketsError) {
+    throw new Error(`Error listing buckets: ${bucketsError.message}`);
+  }
+  
+  const bucketExists = buckets?.some(b => b.name === BUCKET_NAME);
+  if (!bucketExists) {
+    throw new Error(`Storage bucket "${BUCKET_NAME}" does not exist`);
+  }
+  
+  // Upload image
+  const { data, error } = await supabase
+    .storage
+    .from(BUCKET_NAME)
+    .upload(filePath, imageData, {
+      contentType,
+      cacheControl: '3600',
+      upsert: false
+    });
+  
+  if (error) {
+    throw new Error(`Failed to upload image: ${error.message}`);
+  }
+  
+  // Get public URL
+  const { data: publicUrlData } = await supabase
+    .storage
+    .from(BUCKET_NAME)
+    .getPublicUrl(filePath);
+  
+  const publicUrl = publicUrlData?.publicUrl;
+  
+  if (!publicUrl) {
+    throw new Error('Failed to get public URL for uploaded image');
+  }
+  
+  console.log(`Successfully uploaded image and got public URL: ${publicUrl.substring(0, 30)}...`);
+  
+  return publicUrl;
+}
+
+// Main handler function
 Deno.serve(async (req) => {
   console.log(`Request received: ${req.method} ${new URL(req.url).pathname}`);
   
@@ -46,8 +115,8 @@ Deno.serve(async (req) => {
   }
   
   try {
+    // Validate request method
     if (req.method !== 'POST') {
-      console.error(`Method ${req.method} not allowed`);
       throw new Error(`Method ${req.method} not allowed`);
     }
     
@@ -55,181 +124,47 @@ Deno.serve(async (req) => {
     let requestBody;
     try {
       requestBody = await req.json();
-      console.log('Request body parsed successfully');
     } catch (error) {
-      console.error('Failed to parse request body:', error);
-      throw new Error('Invalid request body');
+      throw new Error(`Invalid request body: ${error.message}`);
     }
     
+    // Validate required fields
     const { imageUrl, userId, prompt } = requestBody;
     
     if (!imageUrl) {
-      console.error('No image URL provided');
       throw new Error('No image URL provided');
     }
     
     if (!userId) {
-      console.error('No user ID provided');
       throw new Error('No user ID provided');
     }
     
     console.log(`Processing image for user ${userId}, prompt length: ${prompt?.length || 0} chars`);
-    console.log(`Source image URL starts with: ${imageUrl.substring(0, 30)}...`);
-    
-    // Download the image from the source URL
-    console.log('Attempting to download image from source URL...');
-    let imageResponse;
-    try {
-      imageResponse = await fetch(imageUrl);
-      
-      if (!imageResponse.ok) {
-        console.error(`Failed to download image: ${imageResponse.status} ${imageResponse.statusText}`);
-        throw new Error(`Failed to download image: ${imageResponse.status} ${imageResponse.statusText}`);
-      }
-    } catch (error) {
-      console.error('Error fetching image:', error);
-      throw new Error(`Failed to fetch image: ${error.message}`);
-    }
-    
-    // Get image data
-    let imageData;
-    let contentType;
-    try {
-      imageData = await imageResponse.arrayBuffer();
-      contentType = imageResponse.headers.get('content-type') || 'image/png';
-      console.log(`Downloaded image (${(imageData.byteLength / 1024).toFixed(2)} KB) with content type: ${contentType}`);
-    } catch (error) {
-      console.error('Error processing image data:', error);
-      throw new Error(`Failed to process image data: ${error.message}`);
-    }
     
     // Create Supabase client
-    console.log('Creating Supabase client...');
-    let supabase;
+    const supabase = createSupabaseClient();
+    
+    // Process the image
     try {
-      supabase = createSupabaseClient();
-    } catch (error) {
-      console.error('Error creating Supabase client:', error);
-      throw new Error(`Failed to create Supabase client: ${error.message}`);
+      // Download the image
+      const { imageData, contentType } = await downloadImage(imageUrl);
+      
+      // Upload to Supabase Storage
+      const publicUrl = await uploadImageToStorage(supabase, userId, imageData, contentType);
+      
+      // Return success response
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          url: publicUrl,
+          message: 'Image processed successfully'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } catch (processingError) {
+      console.error('Error processing image:', processingError);
+      throw processingError;
     }
-    
-    // The exact bucket name - make sure it's correct
-    const bucketName = 'generated.images';
-    console.log(`Using storage bucket: ${bucketName}`);
-    
-    // Check if bucket exists
-    try {
-      const { data: buckets, error: bucketsError } = await supabase
-        .storage
-        .listBuckets();
-      
-      console.log('Available buckets:', buckets?.map(b => b.name));
-      
-      if (bucketsError) {
-        console.error('Error listing buckets:', bucketsError);
-      }
-      
-      const bucketExists = buckets?.some(b => b.name === bucketName);
-      if (!bucketExists) {
-        console.error(`Bucket "${bucketName}" does not exist!`);
-        throw new Error(`Storage bucket "${bucketName}" does not exist`);
-      } else {
-        console.log(`Bucket "${bucketName}" exists, proceeding with upload`);
-      }
-    } catch (error) {
-      console.error('Error checking bucket existence:', error);
-      throw new Error(`Failed to check bucket existence: ${error.message}`);
-    }
-    
-    // Test bucket permissions
-    try {
-      console.log(`Testing bucket permissions for ${bucketName}`);
-      const { data: testData, error: testError } = await supabase
-        .storage
-        .from(bucketName)
-        .list(userId || 'test');
-        
-      if (testError) {
-        console.error(`Permission check error: ${testError.message}`);
-        // Don't throw here, we just want to log the error
-      } else {
-        console.log(`Permission check successful, found ${testData?.length || 0} existing files`);
-      }
-    } catch (error) {
-      console.error('Error during permission check:', error);
-      // Don't throw here, we just want to log the error
-    }
-    
-    // Generate a unique filename
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 10);
-    const fileExtension = contentType.includes('jpeg') ? 'jpg' : 'png';
-    const filename = `${timestamp}-${randomString}.${fileExtension}`;
-    const filePath = `${userId}/${filename}`;
-    
-    console.log(`Uploading to ${bucketName}/${filePath}`);
-    
-    // Upload the image to Supabase Storage
-    let uploadData;
-    try {
-      console.log(`Starting upload to ${bucketName}/${filePath}`);
-      const { data, error } = await supabase
-        .storage
-        .from(bucketName)
-        .upload(filePath, imageData, {
-          contentType,
-          cacheControl: '3600',
-          upsert: false
-        });
-      
-      if (error) {
-        console.error('Error uploading to Supabase Storage:', error);
-        throw new Error(`Failed to upload image: ${error.message}`);
-      }
-      
-      uploadData = data;
-      console.log('File uploaded successfully:', uploadData);
-    } catch (error) {
-      console.error('Exception during upload:', error);
-      throw new Error(`Exception during upload: ${error.message}`);
-    }
-    
-    // Get the public URL
-    let publicUrl;
-    try {
-      console.log(`Getting public URL for ${bucketName}/${filePath}`);
-      const { data: publicUrlData } = await supabase
-        .storage
-        .from(bucketName)
-        .getPublicUrl(filePath);
-      
-      publicUrl = publicUrlData?.publicUrl;
-      
-      if (!publicUrl) {
-        console.error('Failed to get public URL for uploaded image');
-        throw new Error('Failed to get public URL for uploaded image');
-      }
-      
-      console.log(`Successfully retrieved public URL: ${publicUrl}`);
-    } catch (error) {
-      console.error('Error getting public URL:', error);
-      throw new Error(`Failed to get public URL: ${error.message}`);
-    }
-    
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        url: publicUrl,
-        message: 'Image processed successfully'
-      }),
-      { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
-      }
-    );
-    
   } catch (error) {
     console.error('Error in process-image function:', error);
     
@@ -240,10 +175,7 @@ Deno.serve(async (req) => {
       }),
       { 
         status: 500, 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
   }
