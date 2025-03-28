@@ -49,6 +49,46 @@ export function useImageGenerator() {
     }
   });
   
+  // Process and store image permanently
+  const processImage = async (apiImageUrl: string, prompt: string) => {
+    try {
+      if (!user) {
+        console.warn('Cannot process image: No authenticated user');
+        return apiImageUrl; // Return original URL if no user
+      }
+
+      console.log('Processing image via Edge Function...');
+      
+      // Call our Supabase Edge Function to process the image
+      const { data, error } = await supabase.functions.invoke('process-image', {
+        body: {
+          imageUrl: apiImageUrl,
+          userId: user.id,
+          prompt: prompt,
+          useSupabase: true // Set to true to use Supabase Storage instead of Google Cloud
+        }
+      });
+      
+      if (error) {
+        console.error('Error invoking process-image function:', error);
+        toast.error('Failed to process image. Using temporary URL.');
+        return apiImageUrl; // Fallback to original URL
+      }
+      
+      console.log('Image processed successfully:', data);
+      
+      if (data?.url) {
+        return data.url; // Return the permanent URL
+      } else {
+        console.warn('No URL returned from image processing');
+        return apiImageUrl; // Fallback to original URL
+      }
+    } catch (err) {
+      console.error('Error in processImage:', err);
+      return apiImageUrl; // Fallback to original URL
+    }
+  };
+  
   const generateImageFromPrompt = useCallback(async (values: FormValues) => {
     if (isGenerating || isSubmittingRef.current) return;
     
@@ -91,16 +131,20 @@ export function useImageGenerator() {
       });
       
       if (result.data && result.data.length > 0) {
-        const generatedImageUrl = result.data[0].url;
-        setImageUrl(generatedImageUrl);
-        toast.success('Image generated successfully!');
-        setShowGalleryMessage(true);
+        const temporaryImageUrl = result.data[0].url;
         
-        // Save the image to the database if user is logged in
+        // Set the temporary URL while we process the permanent one
+        setImageUrl(temporaryImageUrl);
+        toast.success('Image generated successfully!');
+        
+        // Process and get permanent URL
         if (user) {
+          const permanentImageUrl = await processImage(temporaryImageUrl, values.prompt);
+          
+          // Save the image to the database with the permanent URL
           const { error } = await supabase.from('generated_images').insert({
             prompt: values.prompt,
-            image_url: generatedImageUrl,
+            image_url: permanentImageUrl,
             model: values.model,
             width: dimensions.width,
             height: dimensions.height,
@@ -110,6 +154,9 @@ export function useImageGenerator() {
           
           if (error) {
             console.error('Error saving image to database:', error);
+            toast.error('Failed to save image to your gallery.');
+          } else {
+            setShowGalleryMessage(true);
           }
         }
       } else {

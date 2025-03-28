@@ -15,36 +15,43 @@ export const useGalleryImages = () => {
   const [isLoadingImages, setIsLoadingImages] = useState(true);
   const { user } = useAuth();
 
-  // Define a function to get a fresh URL from Supabase storage
+  // Define a function to get a fresh URL if needed
   const getFreshPublicUrl = useCallback(async (storageUrl: string): Promise<string | null> => {
     try {
-      // Extract bucket name and path using regex
-      const storagePathRegex = /storage\/v1\/object\/(?:public|authenticated)\/([^\/]+)\/([^?]+)/;
-      const storagePathMatch = storageUrl.match(storagePathRegex);
-      
-      if (!storagePathMatch) {
-        console.log('URL does not match Supabase Storage pattern:', storageUrl.substring(0, 30) + '...');
-        return storageUrl; // Return original URL if not a Supabase URL
+      // Extract bucket name and path from the URL
+      // Check if this is a Supabase Storage URL
+      if (storageUrl.includes('storage/v1/object')) {
+        // Extract bucket name and path using regex
+        const storagePathRegex = /storage\/v1\/object\/(?:public|authenticated)\/([^\/]+)\/([^?]+)/;
+        const storagePathMatch = storageUrl.match(storagePathRegex);
+        
+        if (!storagePathMatch) {
+          console.log('URL does not match Supabase Storage pattern:', storageUrl.substring(0, 30) + '...');
+          return storageUrl; // Return original URL if not a Supabase URL
+        }
+        
+        const bucketName = storagePathMatch[1];
+        const filePath = decodeURIComponent(storagePathMatch[2]);
+        
+        console.log(`Getting fresh URL for bucket: ${bucketName}, path: ${filePath}`);
+        
+        // Get a fresh public URL
+        const { data } = await supabase
+          .storage
+          .from(bucketName)
+          .getPublicUrl(filePath);
+        
+        if (data?.publicUrl) {
+          console.log(`Fresh URL generated: ${data.publicUrl.substring(0, 30)}...`);
+          return data.publicUrl;
+        }
+        
+        console.warn('No public URL returned from Supabase');
+        return null;
       }
       
-      const bucketName = storagePathMatch[1];
-      const filePath = decodeURIComponent(storagePathMatch[2]);
-      
-      console.log(`Getting fresh URL for bucket: ${bucketName}, path: ${filePath}`);
-      
-      // Get a fresh public URL
-      const { data } = await supabase
-        .storage
-        .from(bucketName)
-        .getPublicUrl(filePath);
-      
-      if (data?.publicUrl) {
-        console.log(`Fresh URL generated: ${data.publicUrl.substring(0, 30)}...`);
-        return data.publicUrl;
-      }
-      
-      console.warn('No public URL returned from Supabase');
-      return null;
+      // For Google Cloud Storage or other URLs, just return the original
+      return storageUrl;
     } catch (error) {
       console.error('Error getting fresh URL:', error);
       return null;
@@ -93,7 +100,7 @@ export const useGalleryImages = () => {
         
         console.log(`Found ${data.length} images for user`);
         
-        // Process the images and refresh URLs in parallel
+        // Process the images and refresh URLs if needed
         const processedImages: ProcessedImage[] = await Promise.all(data.map(async (img) => {
           try {
             // Skip processing if not a valid URL
@@ -102,7 +109,7 @@ export const useGalleryImages = () => {
               return { ...img, hasInvalidUrl: true };
             }
             
-            // Check if URL is a Supabase Storage URL
+            // For Supabase Storage URLs, refresh them
             if (img.image_url.includes('storage/v1/object')) {
               console.log(`Refreshing Supabase URL for image ${img.id}`);
               const freshUrl = await getFreshPublicUrl(img.image_url);
@@ -113,8 +120,9 @@ export const useGalleryImages = () => {
                   image_url: freshUrl
                 };
               }
-            } else if (img.image_url.startsWith('http')) {
-              // For external URLs, use them directly
+            } 
+            // For Google Cloud Storage or other external URLs, use them directly
+            else if (img.image_url.startsWith('http')) {
               console.log(`Image ${img.id} uses external URL: ${img.image_url.substring(0, 30)}...`);
               return img;
             }
