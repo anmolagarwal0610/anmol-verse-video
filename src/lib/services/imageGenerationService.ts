@@ -76,6 +76,12 @@ export async function generateImageFromPrompt(
     if (userId) {
       console.log('User is logged in, processing image for permanent storage');
       try {
+        console.log('Processing image with:', {
+          temporaryImageUrl: temporaryImageUrl.substring(0, 30) + '...',
+          prompt: values.prompt,
+          userId: userId
+        });
+        
         const permanentImageUrl = await processImage(temporaryImageUrl, values.prompt, userId);
         
         // If processImage was successful and returned a different URL

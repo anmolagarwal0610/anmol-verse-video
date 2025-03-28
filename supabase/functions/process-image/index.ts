@@ -38,11 +38,40 @@ async function handleRequest(req: Request) {
     );
   }
   
+  // Check content length
+  const contentLength = req.headers.get('content-length');
+  console.log(`Content-Length: ${contentLength || 'not provided'}`);
+  
+  if (!contentLength || parseInt(contentLength) === 0) {
+    console.error('Empty request body received');
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: 'Empty request body. Please provide image URL, user ID, and prompt.'
+      }),
+      {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
+  }
+  
   // Parse request body
   let requestBody;
   try {
-    requestBody = await req.json();
-    console.log('Request body parsed successfully');
+    const text = await req.text();
+    console.log(`Request body text (first 100 chars): ${text.substring(0, 100)}...`);
+    
+    if (!text || text.trim() === '') {
+      throw new Error('Empty request body');
+    }
+    
+    requestBody = JSON.parse(text);
+    console.log('Request body parsed successfully:', {
+      hasImageUrl: !!requestBody.imageUrl,
+      hasUserId: !!requestBody.userId,
+      promptLength: requestBody.prompt?.length
+    });
   } catch (error) {
     console.error('Error parsing request body:', error);
     return new Response(

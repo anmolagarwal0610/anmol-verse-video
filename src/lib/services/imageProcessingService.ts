@@ -34,21 +34,22 @@ export async function processImage(apiImageUrl: string, prompt: string, userId: 
       console.log('Invoking process-image Edge Function...');
       
       // Construct the request body
-      const body = {
+      const requestBody = {
         imageUrl: apiImageUrl,
         userId: userId,
         prompt: prompt || 'Generated image'
       };
       
       console.log('Request body:', {
-        imageUrlStart: body.imageUrl?.substring(0, 30) + '...',
-        userId: body.userId,
-        promptLength: body.prompt?.length || 0
+        imageUrlStart: requestBody.imageUrl?.substring(0, 30) + '...',
+        userId: requestBody.userId,
+        promptLength: requestBody.prompt?.length || 0,
+        fullBody: JSON.stringify(requestBody)
       });
       
-      // Make the request to the Edge Function
+      // Make the request to the Edge Function with explicit content-type header
       const { data, error } = await supabase.functions.invoke('process-image', {
-        body: body,
+        body: requestBody,
         headers: {
           'Content-Type': 'application/json'
         }
@@ -90,6 +91,7 @@ export async function processImage(apiImageUrl: string, prompt: string, userId: 
       }
       
       console.log('Successfully processed image, permanent URL:', data.url.substring(0, 50) + '...');
+      toast.success('Image processed and saved to your gallery!');
       return data.url;
     } catch (invokeError: any) {
       console.error('Exception during Edge Function invocation:', invokeError);
