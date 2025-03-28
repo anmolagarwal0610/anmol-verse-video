@@ -21,7 +21,7 @@ export interface ImageGenerationOptions {
   width: number;
   height: number;
   guidance: number;
-  outputFormat: string;
+  outputFormat: "jpeg" | "png";
   negativePrompt?: string;
   seed?: number;
   imageStyles?: string[];
