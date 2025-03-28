@@ -5,6 +5,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { GeneratedImage, DEFAULT_IMAGES } from '@/components/gallery/GalleryTypes';
 import { useAuth } from './use-auth';
 
+// Extended type to include the hasInvalidUrl property
+interface ProcessedImage extends GeneratedImage {
+  hasInvalidUrl?: boolean;
+}
+
 export const useGalleryImages = () => {
   const [images, setImages] = useState<GeneratedImage[]>([]);
   const [isLoadingImages, setIsLoadingImages] = useState(true);
@@ -89,7 +94,7 @@ export const useGalleryImages = () => {
         console.log(`Found ${data.length} images for user`);
         
         // Process the images and refresh URLs in parallel
-        const processedImages = await Promise.all(data.map(async (img) => {
+        const processedImages: ProcessedImage[] = await Promise.all(data.map(async (img) => {
           try {
             // Skip processing if not a valid URL
             if (!img.image_url || typeof img.image_url !== 'string') {
