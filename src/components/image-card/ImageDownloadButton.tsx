@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 
 interface ImageDownloadButtonProps {
   imageUrl: string;
@@ -24,34 +23,8 @@ const ImageDownloadButton = ({
     try {
       console.log('Starting download for image URL:', imageUrl.substring(0, 50) + '...');
       
-      let downloadUrl = imageUrl;
-      
-      // Check if this is a Supabase Storage URL
-      if (imageUrl.includes('storage/v1/object')) {
-        // Try to extract bucket and path to generate a fresh URL
-        const storagePathMatch = imageUrl.match(/storage\/v1\/object\/public\/([^\/]+)\/(.+?)(?:\?|$)/);
-        
-        if (storagePathMatch) {
-          const bucketName = storagePathMatch[1];
-          let filePath = storagePathMatch[2].split('?')[0]; // Remove query params
-          
-          console.log(`Generating fresh download URL for: bucket=${bucketName}, path=${filePath}`);
-          
-          // Get a fresh URL for downloading
-          const { data } = await supabase
-            .storage
-            .from(bucketName)
-            .getPublicUrl(filePath);
-            
-          if (data?.publicUrl) {
-            downloadUrl = data.publicUrl;
-            console.log('Using fresh Supabase URL:', downloadUrl.substring(0, 50) + '...');
-          }
-        }
-      }
-      
-      // Now fetch the image with the proper URL
-      const response = await fetch(downloadUrl);
+      // Fetch the image directly
+      const response = await fetch(imageUrl);
       
       if (!response.ok) {
         throw new Error(`Failed to download image: ${response.status} ${response.statusText}`);

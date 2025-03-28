@@ -5,15 +5,14 @@ import { useCredit } from '@/lib/creditService';
 import { FormValues } from '@/lib/schemas/imageGeneratorSchema';
 import { 
   ImageGenerationResult, 
-  ImageGenerationOptions, 
-  ImageMetadata 
+  ImageGenerationOptions
 } from './types';
 import { 
   enhancePromptWithStyles, 
   generateImage, 
   getDimensionsFromRatio 
 } from './generators';
-import { processImage } from './processingService';
+import { saveImageToDatabase } from '../imageProcessingService';
 
 /**
  * Main entry point for generating images
@@ -58,91 +57,51 @@ export async function generateImageFromPrompt(
     };
     
     // Generate image
-    const temporaryImageUrl = await generateImage(generationOptions);
+    const generatedImageUrl = await generateImage(generationOptions);
     
-    if (!temporaryImageUrl) {
+    if (!generatedImageUrl) {
       return null; // Failed to generate image
     }
     
-    // Process and get permanent URL if user is logged in
+    // Save to database if user is logged in - using direct API URL 
     if (userId) {
       try {
-        // Process image to get permanent URL
-        const permanentImageUrl = await processImage(temporaryImageUrl, values.prompt, userId);
-        
-        // If processImage was successful and returned a different URL
-        const isPermanentUrlDifferent = permanentImageUrl !== temporaryImageUrl;
-        
-        if (isPermanentUrlDifferent) {
-          // Save image to database with permanent URL
-          await saveImageToDatabase({
-            prompt: values.prompt,
-            model: values.model,
+        // Save the API URL directly to the database
+        await saveImageToDatabase(
+          generatedImageUrl,
+          values.prompt,
+          userId,
+          {
             width: dimensions.width,
             height: dimensions.height,
-            preferences: values.imageStyles,
-            userId: userId
-          }, permanentImageUrl);
-        } else {
-          console.warn('Using temporary URL as permanent URL failed');
-          toast.error('Could not save image permanently. Using temporary URL.');
-        }
+            model: values.model,
+            preferences: values.imageStyles
+          }
+        );
         
+        // Show gallery message if user is logged in
         return {
-          temporaryImageUrl,
-          permanentImageUrl,
+          temporaryImageUrl: generatedImageUrl,
+          permanentImageUrl: generatedImageUrl, // Same URL, no processing
           dimensions,
           success: true
         };
-      } catch (processError: any) {
-        console.error('Error during image processing:', processError);
-        toast.error(`Failed to process image permanently: ${processError.message || 'Unknown error'}`);
-        
-        return {
-          temporaryImageUrl,
-          permanentImageUrl: temporaryImageUrl,
-          dimensions,
-          success: true
-        };
+      } catch (dbError: any) {
+        console.error('Error saving image to database:', dbError);
+        toast.error(`Failed to save image to gallery: ${dbError.message || 'Unknown error'}`);
       }
-    } else {
-      // User not logged in, just return the temporary URL
-      console.log('User not logged in, using temporary URL only');
-      return {
-        temporaryImageUrl,
-        permanentImageUrl: temporaryImageUrl,
-        dimensions,
-        success: true
-      };
     }
+    
+    // Return the generated image URL
+    return {
+      temporaryImageUrl: generatedImageUrl,
+      permanentImageUrl: generatedImageUrl, // Same URL, no processing
+      dimensions,
+      success: true
+    };
   } catch (error: any) {
     console.error('Error generating image:', error);
     toast.error(`Failed to generate image: ${error.message || 'Unknown error'}`);
     return null;
-  }
-}
-
-/**
- * Save generated image to the database
- */
-async function saveImageToDatabase(metadata: ImageMetadata, imageUrl: string): Promise<void> {
-  console.log('Saving generated image to database with permanent URL');
-  
-  const { error } = await supabase.from('generated_images').insert({
-    prompt: metadata.prompt,
-    image_url: imageUrl,
-    model: metadata.model,
-    width: metadata.width,
-    height: metadata.height,
-    preferences: metadata.preferences,
-    user_id: metadata.userId
-  });
-  
-  if (error) {
-    console.error('Error saving image to database:', error);
-    toast.error('Failed to save image to your gallery.');
-  } else {
-    console.log('Successfully saved image to database');
-    toast.success('Image saved to your gallery!');
   }
 }
