@@ -39,7 +39,7 @@ const ImagesTab = () => {
   return (
     <>
       {user && (
-        <GalleryNotice message="Images are automatically deleted after 7 days. Download any images you want to keep." />
+        <GalleryNotice message="Your generated images are saved here. Download any images you want to keep." />
       )}
       <GalleryImageGrid images={images} />
     </>

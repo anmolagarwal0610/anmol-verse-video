@@ -62,10 +62,9 @@ export async function generateImageFromPrompt(
       return null; // Failed to generate image
     }
     
-    // Save to database if user is logged in - using direct API URL 
+    // Save to database if user is logged in
     if (userId) {
       try {
-        // Simply save the generated API URL directly to the database
         const { error } = await supabase.from('generated_images').insert({
           prompt: values.prompt,
           image_url: generatedImageUrl,
@@ -91,7 +90,7 @@ export async function generateImageFromPrompt(
     // Return the generated image URL
     return {
       temporaryImageUrl: generatedImageUrl,
-      permanentImageUrl: generatedImageUrl, // Same URL, no processing
+      permanentImageUrl: generatedImageUrl, // Same URL, no processing needed
       dimensions,
       success: true
     };
