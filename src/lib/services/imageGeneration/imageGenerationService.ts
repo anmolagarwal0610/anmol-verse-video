@@ -105,3 +105,6 @@ export async function generateImageFromPrompt(
     return null;
   }
 }
+
+// Important: Export the ImageGenerationResult type from here as well
+export type { ImageGenerationResult } from './types';

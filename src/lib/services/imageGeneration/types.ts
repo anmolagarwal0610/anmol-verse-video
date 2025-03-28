@@ -1,20 +1,7 @@
 
 /**
- * Shared types for image generation service
+ * Interface for image generation results
  */
-
-export interface ImageGenerationOptions {
-  prompt: string;
-  model: string;
-  width: number;
-  height: number;
-  guidance: number;
-  outputFormat: "jpeg" | "png";
-  negativePrompt?: string;
-  seed?: number;
-  imageStyles?: string[];
-}
-
 export interface ImageGenerationResult {
   temporaryImageUrl: string;
   permanentImageUrl: string;
@@ -25,11 +12,17 @@ export interface ImageGenerationResult {
   success: boolean;
 }
 
-export interface ImageMetadata {
+/**
+ * Interface for image generation options
+ */
+export interface ImageGenerationOptions {
   prompt: string;
   model: string;
   width: number;
   height: number;
-  preferences?: string[];
-  userId?: string;
+  guidance: number;
+  outputFormat: string;
+  negativePrompt?: string;
+  seed?: number;
+  imageStyles?: string[];
 }
