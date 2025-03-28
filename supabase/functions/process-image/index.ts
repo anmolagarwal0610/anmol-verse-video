@@ -12,6 +12,7 @@ function handleCors(req: Request) {
   };
 
   if (req.method === 'OPTIONS') {
+    console.log('Handling OPTIONS request - returning CORS headers');
     return new Response(null, { headers: corsHeaders });
   }
   
@@ -41,7 +42,6 @@ Deno.serve(async (req) => {
   const { corsHeaders } = handleCors(req) as { corsHeaders: Record<string, string> };
   
   if (req.method === 'OPTIONS') {
-    console.log('Handling OPTIONS request - returning CORS headers');
     return new Response(null, { headers: corsHeaders });
   }
   
@@ -97,7 +97,7 @@ Deno.serve(async (req) => {
     try {
       imageData = await imageResponse.arrayBuffer();
       contentType = imageResponse.headers.get('content-type') || 'image/png';
-      console.log(`Downloaded image (${(imageData.byteLength / 1024).toFixed(2)} KB)`);
+      console.log(`Downloaded image (${(imageData.byteLength / 1024).toFixed(2)} KB) with content type: ${contentType}`);
     } catch (error) {
       console.error('Error processing image data:', error);
       throw new Error(`Failed to process image data: ${error.message}`);
@@ -113,7 +113,7 @@ Deno.serve(async (req) => {
       throw new Error(`Failed to create Supabase client: ${error.message}`);
     }
     
-    // The bucket name is now "generated.images" as specified by the user
+    // The bucket name is "generated.images" as verified with the user
     const bucketName = 'generated.images';
     console.log(`Using storage bucket: ${bucketName}`);
     
@@ -126,9 +126,34 @@ Deno.serve(async (req) => {
     
     console.log(`Uploading to ${bucketName}/${filePath}`);
     
+    // Check if bucket exists
+    try {
+      const { data: buckets, error: bucketsError } = await supabase
+        .storage
+        .listBuckets();
+      
+      console.log('Available buckets:', buckets?.map(b => b.name));
+      
+      if (bucketsError) {
+        console.error('Error listing buckets:', bucketsError);
+      }
+      
+      const bucketExists = buckets?.some(b => b.name === bucketName);
+      if (!bucketExists) {
+        console.error(`Bucket "${bucketName}" does not exist!`);
+        throw new Error(`Storage bucket "${bucketName}" does not exist`);
+      } else {
+        console.log(`Bucket "${bucketName}" exists, proceeding with upload`);
+      }
+    } catch (error) {
+      console.error('Error checking bucket existence:', error);
+      throw new Error(`Failed to check bucket existence: ${error.message}`);
+    }
+    
     // Upload the image to Supabase Storage
     let uploadData;
     try {
+      console.log(`Starting upload to ${bucketName}/${filePath}`);
       const { data, error } = await supabase
         .storage
         .from(bucketName)
@@ -153,6 +178,7 @@ Deno.serve(async (req) => {
     // Get the public URL
     let publicUrl;
     try {
+      console.log(`Getting public URL for ${bucketName}/${filePath}`);
       const { data: publicUrlData } = await supabase
         .storage
         .from(bucketName)

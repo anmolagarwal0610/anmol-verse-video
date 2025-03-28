@@ -59,34 +59,42 @@ export function useImageGenerator() {
 
       console.log('Processing image via Edge Function...');
       
-      // Call our Supabase Edge Function to process the image
-      const { data, error } = await supabase.functions.invoke('process-image', {
-        body: {
-          imageUrl: apiImageUrl,
-          userId: user.id,
-          prompt: prompt
+      // Call our Supabase Edge Function with explicit error handling
+      try {
+        const { data, error } = await supabase.functions.invoke('process-image', {
+          body: {
+            imageUrl: apiImageUrl,
+            userId: user.id,
+            prompt: prompt
+          }
+        });
+        
+        console.log('Edge function response:', { data, error });
+        
+        if (error) {
+          console.error('Error invoking process-image function:', error);
+          toast.error('Failed to process image. Using temporary URL.');
+          return apiImageUrl; // Fallback to original URL
         }
-      });
-      
-      if (error) {
-        console.error('Error invoking process-image function:', error);
-        toast.error('Failed to process image. Using temporary URL.');
-        return apiImageUrl; // Fallback to original URL
-      }
-      
-      if (!data || !data.success) {
-        console.error('Process image function returned unsuccessful response:', data);
-        toast.error('Failed to process image. Using temporary URL.');
-        return apiImageUrl; // Fallback to original URL
-      }
-      
-      console.log('Image processed successfully:', data);
-      
-      if (data?.url) {
-        return data.url; // Return the permanent URL
-      } else {
-        console.warn('No URL returned from image processing');
-        toast.error('Failed to process image. Using temporary URL.');
+        
+        if (!data || !data.success) {
+          console.error('Process image function returned unsuccessful response:', data);
+          toast.error('Failed to process image. Using temporary URL.');
+          return apiImageUrl; // Fallback to original URL
+        }
+        
+        console.log('Image processed successfully:', data);
+        
+        if (data?.url) {
+          return data.url; // Return the permanent URL
+        } else {
+          console.warn('No URL returned from image processing');
+          toast.error('Failed to process image. Using temporary URL.');
+          return apiImageUrl; // Fallback to original URL
+        }
+      } catch (invokeError) {
+        console.error('Exception during function invocation:', invokeError);
+        toast.error(`Failed to invoke process-image function: ${invokeError.message || 'Unknown error'}`);
         return apiImageUrl; // Fallback to original URL
       }
     } catch (err) {
