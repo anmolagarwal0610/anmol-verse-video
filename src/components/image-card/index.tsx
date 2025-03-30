@@ -6,6 +6,8 @@ import ImageLoadingOverlay from './ImageLoadingOverlay';
 import ImageDownloadButton from './ImageDownloadButton';
 import ImagePromptPopover from './ImagePromptPopover';
 import ImageMetadata from './ImageMetadata';
+import ImageDeleteButton from './ImageDeleteButton';
+import { useAuth } from '@/hooks/use-auth';
 
 export interface ImageData {
   id: string;
@@ -24,12 +26,17 @@ interface ImageCardProps {
   index: number;
   onLoad?: () => void;
   onError?: () => void;
+  onDelete?: () => void;
 }
 
-const ImageCard = ({ image, index, onLoad, onError }: ImageCardProps) => {
+const ImageCard = ({ image, index, onLoad, onError, onDelete }: ImageCardProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const { user } = useAuth();
+  
+  // Check if the current user is the owner of this image
+  const isOwner = user && image.user_id === user.id;
   
   // Reset error state when image URL changes
   useEffect(() => {
@@ -111,11 +118,22 @@ const ImageCard = ({ image, index, onLoad, onError }: ImageCardProps) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           
           {!hasError && (
-            <ImageDownloadButton 
-              imageUrl={image.image_url}
-              prompt={image.prompt}
-              variant="overlay"
-            />
+            <>
+              <ImageDownloadButton 
+                imageUrl={image.image_url}
+                prompt={image.prompt}
+                variant="overlay"
+              />
+              
+              {/* Show delete button only if the user is the owner */}
+              {isOwner && (
+                <ImageDeleteButton 
+                  imageId={image.id}
+                  variant="overlay"
+                  onDelete={onDelete}
+                />
+              )}
+            </>
           )}
         </div>
         

@@ -4,8 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import Navbar from '@/components/Navbar';
 import AdminCredits from '@/components/AdminCredits';
+import ChangePasswordForm from '@/components/Auth/ChangePasswordForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
 
 export default function Settings() {
   const { user, loading } = useAuth();
@@ -45,19 +47,30 @@ export default function Settings() {
           </TabsList>
           
           <TabsContent value="account">
-            <Card>
-              <CardHeader>
-                <CardTitle>Account Settings</CardTitle>
-                <CardDescription>
-                  Manage your account preferences
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Account settings will be available in future updates.
-                </p>
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Account Settings</CardTitle>
+                  <CardDescription>
+                    Manage your account preferences
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    Account settings will be available in future updates.
+                  </p>
+                  
+                  <div className="space-y-2">
+                    <p><strong>Email:</strong> {user.email}</p>
+                    <p><strong>Name:</strong> {user.user_metadata?.name || user.user_metadata?.full_name || 'Not set'}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Separator className="my-6" />
+              
+              <ChangePasswordForm />
+            </div>
           </TabsContent>
           
           <TabsContent value="admin">

@@ -8,15 +8,18 @@ interface GalleryImageGridProps {
   images: GeneratedImage[];
 }
 
-const GalleryImageGrid = ({ images }: GalleryImageGridProps) => {
+const GalleryImageGrid = ({ images: initialImages }: GalleryImageGridProps) => {
+  const [images, setImages] = useState<GeneratedImage[]>(initialImages);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   
   useEffect(() => {
+    // Update images when initialImages changes
+    setImages(initialImages);
     // Reset loaded and failed states when images array changes
     setLoadedImages(new Set());
     setFailedImages(new Set());
-  }, [images]);
+  }, [initialImages]);
   
   const handleImageLoad = (id: string) => {
     setLoadedImages(prev => {
@@ -43,6 +46,11 @@ const GalleryImageGrid = ({ images }: GalleryImageGridProps) => {
     });
   };
   
+  const handleImageDelete = (id: string) => {
+    // Remove the image from the local state
+    setImages(prev => prev.filter(image => image.id !== id));
+  };
+  
   console.log(`Rendering GalleryImageGrid with ${images.length} images`);
   console.log(`Loaded images: ${loadedImages.size}, Failed images: ${failedImages.size}`);
 
@@ -64,6 +72,7 @@ const GalleryImageGrid = ({ images }: GalleryImageGridProps) => {
             index={index} 
             onLoad={() => handleImageLoad(image.id)}
             onError={() => handleImageError(image.id, image.image_url || '')}
+            onDelete={() => handleImageDelete(image.id)}
           />
         </div>
       ))}

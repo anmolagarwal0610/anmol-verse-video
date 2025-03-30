@@ -3,6 +3,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessa
 import { Textarea } from '@/components/ui/textarea';
 import { UseFormReturn } from 'react-hook-form';
 import { FormValues } from '@/hooks/use-image-generator';
+import { Badge } from '@/components/ui/badge';
 
 interface PromptTextareaProps {
   form: UseFormReturn<FormValues>;
@@ -29,11 +30,15 @@ const PromptTextarea = ({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel className="flex items-center">
-            {label}
+          <div className="flex items-center">
+            <FormLabel>{label}</FormLabel>
             {required && <span className="text-red-500 ml-1">*</span>}
-            {!required && <span className="text-xs ml-2 text-muted-foreground/70 font-normal">(optional)</span>}
-          </FormLabel>
+            {!required && (
+              <Badge className="ml-2 font-normal bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/50">
+                optional
+              </Badge>
+            )}
+          </div>
           <FormControl>
             <Textarea 
               placeholder={placeholder}
