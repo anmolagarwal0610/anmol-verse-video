@@ -17,6 +17,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const UserCredits = () => {
   const { user, loading } = useAuth();
@@ -25,6 +33,7 @@ const UserCredits = () => {
   const isMounted = useRef(true);
   const channelRef = useRef<any>(null);
   const [open, setOpen] = useState(false);
+  const [showTopUpDialog, setShowTopUpDialog] = useState(false);
 
   // Set up cleanup function for component unmount
   useEffect(() => {
@@ -79,49 +88,83 @@ const UserCredits = () => {
 
   }, [user]);
 
+  const handleTopUpClick = () => {
+    setOpen(false); // Close the popover
+    setShowTopUpDialog(true); // Open the dialog
+  };
+
   if (!user || loading) {
     return null;
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Badge 
-          variant="outline" 
-          className="flex items-center gap-1 py-1 px-2 border-yellow-500/50 bg-yellow-500/20 dark:bg-yellow-400/10 dark:border-yellow-400/30 text-yellow-800 dark:text-yellow-400 shadow-sm cursor-pointer hover:bg-yellow-500/30 transition-colors duration-200"
-          onClick={() => setOpen(true)}
-        >
-          <Coins className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
-          <span className="text-yellow-700 dark:text-yellow-500 font-medium">{credits !== null ? credits : '0'}</span>
-        </Badge>
-      </PopoverTrigger>
-      
-      <PopoverContent className="w-64 p-4">
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h4 className="font-medium">Credits Balance</h4>
-            <Badge variant="secondary">
-              <Coins className="h-3 w-3 mr-1 text-yellow-500" />
-              {credits !== null ? credits : '0'} remaining
-            </Badge>
+    <>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Badge 
+            variant="outline" 
+            className="flex items-center gap-1 py-1 px-2 border-yellow-500/50 bg-yellow-500/20 dark:bg-yellow-400/10 dark:border-yellow-400/30 text-yellow-800 dark:text-yellow-400 shadow-sm cursor-pointer hover:bg-yellow-500/30 transition-colors duration-200"
+          >
+            <Coins className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
+            <span className="text-yellow-700 dark:text-yellow-500 font-medium">{credits !== null ? credits : '0'}</span>
+          </Badge>
+        </PopoverTrigger>
+        
+        <PopoverContent className="w-64 p-4">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h4 className="font-medium">Credits Balance</h4>
+              <Badge variant="secondary">
+                <Coins className="h-3 w-3 mr-1 text-yellow-500" />
+                {credits !== null ? credits : '0'} remaining
+              </Badge>
+            </div>
+            
+            <div className="space-y-2">
+              <h5 className="text-sm text-muted-foreground">Need more credits?</h5>
+              <Button 
+                className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white"
+                onClick={handleTopUpClick}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Top Up Credits
+              </Button>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+
+      <Dialog open={showTopUpDialog} onOpenChange={setShowTopUpDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Top Up Credits</DialogTitle>
+            <DialogDescription>
+              Add more credits to your account to continue generating content.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col space-y-4 py-4">
+            <div className="bg-muted p-4 rounded-lg flex items-center justify-center">
+              <div className="text-center">
+                <h3 className="text-lg font-medium mb-2">Coming Soon!</h3>
+                <p className="text-muted-foreground">
+                  Credit top-up functionality will be available in a future update.
+                </p>
+              </div>
+            </div>
           </div>
           
-          <div className="space-y-2">
-            <h5 className="text-sm text-muted-foreground">Need more credits?</h5>
+          <DialogFooter className="sm:justify-center">
             <Button 
-              className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white"
-              disabled
+              variant="secondary" 
+              onClick={() => setShowTopUpDialog(false)}
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Top Up
-              <span className="absolute -top-2 -right-2 bg-indigo-600 text-white text-[8px] px-1 rounded-full">
-                Coming Soon
-              </span>
+              Close
             </Button>
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

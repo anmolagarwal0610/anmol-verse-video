@@ -30,11 +30,25 @@ export default function UserMenu() {
 
   const getInitials = () => {
     if (!user?.email) return "U";
-    return user.email.charAt(0).toUpperCase();
+    // Use name if available, otherwise fallback to first letter of email
+    const displayName = getUserDisplayName();
+    return displayName.charAt(0).toUpperCase();
   };
 
-  const getUserEmail = () => {
-    return user?.email || "User";
+  const getUserDisplayName = () => {
+    // Check if user has name in user_metadata
+    if (user?.user_metadata?.name) {
+      return user.user_metadata.name;
+    } 
+    // Check if user has full_name in user_metadata
+    if (user?.user_metadata?.full_name) {
+      return user.user_metadata.full_name;
+    }
+    // Fallback to email prefix before @
+    if (user?.email) {
+      return user.email.split('@')[0];
+    }
+    return "User";
   };
 
   const getAvatarUrl = () => {
@@ -57,7 +71,7 @@ export default function UserMenu() {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{getUserEmail()}</p>
+            <p className="text-sm font-medium leading-none">{getUserDisplayName()}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {user?.email}
             </p>
