@@ -38,12 +38,15 @@ const EmailForm = ({ isSignUp, isLoading, setIsLoading, onSuccess }: EmailFormPr
     
     try {
       if (isSignUp) {
+        console.log('Signup data being sent:', { email, password, name });
+        
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: {
               name: name,
+              full_name: name, // Adding full_name as well for compatibility
             },
             emailRedirectTo: `${window.location.origin}/auth/callback`,
           }

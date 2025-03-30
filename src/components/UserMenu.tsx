@@ -36,6 +36,8 @@ export default function UserMenu() {
   };
 
   const getUserDisplayName = () => {
+    console.log('User metadata in menu:', user?.user_metadata);
+    
     // Check if user has name in user_metadata
     if (user?.user_metadata?.name) {
       return user.user_metadata.name;
@@ -58,6 +60,8 @@ export default function UserMenu() {
     return null;
   };
 
+  const displayName = getUserDisplayName();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -71,7 +75,7 @@ export default function UserMenu() {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{getUserDisplayName()}</p>
+            <p className="text-sm font-medium leading-none">{displayName}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {user?.email}
             </p>
