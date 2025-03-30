@@ -21,39 +21,28 @@ const ImageDownloadButton = ({
     setIsDownloading(true);
     
     try {
-      console.log('Starting download for image URL:', imageUrl.substring(0, 50) + '...');
+      console.log('Starting download for image URL:', imageUrl);
       
-      // Fetch the image directly
-      const response = await fetch(imageUrl);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to download image: ${response.status} ${response.statusText}`);
-      }
-      
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      
-      // Create an anchor element and trigger download
-      const link = document.createElement('a');
-      link.href = blobUrl;
+      // Create a direct link to the image
+      const a = document.createElement('a');
+      a.href = imageUrl;
       
       // Create a safe filename from the prompt or use a timestamp
       const safeFileName = prompt 
         ? prompt.substring(0, 20).replace(/[^a-z0-9]/gi, '-').toLowerCase() 
         : `image-${Date.now()}`;
         
-      link.download = `${safeFileName}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      a.download = `${safeFileName}.png`;
       
-      // Clean up the blob URL
-      URL.revokeObjectURL(blobUrl);
+      // Trigger download
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       
       toast.success('Image downloaded successfully');
-      console.log('Download completed successfully');
+      console.log('Download requested successfully');
     } catch (error) {
-      console.error('Error downloading image:', error);
+      console.error('Error initiating download:', error);
       toast.error('Failed to download image. Please try again.');
     } finally {
       setIsDownloading(false);

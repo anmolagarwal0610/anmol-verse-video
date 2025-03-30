@@ -11,24 +11,32 @@ const WelcomeMessage = () => {
   const [isNewUser, setIsNewUser] = useState(false);
 
   useEffect(() => {
-    if (user && user.user_metadata) {
-      setUserName(user.user_metadata.name || user.user_metadata.full_name || user.email?.split('@')[0]);
+    if (user && !loading) {
+      // Extract user name from metadata or email
+      const name = user.user_metadata?.name || 
+                   user.user_metadata?.full_name || 
+                   user.email?.split('@')[0] || 
+                   'there';
+      setUserName(name);
       
       // Check if user is new (created time is within last 2 hours)
-      const createdAt = user.created_at ? new Date(user.created_at) : null;
-      const now = new Date();
-      // If created within the last 2 hours, consider as new user (increased from 1 minute for better detection)
-      const isNew = createdAt && ((now.getTime() - createdAt.getTime()) < 7200000); // 2 hours in milliseconds
-      setIsNewUser(isNew);
+      if (user.created_at) {
+        const createdAt = new Date(user.created_at);
+        const now = new Date();
+        // If created within the last 2 hours, consider as new user
+        const isNew = (now.getTime() - createdAt.getTime()) < 7200000; // 2 hours in milliseconds
+        console.log('User created at:', createdAt, 'Is new user:', isNew);
+        setIsNewUser(isNew);
+      }
       
-      // Hide the welcome message after 8 seconds (increased from 6 for better visibility)
+      // Hide the welcome message after 8 seconds
       const timer = setTimeout(() => {
         setIsVisible(false);
       }, 8000);
       
       return () => clearTimeout(timer);
     }
-  }, [user]);
+  }, [user, loading]);
 
   if (loading || !userName || !isVisible || !user) {
     return null;

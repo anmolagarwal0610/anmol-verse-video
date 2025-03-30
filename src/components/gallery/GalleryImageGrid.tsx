@@ -3,15 +3,6 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { GeneratedImage } from './GalleryTypes';
 import ImageCard from '@/components/ImageCard';
-import { Copy } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip';
 
 interface GalleryImageGridProps {
   images: GeneratedImage[];
@@ -52,11 +43,6 @@ const GalleryImageGrid = ({ images }: GalleryImageGridProps) => {
     });
   };
   
-  const handleCopyPrompt = (prompt: string) => {
-    navigator.clipboard.writeText(prompt);
-    toast.success('Prompt copied to clipboard');
-  };
-  
   console.log(`Rendering GalleryImageGrid with ${images.length} images`);
   console.log(`Loaded images: ${loadedImages.size}, Failed images: ${failedImages.size}`);
 
@@ -79,29 +65,6 @@ const GalleryImageGrid = ({ images }: GalleryImageGridProps) => {
             onLoad={() => handleImageLoad(image.id)}
             onError={() => handleImageError(image.id, image.image_url || '')}
           />
-          
-          {/* Actions */}
-          <div className="mt-2 flex items-center justify-end">
-            <div className="flex">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-6 w-6 p-0 ml-1"
-                      onClick={() => handleCopyPrompt(image.prompt)}
-                    >
-                      <Copy className="h-3.5 w-3.5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Copy full prompt</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
         </div>
       ))}
     </motion.div>
