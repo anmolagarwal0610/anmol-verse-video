@@ -31,6 +31,51 @@ const AspectRatioSelect = ({
     return () => subscription.unsubscribe();
   }, [form]);
   
+  // Helper function to render aspect ratio visualizations
+  const renderRatioVisualization = (ratio: string) => {
+    if (ratio === 'custom') return null;
+    
+    const [width, height] = ratio.split(':').map(Number);
+    
+    // Calculate the visualization dimensions
+    // For vertical ratios (height > width)
+    if (height > width) {
+      return (
+        <div 
+          className="inline-flex items-center justify-center border border-muted-foreground/30 bg-muted/20"
+          style={{
+            width: '16px',
+            height: '24px'
+          }}
+        />
+      );
+    }
+    // For horizontal ratios (width > height)
+    else if (width > height) {
+      return (
+        <div 
+          className="inline-flex items-center justify-center border border-muted-foreground/30 bg-muted/20"
+          style={{
+            width: '24px',
+            height: '16px'
+          }}
+        />
+      );
+    }
+    // For square ratios (width = height)
+    else {
+      return (
+        <div 
+          className="inline-flex items-center justify-center border border-muted-foreground/30 bg-muted/20"
+          style={{
+            width: '20px',
+            height: '20px'
+          }}
+        />
+      );
+    }
+  };
+  
   return (
     <div className="space-y-3">
       <FormField 
@@ -47,17 +92,8 @@ const AspectRatioSelect = ({
                 <SelectContent position="popper" alignOffset={0} className="w-[var(--radix-select-trigger-width)] z-50 bg-background border" sideOffset={4}>
                   {Object.entries(ASPECT_RATIOS).map(([value, label]) => (
                     <SelectItem key={value} value={value}>
-                      <div className="flex items-center">
-                        {value !== 'custom' && (
-                          <div 
-                            className="mr-2 border border-muted-foreground/30 bg-muted/20 inline-flex flex-shrink-0" 
-                            style={{
-                              width: '24px',
-                              height: '16px',
-                              aspectRatio: value.replace(':', '/'),
-                            }} 
-                          />
-                        )}
+                      <div className="flex items-center gap-2">
+                        {renderRatioVisualization(value)}
                         <span>{label}</span>
                       </div>
                     </SelectItem>
