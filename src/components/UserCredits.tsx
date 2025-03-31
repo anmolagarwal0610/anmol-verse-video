@@ -89,10 +89,16 @@ const UserCredits = () => {
   }, [user]);
 
   const handleTopUpClick = () => {
+    console.log("TopUp button clicked");
     setOpen(false); // Close the popover
     setShowTopUpDialog(true); // Open the dialog
   };
 
+  const handleBadgeClick = () => {
+    console.log("Credits badge clicked, current open state:", open);
+    setOpen(!open);
+  };
+  
   if (!user || loading) {
     return null;
   }
@@ -101,13 +107,19 @@ const UserCredits = () => {
     <>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Badge 
-            variant="outline" 
-            className="flex items-center gap-1 py-1 px-2 border-yellow-500/50 bg-yellow-500/20 dark:bg-yellow-400/10 dark:border-yellow-400/30 text-yellow-800 dark:text-yellow-400 shadow-sm cursor-pointer hover:bg-yellow-500/30 transition-colors duration-200"
+          <div 
+            onClick={handleBadgeClick}
+            className="cursor-pointer"
+            style={{ pointerEvents: 'auto' }}
           >
-            <Coins className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
-            <span className="text-yellow-700 dark:text-yellow-500 font-medium">{credits !== null ? credits : '0'}</span>
-          </Badge>
+            <Badge 
+              variant="outline" 
+              className="flex items-center gap-1 py-1 px-2 border-yellow-500/50 bg-yellow-500/20 dark:bg-yellow-400/10 dark:border-yellow-400/30 text-yellow-800 dark:text-yellow-400 shadow-sm hover:bg-yellow-500/30 transition-colors duration-200"
+            >
+              <Coins className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-500" />
+              <span className="text-yellow-700 dark:text-yellow-500 font-medium">{credits !== null ? credits : '0'}</span>
+            </Badge>
+          </div>
         </PopoverTrigger>
         
         <PopoverContent className="w-64 p-4">

@@ -1,3 +1,4 @@
+
 import { API_CONFIG, fetchWithCorsProxy } from './apiUtils';
 
 export interface ImageGenerationParams {
@@ -121,16 +122,11 @@ export const calculateDimensions = (ratio: string): { width: number, height: num
   return { width, height };
 };
 
-// Predefined aspect ratios with clearer labels
+// Predefined aspect ratios with clearer labels - REMOVED specified ratios
 export const ASPECT_RATIOS = {
   "1:1": "1:1 Square",
   "16:9": "16:9 Widescreen",
   "9:16": "9:16 Social story",
-  "3:2": "3:2 Standard",
-  "2:3": "2:3 Portrait",
-  "4:3": "4:3 Classic",
-  "3:4": "3:4 Traditional",
-  "21:9": "21:9 Ultrawide",
   "custom": "Custom Ratio"
 };
 
