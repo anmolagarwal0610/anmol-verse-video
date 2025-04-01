@@ -38,7 +38,7 @@ import {
 import { VideoGenerationParams } from '@/lib/videoGenerationApi';
 import { Slider } from '@/components/ui/slider';
 import { useAuth } from '@/hooks/use-auth';
-import { InfoCircle } from 'lucide-react';
+import { Info } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -198,7 +198,7 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <InfoCircle className="h-4 w-4 ml-2 inline-block text-muted-foreground cursor-help" />
+                              <Info className="h-4 w-4 ml-2 inline-block text-muted-foreground cursor-help" />
                             </TooltipTrigger>
                             <TooltipContent>
                               <p className="max-w-xs">Higher frame rates create smoother videos but take longer to generate</p>

@@ -96,7 +96,6 @@ const VideoGeneration = () => {
                   icon={<Video className="h-12 w-12 text-muted-foreground/60" />}
                   title="No Video Generated Yet"
                   description="Fill out the form on the left to generate your first video"
-                  suggestion="Our AI will create a complete video based on your instructions"
                   action={
                     <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-2">
                       <MessageCircle className="h-4 w-4" />
