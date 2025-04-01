@@ -48,6 +48,37 @@ const VideoGeneration = () => {
     return <Navigate to="/auth" replace />;
   }
 
+  // Helper function to determine what to show in the right panel
+  const renderRightPanel = () => {
+    if (status === 'completed' && result) {
+      return (
+        <div id="results-section">
+          <ResultsSection result={result} />
+        </div>
+      );
+    }
+    
+    if (status === 'error' || status === 'generating' || status === 'polling') {
+      return null;
+    }
+    
+    return (
+      <div className="h-full flex items-center justify-center">
+        <EmptyState
+          icon={<Video className="h-12 w-12 text-muted-foreground/60" />}
+          title="No Video Generated Yet"
+          description="Fill out the form on the left to generate your first video"
+          action={
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-2">
+              <MessageCircle className="h-4 w-4" />
+              <span>Generation takes about 4 minutes</span>
+            </div>
+          }
+        />
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -86,25 +117,7 @@ const VideoGeneration = () => {
           
           {/* Results section - only shown when needed */}
           <div className={`${status === 'completed' ? 'lg:col-span-7' : 'lg:col-span-5'}`}>
-            {status === 'completed' && result ? (
-              <div id="results-section">
-                <ResultsSection result={result} />
-              </div>
-            ) : (status !== 'error' && status !== 'generating' && status !== 'polling') ? (
-              <div className="h-full flex items-center justify-center">
-                <EmptyState
-                  icon={<Video className="h-12 w-12 text-muted-foreground/60" />}
-                  title="No Video Generated Yet"
-                  description="Fill out the form on the left to generate your first video"
-                  action={
-                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-2">
-                      <MessageCircle className="h-4 w-4" />
-                      <span>Generation takes about 4 minutes</span>
-                    </div>
-                  }
-                />
-              </div>
-            ) : null}
+            {renderRightPanel()}
           </div>
         </div>
       </main>
