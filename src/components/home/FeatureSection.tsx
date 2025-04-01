@@ -29,11 +29,11 @@ const FeatureSection = () => {
       title: "Video Generation",
       description: "Transform your ideas into high-quality, engaging short videos.",
       icon: <Film className="h-8 w-8 text-blue-500" />,
-      path: "#",
+      path: "/videos/generate",
       color: "from-blue-500 to-cyan-500",
       delay: 0.3,
-      comingSoon: true,
-      disabled: true
+      comingSoon: false,
+      disabled: false
     },
     {
       title: "Media Gallery",
