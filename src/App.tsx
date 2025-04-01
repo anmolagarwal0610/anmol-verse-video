@@ -6,6 +6,7 @@ import Auth from '@/pages/Auth'
 import AuthCallback from '@/pages/AuthCallback'
 import Transcript from '@/pages/Transcript'
 import Video from '@/pages/Video'
+import VideoGeneration from '@/pages/VideoGeneration'
 import ImageGeneration from '@/pages/ImageGeneration'
 import Gallery from '@/pages/Gallery'
 import Profile from '@/pages/Profile'
@@ -24,6 +25,7 @@ const App = () => {
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/transcript" element={<Transcript />} />
         <Route path="/videos/:id" element={<Video />} />
+        <Route path="/videos/generate" element={<VideoGeneration />} />
         <Route path="/images" element={<ImageGeneration />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/profile" element={<Profile />} />
