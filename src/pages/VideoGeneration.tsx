@@ -50,6 +50,7 @@ const VideoGeneration = () => {
 
   // Helper function to determine what to show in the right panel
   const renderRightPanel = () => {
+    // First check for completed state
     if (status === 'completed' && result) {
       return (
         <div id="results-section">
@@ -58,10 +59,12 @@ const VideoGeneration = () => {
       );
     }
     
-    if (status === 'error' || status === 'generating' || status === 'polling') {
+    // Then check for states where we should show nothing
+    if (status === 'generating' || status === 'polling' || status === 'error') {
       return null;
     }
     
+    // Default state (idle)
     return (
       <div className="h-full flex items-center justify-center">
         <EmptyState
