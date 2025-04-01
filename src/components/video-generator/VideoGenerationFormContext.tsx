@@ -1,6 +1,6 @@
 
 import { createContext, useContext } from 'react';
-import { Control, FieldValues, UseFormReturn } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { VideoGenerationParams } from '@/lib/videoGenerationApi';
 
 interface VideoGenerationFormContextType {
