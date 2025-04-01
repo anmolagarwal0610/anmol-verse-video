@@ -86,6 +86,12 @@ const VideoGeneration = () => {
     );
   };
 
+  // Helper function to determine if we should show generation form
+  const shouldShowForm = () => status === 'idle' || status === 'error';
+  
+  // Helper function to determine if we're in a generating state
+  const isGenerating = () => status === 'generating' || status === 'polling';
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -103,15 +109,15 @@ const VideoGeneration = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Form section - always shown */}
           <div className={`${status === 'completed' ? 'lg:col-span-5' : 'lg:col-span-7'}`}>
-            {/* Use explicit comparison for each possible value instead of a compound condition */}
-            {(status === 'idle' || status === 'error') && (
+            {/* Use helper functions to determine what to render */}
+            {shouldShowForm() && (
               <VideoGenerationForm 
                 onSubmit={handleSubmit} 
-                isGenerating={status === 'generating' || status === 'polling'} 
+                isGenerating={isGenerating()} 
               />
             )}
             
-            {(status === 'generating' || status === 'polling') && (
+            {isGenerating() && (
               <ProgressCard 
                 progress={progress} 
                 status={status === 'generating' ? 'Starting generation...' : 'Processing video'} 
