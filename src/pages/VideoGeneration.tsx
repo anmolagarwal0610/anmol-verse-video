@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Navigate } from 'react-router-dom';
 import { MessageCircle, Video } from 'lucide-react';
 import EmptyState from '@/components/EmptyState';
+import { VideoGenerationStatus } from '@/hooks/use-video-generator';
 
 const VideoGeneration = () => {
   const { user, loading } = useAuth();
@@ -25,6 +26,9 @@ const VideoGeneration = () => {
   } = useVideoGenerator();
 
   useEffect(() => {
+    // Log the current status for debugging
+    console.log("Current generation status:", status);
+    
     // Scroll to results when generation completes
     if (status === 'completed' && result) {
       const resultsElement = document.getElementById('results-section');
@@ -59,7 +63,7 @@ const VideoGeneration = () => {
       );
     }
     
-    // Then check for states where we should show nothing
+    // Check each state explicitly to avoid TypeScript errors
     if (status === 'generating' || status === 'polling' || status === 'error') {
       return null;
     }
@@ -99,6 +103,7 @@ const VideoGeneration = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Form section - always shown */}
           <div className={`${status === 'completed' ? 'lg:col-span-5' : 'lg:col-span-7'}`}>
+            {/* Use explicit comparison for each possible value instead of a compound condition */}
             {(status === 'idle' || status === 'error') && (
               <VideoGenerationForm 
                 onSubmit={handleSubmit} 
