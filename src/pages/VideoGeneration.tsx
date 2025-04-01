@@ -90,7 +90,7 @@ const VideoGeneration = () => {
               <div id="results-section">
                 <ResultsSection result={result} />
               </div>
-            ) : status !== 'error' && status !== 'generating' && status !== 'polling' ? (
+            ) : (status !== 'error' && status !== 'generating' && status !== 'polling') ? (
               <div className="h-full flex items-center justify-center">
                 <EmptyState
                   icon={<Video className="h-12 w-12 text-muted-foreground/60" />}
