@@ -21,76 +21,109 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authListenerSetup, setAuthListenerSetup] = useState(false);
 
-  // Single initialization function for auth state
-  const initializeAuth = async () => {
-    try {
-      console.log('Auth: Initializing auth state...');
-      const startTime = performance.now();
-      
-      // Get current session first (this is faster than waiting for the listener)
-      const { data: { session: initialSession } } = await supabase.auth.getSession();
-      
-      const endTime = performance.now();
-      console.log(`Auth: Session fetch took ${endTime - startTime}ms`);
-      
-      if (initialSession) {
-        console.log('Auth: Found existing session');
-        setSession(initialSession);
-        setUser(initialSession.user);
-      } else {
-        console.log('Auth: No existing session found');
-      }
-    } catch (error) {
-      console.error('Auth: Error initializing auth:', error);
-    } finally {
-      console.log('Auth: Setting loading to false');
-      setLoading(false);
-    }
-  };
-
+  // Log whenever auth state changes
   useEffect(() => {
-    console.log('Auth: Setting up auth provider');
+    console.log('[Auth Provider] Auth state updated:', {
+      loading,
+      authListenerSetup,
+      hasUser: !!user,
+      hasSession: !!session
+    });
+  }, [loading, user, session, authListenerSetup]);
+
+  // Set up auth state listener first
+  useEffect(() => {
+    console.log('[Auth Provider] Setting up auth state listener');
     
-    // Initialize auth immediately
-    initializeAuth();
-    
-    // Set up the auth state listener
-    console.log('Auth: Setting up auth state listener');
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
-        console.log('Auth: Auth state changed:', event);
+        console.log('[Auth Provider] Auth state changed:', event);
         
-        // Avoid unnecessary state updates
         if (JSON.stringify(session) !== JSON.stringify(currentSession)) {
-          console.log('Auth: Updating session and user state');
+          console.log('[Auth Provider] Updating session and user state from auth change event');
           setSession(currentSession);
           setUser(currentSession?.user ?? null);
+        }
+        
+        // Ensure loading is false after auth state change
+        if (loading && authListenerSetup) {
+          console.log('[Auth Provider] Setting loading to false after auth change event');
+          setLoading(false);
         }
       }
     );
 
+    setAuthListenerSetup(true);
+    console.log('[Auth Provider] Auth listener setup complete');
+
     // Clean up subscription
     return () => {
-      console.log('Auth: Cleaning up auth state listener');
+      console.log('[Auth Provider] Cleaning up auth state listener');
       subscription.unsubscribe();
     };
   }, []);
 
-  // Log when user or session state changes
+  // Then initialize auth state with getSession
   useEffect(() => {
-    console.log('Auth: User or session state changed - loading:', loading, 'user:', user ? 'exists' : 'null');
-  }, [user, session, loading]);
+    if (!authListenerSetup) {
+      console.log('[Auth Provider] Waiting for auth listener setup before initializing session');
+      return;
+    }
+    
+    const initializeAuth = async () => {
+      try {
+        console.log('[Auth Provider] Initializing auth state...');
+        const startTime = performance.now();
+        
+        // Get current session
+        const { data, error } = await supabase.auth.getSession();
+        
+        const endTime = performance.now();
+        console.log(`[Auth Provider] Session fetch took ${endTime - startTime}ms`);
+        
+        if (error) {
+          throw error;
+        }
+        
+        if (data?.session) {
+          console.log('[Auth Provider] Found existing session');
+          setSession(data.session);
+          setUser(data.session.user);
+        } else {
+          console.log('[Auth Provider] No existing session found');
+        }
+      } catch (error) {
+        console.error('[Auth Provider] Error initializing auth:', error);
+      } finally {
+        console.log('[Auth Provider] Setting loading to false');
+        setLoading(false);
+      }
+    };
+    
+    initializeAuth();
+    
+    // Add a fallback timeout to ensure loading state doesn't get stuck
+    const timeoutId = setTimeout(() => {
+      if (loading) {
+        console.warn('[Auth Provider] Auth initialization timeout after 10s, forcing loading to false');
+        setLoading(false);
+      }
+    }, 10000);
+    
+    return () => clearTimeout(timeoutId);
+  }, [authListenerSetup]);
 
   const signOut = async () => {
     try {
       setLoading(true);
-      console.log('Auth: Signing out...');
+      console.log('[Auth Provider] Signing out...');
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      console.log('Auth: Sign out successful');
+      console.log('[Auth Provider] Sign out successful');
     } catch (error) {
-      console.error('Auth: Error signing out:', error);
+      console.error('[Auth Provider] Error signing out:', error);
     } finally {
       setLoading(false);
     }
