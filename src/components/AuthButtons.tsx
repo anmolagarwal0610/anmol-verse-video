@@ -13,25 +13,34 @@ export default function AuthButtons() {
 
   // Only render after component is mounted to avoid hydration mismatch
   useEffect(() => {
+    console.log('AuthButtons: Initial render, mounted:', mounted, 'loading:', loading, 'user:', user ? 'exists' : 'null');
+    
+    // Set mounted immediately rather than waiting for next render cycle
     setMounted(true);
+    
+    console.log('AuthButtons: Set mounted to true');
   }, []);
 
-  // Don't render anything until component is mounted
-  if (!mounted) {
-    return <div className="h-10 w-20 bg-muted animate-pulse rounded-md" />;
-  }
+  // Log state changes
+  useEffect(() => {
+    console.log('AuthButtons: State changed - mounted:', mounted, 'loading:', loading, 'user:', user ? 'exists' : 'null');
+  }, [mounted, loading, user]);
 
-  // Show skeleton loader while auth is loading
-  if (loading) {
-    return <div className="h-10 w-20 bg-muted animate-pulse rounded-md" />;
+  // Show simplified loading state first
+  if (!mounted || loading) {
+    console.log('AuthButtons: Showing loading state');
+    // Return a simpler loading state that doesn't depend on styles
+    return <div>Loading...</div>;
   }
 
   // Show user menu if logged in
   if (user) {
+    console.log('AuthButtons: Showing user menu');
     return <UserMenu />;
   }
 
   // Show login button if not logged in
+  console.log('AuthButtons: Showing login button');
   return (
     <Button 
       onClick={() => navigate("/auth")}

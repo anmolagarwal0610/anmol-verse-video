@@ -6,10 +6,21 @@ const BackgroundImage = () => {
   const imageUrl = 'https://images.unsplash.com/photo-1486718448742-163732cd1544?q=80&w=1200'; // Reduced quality
 
   useEffect(() => {
+    console.log('BackgroundImage: Starting to load image');
+    const startTime = performance.now();
+    
     // Preload the image
     const img = new Image();
     img.src = imageUrl;
     img.onload = () => {
+      const endTime = performance.now();
+      console.log(`BackgroundImage: Image loaded in ${endTime - startTime}ms`);
+      setIsLoaded(true);
+    };
+    
+    img.onerror = (e) => {
+      console.error('BackgroundImage: Failed to load image:', e);
+      // Set loaded to true anyway to show a fallback
       setIsLoaded(true);
     };
   }, []);
