@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { generateVideo, checkVideoStatus, VideoGenerationParams, VideoStatusResponse } from '@/lib/api';
 import { toast } from 'sonner';
@@ -27,8 +28,8 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   
   // Constants for timing
   const POLLING_INTERVAL = 3000; // 3 seconds
-  const MAX_TIMEOUT = 480000; // 8 minutes (480 seconds)
-  const ESTIMATED_TIME = 240000; // 4 minutes (240 seconds)
+  const MAX_TIMEOUT = 720000; // 12 minutes (720 seconds) - increased from 8 to 12 minutes
+  const ESTIMATED_TIME = 360000; // 6 minutes (360 seconds) - increased from 4 to 6 minutes for progress bar
   
   // Cleanup function
   const cleanup = () => {
@@ -117,7 +118,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         timeoutRef.current = setTimeout(() => {
           if (status !== 'completed' && status !== 'error') {
             setStatus('error');
-            setError('Generation timed out after 8 minutes');
+            setError('Generation timed out after 12 minutes');
             cleanup();
             toast.error('Video generation timed out');
           }

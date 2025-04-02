@@ -24,7 +24,8 @@ export {
   VIDEO_CATEGORIES,
   TRANSITION_STYLES,
   SUBTITLE_FONTS,
-  SUBTITLE_COLORS
+  SUBTITLE_COLORS,
+  IMAGE_MODELS
 } from './videoGenerationApi';
 export type {
   VideoGenerationParams,

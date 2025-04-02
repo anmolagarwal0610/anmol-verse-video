@@ -111,7 +111,8 @@ export const SUBTITLE_FONTS = {
   "Helvetica": "Helvetica",
   "Times New Roman": "Times New Roman",
   "Courier New": "Courier New",
-  "Verdana": "Verdana"
+  "Verdana": "Verdana",
+  "LiberationSans-Regular": "Liberation Sans Regular" // Added new font
 };
 
 // Subtitle colors
@@ -122,3 +123,18 @@ export const SUBTITLE_COLORS = {
   "red": "Red",
   "blue": "Blue"
 };
+
+// Image model options
+export const IMAGE_MODELS = {
+  "basic": {
+    label: "Basic",
+    value: "black-forest-labs/FLUX.1-schnell-free",
+    description: "Free model for basic image generation"
+  },
+  "advanced": {
+    label: "Advanced",
+    value: "black-forest-labs/FLUX.1-schnell",
+    description: "Premium model for higher quality image generation"
+  }
+};
+

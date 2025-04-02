@@ -15,7 +15,8 @@ import {
   SUBTITLE_FONTS,
   SUBTITLE_COLORS,
   TRANSITION_STYLES,
-  ASPECT_RATIOS
+  ASPECT_RATIOS,
+  IMAGE_MODELS
 } from '@/lib/api';
 import { VideoGenerationParams } from '@/lib/videoGenerationApi';
 import { useAuth } from '@/hooks/use-auth';
@@ -26,13 +27,6 @@ import BasicFormFields from './form-sections/BasicFormFields';
 import DurationAndFpsFields from './form-sections/DurationAndFpsFields';
 import RatioAndTransitionFields from './form-sections/RatioAndTransitionFields';
 import SubtitleStyleFields from './form-sections/SubtitleStyleFields';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 interface VideoGenerationFormProps {
   onSubmit: (data: VideoGenerationParams) => void;
@@ -45,9 +39,9 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
   
   const form = useForm<VideoGenerationParams>({
     defaultValues: {
-      username: username,
+      // Username is automatically set from auth user
       topic: '',
-      image_model: 'black-forest-labs/FLUX.1-schnell-free',
+      image_model: IMAGE_MODELS.basic.value, // Default to basic model
       image_ratio: '16:9',
       video_duration: 30,
       frame_fps: 5,
@@ -59,7 +53,13 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
   });
   
   const handleSubmit = (data: VideoGenerationParams) => {
-    onSubmit(data);
+    // Add username from auth before submitting
+    const enrichedData = {
+      ...data,
+      username: username
+    };
+    
+    onSubmit(enrichedData);
   };
   
   return (

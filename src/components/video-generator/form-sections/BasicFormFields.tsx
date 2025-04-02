@@ -7,7 +7,6 @@ import {
   FormDescription,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -18,6 +17,7 @@ import {
 } from '@/components/ui/select';
 import { VIDEO_CATEGORIES } from '@/lib/api';
 import { useVideoGenerationForm } from '../VideoGenerationFormContext';
+import ImageModelField from './ImageModelField';
 
 const BasicFormFields = () => {
   const { form, isGenerating } = useVideoGenerationForm();
@@ -25,24 +25,6 @@ const BasicFormFields = () => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Username field */}
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username <span className="text-red-500">*</span></FormLabel>
-              <FormControl>
-                <Input placeholder="Your username" {...field} />
-              </FormControl>
-              <FormDescription>
-                This will be used to attribute the video.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
         {/* Video Category */}
         <FormField
           control={form.control}
@@ -72,6 +54,9 @@ const BasicFormFields = () => {
             </FormItem>
           )}
         />
+
+        {/* Image Model Selection */}
+        <ImageModelField />
       </div>
       
       {/* Topic field */}
