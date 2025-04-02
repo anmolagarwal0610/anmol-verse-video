@@ -14,51 +14,30 @@ export default function AuthButtons() {
 
   // Only render after component is mounted to avoid hydration mismatch
   useEffect(() => {
-    console.log('[AuthButtons] Component mounted effect triggered');
-    console.log('[AuthButtons] Initial state - mounted:', mounted, 'loading:', loading, 'user:', user ? 'exists' : 'null');
-    
-    // Set mounted immediately rather than waiting for next render cycle
+    console.log('[AuthButtons] Component mounted, loading:', loading, 'user:', user ? 'exists' : 'null');
     setMounted(true);
-    
-    console.log('[AuthButtons] Set mounted to true');
   }, []);
 
-  // Log state changes
+  // Debug effect for auth state changes
   useEffect(() => {
-    console.log('[AuthButtons] State changed - mounted:', mounted, 'loading:', loading, 'user:', user ? 'exists' : 'null');
-  }, [mounted, loading, user]);
+    if (mounted) {
+      console.log('[AuthButtons] Auth state changed - loading:', loading, 'user:', user ? user.email : 'null');
+    }
+  }, [loading, user, mounted]);
 
-  // Separate effect for debug timing
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      console.log('[AuthButtons] Debug check after 5s - mounted:', mounted, 'loading:', loading);
-      if (loading) {
-        console.warn('[AuthButtons] Auth still loading after 5s');
-      }
-    }, 5000);
-    
-    return () => clearTimeout(timeoutId);
-  }, [loading]);
-
-  // Show better loading state - skeleton instead of text
-  if (!mounted) {
-    console.log('[AuthButtons] Not mounted yet, showing loading skeleton');
-    return <Skeleton className="h-9 w-24" />;
-  }
-
-  if (loading) {
-    console.log('[AuthButtons] Auth is loading, showing loading skeleton');
+  // Show loading skeleton when not mounted or while auth is loading
+  if (!mounted || loading) {
     return <Skeleton className="h-9 w-24" />;
   }
 
   // Show user menu if logged in
   if (user) {
-    console.log('[AuthButtons] User authenticated, showing user menu');
+    console.log('[AuthButtons] Rendering user menu for:', user.email);
     return <UserMenu />;
   }
 
   // Show login button if not logged in
-  console.log('[AuthButtons] User not authenticated, showing login button');
+  console.log('[AuthButtons] Rendering login button (not authenticated)');
   return (
     <Button 
       onClick={() => navigate("/auth")}

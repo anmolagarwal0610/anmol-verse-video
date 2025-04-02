@@ -57,6 +57,8 @@ const EmailForm = ({ isSignUp, isLoading, setIsLoading, onSuccess }: EmailFormPr
         toast.success('Sign up successful! Please check your email for confirmation.');
         if (onSuccess) onSuccess();
       } else {
+        console.log('Attempting sign in with email:', email);
+        
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -68,7 +70,12 @@ const EmailForm = ({ isSignUp, isLoading, setIsLoading, onSuccess }: EmailFormPr
         
         if (data.session) {
           toast.success('Successfully signed in!');
-          navigate('/');
+          
+          // Debug local storage after sign in
+          console.log('Local storage has session after signin:', 
+            localStorage.getItem('anmol-verse-auth-token') ? 'yes' : 'no');
+            
+          navigate('/', { replace: true });
         } else {
           throw new Error('No session returned');
         }
