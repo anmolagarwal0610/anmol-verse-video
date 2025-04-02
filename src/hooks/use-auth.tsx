@@ -22,43 +22,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Single initialization function for auth state
+  const initializeAuth = async () => {
+    try {
+      console.log('Initializing auth state...');
+      
+      // Get current session first (this is faster than waiting for the listener)
+      const { data: { session: initialSession } } = await supabase.auth.getSession();
+      
+      if (initialSession) {
+        console.log('Found existing session');
+        setSession(initialSession);
+        setUser(initialSession.user);
+      } else {
+        console.log('No existing session found');
+      }
+    } catch (error) {
+      console.error('Error initializing auth:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    // Set up auth state listener FIRST to catch all auth events
+    // Initialize auth immediately
+    initializeAuth();
+    
+    // Set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
-        console.log('Auth state changed:', event, currentSession);
-        console.log('User object in auth state change:', currentSession?.user);
-        if (currentSession?.user) {
-          console.log('User metadata:', currentSession.user.user_metadata);
-        }
+        console.log('Auth state changed:', event);
         
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-        setLoading(false);
+        // Avoid unnecessary state updates
+        if (JSON.stringify(session) !== JSON.stringify(currentSession)) {
+          setSession(currentSession);
+          setUser(currentSession?.user ?? null);
+        }
       }
     );
 
-    // THEN check for existing session
-    const initializeAuth = async () => {
-      try {
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
-        console.log('Initial session check:', initialSession);
-        if (initialSession?.user) {
-          console.log('Initial user metadata:', initialSession.user.user_metadata);
-        }
-        
-        setSession(initialSession);
-        setUser(initialSession?.user ?? null);
-      } catch (error) {
-        console.error('Error checking initial session:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initializeAuth();
-
-    // Clean up the subscription when the component unmounts
+    // Clean up subscription
     return () => {
       subscription.unsubscribe();
     };
