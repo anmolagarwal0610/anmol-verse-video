@@ -29,7 +29,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   // Constants for timing
   const POLLING_INTERVAL = 3000; // 3 seconds
   const MAX_TIMEOUT = 1800000; // 30 minutes (1,800,000 milliseconds) - increased from 12 to 30 minutes
-  const ESTIMATED_TIME = 360000; // 6 minutes (360 seconds) - for progress bar
+  const ESTIMATED_TIME = 1200000; // 20 minutes (1200 seconds) - for progress bar
   
   // Cleanup function
   const cleanup = () => {
