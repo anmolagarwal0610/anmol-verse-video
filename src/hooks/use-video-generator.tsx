@@ -28,8 +28,8 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   
   // Constants for timing
   const POLLING_INTERVAL = 3000; // 3 seconds
-  const MAX_TIMEOUT = 720000; // 12 minutes (720 seconds) - increased from 8 to 12 minutes
-  const ESTIMATED_TIME = 360000; // 6 minutes (360 seconds) - increased from 4 to 6 minutes for progress bar
+  const MAX_TIMEOUT = 1800000; // 30 minutes (1,800,000 milliseconds) - increased from 12 to 30 minutes
+  const ESTIMATED_TIME = 360000; // 6 minutes (360 seconds) - for progress bar
   
   // Cleanup function
   const cleanup = () => {
@@ -118,7 +118,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         timeoutRef.current = setTimeout(() => {
           if (status !== 'completed' && status !== 'error') {
             setStatus('error');
-            setError('Generation timed out after 12 minutes');
+            setError('Generation timed out after 30 minutes');
             cleanup();
             toast.error('Video generation timed out');
           }
