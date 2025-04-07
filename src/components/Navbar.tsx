@@ -8,6 +8,7 @@ import { Home, Video, Menu, X, FileText, ImageIcon, Film, Star, Sparkles } from 
 import { useIsMobile } from '@/hooks/use-mobile';
 import AuthButtons from '@/components/AuthButtons';
 import UserCredits from '@/components/UserCredits';
+import VideoGenerationStatusIndicator from '@/components/VideoGenerationStatusIndicator';
 
 const Navbar = () => {
   const location = useLocation();
@@ -67,33 +68,40 @@ const Navbar = () => {
 
         <nav className="hidden md:flex items-center space-x-1">
           {navItems.map((item) => (
-            <Button
-              key={item.path}
-              variant={isActive(item.path) ? "default" : "ghost"}
-              size="sm"
-              className={cn(
-                "transition-all duration-300 relative",
-                isActive(item.path) ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white" : "",
-                item.disabled ? "opacity-60 cursor-not-allowed" : ""
-              )}
-              asChild={!item.disabled}
-              disabled={item.disabled}
-            >
-              {!item.disabled ? (
-                <Link to={item.path} className="flex items-center">
-                  {item.icon}
-                  {item.label}
-                </Link>
-              ) : (
-                <div className="flex items-center">
-                  {item.icon}
-                  {item.label}
-                  {item.comingSoon && (
-                    <div className="absolute -top-2 -right-2 bg-yellow-500 text-black text-[8px] px-1 rounded-full">Soon</div>
-                  )}
+            <div key={item.path} className="flex items-center">
+              <Button
+                variant={isActive(item.path) ? "default" : "ghost"}
+                size="sm"
+                className={cn(
+                  "transition-all duration-300 relative",
+                  isActive(item.path) ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white" : "",
+                  item.disabled ? "opacity-60 cursor-not-allowed" : ""
+                )}
+                asChild={!item.disabled}
+                disabled={item.disabled}
+              >
+                {!item.disabled ? (
+                  <Link to={item.path} className="flex items-center">
+                    {item.icon}
+                    {item.label}
+                  </Link>
+                ) : (
+                  <div className="flex items-center">
+                    {item.icon}
+                    {item.label}
+                    {item.comingSoon && (
+                      <div className="absolute -top-2 -right-2 bg-yellow-500 text-black text-[8px] px-1 rounded-full">Soon</div>
+                    )}
+                  </div>
+                )}
+              </Button>
+              
+              {item.path === '/videos/generate' && (
+                <div className="ml-1">
+                  <VideoGenerationStatusIndicator />
                 </div>
               )}
-            </Button>
+            </div>
           ))}
         </nav>
 
@@ -122,33 +130,40 @@ const Navbar = () => {
         >
           <div className="flex flex-col p-4 space-y-2">
             {navItems.map((item) => (
-              <Button
-                key={item.path}
-                variant={isActive(item.path) ? "default" : "ghost"}
-                className={cn(
-                  "justify-start w-full relative",
-                  isActive(item.path) ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white" : "",
-                  item.disabled ? "opacity-60 cursor-not-allowed" : ""
-                )}
-                onClick={() => !item.disabled && setIsMenuOpen(false)}
-                asChild={!item.disabled}
-                disabled={item.disabled}
-              >
-                {!item.disabled ? (
-                  <Link to={item.path} className="flex items-center">
-                    {item.icon}
-                    {item.label}
-                  </Link>
-                ) : (
-                  <div className="flex items-center">
-                    {item.icon}
-                    {item.label}
-                    {item.comingSoon && (
-                      <div className="absolute top-1 right-2 bg-yellow-500 text-black text-[8px] px-1 rounded-full">Soon</div>
-                    )}
+              <div key={item.path} className="flex items-center">
+                <Button
+                  variant={isActive(item.path) ? "default" : "ghost"}
+                  className={cn(
+                    "justify-start w-full relative",
+                    isActive(item.path) ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white" : "",
+                    item.disabled ? "opacity-60 cursor-not-allowed" : ""
+                  )}
+                  onClick={() => !item.disabled && setIsMenuOpen(false)}
+                  asChild={!item.disabled}
+                  disabled={item.disabled}
+                >
+                  {!item.disabled ? (
+                    <Link to={item.path} className="flex items-center">
+                      {item.icon}
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <div className="flex items-center">
+                      {item.icon}
+                      {item.label}
+                      {item.comingSoon && (
+                        <div className="absolute top-1 right-2 bg-yellow-500 text-black text-[8px] px-1 rounded-full">Soon</div>
+                      )}
+                    </div>
+                  )}
+                </Button>
+                
+                {item.path === '/videos/generate' && (
+                  <div className="ml-1">
+                    <VideoGenerationStatusIndicator />
                   </div>
                 )}
-              </Button>
+              </div>
             ))}
           </div>
         </motion.nav>

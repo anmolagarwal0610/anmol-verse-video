@@ -2,7 +2,6 @@
 import { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import { Separator } from '@/components/ui/separator';
-import { useVideoGenerator } from '@/hooks/use-video-generator';
 import VideoGenerationForm from '@/components/video-generator/VideoGenerationForm';
 import ProgressCard from '@/components/video-generator/ProgressCard';
 import ResultsSection from '@/components/video-generator/ResultsSection';
@@ -12,18 +11,18 @@ import { useAuth } from '@/hooks/use-auth';
 import { Navigate } from 'react-router-dom';
 import { MessageCircle, Video } from 'lucide-react';
 import EmptyState from '@/components/EmptyState';
-import { VideoGenerationStatus } from '@/hooks/use-video-generator';
+import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 
 const VideoGeneration = () => {
   const { user, loading } = useAuth();
   const { 
-    generate, 
     status, 
     progress, 
     result, 
     error, 
-    reset 
-  } = useVideoGenerator();
+    generateVideo,
+    cancelGeneration 
+  } = useVideoGenerationContext();
 
   useEffect(() => {
     // Log the current status for debugging
@@ -39,7 +38,7 @@ const VideoGeneration = () => {
   }, [status, result]);
 
   const handleSubmit = (data: VideoGenerationParams) => {
-    generate(data);
+    generateVideo(data);
   };
 
   // Render loading state while auth is being checked
@@ -78,7 +77,7 @@ const VideoGeneration = () => {
           action={
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-2">
               <MessageCircle className="h-4 w-4" />
-              <span>Generation takes about 4 minutes</span>
+              <span>Generation takes about 30 minutes</span>
             </div>
           }
         />
@@ -96,7 +95,7 @@ const VideoGeneration = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main className="container max-w-6xl mx-auto py-8 px-4">
+      <main className="container max-w-6xl mx-auto py-8 px-4 mt-16">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight">Video Generator</h1>
           <p className="mt-2 text-muted-foreground">
@@ -125,7 +124,10 @@ const VideoGeneration = () => {
             )}
             
             {status === 'error' && error && (
-              <ErrorDisplay message={error} onReset={reset} />
+              <ErrorDisplay 
+                message={error} 
+                onReset={cancelGeneration} 
+              />
             )}
           </div>
           

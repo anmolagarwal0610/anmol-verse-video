@@ -14,25 +14,28 @@ import Settings from '@/pages/Settings'
 import WelcomeMessage from '@/components/WelcomeMessage'
 import { Toaster } from '@/components/ui/sonner'
 import { AuthProvider } from '@/hooks/use-auth'
+import { VideoGenerationProvider } from '@/contexts/VideoGenerationContext'
 
 const App = () => {
   return (
     <AuthProvider>
-      <WelcomeMessage />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/transcript" element={<Transcript />} />
-        <Route path="/videos/:id" element={<Video />} />
-        <Route path="/videos/generate" element={<VideoGeneration />} />
-        <Route path="/images" element={<ImageGeneration />} />
-        <Route path="/gallery" element={<Gallery />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Toaster position="bottom-center" />
+      <VideoGenerationProvider>
+        <WelcomeMessage />
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/transcript" element={<Transcript />} />
+          <Route path="/videos/:id" element={<Video />} />
+          <Route path="/videos/generate" element={<VideoGeneration />} />
+          <Route path="/images" element={<ImageGeneration />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Toaster position="bottom-center" />
+      </VideoGenerationProvider>
     </AuthProvider>
   );
 };

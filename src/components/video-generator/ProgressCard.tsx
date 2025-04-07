@@ -6,8 +6,12 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter
 } from '@/components/ui/card';
-import { Clock, LoaderCircle } from 'lucide-react';
+import { Clock, LoaderCircle, ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
+import { Link } from 'react-router-dom';
 
 interface ProgressCardProps {
   progress: number;
@@ -15,6 +19,12 @@ interface ProgressCardProps {
 }
 
 const ProgressCard = ({ progress, status }: ProgressCardProps) => {
+  const { cancelGeneration } = useVideoGenerationContext();
+  
+  // Calculate whether to show cancel button (after 6 minutes)
+  const minutes = Math.floor(progress / 100 * 30);
+  const showCancelButton = minutes >= 6;
+  
   return (
     <Card className="w-full shadow-lg">
       <CardHeader>
@@ -25,7 +35,7 @@ const ProgressCard = ({ progress, status }: ProgressCardProps) => {
           <LoaderCircle className="h-6 w-6 animate-spin text-purple-500" />
         </div>
         <CardDescription>
-          Please wait while we create your video
+          Your video is being created - you can navigate away from this page
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -40,7 +50,7 @@ const ProgressCard = ({ progress, status }: ProgressCardProps) => {
         <div className="flex items-center justify-center space-x-2 text-muted-foreground">
           <Clock className="h-5 w-5" />
           <p className="text-sm">
-            Estimated time: approximately 4 minutes
+            Estimated time: approximately {Math.max(0, 30 - minutes)} minutes remaining
           </p>
         </div>
         
@@ -49,8 +59,27 @@ const ProgressCard = ({ progress, status }: ProgressCardProps) => {
             Status: <span className="font-medium text-foreground">{status}</span>
           </p>
           <p className="text-xs text-center mt-2 text-muted-foreground">
-            This process can take several minutes. Please keep this page open.
+            Feel free to explore other features while your video is being generated
           </p>
+        </div>
+        
+        <div className="flex flex-col space-y-2">
+          <Link to="/images" className="w-full">
+            <Button variant="outline" className="w-full flex items-center justify-center gap-2">
+              <ExternalLink className="h-4 w-4" />
+              Create Images While Waiting
+            </Button>
+          </Link>
+          
+          {showCancelButton && (
+            <Button 
+              variant="destructive" 
+              className="w-full" 
+              onClick={cancelGeneration}
+            >
+              Cancel Generation
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
