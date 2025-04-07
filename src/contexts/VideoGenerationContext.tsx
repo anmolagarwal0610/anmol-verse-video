@@ -47,7 +47,7 @@ export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = 
               transcript_url: result.transcript_url,
               images_zip_url: result.images_zip_url,
               thumbnail_url: result.thumbnail_url || null
-            })
+            } as any)
             .select('id')
             .single();
             

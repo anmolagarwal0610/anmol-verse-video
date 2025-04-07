@@ -3,6 +3,7 @@ import { VideoData } from '@/components/video-card/types';
 import { API_CONFIG } from './apiUtils';
 import { MOCK_VIDEOS } from './mockData';
 import { supabase } from '@/integrations/supabase/client';
+import { GeneratedVideoRow } from '@/types/supabase';
 
 export const generateVideo = async (prompt: string): Promise<{ videoId: string }> => {
   try {
@@ -34,7 +35,7 @@ export const getVideos = async (): Promise<VideoData[]> => {
     const { data: supabaseVideos, error } = await supabase
       .from('generated_videos')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false }) as { data: GeneratedVideoRow[] | null, error: any };
     
     if (error) {
       console.error('Supabase error fetching videos:', error);
@@ -79,7 +80,7 @@ export const getVideoById = async (id: string): Promise<VideoData | null> => {
       .from('generated_videos')
       .select('*')
       .eq('id', id)
-      .single();
+      .single() as { data: GeneratedVideoRow | null, error: any };
       
     if (error) {
       console.error('Supabase error fetching video:', error);
@@ -120,7 +121,7 @@ export const deleteVideo = async (id: string): Promise<boolean> => {
     const { error } = await supabase
       .from('generated_videos')
       .delete()
-      .eq('id', id);
+      .eq('id', id) as { error: any };
       
     if (error) {
       console.error('Supabase error deleting video:', error);
