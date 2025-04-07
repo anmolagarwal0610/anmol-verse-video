@@ -7,9 +7,26 @@ import VideoPlayer from '@/components/video-player';
 import { getVideoById } from '@/lib/api';
 import { VideoData } from '@/components/video-card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, Download, Share, Clock } from 'lucide-react';
+import { 
+  ChevronLeft, 
+  Download, 
+  Share, 
+  Clock, 
+  FileText, 
+  Music, 
+  Archive,
+  FileVideo
+} from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const Video = () => {
   const { id } = useParams<{ id: string }>();
@@ -62,7 +79,7 @@ const Video = () => {
               className="mb-4"
               asChild
             >
-              <Link to="/gallery" className="flex items-center">
+              <Link to="/gallery#videos" className="flex items-center">
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Back to Gallery
               </Link>
@@ -109,7 +126,7 @@ const Video = () => {
             
             <div className="lg:col-span-2">
               <motion.div 
-                className="glass-panel rounded-xl p-6"
+                className="glass-panel rounded-xl p-6 mb-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
@@ -134,24 +151,22 @@ const Video = () => {
                         <h3 className="text-sm font-medium text-muted-foreground">Creation Date</h3>
                         <p className="mt-1">{new Date(video.created_at).toLocaleDateString()}</p>
                       </div>
-                      
-                      <div>
-                        <h3 className="text-sm font-medium text-muted-foreground">Video ID</h3>
-                        <p className="mt-1 text-sm font-mono">{video.id}</p>
-                      </div>
                     </div>
                     
-                    <div className="flex flex-col space-y-3">
-                      <Button asChild>
-                        <a href={video.url} download>
+                    <div className="flex items-center space-x-3">
+                      <Button 
+                        className="flex-1"
+                        asChild
+                      >
+                        <a href={video.url} download target="_blank" rel="noopener noreferrer">
                           <Download className="h-4 w-4 mr-2" />
                           Download Video
                         </a>
                       </Button>
                       
                       <Button variant="outline" onClick={handleShare}>
-                        <Share className="h-4 w-4 mr-2" />
-                        Share Video
+                        <Share className="h-4 w-4" />
+                        <span className="sr-only">Share</span>
                       </Button>
                     </div>
                   </>
@@ -160,37 +175,101 @@ const Video = () => {
                 )}
               </motion.div>
               
+              {!isLoading && video && (video.audioUrl || video.transcriptUrl || video.imagesZipUrl) && (
+                <motion.div 
+                  className="glass-panel rounded-xl p-6"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                >
+                  <h2 className="text-lg font-medium mb-4">Resources</h2>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Type</TableHead>
+                        <TableHead className="text-right">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {video.audioUrl && (
+                        <TableRow>
+                          <TableCell className="flex items-center">
+                            <Music className="h-4 w-4 mr-2 text-blue-500" />
+                            <span>Audio</span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => window.open(video.audioUrl, '_blank')}
+                            >
+                              <Download className="h-4 w-4" />
+                              <span className="sr-only">Download Audio</span>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      
+                      {video.transcriptUrl && (
+                        <TableRow>
+                          <TableCell className="flex items-center">
+                            <FileText className="h-4 w-4 mr-2 text-green-500" />
+                            <span>Transcript</span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => window.open(video.transcriptUrl, '_blank')}
+                            >
+                              <Download className="h-4 w-4" />
+                              <span className="sr-only">Download Transcript</span>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      
+                      {video.imagesZipUrl && (
+                        <TableRow>
+                          <TableCell className="flex items-center">
+                            <Archive className="h-4 w-4 mr-2 text-amber-500" />
+                            <span>Images Archive</span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => window.open(video.imagesZipUrl, '_blank')}
+                            >
+                              <Download className="h-4 w-4" />
+                              <span className="sr-only">Download Images</span>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </motion.div>
+              )}
+              
               <motion.div
                 className="mt-6 glass-panel rounded-xl p-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
               >
                 <h2 className="text-lg font-medium mb-4">Generate Similar</h2>
                 <p className="text-sm text-muted-foreground mb-4">
                   Create another video with a similar style or concept.
                 </p>
                 <Button className="w-full" asChild>
-                  <Link to="/">Create New Video</Link>
+                  <Link to="/videos/generate">Create New Video</Link>
                 </Button>
               </motion.div>
             </div>
           </div>
         </div>
       </main>
-      
-      <footer className="py-6 border-t mt-10">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} ShortsGen. All rights reserved.
-          </p>
-          <div className="flex items-center space-x-4 mt-4 md:mt-0">
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Terms</a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Privacy</a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Contact</a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

@@ -6,7 +6,9 @@ export interface VideoData {
   url: string;
   thumbnail?: string;
   created_at: string;
-  user_id?: string;
+  audioUrl?: string;
+  transcriptUrl?: string;
+  imagesZipUrl?: string;
 }
 
 export interface VideoCardProps {

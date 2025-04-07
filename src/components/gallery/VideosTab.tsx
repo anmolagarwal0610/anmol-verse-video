@@ -4,11 +4,16 @@ import { getVideos } from '@/lib/videoApi';
 import VideoCard, { VideoData } from '@/components/video-card';
 import EmptyState from '@/components/EmptyState';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, FileVideo } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const VideosTab = () => {
   const [videos, setVideos] = useState<VideoData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const navigate = useNavigate();
   
   useEffect(() => {
     const fetchVideos = async () => {
@@ -39,7 +44,18 @@ const VideosTab = () => {
   }
   
   if (!videos || videos.length === 0) {
-    return <EmptyState />;
+    return (
+      <EmptyState 
+        title="No videos yet"
+        description="Generate your first video to see it here"
+        icon={<FileVideo className="h-10 w-10 text-muted-foreground" />}
+        action={
+          <Button onClick={() => navigate('/videos/generate')}>
+            Create a Video
+          </Button>
+        }
+      />
+    );
   }
   
   return (

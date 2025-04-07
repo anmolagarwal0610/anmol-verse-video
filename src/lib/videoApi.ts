@@ -2,6 +2,7 @@
 import { VideoData } from '@/components/video-card/types';
 import { API_CONFIG } from './apiUtils';
 import { MOCK_VIDEOS } from './mockData';
+import { supabase } from '@/integrations/supabase/client';
 
 export const generateVideo = async (prompt: string): Promise<{ videoId: string }> => {
   try {
@@ -29,7 +30,33 @@ export const generateVideo = async (prompt: string): Promise<{ videoId: string }
 
 export const getVideos = async (): Promise<VideoData[]> => {
   try {
-    // Real API implementation
+    // First try to fetch from Supabase
+    const { data: supabaseVideos, error } = await supabase
+      .from('generated_videos')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Supabase error fetching videos:', error);
+      throw error;
+    }
+    
+    if (supabaseVideos && supabaseVideos.length > 0) {
+      // Format the data to match VideoData structure
+      return supabaseVideos.map(video => ({
+        id: video.id,
+        title: video.topic,
+        prompt: video.topic,
+        url: video.video_url || '',
+        thumbnail: video.thumbnail_url || 'https://via.placeholder.com/640x1136',
+        created_at: video.created_at,
+        audioUrl: video.audio_url,
+        transcriptUrl: video.transcript_url,
+        imagesZipUrl: video.images_zip_url
+      }));
+    }
+    
+    // Fallback to API if no videos in Supabase
     const response = await fetch(`${API_CONFIG.BASE_URL}/videos`);
 
     if (!response.ok) {
@@ -47,14 +74,38 @@ export const getVideos = async (): Promise<VideoData[]> => {
 
 export const getVideoById = async (id: string): Promise<VideoData | null> => {
   try {
-    // Real API implementation
-    const response = await fetch(`${API_CONFIG.BASE_URL}/videos/${id}`);
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+    // Try Supabase first
+    const { data: video, error } = await supabase
+      .from('generated_videos')
+      .select('*')
+      .eq('id', id)
+      .single();
+      
+    if (error) {
+      console.error('Supabase error fetching video:', error);
+      // If not found in Supabase or other error, try API
+      const response = await fetch(`${API_CONFIG.BASE_URL}/videos/${id}`);
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      return await response.json();
     }
-
-    return await response.json();
+    
+    if (video) {
+      return {
+        id: video.id,
+        title: video.topic,
+        prompt: video.topic,
+        url: video.video_url || '',
+        thumbnail: video.thumbnail_url || 'https://via.placeholder.com/640x1136',
+        created_at: video.created_at,
+        audioUrl: video.audio_url,
+        transcriptUrl: video.transcript_url,
+        imagesZipUrl: video.images_zip_url
+      };
+    }
+    
+    return null;
   } catch (error) {
     console.error('Error fetching video:', error);
     // Fallback to mock data during development
@@ -65,13 +116,29 @@ export const getVideoById = async (id: string): Promise<VideoData | null> => {
 
 export const deleteVideo = async (id: string): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_CONFIG.BASE_URL}/videos/${id}`, {
-      method: 'DELETE'
-    });
-
-    return response.ok;
+    // Try to delete from Supabase first
+    const { error } = await supabase
+      .from('generated_videos')
+      .delete()
+      .eq('id', id);
+      
+    if (error) {
+      console.error('Supabase error deleting video:', error);
+      throw error;
+    }
+    
+    return true;
   } catch (error) {
     console.error('Error deleting video:', error);
-    return false;
+    
+    // Fallback to API
+    try {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/videos/${id}`, {
+        method: 'DELETE'
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
   }
 };

@@ -20,6 +20,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   const [result, setResult] = useState<VideoStatusResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [taskId, setTaskId] = useState<string | null>(null);
+  const [currentTopic, setCurrentTopic] = useState<string>('');
   
   // Refs for cleanup and timing
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
@@ -53,6 +54,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
     setError(null);
     setTaskId(null);
     startTimeRef.current = null;
+    setCurrentTopic('');
   };
   
   // Cleanup on unmount
@@ -76,7 +78,13 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
       if (statusResponse.status === 'Completed') {
         setStatus('completed');
         setProgress(100);
-        setResult(statusResponse);
+        
+        // Add the topic to the result
+        setResult({
+          ...statusResponse,
+          topic: currentTopic
+        });
+        
         cleanup();
         toast.success('Video generation completed!');
       } else if (statusResponse.status === 'Error') {
@@ -97,6 +105,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
     try {
       reset();
       setStatus('generating');
+      setCurrentTopic(params.topic);
       
       // Start tracking time
       startTimeRef.current = Date.now();

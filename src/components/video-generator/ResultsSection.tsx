@@ -1,5 +1,5 @@
 
-import { Download, ExternalLink, Film, Music, FileText, Archive } from 'lucide-react';
+import { Download, ExternalLink, FileVideo, Music, FileText, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -10,6 +10,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { VideoStatusResponse } from '@/lib/videoGenerationApi';
+import { useAuth } from '@/hooks/use-auth';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface ResultCardProps {
   icon: React.ReactNode;
@@ -21,6 +24,16 @@ interface ResultCardProps {
 
 const ResultCard = ({ icon, title, description, url, isPrimary = false }: ResultCardProps) => {
   const isVideo = title.toLowerCase().includes('video');
+  
+  // Function to handle click on download links
+  const handleDownload = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    // This prevents the default behavior which would navigate away
+    // Instead we'll handle the download in a new tab
+    if (!isVideo) {
+      event.preventDefault();
+      window.open(url, '_blank');
+    }
+  };
   
   return (
     <Card className={`w-full shadow-md ${isPrimary ? 'border-purple-300 dark:border-purple-800' : ''}`}>
@@ -61,7 +74,7 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
               </a>
             </Button>
             <Button variant="default" size="sm" asChild>
-              <a href={url} download>
+              <a href={url} download onClick={handleDownload}>
                 <Download className="mr-2 h-4 w-4" />
                 Download
               </a>
@@ -69,7 +82,7 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
           </>
         ) : (
           <Button variant="default" size="sm" asChild>
-            <a href={url} download>
+            <a href={url} download onClick={handleDownload}>
               <Download className="mr-2 h-4 w-4" />
               Download
             </a>
@@ -85,6 +98,8 @@ interface ResultsSectionProps {
 }
 
 const ResultsSection = ({ result }: ResultsSectionProps) => {
+  const { user } = useAuth();
+  
   if (!result) return null;
   
   return (
@@ -95,7 +110,7 @@ const ResultsSection = ({ result }: ResultsSectionProps) => {
         {result.video_url && (
           <div className="md:col-span-2">
             <ResultCard
-              icon={<Film className="h-5 w-5 text-purple-600" />}
+              icon={<FileVideo className="h-5 w-5 text-purple-600" />}
               title="Video"
               description="Your generated video is ready to view or download"
               url={result.video_url}

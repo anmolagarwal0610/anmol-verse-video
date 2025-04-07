@@ -26,6 +26,8 @@ export interface VideoStatusResponse {
   audio_url?: string;
   transcript_url?: string;
   images_zip_url?: string;
+  thumbnail_url?: string;
+  topic?: string;
 }
 
 export const generateVideo = async (params: VideoGenerationParams): Promise<VideoGenerationResponse> => {
@@ -137,4 +139,3 @@ export const IMAGE_MODELS = {
     description: "Premium model for higher quality image generation"
   }
 };
-
