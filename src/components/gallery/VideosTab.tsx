@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { getVideos } from '@/lib/videoApi';
 import VideoCard, { VideoData } from '@/components/video-card';
@@ -12,14 +13,17 @@ import { supabase } from '@/integrations/supabase/client';
 const VideosTab = () => {
   const [videos, setVideos] = useState<VideoData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
   
   useEffect(() => {
     const fetchVideos = async () => {
       setIsLoading(true);
+      setError(null);
       try {
         console.log('VideosTab: Current auth user:', user?.id);
+        console.log('VideosTab: Starting video fetch process...');
         
         const { data: directDbVideos, error: dbError } = await supabase
           .from('generated_videos')
@@ -35,14 +39,17 @@ const VideosTab = () => {
         const fetchedVideos = await getVideos();
         console.log(`Fetched ${fetchedVideos.length} videos:`, fetchedVideos);
         
-        const isMockData = !fetchedVideos[0]?.id.includes('-');
+        const isMockData = fetchedVideos.length > 0 && !fetchedVideos[0]?.id.includes('-');
         if (isMockData) {
           console.warn('WARNING: Using mock video data fallback!');
+          toast.warning('Could not connect to the server. Showing sample videos instead.');
         }
         
         setVideos(fetchedVideos);
       } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         console.error('Error fetching videos:', error);
+        setError(errorMessage);
         toast.error('Failed to load videos');
       } finally {
         setIsLoading(false);
@@ -58,6 +65,21 @@ const VideosTab = () => {
         <Loader2 className="h-6 w-6 animate-spin mr-2 text-primary" />
         <span>Loading videos...</span>
       </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <EmptyState 
+        title="Error loading videos"
+        description={error}
+        icon={<FileVideo className="h-10 w-10 text-destructive" />}
+        action={
+          <Button onClick={() => navigate('/videos/generate')}>
+            Try Creating a Video
+          </Button>
+        }
+      />
     );
   }
   

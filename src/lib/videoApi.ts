@@ -57,14 +57,14 @@ export const getVideos = async (): Promise<VideoData[]> => {
       // Format the data to match VideoData structure
       const formattedVideos = supabaseVideos.map(video => ({
         id: video.id,
-        title: video.topic,
-        prompt: video.topic,
+        title: video.topic || 'Untitled Video',
+        prompt: video.topic || '',
         url: video.video_url || '',
         thumbnail: video.thumbnail_url || 'https://via.placeholder.com/640x1136',
-        created_at: video.created_at,
-        audioUrl: video.audio_url,
-        transcriptUrl: video.transcript_url,
-        imagesZipUrl: video.images_zip_url
+        created_at: video.created_at || new Date().toISOString(),
+        audioUrl: video.audio_url || undefined,
+        transcriptUrl: video.transcript_url || undefined,
+        imagesZipUrl: video.images_zip_url || undefined
       }));
       
       console.log('getVideos: Formatted videos:', formattedVideos);
@@ -74,18 +74,29 @@ export const getVideos = async (): Promise<VideoData[]> => {
     console.log('getVideos: No videos found in Supabase, trying API fallback');
     
     // Fallback to API if no videos in Supabase
-    const response = await fetch(`${API_CONFIG.BASE_URL}/videos`);
+    try {
+      console.log('getVideos: Attempting to fetch from API at:', `${API_CONFIG.BASE_URL}/videos`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(`${API_CONFIG.BASE_URL}/videos`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+      const data = await response.json();
+      console.log('getVideos: API response:', data);
+      return data.videos || [];
+    } catch (apiError) {
+      console.error('getVideos: API fetch error:', apiError);
+      throw new Error(`API not available: ${apiError instanceof Error ? apiError.message : 'Unknown error'}`);
     }
-
-    const data = await response.json();
-    console.log('getVideos: API response:', data);
-    return data.videos || [];
   } catch (error) {
     console.error('getVideos: Error fetching videos:', error);
-    // Fallback to mock data during development
     console.warn('getVideos: Using MOCK_VIDEOS as fallback');
     return MOCK_VIDEOS;
   }
