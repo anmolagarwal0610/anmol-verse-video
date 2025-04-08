@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import VideoThumbnail from './VideoThumbnail';
 import PromptPopover from './PromptPopover';
 import { VideoCardProps } from './types';
+import { useEffect } from 'react';
 
 const VideoCard = ({ video, index }: VideoCardProps) => {
   const fadeInVariants = {
@@ -27,6 +28,17 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
     ? `${video.prompt.substring(0, 25)}...`
     : video.prompt;
 
+  // Log video data when component mounts
+  useEffect(() => {
+    console.log(`VideoCard: Rendering video card:`, {
+      id: video.id,
+      title: video.title || video.prompt,
+      thumbnailUrl: video.thumbnail,
+      videoUrl: video.url,
+      isPlaceholderThumbnail: video.thumbnail?.includes('placeholder') || !video.thumbnail
+    });
+  }, [video]);
+
   return (
     <motion.div
       variants={fadeInVariants}
@@ -36,7 +48,7 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
     >
       <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-lg group">
         <VideoThumbnail 
-          thumbnail={video.thumbnail || `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`}
+          thumbnail={video.thumbnail || `https://placehold.co/640x1136/gray/white?text=Video`}
           title={video.title || video.prompt}
           url={video.url}
         />

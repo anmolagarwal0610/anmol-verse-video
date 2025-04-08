@@ -35,9 +35,34 @@ const VideosTab = () => {
           error: dbError
         });
         
+        // Log individual videos and their thumbnail URLs
+        if (directDbVideos && directDbVideos.length > 0) {
+          console.log('Direct DB videos detail:');
+          directDbVideos.forEach((video, index) => {
+            console.log(`Video #${index + 1}:`, {
+              id: video.id,
+              topic: video.topic,
+              thumbnail_url: video.thumbnail_url || 'null/undefined',
+              video_url: video.video_url || 'null/undefined',
+            });
+          });
+        }
+        
         console.log('Fetching videos via API function...');
         const fetchedVideos = await getVideos();
         console.log(`Fetched ${fetchedVideos.length} videos:`, fetchedVideos);
+        
+        // Log the thumbnail URLs specifically
+        console.log('Thumbnail URLs from fetched videos:');
+        fetchedVideos.forEach((video, index) => {
+          const thumbnailSource = video.thumbnail 
+            ? 'From API' 
+            : 'Using fallback placeholder';
+          console.log(`Video #${index + 1} thumbnail:`, {
+            url: video.thumbnail || 'fallback placeholder',
+            source: thumbnailSource
+          });
+        });
         
         const isMockData = fetchedVideos.length > 0 && !fetchedVideos[0]?.id.includes('-');
         if (isMockData) {

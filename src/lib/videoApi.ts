@@ -1,4 +1,3 @@
-
 import { VideoData } from '@/components/video-card/types';
 import { API_CONFIG } from './apiUtils';
 import { MOCK_VIDEOS } from './mockData';
@@ -42,7 +41,7 @@ export const getVideos = async (): Promise<VideoData[]> => {
     const { data: supabaseVideos, error } = await supabase
       .from('generated_videos')
       .select('*')
-      .order('created_at', { ascending: false }) as { data: GeneratedVideoRow[] | null, error: any };
+      .order('created_at', { ascending: false });
     
     if (error) {
       console.error('getVideos: Supabase error fetching videos:', error);
@@ -54,18 +53,33 @@ export const getVideos = async (): Promise<VideoData[]> => {
     if (supabaseVideos && supabaseVideos.length > 0) {
       console.log(`getVideos: Found ${supabaseVideos.length} videos in Supabase`);
       
+      // Log each video's thumbnail URL for debugging
+      console.log('getVideos: Video thumbnail URLs:');
+      supabaseVideos.forEach((video, index) => {
+        console.log(`Video #${index + 1} thumbnail:`, {
+          id: video.id,
+          url: video.thumbnail_url || 'null/undefined',
+          fallbackNeeded: !video.thumbnail_url
+        });
+      });
+      
       // Format the data to match VideoData structure
-      const formattedVideos = supabaseVideos.map(video => ({
-        id: video.id,
-        title: video.topic || 'Untitled Video',
-        prompt: video.topic || '',
-        url: video.video_url || '',
-        thumbnail: video.thumbnail_url || 'https://via.placeholder.com/640x1136',
-        created_at: video.created_at || new Date().toISOString(),
-        audioUrl: video.audio_url || undefined,
-        transcriptUrl: video.transcript_url || undefined,
-        imagesZipUrl: video.images_zip_url || undefined
-      }));
+      const formattedVideos = supabaseVideos.map(video => {
+        // Use a more reliable placeholder if thumbnail is missing
+        const thumbnailUrl = video.thumbnail_url || 'https://placehold.co/640x1136/gray/white?text=Video';
+        
+        return {
+          id: video.id,
+          title: video.topic || 'Untitled Video',
+          prompt: video.topic || '',
+          url: video.video_url || '',
+          thumbnail: thumbnailUrl,
+          created_at: video.created_at || new Date().toISOString(),
+          audioUrl: video.audio_url || undefined,
+          transcriptUrl: video.transcript_url || undefined,
+          imagesZipUrl: video.images_zip_url || undefined
+        };
+      });
       
       console.log('getVideos: Formatted videos:', formattedVideos);
       return formattedVideos;
@@ -109,7 +123,7 @@ export const getVideoById = async (id: string): Promise<VideoData | null> => {
       .from('generated_videos')
       .select('*')
       .eq('id', id)
-      .single() as { data: GeneratedVideoRow | null, error: any };
+      .single();
       
     if (error) {
       console.error('Supabase error fetching video:', error);
@@ -122,12 +136,15 @@ export const getVideoById = async (id: string): Promise<VideoData | null> => {
     }
     
     if (video) {
+      // Use a more reliable placeholder if thumbnail is missing
+      const thumbnailUrl = video.thumbnail_url || 'https://placehold.co/640x1136/gray/white?text=Video';
+      
       return {
         id: video.id,
         title: video.topic,
         prompt: video.topic,
         url: video.video_url || '',
-        thumbnail: video.thumbnail_url || 'https://via.placeholder.com/640x1136',
+        thumbnail: thumbnailUrl,
         created_at: video.created_at,
         audioUrl: video.audio_url,
         transcriptUrl: video.transcript_url,
