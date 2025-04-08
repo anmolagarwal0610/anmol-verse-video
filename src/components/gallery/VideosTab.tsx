@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { getVideos } from '@/lib/videoApi';
 import VideoCard, { VideoData } from '@/components/video-card';
@@ -8,6 +7,7 @@ import { Loader2, FileVideo } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const VideosTab = () => {
   const [videos, setVideos] = useState<VideoData[]>([]);
@@ -19,9 +19,27 @@ const VideosTab = () => {
     const fetchVideos = async () => {
       setIsLoading(true);
       try {
-        console.log('Fetching videos...');
+        console.log('VideosTab: Current auth user:', user?.id);
+        
+        const { data: directDbVideos, error: dbError } = await supabase
+          .from('generated_videos')
+          .select('*');
+          
+        console.log('Direct DB query results:', { 
+          data: directDbVideos, 
+          count: directDbVideos?.length || 0,
+          error: dbError
+        });
+        
+        console.log('Fetching videos via API function...');
         const fetchedVideos = await getVideos();
-        console.log(`Fetched ${fetchedVideos.length} videos`);
+        console.log(`Fetched ${fetchedVideos.length} videos:`, fetchedVideos);
+        
+        const isMockData = !fetchedVideos[0]?.id.includes('-');
+        if (isMockData) {
+          console.warn('WARNING: Using mock video data fallback!');
+        }
+        
         setVideos(fetchedVideos);
       } catch (error) {
         console.error('Error fetching videos:', error);
@@ -32,7 +50,7 @@ const VideosTab = () => {
     };
     
     fetchVideos();
-  }, []);
+  }, [user]);
   
   if (isLoading) {
     return (

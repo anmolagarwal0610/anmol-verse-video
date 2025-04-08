@@ -31,20 +31,31 @@ export const generateVideo = async (prompt: string): Promise<{ videoId: string }
 
 export const getVideos = async (): Promise<VideoData[]> => {
   try {
+    console.log('getVideos: Starting to fetch videos');
+    
+    // Get current user for debugging
+    const { data: { user } } = await supabase.auth.getUser();
+    console.log('getVideos: Current user:', user?.id);
+    
     // First try to fetch from Supabase
+    console.log('getVideos: Querying Supabase...');
     const { data: supabaseVideos, error } = await supabase
       .from('generated_videos')
       .select('*')
       .order('created_at', { ascending: false }) as { data: GeneratedVideoRow[] | null, error: any };
     
     if (error) {
-      console.error('Supabase error fetching videos:', error);
+      console.error('getVideos: Supabase error fetching videos:', error);
       throw error;
     }
     
+    console.log('getVideos: Raw Supabase response:', supabaseVideos);
+    
     if (supabaseVideos && supabaseVideos.length > 0) {
+      console.log(`getVideos: Found ${supabaseVideos.length} videos in Supabase`);
+      
       // Format the data to match VideoData structure
-      return supabaseVideos.map(video => ({
+      const formattedVideos = supabaseVideos.map(video => ({
         id: video.id,
         title: video.topic,
         prompt: video.topic,
@@ -55,7 +66,12 @@ export const getVideos = async (): Promise<VideoData[]> => {
         transcriptUrl: video.transcript_url,
         imagesZipUrl: video.images_zip_url
       }));
+      
+      console.log('getVideos: Formatted videos:', formattedVideos);
+      return formattedVideos;
     }
+    
+    console.log('getVideos: No videos found in Supabase, trying API fallback');
     
     // Fallback to API if no videos in Supabase
     const response = await fetch(`${API_CONFIG.BASE_URL}/videos`);
@@ -65,10 +81,12 @@ export const getVideos = async (): Promise<VideoData[]> => {
     }
 
     const data = await response.json();
+    console.log('getVideos: API response:', data);
     return data.videos || [];
   } catch (error) {
-    console.error('Error fetching videos:', error);
+    console.error('getVideos: Error fetching videos:', error);
     // Fallback to mock data during development
+    console.warn('getVideos: Using MOCK_VIDEOS as fallback');
     return MOCK_VIDEOS;
   }
 };
