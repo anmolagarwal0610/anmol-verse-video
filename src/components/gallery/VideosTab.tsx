@@ -57,21 +57,33 @@ const VideosTab = () => {
         console.log('Thumbnail URLs from fetched videos:');
         fetchedVideos.forEach((video, index) => {
           const thumbnailSource = video.thumbnail 
-            ? 'From API' 
-            : 'Using fallback placeholder';
+            ? (video.thumbnail.startsWith('data:') ? 'Using embedded SVG' : 'From API')
+            : 'No thumbnail';
           console.log(`Video #${index + 1} thumbnail:`, {
-            url: video.thumbnail || 'fallback placeholder',
-            source: thumbnailSource
+            url: video.thumbnail ? (video.thumbnail.length > 100 ? 'Embedded SVG data URL' : video.thumbnail) : 'none',
+            source: thumbnailSource,
+            videoUrl: video.url ? 'Present' : 'Missing'
           });
         });
         
-        const isMockData = fetchedVideos.length > 0 && !fetchedVideos[0]?.id.includes('-');
+        // Validate video URLs before setting state
+        const validVideos = fetchedVideos.filter(video => {
+          if (!video.url) {
+            console.warn(`VideosTab: Video ${video.id} has no URL, filtering out`);
+            return false;
+          }
+          return true;
+        });
+        
+        console.log(`VideosTab: ${validVideos.length} valid videos with URLs out of ${fetchedVideos.length} total`);
+        
+        const isMockData = validVideos.length > 0 && !validVideos[0]?.id.includes('-');
         if (isMockData) {
           console.warn('WARNING: Using mock video data fallback!');
           toast.warning('Could not connect to the server. Showing sample videos instead.');
         }
         
-        setVideos(fetchedVideos);
+        setVideos(validVideos);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         console.error('Error fetching videos:', error);
@@ -93,6 +105,8 @@ const VideosTab = () => {
         const isValid = Boolean(video && video.id && video.url);
         if (!isValid) {
           console.warn('VideosTab: Found invalid video object:', video);
+        } else {
+          console.log(`VideosTab: Valid video found - ID: ${video.id}, URL: ${video.url.substring(0, 50)}...`);
         }
         return isValid;
       });

@@ -10,37 +10,39 @@ interface VideoThumbnailProps {
 }
 
 const VideoThumbnail = ({ thumbnail, title, url }: VideoThumbnailProps) => {
-  const [imgSrc, setImgSrc] = useState<string>(thumbnail);
-  const [imgError, setImgError] = useState<boolean>(false);
+  const [imgSrc, setImgSrc] = useState<string>(thumbnail || '');
+  const [imgError, setImgError] = useState<boolean>(!thumbnail);
   
   // Log the initial thumbnail URL
   useEffect(() => {
     console.log(`VideoThumbnail: Rendering with thumbnail URL:`, {
       url: thumbnail,
-      fallback: thumbnail?.includes('placeholder') ? 'Using placeholder' : 'Using actual thumbnail',
+      fallback: !thumbnail ? 'No thumbnail provided, using fallback' : 
+               thumbnail.includes('placeholder') ? 'Using placeholder' : 'Using actual thumbnail',
       isValid: Boolean(thumbnail && thumbnail.startsWith('http'))
     });
     
     // Check if thumbnail is null or invalid and set error state immediately
     if (!thumbnail || !thumbnail.startsWith('http')) {
-      console.log('VideoThumbnail: Invalid thumbnail detected, using fallback');
+      console.log('VideoThumbnail: Invalid or null thumbnail detected, using fallback');
       setImgError(true);
-      setImgSrc('https://placehold.co/640x1136/gray/white?text=Video');
+      // Use a reliable placeholder service
+      setImgSrc('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjExMzYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzRiNTU2MyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPlZpZGVvPC90ZXh0Pjwvc3ZnPg==');
     }
   }, [thumbnail]);
   
   const handleImageError = () => {
     console.error(`VideoThumbnail: Failed to load image from URL:`, thumbnail);
     setImgError(true);
-    // Use a different placeholder service that's more reliable
-    setImgSrc('https://placehold.co/640x1136/gray/white?text=Video');
+    // Use a data URL SVG placeholder that's guaranteed to work
+    setImgSrc('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjExMzYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzRiNTU2MyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPlZpZGVvPC90ZXh0Pjwvc3ZnPg==');
   };
   
   return (
     <div className="relative aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
       {imgError ? (
-        <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700">
-          <p className="text-sm text-center p-4">Video thumbnail unavailable</p>
+        <div className="w-full h-full flex items-center justify-center bg-gray-700 dark:bg-gray-800">
+          <p className="text-sm text-center p-4 text-gray-200">Video Preview</p>
         </div>
       ) : (
         <img
@@ -58,7 +60,7 @@ const VideoThumbnail = ({ thumbnail, title, url }: VideoThumbnailProps) => {
           className="rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm" 
           asChild
         >
-          <a href={url} target="_blank" rel="noopener noreferrer">
+          <a href={url} target="_blank" rel="noopener noreferrer" onClick={() => console.log('Video play button clicked, URL:', url)}>
             <Play className="h-8 w-8 text-white" />
           </a>
         </Button>

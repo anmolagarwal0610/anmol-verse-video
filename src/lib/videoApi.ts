@@ -65,15 +65,15 @@ export const getVideos = async (): Promise<VideoData[]> => {
       
       // Format the data to match VideoData structure
       const formattedVideos = supabaseVideos.map(video => {
-        // Use a more reliable placeholder service
-        const thumbnailUrl = 'https://placehold.co/640x1136/gray/white?text=Video';
+        // Use a data URL SVG placeholder that's guaranteed to work
+        const embeddedSVG = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjExMzYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzRiNTU2MyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPlZpZGVvPC90ZXh0Pjwvc3ZnPg==';
         
         return {
           id: video.id,
           title: video.topic || 'Untitled Video',
           prompt: video.topic || '',
           url: video.video_url || '',
-          thumbnail: video.thumbnail_url || thumbnailUrl,
+          thumbnail: video.thumbnail_url || embeddedSVG,
           created_at: video.created_at || new Date().toISOString(),
           audioUrl: video.audio_url || undefined,
           transcriptUrl: video.transcript_url || undefined,
@@ -136,15 +136,15 @@ export const getVideoById = async (id: string): Promise<VideoData | null> => {
     }
     
     if (video) {
-      // Use a more reliable placeholder service
-      const thumbnailUrl = 'https://placehold.co/640x1136/gray/white?text=Video';
+      // Use a data URL SVG placeholder that's guaranteed to work
+      const embeddedSVG = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjExMzYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzRiNTU2MyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPlZpZGVvPC90ZXh0Pjwvc3ZnPg==';
       
       return {
         id: video.id,
         title: video.topic,
         prompt: video.topic,
         url: video.video_url || '',
-        thumbnail: video.thumbnail_url || thumbnailUrl,
+        thumbnail: video.thumbnail_url || embeddedSVG,
         created_at: video.created_at,
         audioUrl: video.audio_url,
         transcriptUrl: video.transcript_url,
