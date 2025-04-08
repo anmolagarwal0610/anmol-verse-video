@@ -35,7 +35,7 @@ const VideosTab = () => {
           error: dbError
         });
         
-        // Log individual videos and their thumbnail URLs
+        // More detailed logging for direct DB videos
         if (directDbVideos && directDbVideos.length > 0) {
           console.log('Direct DB videos detail:');
           directDbVideos.forEach((video, index) => {
@@ -44,6 +44,7 @@ const VideosTab = () => {
               topic: video.topic,
               thumbnail_url: video.thumbnail_url || 'null/undefined',
               video_url: video.video_url || 'null/undefined',
+              created_at: video.created_at
             });
           });
         }
@@ -83,6 +84,27 @@ const VideosTab = () => {
     
     fetchVideos();
   }, [user]);
+  
+  // Add a validation effect to ensure we have valid video objects
+  useEffect(() => {
+    if (videos.length > 0) {
+      console.log('VideosTab: Validating video objects...');
+      const validVideos = videos.filter(video => {
+        const isValid = Boolean(video && video.id && video.url);
+        if (!isValid) {
+          console.warn('VideosTab: Found invalid video object:', video);
+        }
+        return isValid;
+      });
+      
+      if (validVideos.length !== videos.length) {
+        console.warn(`VideosTab: Filtered out ${videos.length - validVideos.length} invalid videos`);
+        setVideos(validVideos);
+      } else {
+        console.log('VideosTab: All video objects are valid');
+      }
+    }
+  }, [videos]);
   
   if (isLoading) {
     return (

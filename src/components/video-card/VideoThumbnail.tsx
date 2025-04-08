@@ -17,8 +17,16 @@ const VideoThumbnail = ({ thumbnail, title, url }: VideoThumbnailProps) => {
   useEffect(() => {
     console.log(`VideoThumbnail: Rendering with thumbnail URL:`, {
       url: thumbnail,
-      fallback: thumbnail.includes('placeholder.com') ? 'Using placeholder' : 'Using actual thumbnail'
+      fallback: thumbnail?.includes('placeholder') ? 'Using placeholder' : 'Using actual thumbnail',
+      isValid: Boolean(thumbnail && thumbnail.startsWith('http'))
     });
+    
+    // Check if thumbnail is null or invalid and set error state immediately
+    if (!thumbnail || !thumbnail.startsWith('http')) {
+      console.log('VideoThumbnail: Invalid thumbnail detected, using fallback');
+      setImgError(true);
+      setImgSrc('https://placehold.co/640x1136/gray/white?text=Video');
+    }
   }, [thumbnail]);
   
   const handleImageError = () => {

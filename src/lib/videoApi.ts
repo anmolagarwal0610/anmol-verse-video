@@ -1,8 +1,8 @@
+
 import { VideoData } from '@/components/video-card/types';
 import { API_CONFIG } from './apiUtils';
 import { MOCK_VIDEOS } from './mockData';
 import { supabase } from '@/integrations/supabase/client';
-import { GeneratedVideoRow } from '@/types/supabase';
 
 export const generateVideo = async (prompt: string): Promise<{ videoId: string }> => {
   try {
@@ -65,15 +65,15 @@ export const getVideos = async (): Promise<VideoData[]> => {
       
       // Format the data to match VideoData structure
       const formattedVideos = supabaseVideos.map(video => {
-        // Use a more reliable placeholder if thumbnail is missing
-        const thumbnailUrl = video.thumbnail_url || 'https://placehold.co/640x1136/gray/white?text=Video';
+        // Use a more reliable placeholder service
+        const thumbnailUrl = 'https://placehold.co/640x1136/gray/white?text=Video';
         
         return {
           id: video.id,
           title: video.topic || 'Untitled Video',
           prompt: video.topic || '',
           url: video.video_url || '',
-          thumbnail: thumbnailUrl,
+          thumbnail: video.thumbnail_url || thumbnailUrl,
           created_at: video.created_at || new Date().toISOString(),
           audioUrl: video.audio_url || undefined,
           transcriptUrl: video.transcript_url || undefined,
@@ -136,15 +136,15 @@ export const getVideoById = async (id: string): Promise<VideoData | null> => {
     }
     
     if (video) {
-      // Use a more reliable placeholder if thumbnail is missing
-      const thumbnailUrl = video.thumbnail_url || 'https://placehold.co/640x1136/gray/white?text=Video';
+      // Use a more reliable placeholder service
+      const thumbnailUrl = 'https://placehold.co/640x1136/gray/white?text=Video';
       
       return {
         id: video.id,
         title: video.topic,
         prompt: video.topic,
         url: video.video_url || '',
-        thumbnail: thumbnailUrl,
+        thumbnail: video.thumbnail_url || thumbnailUrl,
         created_at: video.created_at,
         audioUrl: video.audio_url,
         transcriptUrl: video.transcript_url,

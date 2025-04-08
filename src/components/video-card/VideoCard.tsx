@@ -27,15 +27,18 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
   const truncatedPrompt = video.prompt.length > 25
     ? `${video.prompt.substring(0, 25)}...`
     : video.prompt;
+    
+  const fallbackThumbnail = 'https://placehold.co/640x1136/gray/white?text=Video';
+  const thumbnailUrl = video.thumbnail || fallbackThumbnail;
 
   // Log video data when component mounts
   useEffect(() => {
     console.log(`VideoCard: Rendering video card:`, {
       id: video.id,
       title: video.title || video.prompt,
-      thumbnailUrl: video.thumbnail,
+      thumbnailUrl,
       videoUrl: video.url,
-      isPlaceholderThumbnail: video.thumbnail?.includes('placeholder') || !video.thumbnail
+      isPlaceholderThumbnail: !video.thumbnail || video.thumbnail.includes('placeholder')
     });
   }, [video]);
 
@@ -48,7 +51,7 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
     >
       <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-lg group">
         <VideoThumbnail 
-          thumbnail={video.thumbnail || `https://placehold.co/640x1136/gray/white?text=Video`}
+          thumbnail={thumbnailUrl}
           title={video.title || video.prompt}
           url={video.url}
         />
