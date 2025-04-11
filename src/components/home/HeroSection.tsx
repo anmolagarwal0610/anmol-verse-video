@@ -40,22 +40,22 @@ const HeroSection = () => {
     }
   };
   
-  // Fixed the orbVariants by specifying the animate property separately
+  // Fixed orbVariants - using proper typing for repeatType
   const orbVariants = {
-    initial: {}, // Add an initial state
+    initial: { scale: 1, opacity: 0.7 },
     animate: {
       scale: [1, 1.05, 1],
       opacity: [0.7, 1, 0.7],
       transition: {
         repeat: Infinity,
-        repeatType: "mirror", // Fixed: Using a specific literal value
+        repeatType: "mirror" as const, // Using 'as const' to specify literal type
         duration: 3
       }
     }
   };
   
   const sparkleVariants = {
-    initial: {}, // Add an initial state
+    initial: { rotate: 0, scale: 1 },
     animate: {
       rotate: [0, 360],
       scale: [1, 1.2, 1],

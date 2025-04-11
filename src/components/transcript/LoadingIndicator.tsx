@@ -32,15 +32,15 @@ export const LoadingIndicator = ({ progress }: LoadingIndicatorProps) => {
     animate: { width: `${progress}%` }
   };
 
-  // Fixed loadingDots to use initial property and proper repeatType
+  // Fixed loadingDots with proper type for repeatType
   const loadingDots = {
-    initial: {}, // Add an initial state
+    initial: { opacity: 0 },
     animate: {
       opacity: [0, 1, 0],
       transition: {
         repeat: Infinity,
         duration: 1.5,
-        repeatType: "loop", // Fixed: Using a specific literal value
+        repeatType: "loop" as const, // Using 'as const' to specify literal type
         ease: "easeInOut",
         times: [0, 0.5, 1]
       }
