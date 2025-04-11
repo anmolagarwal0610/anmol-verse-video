@@ -32,14 +32,15 @@ export const LoadingIndicator = ({ progress }: LoadingIndicatorProps) => {
     animate: { width: `${progress}%` }
   };
 
-  // Animated dots that appear during loading
+  // Fixed loadingDots to use initial property and proper repeatType
   const loadingDots = {
+    initial: {}, // Add an initial state
     animate: {
       opacity: [0, 1, 0],
       transition: {
         repeat: Infinity,
         duration: 1.5,
-        repeatType: "loop",
+        repeatType: "loop", // Fixed: Using a specific literal value
         ease: "easeInOut",
         times: [0, 0.5, 1]
       }
@@ -59,8 +60,9 @@ export const LoadingIndicator = ({ progress }: LoadingIndicatorProps) => {
         </p>
         <motion.span
           className="inline-flex space-x-1"
-          variants={loadingDots}
+          initial="initial"
           animate="animate"
+          variants={loadingDots}
         >
           {[0, 1, 2].map((i) => (
             <motion.span

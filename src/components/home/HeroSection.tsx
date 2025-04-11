@@ -40,19 +40,22 @@ const HeroSection = () => {
     }
   };
   
+  // Fixed the orbVariants by specifying the animate property separately
   const orbVariants = {
+    initial: {}, // Add an initial state
     animate: {
       scale: [1, 1.05, 1],
       opacity: [0.7, 1, 0.7],
       transition: {
         repeat: Infinity,
-        repeatType: "reverse",
+        repeatType: "mirror", // Fixed: Using a specific literal value
         duration: 3
       }
     }
   };
   
   const sparkleVariants = {
+    initial: {}, // Add an initial state
     animate: {
       rotate: [0, 360],
       scale: [1, 1.2, 1],
@@ -78,8 +81,9 @@ const HeroSection = () => {
         <div className="relative w-32 h-32 mx-auto">
           <motion.div 
             className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 blur-md opacity-70"
-            variants={orbVariants}
+            initial="initial"
             animate="animate"
+            variants={orbVariants}
           />
           
           <div className="absolute inset-3 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden">
@@ -89,8 +93,9 @@ const HeroSection = () => {
               </div>
               <motion.div 
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                variants={sparkleVariants}
+                initial="initial"
                 animate="animate"
+                variants={sparkleVariants}
               >
                 <Sparkles className="w-6 h-6 text-indigo-500" />
               </motion.div>
