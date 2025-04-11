@@ -3,42 +3,160 @@ import { motion } from 'framer-motion';
 import { Sparkles, Star } from 'lucide-react';
 
 const HeroSection = () => {
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { 
+        type: "spring",
+        stiffness: 100
+      }
+    }
+  };
+  
+  const logoVariants = {
+    hidden: { scale: 0.8, opacity: 0, rotate: -10 },
+    visible: { 
+      scale: 1, 
+      opacity: 1, 
+      rotate: 0,
+      transition: {
+        type: "spring",
+        stiffness: 200,
+        damping: 20
+      }
+    }
+  };
+  
+  const orbVariants = {
+    animate: {
+      scale: [1, 1.05, 1],
+      opacity: [0.7, 1, 0.7],
+      transition: {
+        repeat: Infinity,
+        repeatType: "reverse",
+        duration: 3
+      }
+    }
+  };
+  
+  const sparkleVariants = {
+    animate: {
+      rotate: [0, 360],
+      scale: [1, 1.2, 1],
+      transition: {
+        repeat: Infinity,
+        duration: 5,
+        ease: "linear"
+      }
+    }
+  };
+
   return (
     <motion.div 
       className="max-w-4xl w-full text-center space-y-6 mb-12"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
+        variants={logoVariants}
         className="mx-auto mb-6"
       >
         <div className="relative w-32 h-32 mx-auto">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 animate-pulse blur-md opacity-70"></div>
+          <motion.div 
+            className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 blur-md opacity-70"
+            variants={orbVariants}
+            animate="animate"
+          />
+          
           <div className="absolute inset-3 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden">
             <div className="relative w-full h-full">
               <div className="absolute inset-0 flex items-center justify-center">
                 <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600" />
               </div>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <Sparkles className="w-6 h-6 text-indigo-500 animate-pulse" />
-              </div>
+              <motion.div 
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                variants={sparkleVariants}
+                animate="animate"
+              >
+                <Sparkles className="w-6 h-6 text-indigo-500" />
+              </motion.div>
             </div>
           </div>
         </div>
       </motion.div>
       
-      <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-        Welcome to <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600">AnmolVerse</span>
-      </h1>
+      <motion.h1 
+        className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight"
+        variants={itemVariants}
+      >
+        Welcome to{" "}
+        <motion.span 
+          className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 inline-block"
+          animate={{
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          AnmolVerse
+        </motion.span>
+      </motion.h1>
       
-      <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4">
+      <motion.p 
+        className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4"
+        variants={itemVariants}
+      >
         Your futuristic creative studio powered by advanced AI. Create stunning images, 
         videos, and transcripts with just a few clicks.
-      </p>
+      </motion.p>
+      
+      <motion.div 
+        className="flex gap-2 justify-center items-center mt-6"
+        variants={itemVariants}
+      >
+        {["🎬", "🎨", "✨", "🤖", "🎭"].map((emoji, index) => (
+          <motion.span
+            key={index}
+            className="inline-block text-2xl"
+            initial={{ scale: 0 }}
+            animate={{ 
+              scale: 1,
+              rotate: [0, 10, 0, -10, 0],
+            }}
+            transition={{ 
+              type: "spring",
+              stiffness: 500,
+              damping: 15,
+              delay: 1 + index * 0.1,
+              rotate: {
+                delay: 2 + index * 0.1,
+                duration: 0.5,
+                repeat: 3,
+                repeatDelay: 10
+              }
+            }}
+          >
+            {emoji}
+          </motion.span>
+        ))}
+      </motion.div>
     </motion.div>
   );
 };

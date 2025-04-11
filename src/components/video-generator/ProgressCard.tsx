@@ -1,5 +1,4 @@
 
-import { Progress } from '@/components/ui/progress';
 import {
   Card,
   CardContent,
@@ -12,6 +11,7 @@ import { Clock, LoaderCircle, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 import { Link } from 'react-router-dom';
+import AnimatedLoadingIndicator from './AnimatedLoadingIndicator';
 
 interface ProgressCardProps {
   progress: number;
@@ -39,13 +39,8 @@ const ProgressCard = ({ progress, status }: ProgressCardProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>Progress</span>
-            <span>{Math.round(progress)}%</span>
-          </div>
-          <Progress value={progress} className="h-2" />
-        </div>
+        {/* Replace simple progress bar with animated indicator */}
+        <AnimatedLoadingIndicator progress={progress} status={status} />
         
         <div className="flex items-center justify-center space-x-2 text-muted-foreground">
           <Clock className="h-5 w-5" />
