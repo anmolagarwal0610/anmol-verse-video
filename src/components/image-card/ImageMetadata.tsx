@@ -4,15 +4,16 @@ import { format } from 'date-fns';
 interface ImageMetadataProps {
   createdAt: string;
   preferences?: string[];
+  className?: string;
 }
 
-const ImageMetadata = ({ createdAt, preferences }: ImageMetadataProps) => {
+const ImageMetadata = ({ createdAt, preferences, className = '' }: ImageMetadataProps) => {
   const formattedDate = createdAt
     ? format(new Date(createdAt), 'MMM d, yyyy')
     : 'Unknown date';
   
   return (
-    <div className="mt-2 flex items-center justify-between">
+    <div className={`mt-2 flex items-center justify-between ${className}`}>
       <span className="text-xs text-muted-foreground">{formattedDate}</span>
       <div className="flex items-center space-x-1">
         {preferences?.map((pref, i) => (

@@ -1,7 +1,10 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ImagePromptPopover, ImageDeleteButton, ImageLoadingOverlay, ImageMetadata } from '@/components/image-card';
+import ImagePromptPopover from '@/components/image-card/ImagePromptPopover';
+import ImageDeleteButton from '@/components/image-card/ImageDeleteButton';
+import ImageLoadingOverlay from '@/components/image-card/ImageLoadingOverlay';
+import ImageMetadata from '@/components/image-card/ImageMetadata';
 import ImageDownloadButton from '@/components/image-card/ImageDownloadButton';
 import { GeneratedImage } from '@/components/gallery/GalleryTypes';
 
@@ -63,7 +66,7 @@ const ImageCard = ({
       )}
       
       {/* Loading state */}
-      {isLoading && <ImageLoadingOverlay />}
+      {isLoading && <ImageLoadingOverlay isLoading={true} />}
       
       {/* Overlay for error state */}
       {hasError && (
@@ -93,7 +96,7 @@ const ImageCard = ({
       
       {/* Metadata */}
       <ImageMetadata 
-        date={image.created_at} 
+        createdAt={image.created_at} 
         className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" 
       />
     </motion.div>
