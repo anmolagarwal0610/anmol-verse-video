@@ -80,19 +80,19 @@ const ImageCard = ({
       )}
 
       {/* Image actions - conditionally show */}
-      {(!hasError || alwaysShowDelete) && (
-        <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex justify-between items-end">
-          <ImagePromptPopover prompt={image.prompt} />
-          <div className="flex space-x-1">
-            {!hasError && <ImageDownloadButton imageUrl={image.image_url || ''} variant="overlay" />}
-            <ImageDeleteButton 
-              imageId={image.id} 
-              onDelete={onDelete} 
-              variant="overlay"
-            />
-          </div>
+      <div 
+        className={`absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent ${hasError ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity duration-300 flex justify-between items-end`}
+      >
+        <ImagePromptPopover prompt={image.prompt} />
+        <div className="flex space-x-2">
+          {!hasError && <ImageDownloadButton imageUrl={image.image_url || ''} variant="overlay" />}
+          <ImageDeleteButton 
+            imageId={image.id} 
+            onDelete={onDelete} 
+            variant="overlay"
+          />
         </div>
-      )}
+      </div>
       
       {/* Metadata */}
       <ImageMetadata 

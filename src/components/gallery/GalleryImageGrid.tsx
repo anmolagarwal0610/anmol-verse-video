@@ -75,7 +75,7 @@ const GalleryImageGrid = ({ images: initialImages }: GalleryImageGridProps) => {
       transition={{ duration: 0.3 }}
     >
       {images.map((image, index) => (
-        <div key={image.id} className="relative group">
+        <div key={image.id} className="relative">
           <ImageCard 
             image={{
               ...image,
@@ -86,17 +86,8 @@ const GalleryImageGrid = ({ images: initialImages }: GalleryImageGridProps) => {
             onLoad={() => handleImageLoad(image.id)}
             onError={() => handleImageError(image.id, image.image_url || '')}
             onDelete={() => handleImageDelete(image.id)}
-            alwaysShowDelete={failedImages.has(image.id)} // Show delete button for failed images
+            alwaysShowDelete={failedImages.has(image.id)} // Always show delete button for failed images
           />
-          
-          {/* Overlay for failed images */}
-          {failedImages.has(image.id) && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
-              <p className="text-white text-xs text-center p-3">
-                Image unavailable or expired
-              </p>
-            </div>
-          )}
         </div>
       ))}
     </motion.div>

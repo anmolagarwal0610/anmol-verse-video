@@ -133,10 +133,9 @@ const ImageDeleteButton = ({
               {isDeleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
-  );
-};
+        </AlertDialog>
+      </>
+    );
+  };
 
 export default ImageDeleteButton;
