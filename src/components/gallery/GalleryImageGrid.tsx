@@ -49,6 +49,19 @@ const GalleryImageGrid = ({ images: initialImages }: GalleryImageGridProps) => {
   const handleImageDelete = (id: string) => {
     // Remove the image from the local state
     setImages(prev => prev.filter(image => image.id !== id));
+    
+    // Remove from loaded and failed sets
+    setLoadedImages(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(id);
+      return newSet;
+    });
+    
+    setFailedImages(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(id);
+      return newSet;
+    });
   };
   
   console.log(`Rendering GalleryImageGrid with ${images.length} images`);
@@ -73,7 +86,17 @@ const GalleryImageGrid = ({ images: initialImages }: GalleryImageGridProps) => {
             onLoad={() => handleImageLoad(image.id)}
             onError={() => handleImageError(image.id, image.image_url || '')}
             onDelete={() => handleImageDelete(image.id)}
+            alwaysShowDelete={failedImages.has(image.id)} // Show delete button for failed images
           />
+          
+          {/* Overlay for failed images */}
+          {failedImages.has(image.id) && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+              <p className="text-white text-xs text-center p-3">
+                Image unavailable or expired
+              </p>
+            </div>
+          )}
         </div>
       ))}
     </motion.div>

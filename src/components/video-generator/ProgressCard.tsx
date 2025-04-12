@@ -21,9 +21,9 @@ interface ProgressCardProps {
 const ProgressCard = ({ progress, status }: ProgressCardProps) => {
   const { cancelGeneration } = useVideoGenerationContext();
   
-  // Calculate whether to show cancel button (after 6 minutes)
-  const minutes = Math.floor(progress / 100 * 30);
-  const showCancelButton = minutes >= 6;
+  // Calculate whether to show cancel button (after 2 minutes)
+  const minutes = Math.floor(progress / 100 * 4.5);
+  const showCancelButton = minutes >= 2;
   
   return (
     <Card className="w-full shadow-lg">
@@ -39,13 +39,13 @@ const ProgressCard = ({ progress, status }: ProgressCardProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Replace simple progress bar with animated indicator */}
+        {/* Use animated loading indicator */}
         <AnimatedLoadingIndicator progress={progress} status={status} />
         
         <div className="flex items-center justify-center space-x-2 text-muted-foreground">
           <Clock className="h-5 w-5" />
           <p className="text-sm">
-            Estimated time: approximately {Math.max(0, 30 - minutes)} minutes remaining
+            Estimated time: approximately {Math.max(0, 4.5 - minutes)} minutes remaining
           </p>
         </div>
         

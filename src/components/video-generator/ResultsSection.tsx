@@ -1,5 +1,5 @@
 
-import { Download, ExternalLink, FileVideo, Music, FileText, Archive } from 'lucide-react';
+import { Download, ExternalLink, FileVideo, Music, FileText, Archive, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -13,6 +13,7 @@ import { VideoStatusResponse } from '@/lib/videoGenerationApi';
 import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 
 interface ResultCardProps {
   icon: React.ReactNode;
@@ -48,7 +49,7 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
       </CardHeader>
       <CardContent className="pt-4">
         {isVideo ? (
-          <div className="rounded-md overflow-hidden aspect-video bg-slate-100 dark:bg-slate-800">
+          <div className="rounded-md overflow-hidden aspect-video bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
             <video 
               src={url} 
               controls 
@@ -67,23 +68,23 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
       <CardFooter className="flex justify-end space-x-2">
         {isVideo ? (
           <>
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" asChild className="h-8 px-3 text-xs">
               <a href={url} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="mr-2 h-4 w-4" />
+                <ExternalLink className="mr-1 h-3.5 w-3.5" />
                 Open
               </a>
             </Button>
-            <Button variant="default" size="sm" asChild>
+            <Button variant="default" size="sm" asChild className="h-8 px-3 text-xs">
               <a href={url} download onClick={handleDownload}>
-                <Download className="mr-2 h-4 w-4" />
+                <Download className="mr-1 h-3.5 w-3.5" />
                 Download
               </a>
             </Button>
           </>
         ) : (
-          <Button variant="default" size="sm" asChild>
+          <Button variant="default" size="sm" asChild className="h-8 px-3 text-xs">
             <a href={url} download onClick={handleDownload}>
-              <Download className="mr-2 h-4 w-4" />
+              <Download className="mr-1 h-3.5 w-3.5" />
               Download
             </a>
           </Button>
@@ -103,7 +104,7 @@ const ResultsSection = ({ result }: ResultsSectionProps) => {
   if (!result) return null;
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold text-center mb-6">Your Generated Content</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -145,6 +146,15 @@ const ResultsSection = ({ result }: ResultsSectionProps) => {
             url={result.images_zip_url}
           />
         )}
+      </div>
+      
+      <div className="mt-8 text-center">
+        <Button asChild className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+          <Link to="/videos/generate" className="flex items-center">
+            <Plus className="mr-2 h-4 w-4" />
+            Create New Video
+          </Link>
+        </Button>
       </div>
     </div>
   );

@@ -22,8 +22,8 @@ const VideoGenerationStatusIndicator = () => {
   }
   
   // Calculate how long the generation has been running
-  const minutes = Math.floor(progress / 100 * 30);
-  const showCancelButton = minutes >= 6;
+  const minutes = Math.floor(progress / 100 * 4.5);
+  const showCancelButton = minutes >= 2;
   
   return (
     <TooltipProvider>
@@ -59,7 +59,7 @@ const VideoGenerationStatusIndicator = () => {
             <p className="text-sm font-medium">Video generation in progress</p>
             <Progress value={progress} className="h-2 w-48" />
             <p className="text-xs text-muted-foreground">
-              Est. time remaining: ~{Math.max(0, 30 - minutes)} minutes
+              Est. time remaining: ~{Math.max(0, 4.5 - minutes)} minutes
             </p>
             <Button 
               size="sm" 
