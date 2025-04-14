@@ -66,7 +66,6 @@ const VideoGeneration = () => {
         
         <Separator className="my-6" />
         
-        {/* Form section - always shown */}
         <div className="w-full">
           {/* Use helper functions to determine what to render */}
           {(status === 'idle' || status === 'error') && (

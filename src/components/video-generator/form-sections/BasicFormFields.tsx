@@ -1,3 +1,4 @@
+
 import {
   FormField,
   FormItem,
@@ -7,7 +8,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { Slider } from '@/components/ui/slider';
 import {
   Select,
   SelectContent,
@@ -24,6 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { EnhancedSlider } from '@/components/ui/enhanced-slider';
 
 const BasicFormFields = () => {
   const { form, isGenerating } = useVideoGenerationForm();
@@ -89,15 +90,20 @@ const BasicFormFields = () => {
         render={({ field: { value, onChange } }) => (
           <FormItem>
             <div className="flex justify-between items-center">
-              <FormLabel>Approximate Video Duration (seconds)</FormLabel>
-              <span className="text-sm font-medium">{value}s</span>
+              <FormLabel>Approximate Video Duration</FormLabel>
+              <span className="text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">{value} seconds</span>
             </div>
             <FormControl>
-              <Slider
+              <EnhancedSlider
+                value={[value]}
                 min={20}
                 max={50}
                 step={5}
-                value={[value]}
+                marks={[
+                  { value: 20, label: '20s' },
+                  { value: 35, label: '35s' },
+                  { value: 50, label: '50s' },
+                ]}
                 onValueChange={([newValue]) => onChange(newValue)}
                 disabled={isGenerating}
               />
@@ -130,14 +136,20 @@ const BasicFormFields = () => {
                   </Tooltip>
                 </TooltipProvider>
               </FormLabel>
-              <span className="text-sm font-medium">{value} seconds</span>
+              <span className="text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">{value} seconds</span>
             </div>
             <FormControl>
-              <Slider
+              <EnhancedSlider
+                value={[value]}
                 min={3}
                 max={6}
                 step={1}
-                value={[value]}
+                marks={[
+                  { value: 3, label: '3s' },
+                  { value: 4, label: '4s' },
+                  { value: 5, label: '5s' },
+                  { value: 6, label: '6s' },
+                ]}
                 onValueChange={([newValue]) => onChange(newValue)}
                 disabled={isGenerating}
               />

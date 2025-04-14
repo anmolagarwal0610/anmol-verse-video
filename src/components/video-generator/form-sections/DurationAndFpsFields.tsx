@@ -7,7 +7,6 @@ import {
   FormDescription,
   FormMessage,
 } from '@/components/ui/form';
-import { Slider } from '@/components/ui/slider';
 import { Info } from 'lucide-react';
 import {
   Tooltip,
@@ -16,6 +15,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useVideoGenerationForm } from '../VideoGenerationFormContext';
+import { EnhancedSlider } from '@/components/ui/enhanced-slider';
 
 const DurationAndFpsFields = () => {
   const { form, isGenerating } = useVideoGenerationForm();
@@ -29,15 +29,20 @@ const DurationAndFpsFields = () => {
         render={({ field: { value, onChange } }) => (
           <FormItem>
             <div className="flex justify-between items-center">
-              <FormLabel>Video Duration (seconds)</FormLabel>
-              <span className="text-sm font-medium">{value}s</span>
+              <FormLabel>Video Duration</FormLabel>
+              <span className="text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">{value}s</span>
             </div>
             <FormControl>
-              <Slider
+              <EnhancedSlider
                 min={10}
                 max={120}
                 step={5}
                 value={[value]}
+                marks={[
+                  { value: 10, label: '10s' },
+                  { value: 60, label: '1m' },
+                  { value: 120, label: '2m' },
+                ]}
                 onValueChange={([newValue]) => onChange(newValue)}
                 disabled={isGenerating}
               />
@@ -70,14 +75,19 @@ const DurationAndFpsFields = () => {
                   </Tooltip>
                 </TooltipProvider>
               </FormLabel>
-              <span className="text-sm font-medium">{value} fps</span>
+              <span className="text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">{value} fps</span>
             </div>
             <FormControl>
-              <Slider
+              <EnhancedSlider
                 min={1}
                 max={10}
                 step={1}
                 value={[value]}
+                marks={[
+                  { value: 1, label: '1' },
+                  { value: 5, label: '5' },
+                  { value: 10, label: '10' },
+                ]}
                 onValueChange={([newValue]) => onChange(newValue)}
                 disabled={isGenerating}
               />
