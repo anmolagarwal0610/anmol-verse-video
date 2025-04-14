@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
@@ -18,7 +19,8 @@ import {
   IMAGE_MODELS,
   AUDIO_LANGUAGES,
   SUBTITLE_STYLES,
-  IMAGE_STYLES
+  IMAGE_STYLES,
+  VOICE_OPTIONS
 } from '@/lib/api';
 import { VideoGenerationParams } from '@/lib/videoGenerationApi';
 import { useAuth } from '@/hooks/use-auth';
@@ -39,6 +41,10 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
   const { user } = useAuth();
   const username = user?.email?.split('@')[0] || '';
   
+  // Get first English voice as default
+  const defaultVoice = Object.values(VOICE_OPTIONS)
+    .find(voice => voice.language === 'English')?.id || Object.keys(VOICE_OPTIONS)[0];
+  
   const form = useForm<VideoGenerationParams>({
     defaultValues: {
       // Username is automatically set from auth user
@@ -54,7 +60,7 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
       // New parameters with defaults
       image_style: [], 
       audio_language: 'English',
-      voice: 'default',
+      voice: defaultVoice,
       subtitle_style: 'Default',
       subtitle_script: 'English'
     },
@@ -68,6 +74,21 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
     if (audioLanguage === 'Hindi' && form.getValues('subtitle_script') === 'English') {
       // Keep English as default even for Hindi audio
       // User can change it manually if needed
+    }
+    
+    // Update voice selection based on language
+    const currentVoice = form.getValues('voice');
+    const currentVoiceObj = VOICE_OPTIONS[currentVoice];
+    
+    // If current voice doesn't match the selected language, update it
+    if (currentVoiceObj && currentVoiceObj.language !== audioLanguage) {
+      // Find first voice of the selected language
+      const newVoice = Object.values(VOICE_OPTIONS)
+        .find(voice => voice.language === audioLanguage);
+      
+      if (newVoice) {
+        form.setValue('voice', newVoice.id);
+      }
     }
   }, [audioLanguage, form]);
   

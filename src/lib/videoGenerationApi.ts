@@ -1,3 +1,4 @@
+
 import { API_CONFIG, fetchWithCorsProxy } from './apiUtils';
 
 export interface VideoGenerationParams {
@@ -158,9 +159,65 @@ export const SUBTITLE_STYLES = {
   "Karaoke": "Karaoke"
 };
 
-// Voice options - to be populated later
-export const VOICE_OPTIONS = {
-  "default": "Default"
+// Voice options with preview URLs
+export interface VoiceOption {
+  id: string;
+  name: string;
+  category: string;
+  language: string;
+  previewUrl: string;
+}
+
+export const VOICE_OPTIONS: Record<string, VoiceOption> = {
+  "iiidtqDt9FBdT1vfBluA": {
+    id: "iiidtqDt9FBdT1vfBluA",
+    name: "Bill L. Oxley",
+    category: "Narration",
+    language: "English",
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/user/Bi4YhYxPTDRSUfiEpED4qyJ0biq2/voices/iiidtqDt9FBdT1vfBluA/T36MtmAvwCajW33mBOpD.mp3"
+  },
+  "21m00Tcm4TlvDq8ikWAM": {
+    id: "21m00Tcm4TlvDq8ikWAM",
+    name: "Rachel",
+    category: "Narration",
+    language: "English",
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/9BWtsMINqrJLrRacOk9x/405766b8-1f4e-4d3c-aba1-6f25333823ec.mp3"
+  },
+  "c6bExSiHfx47LERqW2VK": {
+    id: "c6bExSiHfx47LERqW2VK",
+    name: "Rhea",
+    category: "Late Night Storyteller",
+    language: "Hindi",
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/ed9b05e6324c457685490352e9a1ec90/voices/c6bExSiHfx47LERqW2VK/2r2vzsjZ9dJL3TenFARf.mp3"
+  },
+  "IvLWq57RKibBrqZGpQrC": {
+    id: "IvLWq57RKibBrqZGpQrC",
+    name: "Leo",
+    category: "Energetic, Conversational",
+    language: "Hindi",
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/custom/voices/IvLWq57RKibBrqZGpQrC/Sv8CxRCqu5bIr5DgOp37.mp3"
+  },
+  "zgqefOY5FPQ3bB7OZTVR": {
+    id: "zgqefOY5FPQ3bB7OZTVR",
+    name: "Niraj",
+    category: "Hindi Narrator",
+    language: "Hindi",
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/database/workspace/514d94e9241c48e8b7905375729c436f/voices/zgqefOY5FPQ3bB7OZTVR/6oNuCi9jEFU1AWW85Tru.mp3"
+  },
+  "9BWtsMINqrJLrRacOk9x": {
+    id: "9BWtsMINqrJLrRacOk9x",
+    name: "Aria",
+    category: "Social Media",
+    language: "English",
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/9BWtsMINqrJLrRacOk9x/405766b8-1f4e-4d3c-aba1-6f25333823ec.mp3"
+  },
+  "CwhRBWXzGAHq8TQ4Fs17": {
+    id: "CwhRBWXzGAHq8TQ4Fs17",
+    name: "Roger",
+    category: "Social Media",
+    language: "English",
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/CwhRBWXzGAHq8TQ4Fs17/58ee3ff5-f6f2-4628-93b8-e38eb31806b0.mp3"
+  }
 };
 
 // Reuse the IMAGE_STYLES from imageApi for image_style parameter
