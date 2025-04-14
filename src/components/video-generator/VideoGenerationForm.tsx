@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -64,7 +64,7 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
   const audioLanguage = form.watch('audio_language');
   
   // If audio language changes to Hindi, update the subtitle script options
-  useState(() => {
+  useEffect(() => {
     if (audioLanguage === 'Hindi' && form.getValues('subtitle_script') === 'English') {
       // Keep English as default even for Hindi audio
       // User can change it manually if needed
