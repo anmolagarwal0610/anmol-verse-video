@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
@@ -52,7 +53,7 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
       video_category: 'Hollywood Script',
       transition_style: 'fade',
       // New parameters with defaults
-      image_style: [],
+      image_style: [], // Initialize as empty array to avoid null/undefined issues
       audio_language: 'English',
       voice: 'default',
       subtitle_style: 'Default',
@@ -69,7 +70,7 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
       // Keep English as default even for Hindi audio
       // User can change it manually if needed
     }
-  }, [audioLanguage]);
+  }, [audioLanguage, form]);
   
   const handleSubmit = (data: VideoGenerationParams) => {
     // Add username from auth before submitting
