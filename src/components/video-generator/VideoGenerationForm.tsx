@@ -56,7 +56,7 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
       subtitle_color: 'white',
       subtitle_font: 'Arial',
       video_category: 'Hollywood Script',
-      transition_style: 'fade',
+      transition_style: 'fade', // Updated to use 'fade' as default
       // New parameters with defaults
       image_style: [], 
       audio_language: 'English',

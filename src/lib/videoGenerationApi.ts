@@ -1,4 +1,3 @@
-
 import { API_CONFIG, fetchWithCorsProxy } from './apiUtils';
 
 export interface VideoGenerationParams {
@@ -103,13 +102,12 @@ export const VIDEO_CATEGORIES = {
   "Travel": "Travel"
 };
 
-// Transition styles
+// Transition styles - Updated with only the 4 required options
 export const TRANSITION_STYLES = {
   "fade": "Fade",
-  "slide": "Slide",
-  "dissolve": "Dissolve",
-  "wipe": "Wipe",
-  "zoom": "Zoom"
+  "circleopen": "CircleOpen",
+  "radial": "Radial", 
+  "slideleft": "SlideLeft"
 };
 
 // Subtitle fonts
