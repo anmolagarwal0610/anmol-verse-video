@@ -1,4 +1,3 @@
-
 import {
   FormField,
   FormItem,
@@ -83,20 +82,20 @@ const BasicFormFields = () => {
         )}
       />
       
-      {/* Video Duration */}
+      {/* Approximate Video Duration */}
       <FormField
         control={form.control}
         name="video_duration"
         render={({ field: { value, onChange } }) => (
           <FormItem>
             <div className="flex justify-between items-center">
-              <FormLabel>Video Duration (seconds)</FormLabel>
+              <FormLabel>Approximate Video Duration (seconds)</FormLabel>
               <span className="text-sm font-medium">{value}s</span>
             </div>
             <FormControl>
               <Slider
-                min={10}
-                max={120}
+                min={20}
+                max={50}
                 step={5}
                 value={[value]}
                 onValueChange={([newValue]) => onChange(newValue)}
@@ -104,14 +103,14 @@ const BasicFormFields = () => {
               />
             </FormControl>
             <FormDescription>
-              Choose the length of your video
+              Choose the approximate length of your video
             </FormDescription>
             <FormMessage />
           </FormItem>
         )}
       />
       
-      {/* Frame FPS (renamed to Image Rate) */}
+      {/* Image Rate */}
       <FormField
         control={form.control}
         name="frame_fps"
@@ -119,24 +118,24 @@ const BasicFormFields = () => {
           <FormItem>
             <div className="flex justify-between items-center">
               <FormLabel>
-                Image Rate (per second)
+                Image Rate
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Info className="h-4 w-4 ml-2 inline-block text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p className="max-w-xs">Higher rates create smoother videos but take longer to generate</p>
+                      <p className="max-w-xs">Rate at which the images will change in the video</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </FormLabel>
-              <span className="text-sm font-medium">{value} fps</span>
+              <span className="text-sm font-medium">{value} seconds</span>
             </div>
             <FormControl>
               <Slider
-                min={1}
-                max={10}
+                min={3}
+                max={6}
                 step={1}
                 value={[value]}
                 onValueChange={([newValue]) => onChange(newValue)}
@@ -144,7 +143,7 @@ const BasicFormFields = () => {
               />
             </FormControl>
             <FormDescription>
-              Number of images generated per second of video
+              Number of seconds between image changes
             </FormDescription>
             <FormMessage />
           </FormItem>

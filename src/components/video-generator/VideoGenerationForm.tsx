@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
@@ -46,14 +45,14 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
       topic: '',
       image_model: IMAGE_MODELS.basic.value, // Default to basic model
       image_ratio: '16:9',
-      video_duration: 30,
-      frame_fps: 5,
+      video_duration: 30, // Constrained to 20-50 range
+      frame_fps: 4, // Constrained to 3-6 range
       subtitle_color: 'white',
       subtitle_font: 'Arial',
       video_category: 'Hollywood Script',
       transition_style: 'fade',
       // New parameters with defaults
-      image_style: [], // Initialize as empty array to avoid null/undefined issues
+      image_style: [], 
       audio_language: 'English',
       voice: 'default',
       subtitle_style: 'Default',
