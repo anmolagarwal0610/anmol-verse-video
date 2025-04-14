@@ -19,6 +19,7 @@ import { PlayIcon, PauseIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useVideoGenerationForm } from '../VideoGenerationFormContext';
 import { AUDIO_LANGUAGES, VOICE_OPTIONS } from '@/lib/videoGenerationApi';
+import { toast } from 'sonner';
 
 const AudioSection = () => {
   const { form, isGenerating } = useVideoGenerationForm();
@@ -32,38 +33,64 @@ const AudioSection = () => {
   );
   
   const playVoicePreview = (voiceId: string, event: React.MouseEvent) => {
+    console.log("Voice preview button clicked for voice ID:", voiceId);
     event.preventDefault();
     event.stopPropagation();
     
     // Stop currently playing audio if any
     if (audioRef.current) {
+      console.log("Stopping currently playing audio");
       audioRef.current.pause();
       audioRef.current = null;
     }
     
     // If clicking the same voice that's already playing, just stop it
     if (playingVoice === voiceId) {
+      console.log("Stopping current voice as it was already playing");
       setPlayingVoice(null);
       return;
     }
     
     // Play the selected voice preview
     const voice = VOICE_OPTIONS[voiceId];
+    console.log("Selected voice details:", voice);
+    
     if (voice && voice.previewUrl) {
+      console.log("Creating new Audio object with URL:", voice.previewUrl);
       const audio = new Audio(voice.previewUrl);
       audioRef.current = audio;
       
+      // Add event listeners to track loading state
+      audio.addEventListener('loadstart', () => console.log("Audio loading started"));
+      audio.addEventListener('canplaythrough', () => console.log("Audio can play through"));
+      audio.addEventListener('error', (e) => {
+        console.error("Audio error event:", e);
+        const error = audio.error;
+        if (error) {
+          console.error("Audio error code:", error.code, "message:", error.message);
+        }
+        setPlayingVoice(null);
+        toast.error(`Failed to play voice preview: ${error?.message || 'Unknown error'}`);
+      });
+      
+      console.log("Attempting to play audio...");
       audio.play().then(() => {
+        console.log("Audio playback started successfully");
         setPlayingVoice(voiceId);
       }).catch(err => {
-        console.error('Error playing voice preview:', err);
+        console.error("Error playing voice preview:", err);
+        toast.error(`Failed to play voice preview: ${err.message}`);
         setPlayingVoice(null);
       });
       
       audio.onended = () => {
+        console.log("Audio playback ended");
         setPlayingVoice(null);
         audioRef.current = null;
       };
+    } else {
+      console.error("Voice data or preview URL is missing for voice ID:", voiceId);
+      toast.error("Voice preview not available");
     }
   };
   
