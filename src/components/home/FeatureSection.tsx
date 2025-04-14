@@ -10,12 +10,22 @@ import FeatureCard from './FeatureCard';
 const FeatureSection = () => {
   const features = [
     {
+      title: "Video Generation",
+      description: "Transform your ideas into high-quality, engaging short videos.",
+      icon: <Film className="h-8 w-8 text-blue-500" />,
+      path: "/videos/generate",
+      color: "from-blue-500 to-cyan-500",
+      delay: 0.1,
+      comingSoon: false,
+      disabled: false
+    },
+    {
       title: "AI Image Generation",
       description: "Create stunning visuals from text descriptions with advanced AI models.",
       icon: <ImageIcon className="h-8 w-8 text-indigo-500" />,
       path: "/images",
       color: "from-indigo-500 to-purple-500",
-      delay: 0.1
+      delay: 0.2
     },
     {
       title: "Auto Transcript",
@@ -23,17 +33,7 @@ const FeatureSection = () => {
       icon: <FileText className="h-8 w-8 text-green-500" />,
       path: "/transcript",
       color: "from-green-500 to-emerald-500",
-      delay: 0.2
-    },
-    {
-      title: "Video Generation",
-      description: "Transform your ideas into high-quality, engaging short videos.",
-      icon: <Film className="h-8 w-8 text-blue-500" />,
-      path: "/videos/generate",
-      color: "from-blue-500 to-cyan-500",
-      delay: 0.3,
-      comingSoon: false,
-      disabled: false
+      delay: 0.3
     },
     {
       title: "Media Gallery",

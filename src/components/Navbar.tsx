@@ -29,8 +29,6 @@ const Navbar = () => {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const navItems = [
-    { path: '/images', label: 'Images', icon: <ImageIcon className="h-4 w-4 mr-2" /> },
-    { path: '/transcript', label: 'Transcript', icon: <FileText className="h-4 w-4 mr-2" /> },
     { 
       path: '/videos/generate', 
       label: 'Video', 
@@ -38,6 +36,8 @@ const Navbar = () => {
       disabled: false,
       comingSoon: false
     },
+    { path: '/images', label: 'Images', icon: <ImageIcon className="h-4 w-4 mr-2" /> },
+    { path: '/transcript', label: 'Transcript', icon: <FileText className="h-4 w-4 mr-2" /> },
     { path: '/gallery', label: 'Gallery', icon: <Video className="h-4 w-4 mr-2" /> },
   ];
 

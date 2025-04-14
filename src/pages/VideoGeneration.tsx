@@ -9,8 +9,6 @@ import ErrorDisplay from '@/components/video-generator/ErrorDisplay';
 import { VideoGenerationParams } from '@/lib/videoGenerationApi';
 import { useAuth } from '@/hooks/use-auth';
 import { Navigate } from 'react-router-dom';
-import { MessageCircle, Video } from 'lucide-react';
-import EmptyState from '@/components/EmptyState';
 import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 
 const VideoGeneration = () => {
@@ -51,43 +49,6 @@ const VideoGeneration = () => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Helper function to determine what to show in the right panel
-  const renderRightPanel = () => {
-    // First check for completed state
-    if (status === 'completed' && result) {
-      return (
-        <div id="results-section">
-          <ResultsSection result={result} />
-        </div>
-      );
-    }
-    
-    // Check each state explicitly to avoid TypeScript errors
-    if (status === 'generating' || status === 'polling' || status === 'error') {
-      return null;
-    }
-    
-    // Default state (idle)
-    return (
-      <div className="h-full flex items-center justify-center">
-        <EmptyState
-          icon={<Video className="h-12 w-12 text-muted-foreground/60" />}
-          title="No Video Generated Yet"
-          description="Fill out the form on the left to generate your first video"
-          action={
-            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-2">
-              <MessageCircle className="h-4 w-4" />
-              <span>Generation takes about 30 minutes</span>
-            </div>
-          }
-        />
-      </div>
-    );
-  };
-
-  // Helper function to determine if we should show generation form
-  const shouldShowForm = () => status === 'idle' || status === 'error';
-  
   // Helper function to determine if we're in a generating state
   const isGenerating = () => status === 'generating' || status === 'polling';
 
@@ -95,7 +56,7 @@ const VideoGeneration = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main className="container max-w-6xl mx-auto py-8 px-4 mt-16">
+      <main className="container max-w-4xl mx-auto py-8 px-4 mt-16">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight">Video Generator</h1>
           <p className="mt-2 text-muted-foreground">
@@ -105,36 +66,36 @@ const VideoGeneration = () => {
         
         <Separator className="my-6" />
         
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Form section - always shown */}
-          <div className={`${status === 'completed' ? 'lg:col-span-5' : 'lg:col-span-7'}`}>
-            {/* Use helper functions to determine what to render */}
-            {shouldShowForm() && (
-              <VideoGenerationForm 
-                onSubmit={handleSubmit} 
-                isGenerating={isGenerating()} 
-              />
-            )}
-            
-            {isGenerating() && (
-              <ProgressCard 
-                progress={progress} 
-                status={status === 'generating' ? 'Starting generation...' : 'Processing video'} 
-              />
-            )}
-            
-            {status === 'error' && error && (
-              <ErrorDisplay 
-                message={error} 
-                onReset={cancelGeneration} 
-              />
-            )}
-          </div>
+        {/* Form section - always shown */}
+        <div className="w-full">
+          {/* Use helper functions to determine what to render */}
+          {(status === 'idle' || status === 'error') && (
+            <VideoGenerationForm 
+              onSubmit={handleSubmit} 
+              isGenerating={isGenerating()} 
+            />
+          )}
           
-          {/* Results section - only shown when needed */}
-          <div className={`${status === 'completed' ? 'lg:col-span-7' : 'lg:col-span-5'}`}>
-            {renderRightPanel()}
-          </div>
+          {isGenerating() && (
+            <ProgressCard 
+              progress={progress} 
+              status={status === 'generating' ? 'Starting generation...' : 'Processing video'} 
+            />
+          )}
+          
+          {status === 'error' && error && (
+            <ErrorDisplay 
+              message={error} 
+              onReset={cancelGeneration} 
+            />
+          )}
+          
+          {/* Results section - only shown when completed */}
+          {status === 'completed' && result && (
+            <div id="results-section" className="mt-8">
+              <ResultsSection result={result} />
+            </div>
+          )}
         </div>
       </main>
     </div>
