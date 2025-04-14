@@ -25,7 +25,10 @@ export {
   TRANSITION_STYLES,
   SUBTITLE_FONTS,
   SUBTITLE_COLORS,
-  IMAGE_MODELS
+  IMAGE_MODELS,
+  AUDIO_LANGUAGES,
+  SUBTITLE_STYLES,
+  VOICE_OPTIONS
 } from './videoGenerationApi';
 export type {
   VideoGenerationParams,

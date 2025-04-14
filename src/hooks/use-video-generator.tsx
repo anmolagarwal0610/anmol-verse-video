@@ -107,6 +107,9 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
       setStatus('generating');
       setCurrentTopic(params.topic);
       
+      // Log the params so we can see what's being sent (helpful for debugging)
+      console.log('Generating video with params:', params);
+      
       // Start tracking time
       startTimeRef.current = Date.now();
       

@@ -1,4 +1,3 @@
-
 import { API_CONFIG, fetchWithCorsProxy } from './apiUtils';
 
 export interface VideoGenerationParams {
@@ -12,6 +11,11 @@ export interface VideoGenerationParams {
   subtitle_font?: string;
   video_category?: string;
   transition_style?: string;
+  image_style?: string[];
+  audio_language?: 'English' | 'Hindi';
+  voice?: string;
+  subtitle_style?: 'Default' | 'Colour gradient' | 'Tilt animation' | 'Karaoke';
+  subtitle_script?: 'English' | 'Hindi';
 }
 
 export interface VideoGenerationResponse {
@@ -114,7 +118,7 @@ export const SUBTITLE_FONTS = {
   "Times New Roman": "Times New Roman",
   "Courier New": "Courier New",
   "Verdana": "Verdana",
-  "LiberationSans-Regular": "Liberation Sans Regular" // Added new font
+  "LiberationSans-Regular": "Liberation Sans Regular"
 };
 
 // Subtitle colors
@@ -139,3 +143,25 @@ export const IMAGE_MODELS = {
     description: "Premium model for higher quality image generation"
   }
 };
+
+// Audio language options
+export const AUDIO_LANGUAGES = {
+  "English": "English",
+  "Hindi": "Hindi"
+};
+
+// Subtitle style options
+export const SUBTITLE_STYLES = {
+  "Default": "Default",
+  "Colour gradient": "Colour gradient",
+  "Tilt animation": "Tilt animation",
+  "Karaoke": "Karaoke"
+};
+
+// Voice options - to be populated later
+export const VOICE_OPTIONS = {
+  "default": "Default"
+};
+
+// Reuse the IMAGE_STYLES from imageApi for image_style parameter
+export { IMAGE_STYLES } from './imageApi';
