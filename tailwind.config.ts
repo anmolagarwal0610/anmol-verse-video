@@ -1,7 +1,6 @@
+import { type Config } from "tailwindcss";
 
-import type { Config } from "tailwindcss";
-
-export default {
+const config = {
 	darkMode: ["class"],
 	content: [
 		"./pages/**/*.{ts,tsx}",
@@ -132,8 +131,19 @@ export default {
 				'exit': 'fade-out 0.3s ease-out, scale-out 0.2s ease-out',
 				'pulse': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
 				'shimmer': 'shimmer 2s linear infinite'
+			},
+			fontFamily: {
+				'dejavu-sans': ['DejaVu Sans', 'sans-serif'],
+				'dejavu-serif': ['DejaVu Serif', 'serif'],
+				'dejavu-mono': ['DejaVu Sans Mono', 'monospace'],
+				'liberation-sans': ['Liberation Sans', 'sans-serif'],
+				'liberation-serif': ['Liberation Serif', 'serif'],
+				'liberation-mono': ['Liberation Mono', 'monospace'],
+				'lohit-devanagari': ['Lohit Devanagari', 'sans-serif'],
 			}
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+
+export default config;

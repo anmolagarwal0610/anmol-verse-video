@@ -1,44 +1,147 @@
 
-// Font options with their display names
+// Font options with their display names and Tailwind classes
 export const SUBTITLE_FONTS = {
   // DejaVu Sans Family
-  "DejaVuSans": "DejaVu Sans Regular",
-  "DejaVuSans-Bold": "DejaVu Sans Bold",
-  "DejaVuSans-Oblique": "DejaVu Sans Oblique",
-  "DejaVuSans-BoldOblique": "DejaVu Sans Bold Oblique",
-  "DejaVuSans-ExtraLight": "DejaVu Sans ExtraLight",
+  "DejaVuSans": {
+    label: "DejaVu Sans Regular",
+    fontClass: "font-dejavu-sans",
+    language: "English"
+  },
+  "DejaVuSans-Bold": {
+    label: "DejaVu Sans Bold",
+    fontClass: "font-dejavu-sans font-bold",
+    language: "English"
+  },
+  "DejaVuSans-Oblique": {
+    label: "DejaVu Sans Oblique",
+    fontClass: "font-dejavu-sans italic",
+    language: "English"
+  },
+  "DejaVuSans-BoldOblique": {
+    label: "DejaVu Sans Bold Oblique",
+    fontClass: "font-dejavu-sans font-bold italic",
+    language: "English"
+  },
+  "DejaVuSans-ExtraLight": {
+    label: "DejaVu Sans ExtraLight",
+    fontClass: "font-dejavu-sans font-extralight",
+    language: "English"
+  },
   
   // DejaVu Serif Family
-  "DejaVuSerif": "DejaVu Serif Regular",
-  "DejaVuSerif-Bold": "DejaVu Serif Bold",
-  "DejaVuSerif-Italic": "DejaVu Serif Italic",
-  "DejaVuSerif-BoldItalic": "DejaVu Serif Bold Italic",
+  "DejaVuSerif": {
+    label: "DejaVu Serif Regular",
+    fontClass: "font-dejavu-serif",
+    language: "English"
+  },
+  "DejaVuSerif-Bold": {
+    label: "DejaVu Serif Bold",
+    fontClass: "font-dejavu-serif font-bold",
+    language: "English"
+  },
+  "DejaVuSerif-Italic": {
+    label: "DejaVu Serif Italic",
+    fontClass: "font-dejavu-serif italic",
+    language: "English"
+  },
+  "DejaVuSerif-BoldItalic": {
+    label: "DejaVu Serif Bold Italic",
+    fontClass: "font-dejavu-serif font-bold italic",
+    language: "English"
+  },
   
   // DejaVu Sans Mono Family
-  "DejaVuSansMono": "DejaVu Sans Mono Regular",
-  "DejaVuSansMono-Bold": "DejaVu Sans Mono Bold",
-  "DejaVuSansMono-Oblique": "DejaVu Sans Mono Oblique",
-  "DejaVuSansMono-BoldOblique": "DejaVu Sans Mono Bold Oblique",
+  "DejaVuSansMono": {
+    label: "DejaVu Sans Mono Regular",
+    fontClass: "font-dejavu-mono",
+    language: "English"
+  },
+  "DejaVuSansMono-Bold": {
+    label: "DejaVu Sans Mono Bold",
+    fontClass: "font-dejavu-mono font-bold",
+    language: "English"
+  },
+  "DejaVuSansMono-Oblique": {
+    label: "DejaVu Sans Mono Oblique",
+    fontClass: "font-dejavu-mono italic",
+    language: "English"
+  },
+  "DejaVuSansMono-BoldOblique": {
+    label: "DejaVu Sans Mono Bold Oblique",
+    fontClass: "font-dejavu-mono font-bold italic",
+    language: "English"
+  },
   
   // Liberation Sans Family
-  "LiberationSans-Regular": "Liberation Sans Regular",
-  "LiberationSans-Bold": "Liberation Sans Bold",
-  "LiberationSans-Italic": "Liberation Sans Italic",
-  "LiberationSans-BoldItalic": "Liberation Sans Bold Italic",
+  "LiberationSans-Regular": {
+    label: "Liberation Sans Regular",
+    fontClass: "font-liberation-sans",
+    language: "English"
+  },
+  "LiberationSans-Bold": {
+    label: "Liberation Sans Bold",
+    fontClass: "font-liberation-sans font-bold",
+    language: "English"
+  },
+  "LiberationSans-Italic": {
+    label: "Liberation Sans Italic",
+    fontClass: "font-liberation-sans italic",
+    language: "English"
+  },
+  "LiberationSans-BoldItalic": {
+    label: "Liberation Sans Bold Italic",
+    fontClass: "font-liberation-sans font-bold italic",
+    language: "English"
+  },
   
   // Liberation Serif Family
-  "LiberationSerif-Regular": "Liberation Serif Regular",
-  "LiberationSerif-Bold": "Liberation Serif Bold",
-  "LiberationSerif-Italic": "Liberation Serif Italic",
-  "LiberationSerif-BoldItalic": "Liberation Serif Bold Italic",
+  "LiberationSerif-Regular": {
+    label: "Liberation Serif Regular",
+    fontClass: "font-liberation-serif",
+    language: "English"
+  },
+  "LiberationSerif-Bold": {
+    label: "Liberation Serif Bold",
+    fontClass: "font-liberation-serif font-bold",
+    language: "English"
+  },
+  "LiberationSerif-Italic": {
+    label: "Liberation Serif Italic",
+    fontClass: "font-liberation-serif italic",
+    language: "English"
+  },
+  "LiberationSerif-BoldItalic": {
+    label: "Liberation Serif Bold Italic",
+    fontClass: "font-liberation-serif font-bold italic",
+    language: "English"
+  },
   
   // Liberation Mono Family
-  "LiberationMono-Regular": "Liberation Mono Regular",
-  "LiberationMono-Bold": "Liberation Mono Bold",
-  "LiberationMono-Italic": "Liberation Mono Italic",
-  "LiberationMono-BoldItalic": "Liberation Mono Bold Italic",
+  "LiberationMono-Regular": {
+    label: "Liberation Mono Regular",
+    fontClass: "font-liberation-mono",
+    language: "English"
+  },
+  "LiberationMono-Bold": {
+    label: "Liberation Mono Bold",
+    fontClass: "font-liberation-mono font-bold",
+    language: "English"
+  },
+  "LiberationMono-Italic": {
+    label: "Liberation Mono Italic",
+    fontClass: "font-liberation-mono italic",
+    language: "English"
+  },
+  "LiberationMono-BoldItalic": {
+    label: "Liberation Mono Bold Italic",
+    fontClass: "font-liberation-mono font-bold italic",
+    language: "English"
+  },
   
   // Lohit Devanagari (for Hindi)
-  "Lohit-Devanagari": "Lohit Devanagari"
+  "Lohit-Devanagari": {
+    label: "Lohit Devanagari",
+    fontClass: "font-lohit-devanagari",
+    language: "Hindi"
+  }
 } as const;
-

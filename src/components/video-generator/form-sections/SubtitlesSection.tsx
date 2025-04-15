@@ -23,6 +23,7 @@ interface SubtitlesSectionProps {
 
 const SubtitlesSection = ({ audioLanguage }: SubtitlesSectionProps) => {
   const { form, isGenerating } = useVideoGenerationForm();
+  const subtitleScript = form.watch('subtitle_script');
   
   return (
     <div className="space-y-6">
@@ -108,11 +109,19 @@ const SubtitlesSection = ({ audioLanguage }: SubtitlesSectionProps) => {
                   <SelectValue placeholder="Select font" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(SUBTITLE_FONTS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
+                  {Object.entries(SUBTITLE_FONTS)
+                    .filter(([_, fontData]) => 
+                      subtitleScript ? fontData.language === subtitleScript : true
+                    )
+                    .map(([value, fontData]) => (
+                      <SelectItem 
+                        key={value} 
+                        value={value}
+                        className={fontData.fontClass}
+                      >
+                        {fontData.label}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </FormControl>
