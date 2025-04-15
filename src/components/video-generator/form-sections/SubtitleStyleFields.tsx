@@ -38,9 +38,13 @@ const SubtitleStyleFields = () => {
                   <SelectValue placeholder="Select font" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(SUBTITLE_FONTS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
+                  {Object.entries(SUBTITLE_FONTS).map(([value, fontData]) => (
+                    <SelectItem 
+                      key={value} 
+                      value={value}
+                      className={fontData.fontClass}
+                    >
+                      {fontData.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
