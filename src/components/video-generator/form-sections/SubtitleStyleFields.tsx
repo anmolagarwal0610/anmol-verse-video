@@ -15,9 +15,11 @@ import {
 } from '@/components/ui/select';
 import { SUBTITLE_FONTS, SUBTITLE_COLORS } from '@/lib/api';
 import { useVideoGenerationForm } from '../VideoGenerationFormContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const SubtitleStyleFields = () => {
   const { form, isGenerating } = useVideoGenerationForm();
+  const isMobile = useIsMobile();
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -34,7 +36,7 @@ const SubtitleStyleFields = () => {
                 onValueChange={field.onChange}
                 disabled={isGenerating}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-12 md:h-10">
                   <SelectValue placeholder="Select font" />
                 </SelectTrigger>
                 <SelectContent>
@@ -42,7 +44,7 @@ const SubtitleStyleFields = () => {
                     <SelectItem 
                       key={value} 
                       value={value}
-                      className={fontData.fontClass}
+                      className={`${fontData.fontClass} py-3 md:py-2.5`}
                     >
                       {fontData.label}
                     </SelectItem>
@@ -68,12 +70,12 @@ const SubtitleStyleFields = () => {
                 onValueChange={field.onChange}
                 disabled={isGenerating}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-12 md:h-10">
                   <SelectValue placeholder="Select color" />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(SUBTITLE_COLORS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
+                    <SelectItem key={value} value={value} className="py-3 md:py-2.5">
                       {label}
                     </SelectItem>
                   ))}

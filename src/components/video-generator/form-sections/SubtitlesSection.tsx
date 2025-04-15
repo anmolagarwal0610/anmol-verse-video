@@ -1,4 +1,3 @@
-
 import {
   FormField,
   FormItem,
@@ -16,6 +15,7 @@ import {
 } from '@/components/ui/select';
 import { useVideoGenerationForm } from '../VideoGenerationFormContext';
 import { SUBTITLE_COLORS, SUBTITLE_FONTS, SUBTITLE_STYLES } from '@/lib/api';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SubtitlesSectionProps {
   audioLanguage: string;
@@ -24,6 +24,7 @@ interface SubtitlesSectionProps {
 const SubtitlesSection = ({ audioLanguage }: SubtitlesSectionProps) => {
   const { form, isGenerating } = useVideoGenerationForm();
   const subtitleScript = form.watch('subtitle_script');
+  const isMobile = useIsMobile();
   
   return (
     <div className="space-y-6">
@@ -40,12 +41,12 @@ const SubtitlesSection = ({ audioLanguage }: SubtitlesSectionProps) => {
                 onValueChange={field.onChange}
                 disabled={isGenerating}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-12 md:h-10">
                   <SelectValue placeholder="Select subtitle style" />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(SUBTITLE_STYLES).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
+                    <SelectItem key={value} value={value} className="py-3 md:py-2.5">
                       {label}
                     </SelectItem>
                   ))}
@@ -71,15 +72,33 @@ const SubtitlesSection = ({ audioLanguage }: SubtitlesSectionProps) => {
               <FormControl>
                 <Select
                   value={field.value}
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    
+                    // If changing from Hindi to English or vice versa, reset the font
+                    // to a default font for the selected language
+                    if (value !== field.value) {
+                      const currentFont = form.getValues('subtitle_font');
+                      const fontData = SUBTITLE_FONTS[currentFont];
+                      
+                      if (fontData && fontData.language !== value) {
+                        const defaultFont = Object.entries(SUBTITLE_FONTS)
+                          .find(([_, data]) => data.language === value)?.[0];
+                        
+                        if (defaultFont) {
+                          form.setValue('subtitle_font', defaultFont);
+                        }
+                      }
+                    }
+                  }}
                   disabled={isGenerating}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-12 md:h-10">
                     <SelectValue placeholder="Select subtitle language" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="English">English</SelectItem>
-                    <SelectItem value="Hindi">Hindi</SelectItem>
+                    <SelectItem value="English" className="py-3 md:py-2.5">English</SelectItem>
+                    <SelectItem value="Hindi" className="py-3 md:py-2.5">Hindi</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -105,19 +124,25 @@ const SubtitlesSection = ({ audioLanguage }: SubtitlesSectionProps) => {
                 onValueChange={field.onChange}
                 disabled={isGenerating}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-12 md:h-10">
                   <SelectValue placeholder="Select font" />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(SUBTITLE_FONTS)
-                    .filter(([_, fontData]) => 
-                      subtitleScript ? fontData.language === subtitleScript : true
-                    )
+                    .filter(([_, fontData]) => {
+                      // If user selected Hindi audio and subtitle script is Hindi,
+                      // only show Hindi fonts
+                      if (audioLanguage === 'Hindi' && subtitleScript === 'Hindi') {
+                        return fontData.language === 'Hindi';
+                      }
+                      // Otherwise, show fonts for the current language (default is English)
+                      return fontData.language === (subtitleScript || 'English');
+                    })
                     .map(([value, fontData]) => (
                       <SelectItem 
                         key={value} 
                         value={value}
-                        className={fontData.fontClass}
+                        className={`${fontData.fontClass} py-3 md:py-2.5`}
                       >
                         {fontData.label}
                       </SelectItem>
@@ -143,12 +168,12 @@ const SubtitlesSection = ({ audioLanguage }: SubtitlesSectionProps) => {
                 onValueChange={field.onChange}
                 disabled={isGenerating}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-12 md:h-10">
                   <SelectValue placeholder="Select color" />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(SUBTITLE_COLORS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
+                    <SelectItem key={value} value={value} className="py-3 md:py-2.5">
                       {label}
                     </SelectItem>
                   ))}

@@ -66,14 +66,28 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
     },
   });
   
-  // Watch for audio_language changes to update subtitle_script options
+  // Watch for audio_language changes to update subtitle_script options and font
   const audioLanguage = form.watch('audio_language');
+  const subtitleScript = form.watch('subtitle_script');
+  const subtitleFont = form.watch('subtitle_font');
   
-  // If audio language changes to Hindi, update the subtitle script options
   useEffect(() => {
     if (audioLanguage === 'Hindi' && form.getValues('subtitle_script') === 'English') {
       // Keep English as default even for Hindi audio
       // User can change it manually if needed
+    } else if (audioLanguage === 'English') {
+      // If audio language is English, make sure we're not using a Hindi-specific font
+      const currentFont = form.getValues('subtitle_font');
+      const fontData = SUBTITLE_FONTS[currentFont];
+      
+      // If current font is for Hindi language, reset it to default English font
+      if (fontData && fontData.language === 'Hindi') {
+        // Find the first English font
+        const defaultEnglishFont = Object.entries(SUBTITLE_FONTS)
+          .find(([_, data]) => data.language === 'English')?.[0] || 'Arial';
+          
+        form.setValue('subtitle_font', defaultEnglishFont);
+      }
     }
     
     // Update voice selection based on language
@@ -150,3 +164,4 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
 };
 
 export default VideoGenerationForm;
+
