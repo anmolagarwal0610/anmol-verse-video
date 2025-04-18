@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
@@ -48,6 +47,7 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
   const form = useForm<VideoGenerationParams>({
     defaultValues: {
       // Username is automatically set from auth user
+      script_model: 'chatgpt', // Set default script model
       topic: '',
       image_model: IMAGE_MODELS.basic.value, // Default to basic model
       image_ratio: '16:9',
@@ -164,4 +164,3 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
 };
 
 export default VideoGenerationForm;
-

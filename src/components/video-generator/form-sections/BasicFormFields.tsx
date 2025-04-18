@@ -31,6 +31,36 @@ const BasicFormFields = () => {
   
   return (
     <div className="space-y-6">
+      {/* Script Model Selection */}
+      <FormField
+        control={form.control}
+        name="script_model"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Script Model</FormLabel>
+            <FormControl>
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={isGenerating}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select script model" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="chatgpt">ChatGPT</SelectItem>
+                  <SelectItem value="deepseek">Deepseek</SelectItem>
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormDescription>
+              Choose the AI model that will generate your video script
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       {/* Video Category */}
       <FormField
         control={form.control}

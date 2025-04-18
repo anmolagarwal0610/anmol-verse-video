@@ -1,4 +1,3 @@
-
 export interface VideoGenerationParams {
   username: string;
   topic: string;
@@ -15,6 +14,7 @@ export interface VideoGenerationParams {
   voice?: string;
   subtitle_style?: 'Default' | 'Colour gradient' | 'Tilt animation' | 'Karaoke';
   subtitle_script?: 'English' | 'Hindi';
+  script_model?: 'chatgpt' | 'deepseek';
 }
 
 export interface VideoGenerationResponse {
@@ -32,4 +32,3 @@ export interface VideoStatusResponse {
   thumbnail_url?: string;
   topic?: string;
 }
-
