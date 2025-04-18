@@ -38,6 +38,11 @@ const PromptForm = ({ onVideoGenerated }: PromptFormProps) => {
     }
     
     if (!user) {
+      // Store prompt and current path before showing auth dialog
+      sessionStorage.setItem('pendingVideoPrompt', prompt);
+      sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
+      console.log('🔍 [PromptForm] Stored pending path:', window.location.pathname);
+      console.log('🔍 [PromptForm] Stored video prompt:', prompt);
       setShowAuthDialog(true);
       return;
     }
@@ -72,8 +77,10 @@ const PromptForm = ({ onVideoGenerated }: PromptFormProps) => {
   };
 
   const redirectToAuth = () => {
-    navigate('/auth');
+    console.log('🔍 [PromptForm] Redirecting to auth page');
+    // Close dialog before navigating
     setShowAuthDialog(false);
+    navigate('/auth');
   };
 
   return (

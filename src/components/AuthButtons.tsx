@@ -36,11 +36,24 @@ export default function AuthButtons() {
     return <UserMenu />;
   }
 
+  // Navigate to auth page when login button is clicked
+  const handleSignIn = () => {
+    console.log('[AuthButtons] Sign in button clicked, navigating to /auth');
+    
+    // If we're not already on the auth page, store the current path for redirect after login
+    if (window.location.pathname !== '/auth') {
+      sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
+      console.log('[AuthButtons] Stored current path for redirect:', window.location.pathname);
+    }
+    
+    navigate("/auth");
+  };
+
   // Show login button if not logged in
   console.log('[AuthButtons] Rendering login button (not authenticated)');
   return (
     <Button 
-      onClick={() => navigate("/auth")}
+      onClick={handleSignIn}
       className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium px-4 flex items-center gap-2 rounded-full shadow-sm hover:shadow-md transition-all"
     >
       <LogIn className="h-4 w-4" />

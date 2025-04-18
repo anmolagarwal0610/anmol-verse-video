@@ -55,9 +55,11 @@ const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFo
   };
   
   const redirectToAuth = () => {
-    console.log('🔍 [ImageGenerationForm] Redirecting to auth page');
-    navigate('/auth');
+    console.log('🔍 [ImageGenerationForm] Redirecting to auth page from dialog');
+    // Make sure to close dialog before navigating
     setShowAuthDialog(false);
+    // Use replace: false to allow back navigation
+    navigate('/auth');
   };
   
   // Add logging on mount

@@ -36,6 +36,8 @@ const AuthCallback = () => {
         const pendingImageFormValues = sessionStorage.getItem('pendingImageFormValues');
         console.log('🔍 [AuthCallback] Pending image form values:', pendingImageFormValues ? 'present' : 'not present');
         
+        // Always use the pendingPath if available, otherwise default to the page that initiated the auth
+        // process or fallback to home
         const redirectTarget = pendingPath || '/';
         console.log('🔍 [AuthCallback] Will redirect to:', redirectTarget);
         
@@ -43,10 +45,11 @@ const AuthCallback = () => {
           console.log('🔍 [AuthCallback] Valid session found, proceeding with redirect');
           toast.success('Successfully signed in!');
           
-          // Important - clear any pending redirects from navbar to avoid loops
+          // Very important - clear the navbarPendingRedirect to avoid loops
           window.sessionStorage.removeItem('navbarPendingRedirect');
           
           console.log(`🔍 [AuthCallback] Redirecting to: ${redirectTarget}`);
+          // Use replace to avoid back button issues
           navigate(redirectTarget, { replace: true });
         } else {
           // Try to exchange the code for a session if present in URL
@@ -66,7 +69,7 @@ const AuthCallback = () => {
               console.log('🔍 [AuthCallback] Successfully exchanged code for session');
               toast.success('Successfully signed in!');
               
-              // Important - clear any pending redirects from navbar
+              // Very important - clear the navbarPendingRedirect to avoid loops
               window.sessionStorage.removeItem('navbarPendingRedirect');
               
               console.log(`🔍 [AuthCallback] Redirecting to: ${redirectTarget}`);

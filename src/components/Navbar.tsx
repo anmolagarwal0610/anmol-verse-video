@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -36,21 +35,23 @@ const Navbar = () => {
       console.log(`🔍 [Navbar] Found pending redirect path: ${pendingPath}`);
       console.log('🔍 [Navbar] Current path:', location.pathname);
       
-      // Add a safety check to avoid loops - store that we're handling this redirect
-      // If we've recently redirected, don't do it again
-      if (sessionStorage.getItem('navbarPendingRedirect') === pendingPath) {
-        console.log('🔍 [Navbar] Preventing redirect loop - already redirected to this path');
+      // Improved safety check - add timestamp check to avoid persistent loops
+      const lastRedirectTime = sessionStorage.getItem('lastNavRedirectTime');
+      const currentTime = Date.now();
+      
+      if (lastRedirectTime && (currentTime - parseInt(lastRedirectTime)) < 2000) {
+        console.log('🔍 [Navbar] Preventing redirect loop - redirected too recently');
         return;
       }
       
-      // Store that we're handling this redirect to prevent loops
-      sessionStorage.setItem('navbarPendingRedirect', pendingPath);
+      // Store current timestamp to prevent rapid redirects
+      sessionStorage.setItem('lastNavRedirectTime', currentTime.toString());
       
-      console.log(`🔍 [Navbar] Redirecting to pending path: ${pendingPath}`);
-      navigate(pendingPath);
-      
-      // Don't remove pending path here - AuthCallback will handle that
-      // when login is complete
+      // We're in home route and need to redirect elsewhere
+      if (location.pathname === '/' && pendingPath !== '/') {
+        console.log(`🔍 [Navbar] On homepage, redirecting to pending path: ${pendingPath}`);
+        navigate(pendingPath);
+      }
     }
   }, [location, navigate]);
 

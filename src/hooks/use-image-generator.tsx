@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -30,19 +31,18 @@ export function useImageGenerator() {
     }
   });
   
-  // Check for pending form values in session storage when component mounts
+  // Check for pending form values in session storage when component mounts or user changes
   useEffect(() => {
-    console.log('🔍 [useImageGenerator] Initializing hook');
+    console.log('🔍 [useImageGenerator] Initializing hook, user:', user ? 'authenticated' : 'not authenticated');
     const pendingValues = sessionStorage.getItem('pendingImageFormValues');
     const pendingPath = sessionStorage.getItem('pendingRedirectPath');
     
     console.log('🔍 [useImageGenerator] Pending values found:', pendingValues ? 'present' : 'not present');
     console.log('🔍 [useImageGenerator] Pending path:', pendingPath);
     console.log('🔍 [useImageGenerator] Current path:', window.location.pathname);
-    console.log('🔍 [useImageGenerator] User authenticated:', user ? 'yes' : 'no');
     
-    // Only restore if user is now authenticated
-    if (pendingValues && user) {
+    // Only restore if user is now authenticated and we're on the right path
+    if (pendingValues && user && window.location.pathname === pendingPath) {
       try {
         console.log('🔍 [useImageGenerator] Attempting to restore form values');
         const parsedValues = JSON.parse(pendingValues) as FormValues;
@@ -53,13 +53,15 @@ export function useImageGenerator() {
         console.log('🔍 [useImageGenerator] Clearing pendingImageFormValues from sessionStorage');
         sessionStorage.removeItem('pendingImageFormValues');
         
-        // We keep pendingRedirectPath as AuthCallback will need it for other flows
+        // Don't remove pendingRedirectPath as AuthCallback and Navbar might still need it
         
         console.log('🔍 [useImageGenerator] Restored form values:', parsedValues);
         toast.info('Your previously entered details have been restored');
       } catch (error) {
         console.error('🔍 [useImageGenerator] Error restoring form values:', error);
       }
+    } else if (pendingValues && user) {
+      console.log('🔍 [useImageGenerator] User authenticated but not on the right path for form value restoration');
     } else {
       console.log('🔍 [useImageGenerator] No values to restore or user not authenticated');
     }
