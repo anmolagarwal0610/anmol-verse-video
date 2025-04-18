@@ -44,7 +44,7 @@ const WelcomeMessage = () => {
 
   return (
     <motion.div
-      className="fixed top-20 right-4 z-50 max-w-sm w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 text-white rounded-lg shadow-xl p-6 backdrop-blur-sm border border-white/10"
+      className="fixed top-20 right-4 z-50 max-w-sm w-full bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-700 text-white rounded-lg shadow-xl p-6 backdrop-blur-sm border border-white/10"
       initial={{ opacity: 0, x: 50, scale: 0.9 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 50, scale: 0.9 }}
@@ -97,8 +97,8 @@ const WelcomeMessage = () => {
               transition={{ duration: 0.5, delay: 0.4 }}
             >
               {isNewUser 
-                ? "Excited to have you join our creative community!"
-                : "Ready to bring more creative ideas to life today?"}
+                ? "We're delighted to welcome you to DumbLabs.AI."
+                : "Ready to continue your creative journey today?"}
             </motion.p>
             
             <motion.div 
@@ -109,7 +109,7 @@ const WelcomeMessage = () => {
             >
               <SparklesIcon className="h-4 w-4 mr-2 text-yellow-200 animate-pulse" />
               <span className="text-sm text-white/80 font-medium">
-                {isNewUser ? "Let's start your creative journey" : "Continue your creative journey"}
+                {isNewUser ? "Let's begin your creative journey" : "Continue your creative journey"}
               </span>
             </motion.div>
           </div>

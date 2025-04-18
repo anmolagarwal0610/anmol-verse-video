@@ -39,10 +39,10 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
   
   if (isVideo) {
     return (
-      <Card className="w-full shadow-md border-purple-300/50 dark:border-purple-800/50">
-        <CardHeader className="bg-purple-50/50 dark:bg-purple-900/10">
+      <Card className="w-full shadow-md border-indigo-300/50 dark:border-indigo-800/50">
+        <CardHeader className="bg-indigo-50/50 dark:bg-indigo-900/10">
           <div className="flex items-center space-x-2">
-            <div className="p-2 rounded-full bg-purple-100/80 dark:bg-purple-800/20">
+            <div className="p-2 rounded-full bg-indigo-100/80 dark:bg-indigo-800/20">
               {icon}
             </div>
             <CardTitle className="text-lg">{title}</CardTitle>
@@ -68,7 +68,7 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
               Open
             </a>
           </Button>
-          <Button variant="default" size="sm" asChild className="h-8 px-3 text-xs">
+          <Button variant="default" size="sm" asChild className="h-8 px-3 text-xs bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800">
             <a href={url} download onClick={handleDownload}>
               <Download className="mr-1 h-3.5 w-3.5" />
               Download
@@ -118,7 +118,7 @@ const ResultsSection = ({ result }: ResultsSectionProps) => {
         {result.video_url && (
           <div>
             <ResultCard
-              icon={<FileVideo className="h-5 w-5 text-purple-600" />}
+              icon={<FileVideo className="h-5 w-5 text-indigo-600" />}
               title="Video"
               description="Your generated video is ready to view or download"
               url={result.video_url}

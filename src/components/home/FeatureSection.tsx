@@ -11,36 +11,36 @@ const FeatureSection = () => {
   const features = [
     {
       title: "Video Generation",
-      description: "Transform your ideas into high-quality, engaging short videos.",
+      description: "Transform your concepts into high-quality, sophisticated video content.",
       icon: <Film className="h-8 w-8 text-blue-500" />,
       path: "/videos/generate",
-      color: "from-blue-500 to-cyan-500",
+      color: "from-blue-500 to-blue-600",
       delay: 0.1,
       comingSoon: false,
       disabled: false
     },
     {
-      title: "AI Image Generation",
-      description: "Create stunning visuals from text descriptions with advanced AI models.",
+      title: "AI Image Creation",
+      description: "Generate elegant visuals from text descriptions with advanced AI models.",
       icon: <ImageIcon className="h-8 w-8 text-indigo-500" />,
       path: "/images",
-      color: "from-indigo-500 to-purple-500",
+      color: "from-indigo-500 to-indigo-600",
       delay: 0.2
     },
     {
-      title: "Auto Transcript",
-      description: "Generate accurate transcripts from audio and video content.",
+      title: "Smart Transcription",
+      description: "Create precise transcripts from audio and video content with AI technology.",
       icon: <FileText className="h-8 w-8 text-green-500" />,
       path: "/transcript",
-      color: "from-green-500 to-emerald-500",
+      color: "from-green-500 to-green-600",
       delay: 0.3
     },
     {
-      title: "Media Gallery",
-      description: "Browse and manage all your generated content in one place.",
-      icon: <LayoutGrid className="h-8 w-8 text-orange-500" />,
+      title: "Media Collection",
+      description: "Organize and manage your generated content in an elegant interface.",
+      icon: <LayoutGrid className="h-8 w-8 text-purple-500" />,
       path: "/gallery",
-      color: "from-orange-500 to-amber-500",
+      color: "from-purple-500 to-purple-600",
       delay: 0.4
     }
   ];

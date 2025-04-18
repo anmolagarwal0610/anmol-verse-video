@@ -40,7 +40,6 @@ const HeroSection = () => {
     }
   };
   
-  // Fixed orbVariants - using proper typing for repeatType
   const orbVariants = {
     initial: { scale: 1, opacity: 0.7 },
     animate: {
@@ -48,7 +47,7 @@ const HeroSection = () => {
       opacity: [0.7, 1, 0.7],
       transition: {
         repeat: Infinity,
-        repeatType: "mirror" as const, // Using 'as const' to specify literal type
+        repeatType: "mirror" as const,
         duration: 3
       }
     }
@@ -80,7 +79,7 @@ const HeroSection = () => {
       >
         <div className="relative w-32 h-32 mx-auto">
           <motion.div 
-            className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 blur-md opacity-70"
+            className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-700 blur-md opacity-70"
             initial="initial"
             animate="animate"
             variants={orbVariants}
@@ -89,7 +88,7 @@ const HeroSection = () => {
           <div className="absolute inset-3 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden">
             <div className="relative w-full h-full">
               <div className="absolute inset-0 flex items-center justify-center">
-                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600" />
+                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700" />
               </div>
               <motion.div 
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -110,7 +109,7 @@ const HeroSection = () => {
       >
         Welcome to{" "}
         <motion.span 
-          className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 inline-block"
+          className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 inline-block"
           animate={{
             backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
           }}
@@ -120,7 +119,7 @@ const HeroSection = () => {
             ease: "easeInOut"
           }}
         >
-          AnmolVerse
+          DumbLabs.AI
         </motion.span>
       </motion.h1>
       
@@ -128,8 +127,8 @@ const HeroSection = () => {
         className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4"
         variants={itemVariants}
       >
-        Your futuristic creative studio powered by advanced AI. Create stunning images, 
-        videos, and transcripts with just a few clicks.
+        Your elegant creative studio powered by sophisticated AI. Create stunning images, 
+        videos, and transcripts with unparalleled precision.
       </motion.p>
       
       <motion.div 
