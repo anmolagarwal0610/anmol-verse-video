@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Wand2, Loader2, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
@@ -38,6 +38,9 @@ const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFo
   
   const handleFormSubmit = async (values: FormValues) => {
     if (!user) {
+      // Store form values in sessionStorage before redirecting
+      sessionStorage.setItem('pendingImageFormValues', JSON.stringify(values));
+      sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
       setShowAuthDialog(true);
       return;
     }

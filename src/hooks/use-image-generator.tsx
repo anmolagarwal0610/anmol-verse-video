@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ export function useImageGenerator() {
   const isSubmittingRef = useRef(false);
   const { user } = useAuth();
   
+  // Initialize form with default values or restored values from session storage
   const form = useForm<FormValues>({
     resolver: zodResolver(imageGeneratorSchema),
     defaultValues: {
@@ -29,6 +30,30 @@ export function useImageGenerator() {
       negativePrompt: ''
     }
   });
+  
+  // Check for pending form values in session storage when component mounts
+  useEffect(() => {
+    const pendingValues = sessionStorage.getItem('pendingImageFormValues');
+    const pendingPath = sessionStorage.getItem('pendingRedirectPath');
+    
+    // Only restore if we're on the correct path and user is now authenticated
+    if (pendingValues && pendingPath === '/images' && user) {
+      try {
+        const parsedValues = JSON.parse(pendingValues) as FormValues;
+        // Reset form with the saved values
+        form.reset(parsedValues);
+        
+        // Clean up session storage
+        sessionStorage.removeItem('pendingImageFormValues');
+        sessionStorage.removeItem('pendingRedirectPath');
+        
+        console.log('Restored form values after authentication:', parsedValues);
+        toast.info('Your previously entered details have been restored');
+      } catch (error) {
+        console.error('Error restoring form values:', error);
+      }
+    }
+  }, [user, form]);
   
   const handleGenerateImage = useCallback(async (values: FormValues) => {
     if (isGenerating || isSubmittingRef.current) return;

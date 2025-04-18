@@ -27,10 +27,17 @@ const AuthCallback = () => {
           throw error;
         }
         
+        // Check for pending redirect path
+        const pendingPath = sessionStorage.getItem('pendingRedirectPath');
+        const redirectTarget = pendingPath || '/';
+        
         if (data?.session) {
           console.log('Valid session found in callback');
           toast.success('Successfully signed in!');
-          navigate('/', { replace: true });
+          
+          // Redirect to saved path or homepage
+          console.log(`Redirecting to: ${redirectTarget}`);
+          navigate(redirectTarget, { replace: true });
         } else {
           // Try to exchange the code for a session if present in URL
           const params = new URLSearchParams(window.location.search);
@@ -47,7 +54,10 @@ const AuthCallback = () => {
             if (data?.session) {
               console.log('Successfully exchanged code for session');
               toast.success('Successfully signed in!');
-              navigate('/', { replace: true });
+              
+              // Redirect to saved path or homepage
+              console.log(`Redirecting to: ${redirectTarget}`);
+              navigate(redirectTarget, { replace: true });
               return;
             }
           }

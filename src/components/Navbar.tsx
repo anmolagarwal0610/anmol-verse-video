@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import Logo from '@/components/Logo';
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [scrollY, setScrollY] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -25,6 +27,16 @@ const Navbar = () => {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
+
+  // Check for redirection after login
+  useEffect(() => {
+    const pendingPath = sessionStorage.getItem('pendingRedirectPath');
+    
+    if (pendingPath && pendingPath !== location.pathname) {
+      console.log(`Redirecting to pending path: ${pendingPath}`);
+      navigate(pendingPath);
+    }
+  }, [location, navigate]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
