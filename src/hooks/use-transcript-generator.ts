@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { generateTranscript } from '@/lib/api';
@@ -7,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 
 export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: string) => void) => {
   const [prompt, setPrompt] = useState('');
+  const [scriptModel, setScriptModel] = useState<'chatgpt' | 'deepseek'>('chatgpt');
   const [transcript, setTranscript] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,14 +44,14 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
         return;
       }
       
-      console.log("Submitting prompt for transcript generation:", prompt);
+      console.log("Submitting prompt for transcript generation:", { prompt, scriptModel });
       
       // Show loading progress
       const progressInterval = setInterval(() => {
         setGenerationProgress(prev => Math.min(prev + 5, 90));
       }, 1000);
       
-      const result = await generateTranscript(prompt);
+      const result = await generateTranscript(prompt, scriptModel);
       
       clearInterval(progressInterval);
       setGenerationProgress(100);
@@ -87,6 +87,8 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
   return {
     prompt,
     setPrompt,
+    scriptModel,
+    setScriptModel,
     transcript,
     isGenerating,
     error,

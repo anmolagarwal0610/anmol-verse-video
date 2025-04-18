@@ -1,16 +1,18 @@
-
 import { API_CONFIG, fetchWithCorsProxy } from './apiUtils';
 
-// Transcript generation function with CORS proxy support
-export const generateTranscript = async (prompt: string): Promise<{ transcript: string }> => {
+export const generateTranscript = async (
+  prompt: string, 
+  scriptModel: 'chatgpt' | 'deepseek' = 'chatgpt'
+): Promise<{ transcript: string }> => {
   try {
-    console.log("Sending request to generate transcript with prompt:", prompt);
+    console.log("Sending request to generate transcript with:", { prompt, scriptModel });
     
     const apiUrl = `${API_CONFIG.BASE_URL}/generate_transcript`;
     
     // Prepare the request payload
     const payload = {
-      prompt: prompt
+      prompt: prompt,
+      script_model: scriptModel // Add script model to payload
     };
     
     // Prepare request options
