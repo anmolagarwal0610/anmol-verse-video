@@ -33,8 +33,24 @@ const Navbar = () => {
     const pendingPath = sessionStorage.getItem('pendingRedirectPath');
     
     if (pendingPath && pendingPath !== location.pathname) {
-      console.log(`Redirecting to pending path: ${pendingPath}`);
+      console.log(`🔍 [Navbar] Found pending redirect path: ${pendingPath}`);
+      console.log('🔍 [Navbar] Current path:', location.pathname);
+      
+      // Add a safety check to avoid loops - store that we're handling this redirect
+      // If we've recently redirected, don't do it again
+      if (sessionStorage.getItem('navbarPendingRedirect') === pendingPath) {
+        console.log('🔍 [Navbar] Preventing redirect loop - already redirected to this path');
+        return;
+      }
+      
+      // Store that we're handling this redirect to prevent loops
+      sessionStorage.setItem('navbarPendingRedirect', pendingPath);
+      
+      console.log(`🔍 [Navbar] Redirecting to pending path: ${pendingPath}`);
       navigate(pendingPath);
+      
+      // Don't remove pending path here - AuthCallback will handle that
+      // when login is complete
     }
   }, [location, navigate]);
 
@@ -54,6 +70,19 @@ const Navbar = () => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Safe navigation function to avoid redirect loops
+  const handleNavigation = (path: string) => {
+    console.log('🔍 [Navbar] Navigation requested to:', path);
+    
+    // If we're already on this path, do nothing
+    if (location.pathname === path) {
+      console.log('🔍 [Navbar] Already on this path, no navigation needed');
+      return;
+    }
+    
+    navigate(path);
+  };
 
   return (
     <motion.header 
@@ -83,6 +112,7 @@ const Navbar = () => {
                 )}
                 asChild={!item.disabled}
                 disabled={item.disabled}
+                onClick={() => console.log(`🔍 [Navbar] Nav item clicked: ${item.path}`)}
               >
                 {!item.disabled ? (
                   <Link to={item.path} className="flex items-center">

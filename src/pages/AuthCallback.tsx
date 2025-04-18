@@ -11,32 +11,42 @@ const AuthCallback = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        console.log('Handling auth callback...');
+        console.log('🔍 [AuthCallback] Starting auth callback handling...');
         
         // Get the URL hash
         const hash = window.location.hash;
-        console.log('Auth callback URL hash:', hash ? 'present' : 'not present');
+        console.log('🔍 [AuthCallback] URL hash present:', hash ? 'yes' : 'no');
         
         // Check if we have a session
         const { data, error } = await supabase.auth.getSession();
         
-        console.log('Auth callback session check:', 
+        console.log('🔍 [AuthCallback] Session check result:', 
           data?.session ? 'session found' : 'no session found');
         
         if (error) {
+          console.error('🔍 [AuthCallback] Error getting session:', error);
           throw error;
         }
         
         // Check for pending redirect path
         const pendingPath = sessionStorage.getItem('pendingRedirectPath');
+        console.log('🔍 [AuthCallback] Pending redirect path:', pendingPath || 'none');
+
+        // Check for any pending form values
+        const pendingImageFormValues = sessionStorage.getItem('pendingImageFormValues');
+        console.log('🔍 [AuthCallback] Pending image form values:', pendingImageFormValues ? 'present' : 'not present');
+        
         const redirectTarget = pendingPath || '/';
+        console.log('🔍 [AuthCallback] Will redirect to:', redirectTarget);
         
         if (data?.session) {
-          console.log('Valid session found in callback');
+          console.log('🔍 [AuthCallback] Valid session found, proceeding with redirect');
           toast.success('Successfully signed in!');
           
-          // Redirect to saved path or homepage
-          console.log(`Redirecting to: ${redirectTarget}`);
+          // Important - clear any pending redirects from navbar to avoid loops
+          window.sessionStorage.removeItem('navbarPendingRedirect');
+          
+          console.log(`🔍 [AuthCallback] Redirecting to: ${redirectTarget}`);
           navigate(redirectTarget, { replace: true });
         } else {
           // Try to exchange the code for a session if present in URL
@@ -44,31 +54,34 @@ const AuthCallback = () => {
           const code = params.get('code');
           
           if (code) {
-            console.log('Found code in URL, exchanging for session');
+            console.log('🔍 [AuthCallback] Found code in URL, exchanging for session');
             const { data, error } = await supabase.auth.exchangeCodeForSession(code);
             
             if (error) {
+              console.error('🔍 [AuthCallback] Error exchanging code:', error);
               throw error;
             }
             
             if (data?.session) {
-              console.log('Successfully exchanged code for session');
+              console.log('🔍 [AuthCallback] Successfully exchanged code for session');
               toast.success('Successfully signed in!');
               
-              // Redirect to saved path or homepage
-              console.log(`Redirecting to: ${redirectTarget}`);
+              // Important - clear any pending redirects from navbar
+              window.sessionStorage.removeItem('navbarPendingRedirect');
+              
+              console.log(`🔍 [AuthCallback] Redirecting to: ${redirectTarget}`);
               navigate(redirectTarget, { replace: true });
               return;
             }
           }
           
           // If no session was found but no error occurred, handle gracefully
-          console.log('No session found and no code to exchange');
+          console.log('🔍 [AuthCallback] No session found and no code to exchange, redirecting to /auth');
           toast.error('Authentication failed. Please try again.');
           navigate('/auth', { replace: true });
         }
       } catch (error: any) {
-        console.error('Error during auth callback:', error);
+        console.error('🔍 [AuthCallback] Error during auth callback:', error);
         toast.error(error.message || 'Failed to complete authentication');
         navigate('/auth', { replace: true });
       }

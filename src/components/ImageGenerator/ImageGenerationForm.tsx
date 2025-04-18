@@ -37,10 +37,16 @@ const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFo
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   
   const handleFormSubmit = async (values: FormValues) => {
+    console.log('🔍 [ImageGenerationForm] Form submitted with values:', values);
+    console.log('🔍 [ImageGenerationForm] User authenticated:', user ? 'yes' : 'no');
+    
     if (!user) {
+      console.log('🔍 [ImageGenerationForm] User not authenticated, showing auth dialog');
       // Store form values in sessionStorage before redirecting
       sessionStorage.setItem('pendingImageFormValues', JSON.stringify(values));
       sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
+      console.log('🔍 [ImageGenerationForm] Stored pending path:', window.location.pathname);
+      console.log('🔍 [ImageGenerationForm] Stored form values in sessionStorage');
       setShowAuthDialog(true);
       return;
     }
@@ -49,9 +55,22 @@ const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFo
   };
   
   const redirectToAuth = () => {
+    console.log('🔍 [ImageGenerationForm] Redirecting to auth page');
     navigate('/auth');
     setShowAuthDialog(false);
   };
+  
+  // Add logging on mount
+  useEffect(() => {
+    console.log('🔍 [ImageGenerationForm] Component mounted');
+    const pendingValues = sessionStorage.getItem('pendingImageFormValues');
+    const pendingPath = sessionStorage.getItem('pendingRedirectPath');
+    
+    console.log('🔍 [ImageGenerationForm] Pending values found:', pendingValues ? 'yes' : 'no');
+    console.log('🔍 [ImageGenerationForm] Pending path:', pendingPath);
+    console.log('🔍 [ImageGenerationForm] Current path:', window.location.pathname);
+    console.log('🔍 [ImageGenerationForm] User authenticated:', user ? 'yes' : 'no');
+  }, [user]);
   
   return (
     <>
