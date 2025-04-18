@@ -1,4 +1,3 @@
-
 import { API_CONFIG } from '../apiUtils';
 import type { VideoGenerationParams, VideoGenerationResponse, VideoStatusResponse } from './types';
 
@@ -8,11 +7,12 @@ export const generateVideo = async (params: VideoGenerationParams): Promise<Vide
     
     const apiUrl = `${API_CONFIG.BASE_URL}/generate_video`;
     
-    // Prepare request options
+    // Prepare request options with API key
     const requestOptions = {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'x-api-key': API_CONFIG.API_KEY
       },
       body: JSON.stringify(params),
     };
@@ -43,8 +43,15 @@ export const checkVideoStatus = async (taskId: string): Promise<VideoStatusRespo
     
     const apiUrl = `${API_CONFIG.BASE_URL}/check_status?task_id=${taskId}`;
     
-    // Make the request
-    const response = await fetch(apiUrl);
+    // Add API key to status check request
+    const requestOptions = {
+      headers: {
+        'x-api-key': API_CONFIG.API_KEY
+      }
+    };
+    
+    // Make the request with API key
+    const response = await fetch(apiUrl, requestOptions);
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -60,4 +67,3 @@ export const checkVideoStatus = async (taskId: string): Promise<VideoStatusRespo
     throw error;
   }
 };
-

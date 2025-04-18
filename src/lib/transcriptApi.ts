@@ -1,3 +1,4 @@
+
 import { API_CONFIG, fetchWithCorsProxy } from './apiUtils';
 
 export const generateTranscript = async (
@@ -12,13 +13,16 @@ export const generateTranscript = async (
     // Prepare the request payload
     const payload = {
       prompt: prompt,
-      script_model: scriptModel // Add script model to payload
+      script_model: scriptModel
     };
     
-    // Prepare request options
+    // Prepare request options with API key
     const requestOptions = {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-api-key': API_CONFIG.API_KEY
+      },
       body: JSON.stringify(payload),
       mode: 'cors' as RequestMode,
       cache: 'no-cache' as RequestCache
