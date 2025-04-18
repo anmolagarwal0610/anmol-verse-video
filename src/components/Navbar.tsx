@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -9,6 +8,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import AuthButtons from '@/components/AuthButtons';
 import UserCredits from '@/components/UserCredits';
 import VideoGenerationStatusIndicator from '@/components/VideoGenerationStatusIndicator';
+import Logo from '@/components/Logo';
 
 const Navbar = () => {
   const location = useLocation();
@@ -54,15 +54,7 @@ const Navbar = () => {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
-          <motion.div 
-            className="relative h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Star className="h-4 w-4 text-white z-10" />
-            <Sparkles className="absolute h-3 w-3 text-yellow-300 z-10 animate-pulse" />
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/50 to-purple-600/50 animate-pulse blur-sm"></div>
-          </motion.div>
+          <Logo />
           <span className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-700">DumbLabs.AI</span>
         </Link>
 
