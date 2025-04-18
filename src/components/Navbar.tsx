@@ -1,15 +1,13 @@
-
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
-import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
 import AuthButtons from '@/components/AuthButtons';
 import UserCredits from '@/components/UserCredits';
-import Logo from '@/components/Logo';
+import { BrandLogo } from './navbar/BrandLogo';
 import { DesktopNav } from './navbar/DesktopNav';
 import { MobileMenu } from './navbar/MobileMenu';
+import { MenuToggle } from './navbar/MenuToggle';
 
 const Navbar = () => {
   const location = useLocation();
@@ -28,7 +26,6 @@ const Navbar = () => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
-  // Check for redirection after login
   useEffect(() => {
     const pendingPath = sessionStorage.getItem('pendingRedirectPath');
     
@@ -64,27 +61,12 @@ const Navbar = () => {
       transition={{ duration: 0.3, ease: "easeOut" }}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
-          <Logo />
-          <span className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-700">
-            DumbLabs.AI
-          </span>
-        </Link>
-
+        <BrandLogo />
         <DesktopNav isActive={isActive} />
-
         <div className="flex items-center gap-3">
           <UserCredits />
           <AuthButtons />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={toggleMenu}
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+          <MenuToggle isOpen={isMenuOpen} onToggle={toggleMenu} />
         </div>
       </div>
 
