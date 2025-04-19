@@ -1,4 +1,3 @@
-
 // Audio-related constants
 export const AUDIO_LANGUAGES = {
   "English": "English",
@@ -62,6 +61,19 @@ export const VOICE_OPTIONS: Record<string, VoiceOption> = {
     category: "Social Media",
     language: "English",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/CwhRBWXzGAHq8TQ4Fs17/58ee3ff5-f6f2-4628-93b8-e38eb31806b0.mp3"
+  },
+  "google_male": {
+    id: "google_male",
+    name: "Google - Male",
+    category: "Text to Speech",
+    language: "English",  // Will be shown for both languages
+    previewUrl: "" // Google voices don't have preview URLs
+  },
+  "google_female": {
+    id: "google_female",  
+    name: "Google - Female",
+    category: "Text to Speech",
+    language: "English",  // Will be shown for both languages
+    previewUrl: "" // Google voices don't have preview URLs
   }
 } as const;
-

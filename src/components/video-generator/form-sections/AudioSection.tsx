@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import {
   FormField,
@@ -31,10 +30,10 @@ const AudioSection = () => {
   const [playingVoice, setPlayingVoice] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
-  // Filter voices based on selected audio language
+  // Filter voices based on selected audio language, but always include Google voices
   const selectedLanguage = form.watch('audio_language');
   const filteredVoices = Object.values(VOICE_OPTIONS).filter(
-    voice => voice.language === selectedLanguage
+    voice => voice.language === selectedLanguage || voice.id.startsWith('google_')
   );
 
   // Use effect to log component lifecycle
@@ -147,24 +146,26 @@ const AudioSection = () => {
           <div className="text-xs text-muted-foreground">{voice.language}</div>
         </div>
         
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 rounded-full focus:outline-none"
-          onClick={(e) => playVoicePreview(voice.id, e)}
-          onMouseDown={(e) => {
-            console.log("Button mouseDown event");
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-        >
-          {playingVoice === voice.id ? (
-            <PauseIcon className="h-4 w-4" />
-          ) : (
-            <PlayIcon className="h-4 w-4" />
-          )}
-        </Button>
+        {voice.previewUrl && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-full focus:outline-none"
+            onClick={(e) => playVoicePreview(voice.id, e)}
+            onMouseDown={(e) => {
+              console.log("Button mouseDown event");
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            {playingVoice === voice.id ? (
+              <PauseIcon className="h-4 w-4" />
+            ) : (
+              <PlayIcon className="h-4 w-4" />
+            )}
+          </Button>
+        )}
       </div>
     );
   };
