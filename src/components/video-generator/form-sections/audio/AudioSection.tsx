@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import {
   FormField,
@@ -113,7 +114,6 @@ const AudioSection = () => {
                       e.preventDefault();
                     }
                   }}
-                  portalled={false}
                 >
                   {filteredVoices.map((voice) => (
                     <SelectItem 
