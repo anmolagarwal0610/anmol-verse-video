@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import {
@@ -37,10 +36,32 @@ const AudioSection = () => {
   const selectedVoice = form.watch('voice');
   
   const filteredVoices = Object.values(VOICE_OPTIONS).filter(
-    voice => voice.language === selectedLanguage || voice.id.startsWith('google_')
+    voice => {
+      // For regular voices, match the language
+      if (!voice.id.startsWith('google_')) {
+        return voice.language === selectedLanguage;
+      }
+      // For Google voices, only show language-specific ones
+      if (selectedLanguage === 'English') {
+        return voice.id === 'google_male' || voice.id === 'google_female';
+      } else if (selectedLanguage === 'Hindi') {
+        return voice.id === 'google_male_hindi' || voice.id === 'google_female_hindi';
+      }
+      return false;
+    }
   );
 
   const selectedVoiceDetails = VOICE_OPTIONS[selectedVoice];
+
+  useEffect(() => {
+    // When language changes, set first available voice for that language
+    if (filteredVoices.length > 0) {
+      const currentVoice = VOICE_OPTIONS[selectedVoice];
+      if (!currentVoice || currentVoice.language !== selectedLanguage) {
+        form.setValue('voice', filteredVoices[0].id);
+      }
+    }
+  }, [selectedLanguage]);
   
   return (
     <div className="space-y-6">

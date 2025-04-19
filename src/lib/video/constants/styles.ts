@@ -1,4 +1,3 @@
-
 // Visual style options
 export const VIDEO_CATEGORIES = {
   "Hollywood Script": "Hollywood Script",
@@ -24,11 +23,6 @@ export const SUBTITLE_COLORS = {
 } as const;
 
 export const IMAGE_MODELS = {
-  "basic": {
-    label: "Basic",
-    value: "black-forest-labs/FLUX.1-schnell-free",
-    description: "Free model for basic image generation"
-  },
   "advanced": {
     label: "Advanced",
     value: "black-forest-labs/FLUX.1-schnell",
@@ -42,4 +36,3 @@ export const SUBTITLE_STYLES = {
   "Tilt animation": "Tilt animation",
   "Karaoke": "Karaoke"
 } as const;
-

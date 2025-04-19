@@ -110,6 +110,11 @@ interface ResultsSectionProps {
 const ResultsSection = ({ result }: ResultsSectionProps) => {
   if (!result) return null;
   
+  const handleCreateNew = () => {
+    // Force a page refresh when clicking "Create New Video"
+    window.location.href = '/videos/generate';
+  };
+  
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold text-center mb-6">Your Generated Content</h2>
@@ -158,11 +163,13 @@ const ResultsSection = ({ result }: ResultsSectionProps) => {
       </div>
       
       <div className="mt-8 text-center">
-        <Button asChild variant="outline" className="bg-gradient-to-r from-indigo-600/10 to-purple-600/10 hover:from-indigo-600/20 hover:to-purple-600/20">
-          <Link to="/videos/generate" className="flex items-center">
-            <Plus className="mr-2 h-4 w-4" />
-            Create New Video
-          </Link>
+        <Button 
+          variant="outline" 
+          className="bg-gradient-to-r from-indigo-600/10 to-purple-600/10 hover:from-indigo-600/20 hover:to-purple-600/20"
+          onClick={handleCreateNew}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Create New Video
         </Button>
       </div>
     </div>
