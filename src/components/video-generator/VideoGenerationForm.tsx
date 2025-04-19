@@ -28,7 +28,7 @@ import { VideoGenerationFormProvider } from './VideoGenerationFormContext';
 // Import form section components
 import BasicFormFields from './form-sections/BasicFormFields';
 import VisualsSection from './form-sections/VisualsSection';
-import AudioSection from './form-sections/AudioSection';
+import AudioSection from './form-sections/audio';
 import SubtitlesSection from './form-sections/SubtitlesSection';
 
 interface VideoGenerationFormProps {
