@@ -66,14 +66,28 @@ export const VOICE_OPTIONS: Record<string, VoiceOption> = {
     id: "google_male",
     name: "Google - Male",
     category: "Text to Speech",
-    language: "English",  // Will be shown for both languages
-    previewUrl: "" // Google voices don't have preview URLs
+    language: "English",
+    previewUrl: "https://storage.googleapis.com/kiratpur-ka-hero/Voices/english_male.mp3"
   },
   "google_female": {
-    id: "google_female",  
+    id: "google_female",
     name: "Google - Female",
     category: "Text to Speech",
-    language: "English",  // Will be shown for both languages
-    previewUrl: "" // Google voices don't have preview URLs
+    language: "English",
+    previewUrl: "https://storage.googleapis.com/kiratpur-ka-hero/Voices/english_Female.mp3"
+  },
+  "google_male_hindi": {
+    id: "google_male_hindi",
+    name: "Google - Male (Hindi)",
+    category: "Text to Speech",
+    language: "Hindi",
+    previewUrl: "https://storage.googleapis.com/kiratpur-ka-hero/Voices/Hindi_male.mp3"
+  },
+  "google_female_hindi": {
+    id: "google_female_hindi",
+    name: "Google - Female (Hindi)",
+    category: "Text to Speech",
+    language: "Hindi",
+    previewUrl: "https://storage.googleapis.com/kiratpur-ka-hero/Voices/Hindi_Female.mp3"
   }
 } as const;
