@@ -108,13 +108,7 @@ const AudioSection = () => {
                 </SelectTrigger>
                 <SelectContent 
                   className="max-h-[300px] relative z-50"
-                  onOpenAutoFocus={(e) => {
-                    // Prevent autofocus which can cause issues
-                    e.preventDefault();
-                    console.log("🔍 Prevented autofocus on open");
-                  }}
                   onPointerDownOutside={(e) => {
-                    const target = e.target as HTMLElement;
                     const isPlayingAudio = playingVoice !== null;
                     
                     logEvent("Pointer outside event", e);
