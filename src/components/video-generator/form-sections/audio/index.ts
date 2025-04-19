@@ -1,3 +1,3 @@
 
-export { default as AudioSection } from './AudioSection';
+export { default } from './AudioSection';
 export { VoiceItem } from './VoiceItem';
