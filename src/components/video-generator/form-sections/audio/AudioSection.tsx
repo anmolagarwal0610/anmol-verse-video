@@ -103,16 +103,12 @@ const AudioSection = () => {
                   onPointerDownOutside={(e) => {
                     const target = e.target as HTMLElement;
                     const isPlayingAudio = playingVoice !== null;
-                    const isPlayButton = target.closest('button') && 
-                      (target.closest('button')?.innerHTML.includes('svg') || 
-                       target.tagName === 'svg' || 
-                       target.tagName === 'path');
                     
                     console.log("🛑 Pointer outside event, target:", target.tagName);
                     console.log("Is audio playing:", isPlayingAudio);
                     
-                    if (isPlayingAudio || isPlayButton) {
-                      console.log("🛑 Preventing close due to audio playing or play button click");
+                    if (isPlayingAudio) {
+                      console.log("🛑 Preventing close due to audio playing");
                       e.preventDefault();
                     }
                   }}
@@ -123,7 +119,7 @@ const AudioSection = () => {
                       size="icon"
                       className="absolute right-2 top-2 h-6 w-6 rounded-full hover:bg-accent"
                       onClick={(e) => {
-                        // Allow the dropdown to close when clicking the close button
+                        // Allow manual closing via X button
                         e.stopPropagation();
                       }}
                     >
@@ -136,10 +132,8 @@ const AudioSection = () => {
                           value={voice.id}
                           className="flex items-center justify-between py-3 relative"
                           onSelect={(e) => {
-                            // Don't close if clicking play button
-                            if (e.target !== e.currentTarget) {
-                              e.preventDefault();
-                            }
+                            // Always prevent closing when selecting a voice
+                            e.preventDefault();
                           }}
                         >
                           <VoiceItem 
