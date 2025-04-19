@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import {
   FormField,
@@ -97,13 +96,24 @@ const AudioSection = () => {
                   <SelectValue placeholder="Select voice" />
                 </SelectTrigger>
                 <SelectContent 
-                  className="max-h-[300px]"
+                  className="max-h-[300px] relative z-50"
                   onPointerDownOutside={(e) => {
-                    if (playingVoice) {
-                      console.log("🛑 Preventing close when audio is playing");
+                    const target = e.target as HTMLElement;
+                    const isPlayingAudio = playingVoice !== null;
+                    const isPlayButton = target.closest('button') && 
+                      (target.closest('button')?.innerHTML.includes('svg') || 
+                       target.tagName === 'svg' || 
+                       target.tagName === 'path');
+                    
+                    console.log("🛑 Pointer outside event, target:", target.tagName);
+                    console.log("Is audio playing:", isPlayingAudio);
+                    
+                    if (isPlayingAudio || isPlayButton) {
+                      console.log("🛑 Preventing close due to audio playing or play button click");
                       e.preventDefault();
                     }
                   }}
+                  portalled={false}
                 >
                   {filteredVoices.map((voice) => (
                     <SelectItem 

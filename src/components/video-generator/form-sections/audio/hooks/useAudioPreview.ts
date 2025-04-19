@@ -24,6 +24,7 @@ export const useAudioPreview = () => {
     console.log("Event target:", event.target);
     console.log("Event current target:", event.currentTarget);
     
+    // Make sure to prevent event bubbling
     event.preventDefault();
     event.stopPropagation();
     
@@ -58,17 +59,22 @@ export const useAudioPreview = () => {
           toast.error(`Failed to play voice preview: ${error?.message || 'Unknown error'}`);
         });
         
+        // Set playing voice state immediately to show UI feedback
+        setPlayingVoice(voiceId);
+        
+        // Play the audio after a short delay to ensure UI updates first
         setTimeout(() => {
-          console.log("Delayed audio play attempt (after 50ms)");
+          console.log("Delayed audio play attempt");
           
-          audio.play().then(() => {
-            console.log("✅ Audio playback started successfully");
-            setPlayingVoice(voiceId);
-          }).catch(err => {
-            console.error("❌ Error playing voice preview:", err);
-            toast.error(`Failed to play voice preview: ${err.message}`);
-            setPlayingVoice(null);
-          });
+          if (audioRef.current) {
+            audioRef.current.play().then(() => {
+              console.log("✅ Audio playback started successfully");
+            }).catch(err => {
+              console.error("❌ Error playing voice preview:", err);
+              toast.error(`Failed to play voice preview: ${err.message}`);
+              setPlayingVoice(null);
+            });
+          }
         }, 50);
         
         audio.onended = () => {

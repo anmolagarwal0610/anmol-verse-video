@@ -26,12 +26,20 @@ export const VoiceItem = ({ voice, playingVoice, onPlayPreview }: VoiceItemProps
           className="h-8 w-8 rounded-full focus:outline-none"
           onClick={(e) => {
             console.log("🔊 Play button clicked for voice:", voice.id);
+            // These two lines are crucial to prevent the dropdown from closing
             e.preventDefault();
             e.stopPropagation();
             onPlayPreview(voice.id, voice.previewUrl, e);
           }}
+          // Capture mousedown to prevent the dropdown from closing
           onMouseDown={(e) => {
             console.log("🖱️ Button mouseDown event for voice:", voice.id);
+            e.preventDefault(); 
+            e.stopPropagation();
+          }}
+          // Add pointer events to ensure mobile compatibility
+          onPointerDown={(e) => {
+            console.log("👆 Pointer down on play button for voice:", voice.id);
             e.preventDefault();
             e.stopPropagation();
           }}
