@@ -1,3 +1,4 @@
+
 // Visual style options
 export const VIDEO_CATEGORIES = {
   "Hollywood Script": "Hollywood Script",
@@ -34,5 +35,6 @@ export const SUBTITLE_STYLES = {
   "Default": "Default",
   "Colour gradient": "Colour gradient",
   "Tilt animation": "Tilt animation",
-  "Karaoke": "Karaoke"
+  "Karaoke": "Karaoke (Coming Soon)"
 } as const;
+
