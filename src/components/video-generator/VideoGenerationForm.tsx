@@ -54,6 +54,9 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
     },
   });
   
+  // Watch audio_language to pass it to SubtitlesSection
+  const audioLanguage = form.watch('audio_language');
+  
   const { 
     showConfirmDialog,
     setShowConfirmDialog,
@@ -91,7 +94,7 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
               
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Subtitle Settings</h3>
-                <SubtitlesSection />
+                <SubtitlesSection audioLanguage={audioLanguage} />
               </div>
               
               <Button 
