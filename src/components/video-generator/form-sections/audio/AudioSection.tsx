@@ -1,5 +1,6 @@
 
 import { useEffect } from 'react';
+import { X } from 'lucide-react';
 import {
   FormField,
   FormItem,
@@ -15,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { useVideoGenerationForm } from '../../VideoGenerationFormContext';
 import { AUDIO_LANGUAGES, VOICE_OPTIONS } from '@/lib/video/constants/audio';
 import { useAudioPreview } from './hooks/useAudioPreview';
@@ -115,26 +117,40 @@ const AudioSection = () => {
                     }
                   }}
                 >
-                  {filteredVoices.map((voice) => (
-                    <SelectItem 
-                      key={voice.id} 
-                      value={voice.id}
-                      className="flex items-center justify-between py-3 relative"
-                      onSelect={(e) => {
-                        console.log("SelectItem onSelect triggered for:", voice.id);
-                        if (e.target !== e.currentTarget) {
-                          console.log("🚫 Prevented select from closing due to child element click");
-                          e.preventDefault();
-                        }
+                  <div className="relative">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 top-2 h-6 w-6 rounded-full hover:bg-accent"
+                      onClick={(e) => {
+                        // Allow the dropdown to close when clicking the close button
+                        e.stopPropagation();
                       }}
                     >
-                      <VoiceItem 
-                        voice={voice}
-                        playingVoice={playingVoice}
-                        onPlayPreview={playVoicePreview}
-                      />
-                    </SelectItem>
-                  ))}
+                      <X className="h-4 w-4" />
+                    </Button>
+                    <div className="space-y-2 py-2">
+                      {filteredVoices.map((voice) => (
+                        <SelectItem 
+                          key={voice.id} 
+                          value={voice.id}
+                          className="flex items-center justify-between py-3 relative"
+                          onSelect={(e) => {
+                            // Don't close if clicking play button
+                            if (e.target !== e.currentTarget) {
+                              e.preventDefault();
+                            }
+                          }}
+                        >
+                          <VoiceItem 
+                            voice={voice}
+                            playingVoice={playingVoice}
+                            onPlayPreview={playVoicePreview}
+                          />
+                        </SelectItem>
+                      ))}
+                    </div>
+                  </div>
                 </SelectContent>
               </Select>
             </FormControl>
