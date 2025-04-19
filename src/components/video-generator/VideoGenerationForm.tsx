@@ -63,7 +63,7 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
       // Username is automatically set from auth user
       script_model: 'chatgpt', // Set default script model
       topic: '',
-      image_model: IMAGE_MODELS.basic.value, // Default to basic model
+      image_model: IMAGE_MODELS.advanced.value, // Updated to use advanced model as default since basic was removed
       image_ratio: '16:9',
       video_duration: 30, // Constrained to 20-50 range
       frame_fps: 4, // Constrained to 3-6 range
