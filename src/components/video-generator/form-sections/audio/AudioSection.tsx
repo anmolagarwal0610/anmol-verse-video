@@ -97,7 +97,13 @@ const AudioSection = () => {
                 <Button
                   variant="outline"
                   className="w-full justify-start text-left font-normal"
-                  onClick={() => setVoiceDialogOpen(true)}
+                  onClick={(e) => {
+                    // Prevent form submission
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setVoiceDialogOpen(true);
+                  }}
+                  type="button" // Explicitly set as button type to prevent form submission
                   disabled={isGenerating}
                 >
                   <span>{selectedVoiceDetails?.name || 'Select a voice'}</span>
@@ -119,8 +125,10 @@ const AudioSection = () => {
                     <div 
                       key={voice.id}
                       className="relative rounded-lg border p-4 hover:bg-accent transition-colors"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
                         form.setValue('voice', voice.id);
+                        setVoiceDialogOpen(false);
                       }}
                     >
                       <VoiceItem 

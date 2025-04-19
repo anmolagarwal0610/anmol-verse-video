@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
@@ -24,6 +25,17 @@ import {
 import { VideoGenerationParams } from '@/lib/videoGenerationApi';
 import { useAuth } from '@/hooks/use-auth';
 import { VideoGenerationFormProvider } from './VideoGenerationFormContext';
+import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 // Import form section components
 import BasicFormFields from './form-sections/BasicFormFields';
@@ -39,6 +51,8 @@ interface VideoGenerationFormProps {
 const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProps) => {
   const { user } = useAuth();
   const username = user?.email?.split('@')[0] || '';
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [formData, setFormData] = useState<VideoGenerationParams | null>(null);
   
   // Get first English voice as default
   const defaultVoice = Object.values(VOICE_OPTIONS)
@@ -70,6 +84,7 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
   const audioLanguage = form.watch('audio_language');
   const subtitleScript = form.watch('subtitle_script');
   const subtitleFont = form.watch('subtitle_font');
+  const topic = form.watch('topic');
   
   useEffect(() => {
     if (audioLanguage === 'Hindi' && form.getValues('subtitle_script') === 'English') {
@@ -106,14 +121,28 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
     }
   }, [audioLanguage, form]);
   
-  const handleSubmit = (data: VideoGenerationParams) => {
-    // Add username from auth before submitting
-    const enrichedData = {
+  const validateAndShowConfirmation = (data: VideoGenerationParams) => {
+    // Validate topic is not empty
+    if (!data.topic || data.topic.trim() === '') {
+      toast.error('Please enter a topic for your video');
+      return;
+    }
+    
+    // Store form data for confirmation
+    setFormData({
       ...data,
       username: username
-    };
+    });
     
-    onSubmit(enrichedData);
+    // Show confirmation dialog
+    setShowConfirmDialog(true);
+  };
+  
+  const handleConfirmedSubmit = () => {
+    if (formData) {
+      onSubmit(formData);
+      setShowConfirmDialog(false);
+    }
   };
   
   return (
@@ -127,7 +156,7 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
       <CardContent>
         <VideoGenerationFormProvider value={{ form, isGenerating }}>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(validateAndShowConfirmation)} className="space-y-8">
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Basic Settings</h3>
                 <BasicFormFields />
@@ -158,6 +187,25 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
             </form>
           </Form>
         </VideoGenerationFormProvider>
+        
+        <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirm Video Generation</AlertDialogTitle>
+              <AlertDialogDescription>
+                You are about to generate a video with topic: <strong>{formData?.topic}</strong>
+                <br /><br />
+                This action will use one credit from your account. Are you sure you want to proceed?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmedSubmit}>
+                Generate Video
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );
