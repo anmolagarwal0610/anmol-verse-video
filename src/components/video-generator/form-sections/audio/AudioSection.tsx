@@ -35,6 +35,14 @@ const AudioSection = () => {
     console.log("AudioSection mounted with language:", selectedLanguage);
     return () => console.log("AudioSection unmounting");
   }, [selectedLanguage]);
+
+  // Debug function to log events
+  const logEvent = (eventName: string, e: React.MouseEvent | React.SyntheticEvent | any) => {
+    console.log(`🔍 ${eventName}:`);
+    console.log(" - Event type:", e.type);
+    console.log(" - Target:", e.target.tagName);
+    console.log(" - Current target:", e.currentTarget?.tagName);
+  };
   
   return (
     <div className="space-y-6">
@@ -100,15 +108,27 @@ const AudioSection = () => {
                 </SelectTrigger>
                 <SelectContent 
                   className="max-h-[300px] relative z-50"
+                  onOpenAutoFocus={(e) => {
+                    // Prevent autofocus which can cause issues
+                    e.preventDefault();
+                    console.log("🔍 Prevented autofocus on open");
+                  }}
                   onPointerDownOutside={(e) => {
                     const target = e.target as HTMLElement;
                     const isPlayingAudio = playingVoice !== null;
                     
-                    console.log("🛑 Pointer outside event, target:", target.tagName);
+                    logEvent("Pointer outside event", e);
                     console.log("Is audio playing:", isPlayingAudio);
                     
                     if (isPlayingAudio) {
                       console.log("🛑 Preventing close due to audio playing");
+                      e.preventDefault();
+                    }
+                  }}
+                  onInteractOutside={(e) => {
+                    // Add additional prevention for mobile/touch
+                    if (playingVoice !== null) {
+                      console.log("🛑 Preventing interact outside due to audio playing");
                       e.preventDefault();
                     }
                   }}
@@ -120,6 +140,7 @@ const AudioSection = () => {
                       className="absolute right-2 top-2 h-6 w-6 rounded-full hover:bg-accent"
                       onClick={(e) => {
                         // Allow manual closing via X button
+                        logEvent("Close button clicked", e);
                         e.stopPropagation();
                       }}
                     >
@@ -127,21 +148,38 @@ const AudioSection = () => {
                     </Button>
                     <div className="space-y-2 py-2">
                       {filteredVoices.map((voice) => (
-                        <SelectItem 
-                          key={voice.id} 
-                          value={voice.id}
-                          className="flex items-center justify-between py-3 relative"
-                          onSelect={(e) => {
-                            // Always prevent closing when selecting a voice
+                        <div 
+                          key={voice.id}
+                          className="relative"
+                          onClick={(e) => {
+                            // Prevent event propagation on the whole item area
+                            logEvent("Voice item container clicked", e);
+                            e.stopPropagation();
                             e.preventDefault();
+
+                            // Select the voice value but don't close dropdown
+                            if (!e.defaultPrevented) {
+                              console.log("Setting voice value to:", voice.id);
+                              form.setValue('voice', voice.id);
+                            }
                           }}
                         >
-                          <VoiceItem 
-                            voice={voice}
-                            playingVoice={playingVoice}
-                            onPlayPreview={playVoicePreview}
-                          />
-                        </SelectItem>
+                          <SelectItem 
+                            value={voice.id}
+                            className="flex items-center justify-between py-3 relative"
+                            onSelect={(e) => {
+                              // Prevent default selection behavior which causes dropdown to close
+                              logEvent("Voice SelectItem onSelect", e);
+                              e.preventDefault();
+                            }}
+                          >
+                            <VoiceItem 
+                              voice={voice}
+                              playingVoice={playingVoice}
+                              onPlayPreview={playVoicePreview}
+                            />
+                          </SelectItem>
+                        </div>
                       ))}
                     </div>
                   </div>
