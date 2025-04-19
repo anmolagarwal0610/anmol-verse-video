@@ -29,6 +29,11 @@ const AudioSection = () => {
     voice => voice.language === selectedLanguage || voice.id.startsWith('google_')
   );
   
+  useEffect(() => {
+    console.log("AudioSection mounted with language:", selectedLanguage);
+    return () => console.log("AudioSection unmounting");
+  }, [selectedLanguage]);
+  
   return (
     <div className="space-y-6">
       <FormField
@@ -91,15 +96,24 @@ const AudioSection = () => {
                 <SelectTrigger>
                   <SelectValue placeholder="Select voice" />
                 </SelectTrigger>
-                <SelectContent className="max-h-[300px]">
+                <SelectContent 
+                  className="max-h-[300px]"
+                  onPointerDownOutside={(e) => {
+                    if (playingVoice) {
+                      console.log("🛑 Preventing close when audio is playing");
+                      e.preventDefault();
+                    }
+                  }}
+                >
                   {filteredVoices.map((voice) => (
                     <SelectItem 
                       key={voice.id} 
                       value={voice.id}
                       className="flex items-center justify-between py-3 relative"
                       onSelect={(e) => {
+                        console.log("SelectItem onSelect triggered for:", voice.id);
                         if (e.target !== e.currentTarget) {
-                          console.log("Prevented select from closing due to child element click");
+                          console.log("🚫 Prevented select from closing due to child element click");
                           e.preventDefault();
                         }
                       }}

@@ -24,9 +24,14 @@ export const VoiceItem = ({ voice, playingVoice, onPlayPreview }: VoiceItemProps
           variant="ghost"
           size="icon"
           className="h-8 w-8 rounded-full focus:outline-none"
-          onClick={(e) => onPlayPreview(voice.id, voice.previewUrl, e)}
+          onClick={(e) => {
+            console.log("🔊 Play button clicked for voice:", voice.id);
+            e.preventDefault();
+            e.stopPropagation();
+            onPlayPreview(voice.id, voice.previewUrl, e);
+          }}
           onMouseDown={(e) => {
-            console.log("Button mouseDown event");
+            console.log("🖱️ Button mouseDown event for voice:", voice.id);
             e.preventDefault();
             e.stopPropagation();
           }}

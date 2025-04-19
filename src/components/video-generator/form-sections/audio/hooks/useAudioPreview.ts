@@ -20,6 +20,9 @@ export const useAudioPreview = () => {
 
   const playVoicePreview = (voiceId: string, previewUrl: string, event: React.MouseEvent) => {
     console.log("🔊 Voice preview button clicked for voice ID:", voiceId);
+    console.log("Event type:", event.type);
+    console.log("Event target:", event.target);
+    console.log("Event current target:", event.currentTarget);
     
     event.preventDefault();
     event.stopPropagation();
