@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
 import {
@@ -21,6 +20,7 @@ import { useVideoGenerationForm } from '../../VideoGenerationFormContext';
 import { AUDIO_LANGUAGES, VOICE_OPTIONS } from '@/lib/video/constants/audio';
 import { useAudioPreview } from './hooks/useAudioPreview';
 import { VoiceItem } from './VoiceItem';
+import * as SelectPrimitive from "@radix-ui/react-select";
 
 const AudioSection = () => {
   const { form, isGenerating } = useVideoGenerationForm();
@@ -40,7 +40,7 @@ const AudioSection = () => {
   const logEvent = (eventName: string, e: React.MouseEvent | React.SyntheticEvent | any) => {
     console.log(`🔍 ${eventName}:`);
     console.log(" - Event type:", e.type);
-    console.log(" - Target:", e.target.tagName);
+    console.log(" - Target:", e.target?.tagName);
     console.log(" - Current target:", e.currentTarget?.tagName);
   };
   
@@ -108,22 +108,12 @@ const AudioSection = () => {
                 </SelectTrigger>
                 <SelectContent 
                   className="max-h-[300px] relative z-50"
-                  onPointerDownOutside={(e) => {
-                    const isPlayingAudio = playingVoice !== null;
-                    
-                    logEvent("Pointer outside event", e);
-                    console.log("Is audio playing:", isPlayingAudio);
-                    
-                    if (isPlayingAudio) {
-                      console.log("🛑 Preventing close due to audio playing");
-                      e.preventDefault();
-                    }
-                  }}
-                  onInteractOutside={(e) => {
-                    // Add additional prevention for mobile/touch
+                  // Use Radix UI's built-in event prevention
+                  onCloseAutoFocus={(e) => {
+                    // Prevent closing when interacting with voice items
                     if (playingVoice !== null) {
-                      console.log("🛑 Preventing interact outside due to audio playing");
                       e.preventDefault();
+                      console.log("Preventing dropdown close due to audio playing");
                     }
                   }}
                 >
@@ -146,16 +136,14 @@ const AudioSection = () => {
                           key={voice.id}
                           className="relative"
                           onClick={(e) => {
-                            // Prevent event propagation on the whole item area
+                            // Prevent event propagation to keep dropdown open
                             logEvent("Voice item container clicked", e);
                             e.stopPropagation();
                             e.preventDefault();
 
                             // Select the voice value but don't close dropdown
-                            if (!e.defaultPrevented) {
-                              console.log("Setting voice value to:", voice.id);
-                              form.setValue('voice', voice.id);
-                            }
+                            console.log("Setting voice value to:", voice.id);
+                            form.setValue('voice', voice.id);
                           }}
                         >
                           <SelectItem 
