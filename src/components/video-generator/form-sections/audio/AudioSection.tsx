@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
 import {
@@ -9,40 +10,37 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogHeader,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { useVideoGenerationForm } from '../../VideoGenerationFormContext';
+import { AUDIO_LANGUAGES, VOICE_OPTIONS } from '@/lib/video/constants/audio';
+import { useAudioPreview } from './hooks/useAudioPreview';
+import { VoiceItem } from './VoiceItem';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { useVideoGenerationForm } from '../../VideoGenerationFormContext';
-import { AUDIO_LANGUAGES, VOICE_OPTIONS } from '@/lib/video/constants/audio';
-import { useAudioPreview } from './hooks/useAudioPreview';
-import { VoiceItem } from './VoiceItem';
-import * as SelectPrimitive from "@radix-ui/react-select";
 
 const AudioSection = () => {
   const { form, isGenerating } = useVideoGenerationForm();
   const { playingVoice, playVoicePreview } = useAudioPreview();
+  const [voiceDialogOpen, setVoiceDialogOpen] = useState(false);
   
   const selectedLanguage = form.watch('audio_language');
+  const selectedVoice = form.watch('voice');
+  
   const filteredVoices = Object.values(VOICE_OPTIONS).filter(
     voice => voice.language === selectedLanguage || voice.id.startsWith('google_')
   );
-  
-  useEffect(() => {
-    console.log("AudioSection mounted with language:", selectedLanguage);
-    return () => console.log("AudioSection unmounting");
-  }, [selectedLanguage]);
 
-  // Debug function to log events
-  const logEvent = (eventName: string, e: React.MouseEvent | React.SyntheticEvent | any) => {
-    console.log(`🔍 ${eventName}:`);
-    console.log(" - Event type:", e.type);
-    console.log(" - Target:", e.target?.tagName);
-    console.log(" - Current target:", e.currentTarget?.tagName);
-  };
+  const selectedVoiceDetails = VOICE_OPTIONS[selectedVoice];
   
   return (
     <div className="space-y-6">
@@ -95,83 +93,46 @@ const AudioSection = () => {
           <FormItem>
             <FormLabel>Voice</FormLabel>
             <FormControl>
-              <Select
-                value={field.value}
-                onValueChange={(value) => {
-                  console.log("Voice selection changed to:", value);
-                  field.onChange(value);
-                }}
-                disabled={isGenerating}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select voice" />
-                </SelectTrigger>
-                <SelectContent 
-                  className="max-h-[300px] relative z-50"
-                  // Use Radix UI's built-in event prevention
-                  onCloseAutoFocus={(e) => {
-                    // Prevent closing when interacting with voice items
-                    if (playingVoice !== null) {
-                      e.preventDefault();
-                      console.log("Preventing dropdown close due to audio playing");
-                    }
-                  }}
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal"
+                  onClick={() => setVoiceDialogOpen(true)}
+                  disabled={isGenerating}
                 >
-                  <div className="relative">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-2 top-2 h-6 w-6 rounded-full hover:bg-accent"
-                      onClick={(e) => {
-                        // Allow manual closing via X button
-                        logEvent("Close button clicked", e);
-                        e.stopPropagation();
-                      }}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                    <div className="space-y-2 py-2">
-                      {filteredVoices.map((voice) => (
-                        <div 
-                          key={voice.id}
-                          className="relative"
-                          onClick={(e) => {
-                            // Prevent event propagation to keep dropdown open
-                            logEvent("Voice item container clicked", e);
-                            e.stopPropagation();
-                            e.preventDefault();
-
-                            // Select the voice value but don't close dropdown
-                            console.log("Setting voice value to:", voice.id);
-                            form.setValue('voice', voice.id);
-                          }}
-                        >
-                          <SelectItem 
-                            value={voice.id}
-                            className="flex items-center justify-between py-3 relative"
-                            onSelect={(e) => {
-                              // Prevent default selection behavior which causes dropdown to close
-                              logEvent("Voice SelectItem onSelect", e);
-                              e.preventDefault();
-                            }}
-                          >
-                            <VoiceItem 
-                              voice={voice}
-                              playingVoice={playingVoice}
-                              onPlayPreview={playVoicePreview}
-                            />
-                          </SelectItem>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </SelectContent>
-              </Select>
+                  <span>{selectedVoiceDetails?.name || 'Select a voice'}</span>
+                </Button>
+              </div>
             </FormControl>
             <FormDescription>
               Choose the voice for your video's narration
             </FormDescription>
             <FormMessage />
+
+            <Dialog open={voiceDialogOpen} onOpenChange={setVoiceDialogOpen}>
+              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Select a Voice</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  {filteredVoices.map((voice) => (
+                    <div 
+                      key={voice.id}
+                      className="relative rounded-lg border p-4 hover:bg-accent transition-colors"
+                      onClick={() => {
+                        form.setValue('voice', voice.id);
+                      }}
+                    >
+                      <VoiceItem 
+                        voice={voice}
+                        playingVoice={playingVoice}
+                        onPlayPreview={playVoicePreview}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
           </FormItem>
         )}
       />

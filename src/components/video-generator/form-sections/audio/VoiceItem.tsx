@@ -11,7 +11,7 @@ interface VoiceItemProps {
 
 export const VoiceItem = ({ voice, playingVoice, onPlayPreview }: VoiceItemProps) => {
   return (
-    <div className="flex items-center justify-between w-full pr-2">
+    <div className="flex items-center justify-between w-full">
       <div>
         <span className="font-medium">{voice.name}</span>
         <span className="text-sm text-muted-foreground"> - {voice.category}</span>
@@ -23,25 +23,10 @@ export const VoiceItem = ({ voice, playingVoice, onPlayPreview }: VoiceItemProps
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-full focus:outline-none"
+          className="h-8 w-8 rounded-full"
           onClick={(e) => {
-            console.log("🔊 Play button clicked for voice:", voice.id);
-            // These two lines are crucial to prevent the dropdown from closing
-            e.preventDefault();
             e.stopPropagation();
             onPlayPreview(voice.id, voice.previewUrl, e);
-          }}
-          // Capture mousedown to prevent the dropdown from closing
-          onMouseDown={(e) => {
-            console.log("🖱️ Button mouseDown event for voice:", voice.id);
-            e.preventDefault(); 
-            e.stopPropagation();
-          }}
-          // Add pointer events to ensure mobile compatibility
-          onPointerDown={(e) => {
-            console.log("👆 Pointer down on play button for voice:", voice.id);
-            e.preventDefault();
-            e.stopPropagation();
           }}
         >
           {playingVoice === voice.id ? (
