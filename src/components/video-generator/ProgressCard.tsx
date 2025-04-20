@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -11,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 import { Link } from 'react-router-dom';
 import AnimatedLoadingIndicator from './AnimatedLoadingIndicator';
+import WaitingGame from './WaitingGame';
 
 interface ProgressCardProps {
   progress: number;
@@ -38,7 +40,6 @@ const ProgressCard = ({ progress, status }: ProgressCardProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Use animated loading indicator */}
         <AnimatedLoadingIndicator progress={progress} status={status} />
         
         <div className="flex items-center justify-center space-x-2 text-muted-foreground">
@@ -53,9 +54,11 @@ const ProgressCard = ({ progress, status }: ProgressCardProps) => {
             Status: <span className="font-medium text-foreground">{status}</span>
           </p>
           <p className="text-xs text-center mt-2 text-muted-foreground">
-            Feel free to explore other features while your video is being generated
+            Feel free to play a quick game while you wait!
           </p>
         </div>
+
+        <WaitingGame />
         
         <div className="flex flex-col space-y-2">
           <Link to="/images" className="w-full">
