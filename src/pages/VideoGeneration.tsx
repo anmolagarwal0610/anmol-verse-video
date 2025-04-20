@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import { Separator } from '@/components/ui/separator';
@@ -8,11 +7,10 @@ import ResultsSection from '@/components/video-generator/ResultsSection';
 import ErrorDisplay from '@/components/video-generator/ErrorDisplay';
 import { VideoGenerationParams } from '@/lib/videoGenerationApi';
 import { useAuth } from '@/hooks/use-auth';
-import { Navigate } from 'react-router-dom';
 import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 
 const VideoGeneration = () => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const { 
     status, 
     progress, 
@@ -38,19 +36,6 @@ const VideoGeneration = () => {
   const handleSubmit = (data: VideoGenerationParams) => {
     generateVideo(data);
   };
-
-  // Render loading state while auth is being checked
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  // Redirect to auth page if not logged in
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  // Helper function to determine if we're in a generating state
-  const isGenerating = () => status === 'generating' || status === 'polling';
 
   return (
     <div className="min-h-screen bg-background">

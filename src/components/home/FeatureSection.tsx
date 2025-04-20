@@ -10,8 +10,8 @@ import FeatureCard from './FeatureCard';
 const FeatureSection = () => {
   const features = [
     {
-      title: "Video Generation",
-      description: "Transform your concepts into high-quality, sophisticated video content.",
+      title: "Video Genie",
+      description: "Turn a single idea into a complete, voice-backed, image-rich video—instantly and effortlessly.",
       icon: <Film className="h-8 w-8 text-blue-500" />,
       path: "/videos/generate",
       color: "from-blue-500 to-blue-600",
