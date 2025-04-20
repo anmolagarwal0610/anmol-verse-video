@@ -9,6 +9,7 @@ export interface GeneratedImage {
   user_id?: string | null;
   width: number;
   height: number;
+  expiry_time: string;
 }
 
 // Helper function to truncate text
