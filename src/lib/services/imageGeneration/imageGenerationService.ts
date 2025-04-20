@@ -59,14 +59,14 @@ export async function generateImageFromPrompt(
     const generatedImageUrl = await generateImage(generationOptions);
     
     if (!generatedImageUrl) {
-      return null; // Failed to generate image
+      return null;
     }
     
     // Save to database if user is logged in
     if (userId) {
       try {
-        // Calculate expiry time (30 days from now)
-        const expiryTime = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        // Calculate expiry time (24 hours from now)
+        const expiryTime = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
         
         const { error } = await supabase.from('generated_images').insert({
           prompt: values.prompt,
@@ -76,14 +76,14 @@ export async function generateImageFromPrompt(
           height: dimensions.height,
           model: values.model,
           preferences: values.imageStyles,
-          expiry_time: expiryTime // Add expiry_time field for new image records
+          expiry_time: expiryTime
         });
         
         if (error) {
           console.error('Error saving image to database:', error);
           toast.error(`Failed to save image to gallery: ${error.message || 'Unknown error'}`);
         } else {
-          toast.success('Image saved to your gallery!');
+          toast.success('Image saved to your gallery! Note: Images are automatically deleted after 24 hours.');
         }
       } catch (dbError: any) {
         console.error('Error saving image to database:', dbError);
@@ -94,7 +94,7 @@ export async function generateImageFromPrompt(
     // Return the generated image URL
     return {
       temporaryImageUrl: generatedImageUrl,
-      permanentImageUrl: generatedImageUrl, // Same URL, no processing needed
+      permanentImageUrl: generatedImageUrl,
       dimensions,
       success: true
     };
