@@ -58,9 +58,9 @@ const VideoGeneration = () => {
       
       <main className="container max-w-4xl mx-auto py-8 px-4 mt-16">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Video Generator</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Video Genie</h1>
           <p className="mt-2 text-muted-foreground">
-            Create stunning AI-generated videos in minutes
+            Turn a single idea into a complete, voice-backed, image-rich video—instantly and effortlessly.
           </p>
         </div>
         

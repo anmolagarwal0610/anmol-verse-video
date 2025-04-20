@@ -1,4 +1,3 @@
-
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Index from '@/pages/Index'
 import NotFound from '@/pages/NotFound'
@@ -27,6 +26,7 @@ const App = () => {
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/transcript" element={<Transcript />} />
           <Route path="/videos/:id" element={<Video />} />
+          {/* Video Genie route */}
           <Route path="/videos/generate" element={<VideoGeneration />} />
           <Route path="/images" element={<ImageGeneration />} />
           <Route path="/gallery" element={<Gallery />} />
