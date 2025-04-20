@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import VideoThumbnail from './VideoThumbnail';
 import PromptPopover from './PromptPopover';
 import { VideoCardProps } from './types';
-import { FileSlash } from 'lucide-react';
+import { FileX } from 'lucide-react';
 
 const VideoCard = ({ video, index }: VideoCardProps) => {
   const [isExpired, setIsExpired] = useState(false);
@@ -58,7 +58,7 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
         {isExpired ? (
           <div className="aspect-video bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
             <div className="text-center p-4">
-              <FileSlash className="mx-auto h-10 w-10 text-gray-400 mb-2" />
+              <FileX className="mx-auto h-10 w-10 text-gray-400 mb-2" />
               <p className="text-sm text-gray-500">Video has expired</p>
             </div>
           </div>
