@@ -31,10 +31,12 @@ const TimingFields = () => {
             <div className="flex justify-between items-center">
               <FormLabel className="flex items-center">
                 Approximate Video Duration
-                <TooltipProvider>
+                <TooltipProvider delayDuration={200}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 ml-2 inline-block text-muted-foreground cursor-help" />
+                      <button type="button" className="inline-flex">
+                        <Info className="h-4 w-4 ml-2 text-muted-foreground cursor-help" />
+                      </button>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs">Your video might run a bit longer—just enough to let the story fully shine.</p>
@@ -76,10 +78,12 @@ const TimingFields = () => {
             <div className="flex justify-between items-center">
               <FormLabel>
                 Image Rate
-                <TooltipProvider>
+                <TooltipProvider delayDuration={200}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 ml-2 inline-block text-muted-foreground cursor-help" />
+                      <button type="button" className="inline-flex">
+                        <Info className="h-4 w-4 ml-2 text-muted-foreground cursor-help" />
+                      </button>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs">Rate at which the images will change in the video</p>
@@ -102,7 +106,7 @@ const TimingFields = () => {
                     label: (
                       <div className="flex flex-col items-center">
                         <span>5s</span>
-                        <span className="text-xs text-green-600 dark:text-green-500">Recommended</span>
+                        <span className="text-xs text-muted-foreground">(Recommended)</span>
                       </div>
                     )
                   },
