@@ -65,6 +65,9 @@ export async function generateImageFromPrompt(
     // Save to database if user is logged in
     if (userId) {
       try {
+        // Calculate expiry time (30 days from now)
+        const expiryTime = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        
         const { error } = await supabase.from('generated_images').insert({
           prompt: values.prompt,
           image_url: generatedImageUrl,
@@ -72,7 +75,8 @@ export async function generateImageFromPrompt(
           width: dimensions.width,
           height: dimensions.height,
           model: values.model,
-          preferences: values.imageStyles
+          preferences: values.imageStyles,
+          expiry_time: expiryTime // Add expiry_time field for new image records
         });
         
         if (error) {
