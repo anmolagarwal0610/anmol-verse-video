@@ -1,11 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+
+import React, { createContext, useContext } from 'react';
 import { useVideoGenerator, VideoGenerationStatus } from '@/hooks/use-video-generator';
-import { VideoGenerationParams, VideoStatusResponse } from '@/lib/api';
+import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
-import { saveVideoToGallery } from '@/lib/videoApi';
+import { useSaveVideo } from '@/hooks/use-save-video';
+import { useVideoGenerationState } from '@/hooks/use-video-generation-state';
 
 interface VideoGenerationContextType {
   status: VideoGenerationStatus;
@@ -22,34 +23,45 @@ const VideoGenerationContext = createContext<VideoGenerationContextType | undefi
 export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { saveVideoToGallery } = useSaveVideo();
   const {
-    generate,
     status,
     progress,
     result,
     error,
-    reset
-  } = useVideoGenerator();
+    setStatus,
+    setProgress,
+    setResult,
+    setError,
+    reset,
+    cleanup,
+    currentTopic,
+    setCurrentTopic
+  } = useVideoGenerationState();
   
-  useEffect(() => {
+  const { generate } = useVideoGenerator();
+  
+  // Handle video completion and errors
+  React.useEffect(() => {
     if (status === 'completed' && result && user) {
-      try {
-        saveVideoToGallery(result, user.id);
-      } catch (err) {
-        console.error('VideoGenerationContext: Failed to save video to database:', err);
-      }
+      saveVideoToGallery(result, user.id);
     }
     
     if (status === 'error' && error) {
       toast.error(`Error: ${error}`);
     }
-  }, [status, result, error, navigate, user]);
+  }, [status, result, error, user]);
   
   const generateVideo = async (params: VideoGenerationParams) => {
     try {
+      reset();
+      setStatus('generating');
+      setCurrentTopic(params.topic);
       await generate(params);
     } catch (err) {
       console.error('Failed to start video generation:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
+      setStatus('error');
     }
   };
   
