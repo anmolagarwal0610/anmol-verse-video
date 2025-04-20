@@ -1,5 +1,5 @@
 
-import { format } from 'date-fns';
+import { format, isPast } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Clock } from 'lucide-react';
 
@@ -15,6 +15,8 @@ const ImageMetadata = ({ createdAt, expiryTime, preferences, className = '' }: I
     ? format(new Date(createdAt), 'MMM d, yyyy')
     : 'Unknown date';
   
+  const isExpired = expiryTime ? isPast(new Date(expiryTime)) : false;
+  
   return (
     <div className={`mt-2 flex items-center justify-between ${className}`}>
       <div className="flex items-center gap-2">
@@ -22,10 +24,10 @@ const ImageMetadata = ({ createdAt, expiryTime, preferences, className = '' }: I
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <Clock className={`h-4 w-4 ${isExpired ? 'text-red-400' : 'text-muted-foreground'}`} />
             </TooltipTrigger>
             <TooltipContent>
-              <p>Expires on {format(new Date(expiryTime), 'MMM d, yyyy')}</p>
+              <p>{isExpired ? 'Expired on' : 'Expires on'} {format(new Date(expiryTime), 'MMM d, yyyy')}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

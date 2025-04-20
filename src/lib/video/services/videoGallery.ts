@@ -34,14 +34,20 @@ export const saveVideoToGallery = async (
   }
 };
 
-export const getVideos = async (): Promise<VideoData[]> => {
+export const getVideos = async (userId: string | undefined): Promise<VideoData[]> => {
   try {
-    console.log('Fetching videos from database...');
+    console.log('Fetching videos for user:', userId);
     
-    // Get videos from Supabase
+    if (!userId) {
+      console.log('No user ID provided, returning empty array');
+      return [];
+    }
+    
+    // Get videos from Supabase for the specific user
     const { data: videos, error } = await supabase
       .from('generated_videos')
       .select('*')
+      .eq('user_id', userId)
       .order('created_at', { ascending: false });
       
     if (error) {
@@ -50,11 +56,11 @@ export const getVideos = async (): Promise<VideoData[]> => {
     }
     
     if (!videos || videos.length === 0) {
-      console.log('No videos found in database');
+      console.log('No videos found for user');
       return [];
     }
     
-    console.log(`Found ${videos.length} videos in database`);
+    console.log(`Found ${videos.length} videos for user ${userId}`);
     
     // Map database videos to VideoData format
     return videos.map(video => {
@@ -69,12 +75,13 @@ export const getVideos = async (): Promise<VideoData[]> => {
         created_at: video.created_at,
         audioUrl: video.audio_url,
         transcriptUrl: video.transcript_url,
-        imagesZipUrl: video.images_zip_url
+        imagesZipUrl: video.images_zip_url,
+        expiryTime: video.expiry_time
       };
     });
   } catch (error) {
     console.error('Error fetching videos:', error);
-    // Return empty array instead of mock videos for logged-in users
+    // Return empty array on error
     return [];
   }
 };

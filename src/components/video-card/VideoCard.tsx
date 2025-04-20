@@ -1,13 +1,28 @@
 
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
+import { format, isPast } from 'date-fns';
 import { Card } from '@/components/ui/card';
 import VideoThumbnail from './VideoThumbnail';
 import PromptPopover from './PromptPopover';
 import { VideoCardProps } from './types';
+import { FileSlash } from 'lucide-react';
 
 const VideoCard = ({ video, index }: VideoCardProps) => {
+  const [isExpired, setIsExpired] = useState(false);
+  
+  // Check if video is expired based on created_at + 7 days (default expiry)
+  useEffect(() => {
+    if (video.expiryTime) {
+      setIsExpired(isPast(new Date(video.expiryTime)));
+    } else if (video.created_at) {
+      // Fallback: check if it's older than 7 days
+      const expiryDate = new Date(video.created_at);
+      expiryDate.setDate(expiryDate.getDate() + 7);
+      setIsExpired(isPast(expiryDate));
+    }
+  }, [video.created_at, video.expiryTime]);
+  
   const fadeInVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i: number) => ({
@@ -40,11 +55,20 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
       custom={index}
     >
       <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-lg group">
-        <VideoThumbnail 
-          thumbnail={thumbnailUrl}
-          title={video.title || video.prompt}
-          url={video.url}
-        />
+        {isExpired ? (
+          <div className="aspect-video bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+            <div className="text-center p-4">
+              <FileSlash className="mx-auto h-10 w-10 text-gray-400 mb-2" />
+              <p className="text-sm text-gray-500">Video has expired</p>
+            </div>
+          </div>
+        ) : (
+          <VideoThumbnail 
+            thumbnail={thumbnailUrl}
+            title={video.title || video.prompt}
+            url={video.url}
+          />
+        )}
         
         <div className="p-3 flex-grow flex flex-col justify-between">
           <PromptPopover 
@@ -52,8 +76,13 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
             truncatedPrompt={truncatedPrompt}
           />
           
-          <div className="text-xs text-muted-foreground mt-2">
-            {formattedDate}
+          <div className="flex items-center justify-between mt-2">
+            <div className="text-xs text-muted-foreground">
+              {formattedDate}
+            </div>
+            {isExpired && (
+              <span className="text-xs text-red-500">Expired</span>
+            )}
           </div>
         </div>
       </Card>

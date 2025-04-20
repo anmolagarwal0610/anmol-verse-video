@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
@@ -34,16 +35,26 @@ interface ImageCardProps {
 const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete = false }: ImageCardProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
   const { user } = useAuth();
   
   const isOwner = user && image.user_id === user.id;
+  
+  // Check if image is expired
+  useEffect(() => {
+    if (image.expiry_time) {
+      const expiryDate = new Date(image.expiry_time);
+      const now = new Date();
+      setIsExpired(now > expiryDate);
+    }
+  }, [image.expiry_time]);
 
   useEffect(() => {
-    if (image.image_url) {
+    if (image.image_url && !isExpired) {
       setHasError(false);
       setIsLoading(true);
     }
-  }, [image.image_url]);
+  }, [image.image_url, isExpired]);
 
   const handleImageLoad = () => {
     setIsLoading(false);
@@ -67,7 +78,13 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
         <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800 group">
           <ImageLoadingOverlay isLoading={isLoading} />
           
-          {hasError ? (
+          {isExpired ? (
+            <div className="w-full h-full flex items-center justify-center">
+              <p className="text-sm text-gray-500 dark:text-gray-400 px-4 py-2 text-center">
+                Content has expired
+              </p>
+            </div>
+          ) : hasError ? (
             <div className="w-full h-full flex items-center justify-center">
               <p className="text-sm text-gray-500 dark:text-gray-400 px-4 py-2 text-center">
                 Unable to load image
@@ -86,7 +103,7 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
             />
           )}
 
-          {!hasError && (
+          {!hasError && !isExpired && (
             <div className={`absolute inset-0 bg-black/30 ${alwaysShowDelete ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity duration-200 flex items-center justify-center gap-2`}>
               <ImageDownloadButton 
                 imageUrl={image.image_url}
