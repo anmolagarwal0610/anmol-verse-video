@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 
 type Mark = {
   value: number;
-  label: string;
+  label: React.ReactNode;
 }
 
 interface EnhancedSliderProps extends React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {

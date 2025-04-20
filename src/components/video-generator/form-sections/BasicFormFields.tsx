@@ -1,3 +1,4 @@
+
 import {
   FormField,
   FormItem,
@@ -190,12 +191,15 @@ const BasicFormFields = () => {
                 step={1}
                 marks={[
                   { value: 3, label: '3s' },
-                  { value: 5, label: (
-                    <div className="flex flex-col items-center">
-                      <span>5s</span>
-                      <span className="text-xs text-green-600 dark:text-green-500">Recommended</span>
-                    </div>
-                  )},
+                  { 
+                    value: 5, 
+                    label: (
+                      <div className="flex flex-col items-center">
+                        <span>5s</span>
+                        <span className="text-xs text-green-600 dark:text-green-500">Recommended</span>
+                      </div>
+                    )
+                  },
                   { value: 6, label: '6s' },
                 ]}
                 onValueChange={([newValue]) => onChange(newValue)}
