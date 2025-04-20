@@ -17,7 +17,8 @@ const ImagePromptPopover = ({ prompt }: ImagePromptPopoverProps) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   
-  const handleCopyPrompt = () => {
+  const handleCopyPrompt = (e: React.MouseEvent) => {
+    e.stopPropagation();
     navigator.clipboard.writeText(prompt);
     setIsCopied(true);
     toast.success('Prompt copied to clipboard');
@@ -34,27 +35,28 @@ const ImagePromptPopover = ({ prompt }: ImagePromptPopoverProps) => {
         <PopoverTrigger asChild>
           <Button 
             variant="ghost" 
-            className="p-0 h-auto font-normal hover:bg-transparent justify-start text-left"
+            className="p-0 h-auto font-normal text-sm hover:bg-transparent justify-start text-left w-full overflow-hidden"
           >
-            <p className="text-sm line-clamp-2">{truncatedPrompt}</p>
+            <p className="line-clamp-2 text-gray-800 dark:text-gray-200">{truncatedPrompt}</p>
           </Button>
         </PopoverTrigger>
 
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 shrink-0"
+          className="h-8 w-8 shrink-0 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
           onClick={handleCopyPrompt}
+          title="Copy prompt"
         >
           {isCopied ? (
             <Check className="h-4 w-4 text-green-500" />
           ) : (
-            <Copy className="h-4 w-4 text-muted-foreground" />
+            <Copy className="h-4 w-4 text-gray-500 dark:text-gray-400" />
           )}
         </Button>
       </div>
       
-      <PopoverContent className="w-80">
+      <PopoverContent className="w-80 shadow-lg">
         <div className="space-y-2">
           <h4 className="font-medium">Image Prompt</h4>
           <p className="text-sm text-muted-foreground break-words">{prompt}</p>
