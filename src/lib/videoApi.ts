@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { VideoGenerationParams, VideoStatusResponse } from './video/types';
@@ -68,6 +67,12 @@ export const getVideos = async (): Promise<VideoData[]> => {
     const { data: { user } } = await supabase.auth.getUser();
     console.log('getVideos: Current user:', user?.id);
     
+    // If no authenticated user, return mock videos
+    if (!user) {
+      console.log('getVideos: No authenticated user, returning mock videos');
+      return MOCK_VIDEOS;
+    }
+    
     // First try to fetch from Supabase
     console.log('getVideos: Querying Supabase...');
     const { data: supabaseVideos, error } = await supabase
@@ -117,33 +122,19 @@ export const getVideos = async (): Promise<VideoData[]> => {
       return formattedVideos;
     }
     
-    console.log('getVideos: No videos found in Supabase, trying API fallback');
-    
-    // Fallback to API if no videos in Supabase
-    try {
-      console.log('getVideos: Attempting to fetch from API at:', `${API_CONFIG.BASE_URL}/videos`);
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
-      const response = await fetch(`${API_CONFIG.BASE_URL}/videos`, {
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('getVideos: API response:', data);
-      return data.videos || [];
-    } catch (apiError) {
-      console.error('getVideos: API fetch error:', apiError);
-      throw new Error(`API not available: ${apiError instanceof Error ? apiError.message : 'Unknown error'}`);
-    }
+    // For authenticated users, return empty array if no videos found
+    console.log('getVideos: No videos found for authenticated user, returning empty array');
+    return [];
   } catch (error) {
     console.error('getVideos: Error fetching videos:', error);
-    console.warn('getVideos: Using MOCK_VIDEOS as fallback');
+    // For authenticated users, return empty array on error
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      console.log('getVideos: Error occurred for authenticated user, returning empty array');
+      return [];
+    }
+    // Only use mock videos as fallback for non-authenticated users
+    console.warn('getVideos: Using MOCK_VIDEOS as fallback for non-authenticated user');
     return MOCK_VIDEOS;
   }
 };
