@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
@@ -19,6 +18,7 @@ export interface ImageData {
   preferences?: string[];
   model: string;
   user_id?: string;
+  expiry_time: string;
 }
 
 interface ImageCardProps {
@@ -35,10 +35,8 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete }: ImageCardProps) 
   const [retryCount, setRetryCount] = useState(0);
   const { user } = useAuth();
   
-  // Check if the current user is the owner of this image
   const isOwner = user && image.user_id === user.id;
   
-  // Reset error state when image URL changes
   useEffect(() => {
     if (image.image_url) {
       setHasError(false);
@@ -70,16 +68,13 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete }: ImageCardProps) 
     setIsLoading(false);
     setHasError(true);
     
-    // Try one automatic retry with a cache-busting parameter
     if (retryCount === 0 && image.image_url) {
       setRetryCount(1);
-      // Don't call onError yet, we'll try once more
     } else if (onError) {
       onError();
     }
   };
 
-  // Generate cache-busting URL for retry
   const imageUrl = retryCount > 0 && image.image_url 
     ? `${image.image_url}${image.image_url.includes('?') ? '&' : '?'}cache=${Date.now()}`
     : image.image_url;
@@ -125,7 +120,6 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete }: ImageCardProps) 
                 variant="overlay"
               />
               
-              {/* Show delete button only if the user is the owner */}
               {isOwner && (
                 <ImageDeleteButton 
                   imageId={image.id}
@@ -142,6 +136,7 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete }: ImageCardProps) 
           
           <ImageMetadata 
             createdAt={image.created_at}
+            expiryTime={image.expiry_time}
             preferences={image.preferences}
           />
         </div>

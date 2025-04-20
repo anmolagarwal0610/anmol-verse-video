@@ -57,12 +57,16 @@ export const useGalleryImages = () => {
           img.image_url && 
           typeof img.image_url === 'string' && 
           img.image_url.startsWith('http')
-        );
+        ).map(img => ({
+          ...img,
+          // If there's no expiry_time in the database, set a default 30 days from created_at
+          expiry_time: img.expiry_time || new Date(new Date(img.created_at).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
+        }));
         
         console.log(`Setting ${validImages.length} valid images out of ${data.length} total`);
         
         if (isMounted) {
-          setImages(validImages);
+          setImages(validImages as GeneratedImage[]);
           setIsLoadingImages(false);
         }
       } catch (error) {

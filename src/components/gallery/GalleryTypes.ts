@@ -28,7 +28,8 @@ export const DEFAULT_IMAGES: GeneratedImage[] = [
     model: 'advanced',
     preferences: ['surreal', 'hyperrealistic'],
     width: 1920,
-    height: 1080
+    height: 1080,
+    expiry_time: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
   },
   {
     id: 'default-2',
@@ -38,7 +39,8 @@ export const DEFAULT_IMAGES: GeneratedImage[] = [
     model: 'basic',
     preferences: ['8k', 'minimalistic'],
     width: 1920,
-    height: 1080
+    height: 1080,
+    expiry_time: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
   },
   {
     id: 'default-3',
@@ -48,7 +50,8 @@ export const DEFAULT_IMAGES: GeneratedImage[] = [
     model: 'advanced',
     preferences: ['minimalistic', 'vintage'],
     width: 1920,
-    height: 1080
+    height: 1080,
+    expiry_time: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
   },
   {
     id: 'default-4',
@@ -58,7 +61,8 @@ export const DEFAULT_IMAGES: GeneratedImage[] = [
     model: 'basic',
     preferences: ['minimalistic', 'hyperrealistic'],
     width: 1080,
-    height: 1920
+    height: 1920,
+    expiry_time: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
   },
   {
     id: 'default-5',
@@ -68,6 +72,7 @@ export const DEFAULT_IMAGES: GeneratedImage[] = [
     model: 'advanced',
     preferences: ['minimalistic', '8k'],
     width: 1920,
-    height: 1080
+    height: 1080,
+    expiry_time: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
   }
 ];
