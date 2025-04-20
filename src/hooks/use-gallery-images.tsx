@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,7 +15,7 @@ interface SupabaseImageResult {
   user_id?: string | null;
   width: number;
   height: number;
-  expiry_time?: string; // Make it optional since some existing records might not have it yet
+  expiry_time: string;
 }
 
 export const useGalleryImages = () => {
@@ -67,17 +66,12 @@ export const useGalleryImages = () => {
         console.log(`Found ${data.length} images for user`);
         
         // Filter out any images with invalid URLs
-        const validImages = (data as SupabaseImageResult[]).filter(img => 
-          img.image_url && 
-          typeof img.image_url === 'string' && 
-          img.image_url.startsWith('http')
-        ).map(img => ({
-          ...img,
-          // If there's no expiry_time in the database, set a default 30 days from created_at
-          expiry_time: img.expiry_time || new Date(new Date(img.created_at).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
-        }));
-        
-        console.log(`Setting ${validImages.length} valid images out of ${data.length} total`);
+        const validImages = (data as SupabaseImageResult[])
+          .filter(img => 
+            img.image_url && 
+            typeof img.image_url === 'string' && 
+            img.image_url.startsWith('http')
+          );
         
         if (isMounted) {
           setImages(validImages as GeneratedImage[]);
