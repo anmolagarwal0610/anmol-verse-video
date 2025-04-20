@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
@@ -6,6 +7,7 @@ import ImageDownloadButton from './ImageDownloadButton';
 import ImagePromptPopover from './ImagePromptPopover';
 import ImageMetadata from './ImageMetadata';
 import ImageDeleteButton from './ImageDeleteButton';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
 
 export interface ImageData {
@@ -87,7 +89,7 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete }: ImageCardProps) 
       animate="visible"
       custom={index}
     >
-      <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-lg group">
+      <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-lg">
         <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800">
           <ImageLoadingOverlay isLoading={isLoading} />
           
@@ -110,16 +112,13 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete }: ImageCardProps) 
             />
           )}
           
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          
+          {/* Action buttons overlay - only visible on hover */}
           {!hasError && (
-            <>
+            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
               <ImageDownloadButton 
                 imageUrl={image.image_url}
-                prompt={image.prompt}
                 variant="overlay"
               />
-              
               {isOwner && (
                 <ImageDeleteButton 
                   imageId={image.id}
@@ -127,17 +126,32 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete }: ImageCardProps) 
                   onDelete={onDelete}
                 />
               )}
-            </>
+            </div>
           )}
         </div>
         
-        <div className="p-3 flex-grow flex flex-col justify-between">
-          <ImagePromptPopover prompt={image.prompt} />
-          
+        {/* Content below image */}
+        <div className="p-4 flex-grow flex flex-col justify-between space-y-3">
+          {/* Prompt section */}
+          <div className="space-y-2">
+            <ImagePromptPopover prompt={image.prompt} />
+            <div className="flex flex-wrap gap-1">
+              {image.preferences?.map((pref, i) => (
+                <Badge 
+                  key={i} 
+                  variant="secondary" 
+                  className="text-xs font-normal"
+                >
+                  {pref}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          {/* Metadata section */}
           <ImageMetadata 
             createdAt={image.created_at}
             expiryTime={image.expiry_time}
-            preferences={image.preferences}
           />
         </div>
       </Card>
