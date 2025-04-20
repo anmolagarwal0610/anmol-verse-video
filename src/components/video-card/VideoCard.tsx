@@ -1,11 +1,11 @@
 
+import { memo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { Card } from '@/components/ui/card';
 import VideoThumbnail from './VideoThumbnail';
 import PromptPopover from './PromptPopover';
 import { VideoCardProps } from './types';
-import { useEffect } from 'react';
 
 const VideoCard = ({ video, index }: VideoCardProps) => {
   const fadeInVariants = {
@@ -31,18 +31,6 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
   // Use an embedded SVG data URL as fallback to ensure it always works
   const fallbackThumbnail = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjExMzYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzRiNTU2MyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPlZpZGVvPC90ZXh0Pjwvc3ZnPg==';
   const thumbnailUrl = video.thumbnail || fallbackThumbnail;
-
-  // Log video data when component mounts
-  useEffect(() => {
-    console.log(`VideoCard: Rendering video card:`, {
-      id: video.id,
-      title: video.title || video.prompt,
-      thumbnailUrl,
-      videoUrl: video.url,
-      hasNullThumbnail: !video.thumbnail,
-      isPlaceholderThumbnail: !video.thumbnail || (video.thumbnail && video.thumbnail.includes('placeholder'))
-    });
-  }, [video]);
 
   return (
     <motion.div
@@ -73,4 +61,4 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
   );
 };
 
-export default VideoCard;
+export default memo(VideoCard);

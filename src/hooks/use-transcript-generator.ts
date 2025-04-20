@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { generateTranscript } from '@/lib/api';
 import { useCredit } from '@/lib/creditService';
@@ -15,8 +16,15 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
   const [generationProgress, setGenerationProgress] = useState(0);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const { user } = useAuth();
+  
+  // Reset progress when not generating
+  useEffect(() => {
+    if (!isGenerating) {
+      setGenerationProgress(0);
+    }
+  }, [isGenerating]);
 
-  const handleGenerate = async (e: React.FormEvent) => {
+  const handleGenerate = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!prompt.trim()) {
@@ -43,8 +51,6 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
         setIsGenerating(false);
         return;
       }
-      
-      console.log("Submitting prompt for transcript generation:", { prompt, scriptModel });
       
       // Show loading progress
       const progressInterval = setInterval(() => {
@@ -77,12 +83,12 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [prompt, scriptModel, user, onTranscriptGenerated]);
 
-  const handleRetry = () => {
+  const handleRetry = useCallback(() => {
     setProxyAttempt(prev => prev + 1);
     handleGenerate(new Event('submit') as any);
-  };
+  }, [handleGenerate]);
 
   return {
     prompt,

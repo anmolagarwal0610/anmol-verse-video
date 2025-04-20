@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { VideoStatusResponse } from '../types';
 import { toast } from 'sonner';
@@ -25,7 +26,7 @@ export const saveVideoToGallery = async (
       console.error('Error saving video to database:', error);
       toast.error(`Failed to save video to gallery: ${error.message || 'Unknown error'}`);
     } else {
-      toast.success('Video saved to your gallery! Note: Videos are automatically deleted after 7 days.');
+      toast.success('Video saved to your gallery!');
     }
   } catch (dbError: any) {
     console.error('Error saving video to database:', dbError);
@@ -73,6 +74,7 @@ export const getVideos = async (): Promise<VideoData[]> => {
     });
   } catch (error) {
     console.error('Error fetching videos:', error);
+    // Return empty array instead of mock videos for logged-in users
     return [];
   }
 };

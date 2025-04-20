@@ -1,4 +1,5 @@
 
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranscriptGenerator } from '@/hooks/use-transcript-generator';
@@ -80,4 +81,4 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
   );
 };
 
-export default TranscriptForm;
+export default memo(TranscriptForm);
