@@ -1,6 +1,10 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { VideoGenerationParams, VideoStatusResponse } from './videoGenerationApi';
+import { VideoGenerationParams, VideoStatusResponse } from './video/types';
+import { VideoData } from '@/components/video-card/types';
+import { API_CONFIG } from './config/api';
+import { MOCK_VIDEOS } from './mockData';
 
 export const generateVideo = async (params: VideoGenerationParams): Promise<{ videoId: string }> => {
   try {
