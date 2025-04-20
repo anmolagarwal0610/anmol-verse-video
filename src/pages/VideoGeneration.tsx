@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import { Separator } from '@/components/ui/separator';
@@ -17,7 +18,8 @@ const VideoGeneration = () => {
     result, 
     error, 
     generateVideo,
-    cancelGeneration 
+    cancelGeneration,
+    isGenerating 
   } = useVideoGenerationContext();
 
   useEffect(() => {
@@ -56,11 +58,11 @@ const VideoGeneration = () => {
           {(status === 'idle' || status === 'error') && (
             <VideoGenerationForm 
               onSubmit={handleSubmit} 
-              isGenerating={isGenerating()} 
+              isGenerating={isGenerating} 
             />
           )}
           
-          {isGenerating() && (
+          {isGenerating && (
             <ProgressCard 
               progress={progress} 
               status={status === 'generating' ? 'Starting generation...' : 'Processing video'} 
