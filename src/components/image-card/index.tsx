@@ -31,9 +31,10 @@ interface ImageCardProps {
   onLoad?: () => void;
   onError?: () => void;
   onDelete?: () => void;
+  alwaysShowDelete?: boolean; // Added this prop
 }
 
-const ImageCard = ({ image, index, onLoad, onError, onDelete }: ImageCardProps) => {
+const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete = false }: ImageCardProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const { user } = useAuth();
@@ -101,12 +102,12 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete }: ImageCardProps) 
 
           {/* Hover Action Buttons */}
           {!hasError && (
-            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
+            <div className={`absolute inset-0 bg-black/30 ${alwaysShowDelete ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity duration-200 flex items-center justify-center gap-2`}>
               <ImageDownloadButton 
                 imageUrl={image.image_url}
                 variant="overlay"
               />
-              {isOwner && (
+              {(isOwner || alwaysShowDelete) && (
                 <ImageDeleteButton 
                   imageId={image.id}
                   variant="overlay"

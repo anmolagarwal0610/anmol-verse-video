@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { GeneratedImage } from './GalleryTypes';
-import ImageCard from '@/components/ImageCard';
+import ImageCard from '@/components/image-card'; // Fixed import path
 
 interface GalleryImageGridProps {
   images: GeneratedImage[];
