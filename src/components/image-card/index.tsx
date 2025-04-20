@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
@@ -9,8 +8,6 @@ import ImageMetadata from './ImageMetadata';
 import ImageDeleteButton from './ImageDeleteButton';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
-import { AlertTriangle } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
 
 export interface ImageData {
   id: string;
@@ -31,7 +28,7 @@ interface ImageCardProps {
   onLoad?: () => void;
   onError?: () => void;
   onDelete?: () => void;
-  alwaysShowDelete?: boolean; // Added this prop
+  alwaysShowDelete?: boolean;
 }
 
 const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete = false }: ImageCardProps) => {
@@ -40,8 +37,6 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
   const { user } = useAuth();
   
   const isOwner = user && image.user_id === user.id;
-  const timeUntilExpiry = formatDistanceToNow(new Date(image.expiry_time), { addSuffix: true });
-  const isNearExpiry = new Date(image.expiry_time).getTime() - new Date().getTime() < 7 * 24 * 60 * 60 * 1000;
 
   useEffect(() => {
     if (image.image_url) {
@@ -69,7 +64,6 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
       transition={{ duration: 0.3, delay: index * 0.1 }}
     >
       <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-lg">
-        {/* Image Container with Hover Actions */}
         <div className="relative aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800 group">
           <ImageLoadingOverlay isLoading={isLoading} />
           
@@ -92,15 +86,6 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
             />
           )}
 
-          {/* Expiry Warning */}
-          {isNearExpiry && (
-            <div className="absolute top-2 left-2 bg-yellow-500/90 text-white px-2 py-1 rounded-md text-xs flex items-center gap-1 z-10">
-              <AlertTriangle className="h-3 w-3" />
-              <span>Expires {timeUntilExpiry}</span>
-            </div>
-          )}
-
-          {/* Hover Action Buttons */}
           {!hasError && (
             <div className={`absolute inset-0 bg-black/30 ${alwaysShowDelete ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity duration-200 flex items-center justify-center gap-2`}>
               <ImageDownloadButton 
@@ -118,13 +103,10 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
           )}
         </div>
 
-        {/* Content below image */}
         <div className="p-4 flex-grow flex flex-col justify-between space-y-4">
-          {/* Prompt Section */}
           <div className="space-y-3">
             <ImagePromptPopover prompt={image.prompt} />
             
-            {/* Preferences/Tags */}
             {image.preferences && image.preferences.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {image.preferences.map((pref, i) => (
@@ -140,7 +122,6 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
             )}
           </div>
 
-          {/* Metadata at bottom */}
           <ImageMetadata 
             createdAt={image.created_at}
             expiryTime={image.expiry_time}

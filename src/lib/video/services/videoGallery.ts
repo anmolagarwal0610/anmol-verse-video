@@ -1,9 +1,7 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { VideoStatusResponse } from '../types';
 import { toast } from 'sonner';
 import { VideoData } from '@/components/video-card';
-import { MOCK_VIDEOS } from '@/lib/mockData';
 
 export const saveVideoToGallery = async (
   result: VideoStatusResponse, 
@@ -51,8 +49,8 @@ export const getVideos = async (): Promise<VideoData[]> => {
     }
     
     if (!videos || videos.length === 0) {
-      console.log('No videos found in database, using mock data as fallback');
-      return MOCK_VIDEOS;
+      console.log('No videos found in database');
+      return [];
     }
     
     console.log(`Found ${videos.length} videos in database`);
@@ -75,6 +73,6 @@ export const getVideos = async (): Promise<VideoData[]> => {
     });
   } catch (error) {
     console.error('Error fetching videos:', error);
-    return MOCK_VIDEOS;
+    return [];
   }
 };

@@ -1,17 +1,15 @@
 
 interface GalleryNoticeProps {
   message: string;
-  variant?: 'default' | 'warning';
+  type: 'image' | 'video';
 }
 
-const GalleryNotice = ({ message, variant = 'default' }: GalleryNoticeProps) => {
-  const bgColor = variant === 'warning' 
-    ? 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-100 dark:border-yellow-900/50 text-yellow-800 dark:text-yellow-300'
-    : 'bg-indigo-50 dark:bg-indigo-950/20 border-indigo-100 dark:border-indigo-900/50 text-indigo-800 dark:text-indigo-300';
-
+const GalleryNotice = ({ message, type }: GalleryNoticeProps) => {
+  const expiryDays = type === 'image' ? '24 hours' : '7 days';
+  
   return (
-    <div className={`mb-4 p-3 border rounded-lg text-sm ${bgColor}`}>
-      <p>{message}</p>
+    <div className="mb-4 p-4 rounded-lg border border-yellow-600/20 bg-yellow-500/5 text-yellow-600 dark:text-yellow-500">
+      <p>⚠️ Content is automatically deleted after {expiryDays}. {message}</p>
     </div>
   );
 };
