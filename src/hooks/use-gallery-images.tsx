@@ -5,6 +5,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { GeneratedImage, DEFAULT_IMAGES } from '@/components/gallery/GalleryTypes';
 import { useAuth } from './use-auth';
 
+// Define a type that reflects what Supabase actually returns
+interface SupabaseImageResult {
+  id: string;
+  image_url: string;
+  prompt: string;
+  created_at: string;
+  model: string;
+  preferences?: string[] | null;
+  user_id?: string | null;
+  width: number;
+  height: number;
+  expiry_time?: string; // Make it optional since some existing records might not have it yet
+}
+
 export const useGalleryImages = () => {
   const [images, setImages] = useState<GeneratedImage[]>([]);
   const [isLoadingImages, setIsLoadingImages] = useState(true);
@@ -53,7 +67,7 @@ export const useGalleryImages = () => {
         console.log(`Found ${data.length} images for user`);
         
         // Filter out any images with invalid URLs
-        const validImages = data.filter(img => 
+        const validImages = (data as SupabaseImageResult[]).filter(img => 
           img.image_url && 
           typeof img.image_url === 'string' && 
           img.image_url.startsWith('http')
