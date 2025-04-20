@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { generateTranscript } from '@/lib/api';
 import { useCredit } from '@/lib/creditService';
@@ -17,10 +17,26 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const { user } = useAuth();
   
+  // Use refs to avoid recreating intervals
+  const progressIntervalRef = useRef<number | null>(null);
+  
+  // Clear interval on unmount or state change
+  useEffect(() => {
+    return () => {
+      if (progressIntervalRef.current !== null) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+  }, []);
+  
   // Reset progress when not generating
   useEffect(() => {
     if (!isGenerating) {
       setGenerationProgress(0);
+      if (progressIntervalRef.current !== null) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
     }
   }, [isGenerating]);
 
@@ -52,14 +68,25 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
         return;
       }
       
-      // Show loading progress
-      const progressInterval = setInterval(() => {
-        setGenerationProgress(prev => Math.min(prev + 5, 90));
+      // Show loading progress more efficiently
+      if (progressIntervalRef.current !== null) {
+        clearInterval(progressIntervalRef.current);
+      }
+      
+      progressIntervalRef.current = window.setInterval(() => {
+        setGenerationProgress(prev => {
+          const increment = prev < 50 ? 5 : prev < 80 ? 2 : 1;
+          return Math.min(prev + increment, 90);
+        });
       }, 1000);
       
       const result = await generateTranscript(prompt, scriptModel);
       
-      clearInterval(progressInterval);
+      if (progressIntervalRef.current !== null) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      
       setGenerationProgress(100);
       
       if (result.transcript.startsWith('Failed to generate transcript') || 
@@ -81,6 +108,10 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
       setDebugInfo(`Error object: ${JSON.stringify(err, null, 2)}, Timestamp: ${Date.now()}`);
       toast.error('Failed to generate transcript. Please try again.');
     } finally {
+      if (progressIntervalRef.current !== null) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
       setIsGenerating(false);
     }
   }, [prompt, scriptModel, user, onTranscriptGenerated]);
