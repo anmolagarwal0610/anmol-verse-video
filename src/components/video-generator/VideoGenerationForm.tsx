@@ -1,3 +1,4 @@
+
 import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import {
   IMAGE_MODELS,
   VOICE_OPTIONS,
 } from '@/lib/api';
-import { VideoGenerationParams } from '@/lib/videoGenerationApi';
+import { VideoGenerationParams } from '@/lib/video/types';
 import { VideoGenerationFormProvider } from './VideoGenerationFormContext';
 import VideoGenerationConfirmDialog from './dialogs/VideoGenerationConfirmDialog';
 import { useVideoGenerationFormSubmit } from './hooks/useVideoGenerationFormSubmit';

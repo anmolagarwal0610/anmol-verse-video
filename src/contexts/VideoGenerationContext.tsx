@@ -1,6 +1,6 @@
 
-import React, { createContext, useContext } from 'react';
-import { useVideoGenerator, VideoGenerationStatus } from '@/hooks/use-video-generator';
+import React, { createContext, useContext, useEffect } from 'react';
+import { useVideoGenerator } from '@/hooks/use-video-generator';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +17,9 @@ interface VideoGenerationContextType {
   cancelGeneration: () => void;
   isGenerating: boolean;
 }
+
+// Import VideoGenerationStatus from use-video-generator
+import { VideoGenerationStatus } from '@/hooks/use-video-generator';
 
 const VideoGenerationContext = createContext<VideoGenerationContextType | undefined>(undefined);
 
@@ -42,7 +45,7 @@ export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = 
   const { generate } = useVideoGenerator();
   
   // Handle video completion and errors
-  React.useEffect(() => {
+  useEffect(() => {
     if (status === 'completed' && result && user) {
       saveVideoToGallery(result, user.id);
     }
@@ -50,7 +53,7 @@ export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = 
     if (status === 'error' && error) {
       toast.error(`Error: ${error}`);
     }
-  }, [status, result, error, user]);
+  }, [status, result, error, user, saveVideoToGallery]);
   
   const generateVideo = async (params: VideoGenerationParams) => {
     try {
