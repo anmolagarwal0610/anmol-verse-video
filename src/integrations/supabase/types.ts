@@ -60,6 +60,7 @@ export type Database = {
         Row: {
           audio_url: string | null
           created_at: string
+          expiry_time: string
           id: string
           images_zip_url: string | null
           thumbnail_url: string | null
@@ -72,6 +73,7 @@ export type Database = {
         Insert: {
           audio_url?: string | null
           created_at?: string
+          expiry_time?: string
           id?: string
           images_zip_url?: string | null
           thumbnail_url?: string | null
@@ -84,6 +86,7 @@ export type Database = {
         Update: {
           audio_url?: string | null
           created_at?: string
+          expiry_time?: string
           id?: string
           images_zip_url?: string | null
           thumbnail_url?: string | null
@@ -150,6 +153,10 @@ export type Database = {
     Functions: {
       adjust_user_credits: {
         Args: { target_user_id: string; credit_amount: number }
+        Returns: undefined
+      }
+      cleanup_expired_records: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       use_credit: {

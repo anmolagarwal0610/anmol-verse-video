@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { getVideos } from '@/lib/videoApi';
 import VideoCard, { VideoData } from '@/components/video-card';
@@ -9,6 +8,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import GalleryNotice from './GalleryNotice';
 
 const VideosTab = () => {
   const [videos, setVideos] = useState<VideoData[]>([]);
@@ -35,7 +35,6 @@ const VideosTab = () => {
           error: dbError
         });
         
-        // More detailed logging for direct DB videos
         if (directDbVideos && directDbVideos.length > 0) {
           console.log('Direct DB videos detail:');
           directDbVideos.forEach((video, index) => {
@@ -53,7 +52,6 @@ const VideosTab = () => {
         const fetchedVideos = await getVideos();
         console.log(`Fetched ${fetchedVideos.length} videos:`, fetchedVideos);
         
-        // Log the thumbnail URLs specifically
         console.log('Thumbnail URLs from fetched videos:');
         fetchedVideos.forEach((video, index) => {
           const thumbnailSource = video.thumbnail 
@@ -66,7 +64,6 @@ const VideosTab = () => {
           });
         });
         
-        // Validate video URLs before setting state
         const validVideos = fetchedVideos.filter(video => {
           if (!video.url) {
             console.warn(`VideosTab: Video ${video.id} has no URL, filtering out`);
@@ -97,7 +94,6 @@ const VideosTab = () => {
     fetchVideos();
   }, [user]);
   
-  // Add a validation effect to ensure we have valid video objects
   useEffect(() => {
     if (videos.length > 0) {
       console.log('VideosTab: Validating video objects...');
@@ -160,11 +156,24 @@ const VideosTab = () => {
   }
   
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {videos.map((video, index) => (
-        <VideoCard key={video.id} video={video} index={index} />
-      ))}
-    </div>
+    <>
+      {user && (
+        <>
+          <GalleryNotice 
+            variant="warning"
+            message="⚠️ Videos are automatically deleted after 7 days. Download any videos you want to keep to your device." 
+          />
+          <GalleryNotice 
+            message="Your generated videos are saved here. Download any content you want to keep." 
+          />
+        </>
+      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {videos.map((video, index) => (
+          <VideoCard key={video.id} video={video} index={index} />
+        ))}
+      </div>
+    </>
   );
 };
 
