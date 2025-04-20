@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { generateVideo, checkVideoStatus, VideoGenerationParams, VideoStatusResponse } from '@/lib/api';
 import { toast } from 'sonner';
@@ -22,17 +21,14 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   const [taskId, setTaskId] = useState<string | null>(null);
   const [currentTopic, setCurrentTopic] = useState<string>('');
   
-  // Refs for cleanup and timing
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Constants for timing - updated to 4 minutes 30 seconds
   const POLLING_INTERVAL = 3000; // 3 seconds
-  const MAX_TIMEOUT = 600000; // 4.5 minutes (270,000 milliseconds)
-  const ESTIMATED_TIME = 270000; // 4.5 minutes for progress bar
+  const MAX_TIMEOUT = 480000; // 8 minutes (480,000 milliseconds)
+  const ESTIMATED_TIME = 480000; // 8 minutes for progress bar
   
-  // Cleanup function
   const cleanup = () => {
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
@@ -45,7 +41,6 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
     }
   };
   
-  // Reset the generator state
   const reset = () => {
     cleanup();
     setStatus('idle');
@@ -57,20 +52,16 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
     setCurrentTopic('');
   };
   
-  // Cleanup on unmount
   useEffect(() => {
     return cleanup;
   }, []);
   
-  // Poll for status
   const pollStatus = async (id: string) => {
     try {
       const statusResponse = await checkVideoStatus(id);
       
-      // Calculate progress based on time elapsed (rough estimate)
       if (startTimeRef.current) {
         const elapsed = Date.now() - startTimeRef.current;
-        // Cap at 99% until completed
         const calculatedProgress = Math.min(99, (elapsed / ESTIMATED_TIME) * 100);
         setProgress(calculatedProgress);
       }
@@ -79,7 +70,6 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         setStatus('completed');
         setProgress(100);
         
-        // Add the topic to the result
         setResult({
           ...statusResponse,
           topic: currentTopic
@@ -93,44 +83,36 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         cleanup();
         toast.error(`Error: ${statusResponse.message || 'Unknown error'}`);
       }
-      // Continue polling if still processing
     } catch (err) {
       console.error('Error polling status:', err);
-      // Don't set error state here, just log. We'll keep polling.
     }
   };
   
-  // Start the video generation process
   const generate = async (params: VideoGenerationParams) => {
     try {
       reset();
       setStatus('generating');
       setCurrentTopic(params.topic);
       
-      // Log the params so we can see what's being sent (helpful for debugging)
       console.log('Generating video with params:', params);
       
-      // Start tracking time
       startTimeRef.current = Date.now();
       
-      // Make initial request
       const response = await generateVideo(params);
       
       if (response && response.task_id) {
         setTaskId(response.task_id);
         setStatus('polling');
-        setProgress(5); // Show some initial progress
+        setProgress(5);
         
-        // Set up polling
         pollingRef.current = setInterval(() => {
           pollStatus(response.task_id);
         }, POLLING_INTERVAL);
         
-        // Set up timeout
         timeoutRef.current = setTimeout(() => {
           if (status !== 'completed' && status !== 'error') {
             setStatus('error');
-            setError('Generation timed out after 4.5 minutes');
+            setError('Generation timed out after 8 minutes');
             cleanup();
             toast.error('Video generation timed out');
           }

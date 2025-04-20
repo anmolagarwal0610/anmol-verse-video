@@ -52,6 +52,14 @@ export const FormInput = ({
           </p>
         </div>
         
+        <Textarea
+          value={prompt}
+          onChange={(e) => onPromptChange(e.target.value)}
+          placeholder="A short motivational speech about overcoming challenges..."
+          className="min-h-[120px] resize-none transition-all border-gray-200 focus-visible:ring-1 focus-visible:ring-primary"
+          disabled={isGenerating}
+        />
+
         <FormField
           control={form.control}
           name="script_model"
@@ -78,14 +86,6 @@ export const FormInput = ({
               </FormDescription>
             </FormItem>
           )}
-        />
-        
-        <Textarea
-          value={prompt}
-          onChange={(e) => onPromptChange(e.target.value)}
-          placeholder="A short motivational speech about overcoming challenges..."
-          className="min-h-[120px] resize-none transition-all border-gray-200 focus-visible:ring-1 focus-visible:ring-primary"
-          disabled={isGenerating}
         />
         
         <Button 
