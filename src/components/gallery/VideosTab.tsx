@@ -1,6 +1,8 @@
+
 import { useEffect, useState } from 'react';
-import { getVideos } from '@/lib/videoApi';
-import VideoCard, { VideoData } from '@/components/video-card';
+import { getVideos } from '@/lib/video/services/videoGallery';
+import VideoCard from '@/components/video-card';
+import { VideoData } from '@/components/video-card/types';
 import EmptyState from '@/components/EmptyState';
 import { toast } from 'sonner';
 import { Loader2, FileVideo } from 'lucide-react';

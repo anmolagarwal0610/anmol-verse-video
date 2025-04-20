@@ -1,5 +1,7 @@
+
 import { useState, useEffect, useRef } from 'react';
-import { generateVideo, checkVideoStatus, VideoGenerationParams, VideoStatusResponse } from '@/lib/api';
+import { generateVideo, checkVideoStatus } from '@/lib/video/api';
+import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
 import { toast } from 'sonner';
 
 export type VideoGenerationStatus = 'idle' | 'generating' | 'polling' | 'completed' | 'error';
@@ -27,7 +29,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   
   const POLLING_INTERVAL = 3000; // 3 seconds
   const MAX_TIMEOUT = 480000; // 8 minutes (480,000 milliseconds)
-  const ESTIMATED_TIME = 300000; // 8 minutes for progress bar
+  const ESTIMATED_TIME = 300000; // 5 minutes for progress bar
   
   const cleanup = () => {
     if (pollingRef.current) {
