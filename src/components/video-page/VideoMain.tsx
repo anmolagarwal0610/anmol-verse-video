@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { VideoPlayer } from '@/components/video-player';
+import VideoPlayer from '@/components/video-player';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoData } from '@/components/video-card';
 
