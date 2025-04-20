@@ -14,8 +14,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { Info } from 'lucide-react';
 import { ASPECT_RATIOS, TRANSITION_STYLES } from '@/lib/api';
 import { useVideoGenerationForm } from '../VideoGenerationFormContext';
+
+const TransitionPreview = ({ style }: { style: string }) => {
+  const previewUrls = {
+    fade: "/transitions/fade.gif",
+    circleopen: "/transitions/circleopen.gif",
+    radial: "/transitions/radial.gif",
+    slideleft: "/transitions/slideleft.gif"
+  };
+
+  return (
+    <div className="relative w-32 h-24 rounded-md overflow-hidden">
+      <img 
+        src={previewUrls[style as keyof typeof previewUrls]} 
+        alt={`${style} transition preview`}
+        className="w-full h-full object-cover"
+      />
+    </div>
+  );
+};
 
 const RatioAndTransitionFields = () => {
   const { form, isGenerating } = useVideoGenerationForm();
@@ -71,17 +96,25 @@ const RatioAndTransitionFields = () => {
                 <SelectTrigger>
                   <SelectValue placeholder="Select transition" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-[300px]">
                   {Object.entries(TRANSITION_STYLES).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
+                    <HoverCard key={value}>
+                      <HoverCardTrigger asChild>
+                        <SelectItem value={value} className="hover:cursor-help">
+                          {label}
+                        </SelectItem>
+                      </HoverCardTrigger>
+                      <HoverCardContent side="right" className="w-fit">
+                        <TransitionPreview style={value} />
+                      </HoverCardContent>
+                    </HoverCard>
                   ))}
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormDescription>
+            <FormDescription className="flex items-center gap-2">
               How frames transition in your video
+              <Info className="h-4 w-4 text-muted-foreground cursor-help" />
             </FormDescription>
             <FormMessage />
           </FormItem>

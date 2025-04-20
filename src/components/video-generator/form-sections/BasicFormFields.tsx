@@ -122,7 +122,19 @@ const BasicFormFields = () => {
         render={({ field: { value, onChange } }) => (
           <FormItem>
             <div className="flex justify-between items-center">
-              <FormLabel>Approximate Video Duration</FormLabel>
+              <FormLabel className="flex items-center">
+                Approximate Video Duration
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 ml-2 inline-block text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">Your video might run a bit longer—just enough to let the story fully shine.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </FormLabel>
               <span className="text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">{value} seconds</span>
             </div>
             <FormControl>
@@ -178,8 +190,12 @@ const BasicFormFields = () => {
                 step={1}
                 marks={[
                   { value: 3, label: '3s' },
-                  { value: 4, label: '4s' },
-                  { value: 5, label: '5s' },
+                  { value: 5, label: (
+                    <div className="flex flex-col items-center">
+                      <span>5s</span>
+                      <span className="text-xs text-green-600 dark:text-green-500">Recommended</span>
+                    </div>
+                  )},
                   { value: 6, label: '6s' },
                 ]}
                 onValueChange={([newValue]) => onChange(newValue)}

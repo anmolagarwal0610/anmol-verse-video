@@ -1,4 +1,3 @@
-
 import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -40,8 +39,8 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
       topic: '',
       image_model: IMAGE_MODELS.advanced.value,
       image_ratio: '16:9',
-      video_duration: 30,
-      frame_fps: 4,
+      video_duration: 25,
+      frame_fps: 5,
       subtitle_color: 'white',
       subtitle_font: 'Arial',
       video_category: 'Hollywood Script',
