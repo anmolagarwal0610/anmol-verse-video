@@ -85,7 +85,7 @@ const useIntelligentPrefetch = () => {
     const prefetchRelatedRoutes = () => {
       if (location.pathname === '/') {
         // From homepage, prefetch most likely next pages
-        if (window.requestIdleCallback) {
+        if (typeof window.requestIdleCallback === 'function') {
           window.requestIdleCallback(() => {
             prefetchRoute('videos/generate');
             prefetchRoute('images');
@@ -93,7 +93,7 @@ const useIntelligentPrefetch = () => {
         }
       } else if (location.pathname === '/videos/generate') {
         // From video generation, prefetch related pages
-        if (window.requestIdleCallback) {
+        if (typeof window.requestIdleCallback === 'function') {
           window.requestIdleCallback(() => {
             prefetchRoute('gallery');
             prefetchRoute('transcript');
@@ -101,7 +101,7 @@ const useIntelligentPrefetch = () => {
         }
       } else if (location.pathname === '/images') {
         // From image generation, prefetch gallery
-        if (window.requestIdleCallback) {
+        if (typeof window.requestIdleCallback === 'function') {
           window.requestIdleCallback(() => {
             prefetchRoute('gallery');
           });
@@ -176,8 +176,8 @@ const NotFound = lazy(() => import('@/pages/NotFound'));
 const App = () => {
   // Polyfill requestIdleCallback for browsers that don't support it
   useEffect(() => {
-    if (!('requestIdleCallback' in window)) {
-      window.requestIdleCallback = function(callback) {
+    if (typeof window.requestIdleCallback !== 'function') {
+      (window as any).requestIdleCallback = function(callback: IdleRequestCallback) {
         const id = setTimeout(() => {
           const deadline = {
             didTimeout: false,
@@ -187,7 +187,8 @@ const App = () => {
         }, 1);
         return id;
       };
-      window.cancelIdleCallback = function(id) {
+      
+      (window as any).cancelIdleCallback = function(id: number) {
         clearTimeout(id);
       };
     }
