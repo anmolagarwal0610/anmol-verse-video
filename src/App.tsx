@@ -1,5 +1,6 @@
 
-import { Routes, Route, Navigate, Suspense } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { Suspense } from 'react'  // Import Suspense from 'react'
 import { Toaster } from '@/components/ui/sonner'
 import { AuthProvider } from '@/hooks/use-auth'
 import { VideoGenerationProvider } from '@/contexts/VideoGenerationContext'
