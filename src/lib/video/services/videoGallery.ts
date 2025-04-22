@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { VideoStatusResponse } from '../types';
 import { toast } from 'sonner';
@@ -8,9 +9,13 @@ export const saveVideoToGallery = async (
   userId: string
 ) => {
   try {
+    console.log('Saving video to gallery for user:', userId);
+    console.log('Video data to save:', result);
+    
+    // Calculate expiry time (7 days from now)
     const expiryTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     
-    const { error } = await supabase.from('generated_videos').insert({
+    const videoData = {
       user_id: userId,
       topic: result.topic || 'Untitled Video',
       video_url: result.video_url,
@@ -19,17 +24,26 @@ export const saveVideoToGallery = async (
       images_zip_url: result.images_zip_url,
       thumbnail_url: result.thumbnail_url,
       expiry_time: expiryTime
-    });
+    };
+    
+    console.log('Formatted video data for insert:', videoData);
+    
+    const { data, error } = await supabase.from('generated_videos').insert(videoData).select();
     
     if (error) {
       console.error('Error saving video to database:', error);
+      console.error('Error details:', error.details, error.hint, error.message);
       toast.error(`Failed to save video to gallery: ${error.message || 'Unknown error'}`);
+      return false;
     } else {
+      console.log('Video saved successfully:', data);
       toast.success('Video saved to your gallery! Note: Videos are automatically deleted after 7 days.');
+      return true;
     }
   } catch (dbError: any) {
-    console.error('Error saving video to database:', dbError);
+    console.error('Exception saving video to database:', dbError);
     toast.error(`Failed to save to gallery: ${dbError.message || 'Unknown error'}`);
+    return false;
   }
 };
 

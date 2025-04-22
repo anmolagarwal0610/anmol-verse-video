@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from 'react';
 import { generateVideo, checkVideoStatus } from '@/lib/video/api';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
 import { toast } from 'sonner';
+import { saveVideoToGallery } from '@/lib/video/services/videoGallery';
+import { useAuth } from '@/hooks/use-auth';
 
 export type VideoGenerationStatus = 'idle' | 'generating' | 'polling' | 'completed' | 'error';
 
@@ -28,6 +30,8 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastProgressUpdateRef = useRef<number>(0);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const { user } = useAuth();
   
   const POLLING_INTERVAL = 3000; // 3 seconds
   const MAX_TIMEOUT = 480000; // 8 minutes (480,000 milliseconds)
@@ -67,6 +71,27 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   useEffect(() => {
     return cleanup;
   }, []);
+  
+  // Add an effect to handle saving the video when generation completes
+  useEffect(() => {
+    if (status === 'completed' && result && user) {
+      console.log('Video generation completed with authenticated user. Attempting to save to gallery.');
+      console.log('User ID:', user.id);
+      console.log('Result data:', result);
+      
+      // Attempt to save the video to the gallery
+      saveVideoToGallery(result, user.id)
+        .then(() => {
+          console.log('Video successfully saved to gallery');
+        })
+        .catch((err) => {
+          console.error('Failed to save video to gallery:', err);
+          toast.error(`Failed to save video to your gallery: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        });
+    } else if (status === 'completed' && result && !user) {
+      console.warn('Video generated successfully but user is not authenticated. Cannot save to gallery.');
+    }
+  }, [status, result, user]);
   
   const updateProgressBasedOnTime = () => {
     if (!startTimeRef.current) return 0;

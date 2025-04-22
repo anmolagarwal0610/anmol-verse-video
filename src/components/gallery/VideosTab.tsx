@@ -23,17 +23,22 @@ const VideosTab = () => {
       setIsLoading(true);
       setError(null);
       try {
+        console.log('VideosTab: Fetching videos, user authenticated:', !!user);
+        
         if (!user) {
+          console.log('VideosTab: No authenticated user, cannot fetch videos');
           setVideos([]);
           setIsLoading(false);
           return;
         }
 
+        console.log('VideosTab: User ID for video fetch:', user.id);
         const fetchedVideos = await getVideos();
+        console.log('VideosTab: Videos fetched:', fetchedVideos.length);
         setVideos(fetchedVideos);
-      } catch (error) {
-        console.error('Error fetching videos:', error);
-        setError('Failed to load videos');
+      } catch (fetchError: any) {
+        console.error('Error fetching videos:', fetchError);
+        setError(fetchError?.message || 'Failed to load videos');
         toast.error('Failed to load your videos.');
         setVideos([]);
       } finally {
