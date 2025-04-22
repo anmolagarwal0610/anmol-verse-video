@@ -27,23 +27,24 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => (
 );
 
 // Type definitions for requestIdleCallback
-type IdleRequestCallback = (deadline: IdleDeadline) => void;
+interface IdleRequestCallback {
+  (deadline: IdleDeadline): void;
+}
+
 interface IdleDeadline {
   didTimeout: boolean;
   timeRemaining: () => number;
 }
+
 interface IdleRequestOptions {
   timeout: number;
 }
 
-// Declare global to add requestIdleCallback to window - only declare this once
+// Single global declaration for requestIdleCallback
 declare global {
   interface Window {
-    requestIdleCallback: (
-      callback: IdleRequestCallback,
-      options?: IdleRequestOptions
-    ) => number;
-    cancelIdleCallback: (handle: number) => void;
+    requestIdleCallback(callback: IdleRequestCallback, options?: IdleRequestOptions): number;
+    cancelIdleCallback(handle: number): void;
   }
 }
 
@@ -84,21 +85,27 @@ const useIntelligentPrefetch = () => {
     const prefetchRelatedRoutes = () => {
       if (location.pathname === '/') {
         // From homepage, prefetch most likely next pages
-        window.requestIdleCallback(() => {
-          prefetchRoute('videos/generate');
-          prefetchRoute('images');
-        });
+        if (window.requestIdleCallback) {
+          window.requestIdleCallback(() => {
+            prefetchRoute('videos/generate');
+            prefetchRoute('images');
+          });
+        }
       } else if (location.pathname === '/videos/generate') {
         // From video generation, prefetch related pages
-        window.requestIdleCallback(() => {
-          prefetchRoute('gallery');
-          prefetchRoute('transcript');
-        });
+        if (window.requestIdleCallback) {
+          window.requestIdleCallback(() => {
+            prefetchRoute('gallery');
+            prefetchRoute('transcript');
+          });
+        }
       } else if (location.pathname === '/images') {
         // From image generation, prefetch gallery
-        window.requestIdleCallback(() => {
-          prefetchRoute('gallery');
-        });
+        if (window.requestIdleCallback) {
+          window.requestIdleCallback(() => {
+            prefetchRoute('gallery');
+          });
+        }
       }
     };
     
@@ -166,13 +173,11 @@ const Profile = lazy(() => import('@/pages/Profile'));
 const Settings = lazy(() => import('@/pages/Settings'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
-// Note: Removed duplicate declaration of requestIdleCallback here
-
 const App = () => {
   // Polyfill requestIdleCallback for browsers that don't support it
   useEffect(() => {
     if (!('requestIdleCallback' in window)) {
-      window.requestIdleCallback = function(callback: IdleRequestCallback) {
+      window.requestIdleCallback = function(callback) {
         const id = setTimeout(() => {
           const deadline = {
             didTimeout: false,
