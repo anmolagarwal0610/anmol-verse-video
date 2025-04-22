@@ -24,7 +24,10 @@ const VideoGeneration = () => {
 
   useEffect(() => {
     // Log the current status for debugging
-    console.log("Current generation status:", status);
+    console.log("VideoGeneration: Current generation status:", status);
+    console.log("VideoGeneration: Current progress:", progress);
+    console.log("VideoGeneration: Has result:", !!result);
+    console.log("VideoGeneration: Has error:", !!error);
     
     // Scroll to results when generation completes
     if (status === 'completed' && result) {
@@ -33,9 +36,10 @@ const VideoGeneration = () => {
         resultsElement.scrollIntoView({ behavior: 'smooth' });
       }
     }
-  }, [status, result]);
+  }, [status, result, progress, error]);
 
   const handleSubmit = (data: VideoGenerationParams) => {
+    console.log("VideoGeneration: Form submitted with data:", data);
     generateVideo(data);
   };
 

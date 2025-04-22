@@ -42,33 +42,63 @@ export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = 
     setCurrentTopic
   } = useVideoGenerationState();
   
-  const { generate } = useVideoGenerator();
+  const { generate, progress: generatorProgress, status: generatorStatus, result: generatorResult, error: generatorError } = useVideoGenerator();
+  
+  // Sync state from generator
+  useEffect(() => {
+    console.log('VideoGenerationContext: Syncing progress from generator:', generatorProgress);
+    setProgress(generatorProgress);
+  }, [generatorProgress, setProgress]);
+
+  useEffect(() => {
+    console.log('VideoGenerationContext: Syncing status from generator:', generatorStatus);
+    setStatus(generatorStatus);
+  }, [generatorStatus, setStatus]);
+
+  useEffect(() => {
+    console.log('VideoGenerationContext: Syncing result from generator:', generatorResult);
+    setResult(generatorResult);
+  }, [generatorResult, setResult]);
+
+  useEffect(() => {
+    console.log('VideoGenerationContext: Syncing error from generator:', generatorError);
+    setError(generatorError);
+  }, [generatorError, setError]);
   
   // Handle video completion and errors
   useEffect(() => {
+    console.log('VideoGenerationContext: Status effect triggered:', status);
+    console.log('VideoGenerationContext: Result:', result);
+    console.log('VideoGenerationContext: Error:', error);
+    console.log('VideoGenerationContext: User:', user);
+    
     if (status === 'completed' && result && user) {
+      console.log('VideoGenerationContext: Saving video to gallery');
       saveVideoToGallery(result, user.id);
     }
     
     if (status === 'error' && error) {
+      console.error('VideoGenerationContext: Error handling triggered:', error);
       toast.error(`Error: ${error}`);
     }
   }, [status, result, error, user, saveVideoToGallery]);
   
   const generateVideo = async (params: VideoGenerationParams) => {
     try {
+      console.log('VideoGenerationContext: Starting video generation with params:', params);
       reset();
       setStatus('generating');
       setCurrentTopic(params.topic);
       await generate(params);
     } catch (err) {
-      console.error('Failed to start video generation:', err);
+      console.error('VideoGenerationContext: Failed to start video generation:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
       setStatus('error');
     }
   };
   
   const cancelGeneration = () => {
+    console.log('VideoGenerationContext: Cancelling generation');
     reset();
     toast.info('Video generation cancelled');
   };
@@ -82,6 +112,13 @@ export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = 
     cancelGeneration,
     isGenerating: status === 'generating' || status === 'polling'
   };
+  
+  console.log('VideoGenerationContext: Current state:', { 
+    status, 
+    progress, 
+    isGenerating: status === 'generating' || status === 'polling',
+    hasResult: !!result
+  });
   
   return (
     <VideoGenerationContext.Provider value={value}>

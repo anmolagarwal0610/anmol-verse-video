@@ -21,6 +21,8 @@ interface ProgressCardProps {
 const ProgressCard = ({ progress, status }: ProgressCardProps) => {
   const { cancelGeneration } = useVideoGenerationContext();
   
+  console.log('ProgressCard: Rendering with progress:', progress, 'and status:', status);
+  
   const minutes = Math.floor(progress / 100 * 8);
   const showCancelButton = minutes >= 8;
   
