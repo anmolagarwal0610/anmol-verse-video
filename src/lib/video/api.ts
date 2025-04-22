@@ -1,9 +1,21 @@
+
 import { API_CONFIG } from '../apiUtils';
 import type { VideoGenerationParams, VideoGenerationResponse, VideoStatusResponse } from './types';
 
 export const generateVideo = async (params: VideoGenerationParams): Promise<VideoGenerationResponse> => {
   try {
     console.log("Generating video with params:", params);
+    
+    // Normalize Google voice IDs by removing language suffixes
+    let normalizedParams = { ...params };
+    if (normalizedParams.voice?.startsWith('google_')) {
+      // Extract the base voice type (google_male or google_female) by removing any language suffix
+      const baseVoiceType = normalizedParams.voice.match(/^(google_male|google_female)/)?.[0];
+      if (baseVoiceType) {
+        console.log(`Normalizing voice ID from ${normalizedParams.voice} to ${baseVoiceType}`);
+        normalizedParams.voice = baseVoiceType;
+      }
+    }
     
     const apiUrl = `${API_CONFIG.BASE_URL}/generate_video`;
     
@@ -14,10 +26,11 @@ export const generateVideo = async (params: VideoGenerationParams): Promise<Vide
         'Content-Type': 'application/json',
         'x-api-key': API_CONFIG.API_KEY
       },
-      body: JSON.stringify(params),
+      body: JSON.stringify(normalizedParams),
     };
     
     console.log("Sending video generation request to API:", apiUrl);
+    console.log("With normalized voice parameter:", normalizedParams.voice);
     
     // Make the request
     const response = await fetch(apiUrl, requestOptions);

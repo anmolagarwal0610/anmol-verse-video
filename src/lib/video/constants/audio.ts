@@ -1,3 +1,4 @@
+
 // Audio-related constants
 export const AUDIO_LANGUAGES = {
   "English": "English",
@@ -76,6 +77,7 @@ export const VOICE_OPTIONS: Record<string, VoiceOption> = {
     language: "English",
     previewUrl: "https://storage.googleapis.com/kiratpur-ka-hero/Voices/english_Female.mp3"
   },
+  // Note: The IDs below will be normalized to just google_male and google_female in the API call
   "google_male_hindi": {
     id: "google_male_hindi",
     name: "Google - Male (Hindi)",
