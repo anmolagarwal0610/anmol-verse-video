@@ -4,8 +4,10 @@ import { VideoStatusResponse } from '../types';
 import { toast } from 'sonner';
 import { VideoData } from '@/components/video-card';
 
-// Track saved video IDs to prevent duplicate saves
-const savedVideoIds = new Set<string>();
+// Track saved video URLs to prevent duplicate saves (in-memory cache)
+const savedVideoUrls = new Set<string>();
+// Track save operations in progress to prevent concurrent duplicates
+const saveOperationsInProgress = new Map<string, Promise<boolean>>();
 
 export const saveVideoToGallery = async (
   result: VideoStatusResponse, 
@@ -13,7 +15,6 @@ export const saveVideoToGallery = async (
 ) => {
   try {
     console.log('🔎 [saveVideoToGallery] Starting save operation with userId:', userId);
-    console.log('🔎 [saveVideoToGallery] Result topic:', result.topic);
     console.log('🔎 [saveVideoToGallery] Result video_url:', result.video_url);
     
     // Skip if no video URL (indicates incomplete generation)
@@ -22,49 +23,90 @@ export const saveVideoToGallery = async (
       return false;
     }
     
-    // Create a unique ID based on video URL to deduplicate
-    const videoIdentifier = result.video_url;
+    // Create a unique identifier based on video URL
+    const videoUrl = result.video_url;
     
-    // Check if we've already saved this video
-    if (savedVideoIds.has(videoIdentifier)) {
-      console.log('🔎 [saveVideoToGallery] Video already saved, preventing duplicate:', videoIdentifier);
+    // Check if this URL is already being saved (avoid race conditions)
+    if (saveOperationsInProgress.has(videoUrl)) {
+      console.log('🔎 [saveVideoToGallery] Save operation already in progress for this URL, waiting...');
+      // Wait for the existing operation to complete
+      return await saveOperationsInProgress.get(videoUrl);
+    }
+    
+    // Check if we've already saved this video URL in this session
+    if (savedVideoUrls.has(videoUrl)) {
+      console.log('🔎 [saveVideoToGallery] Video already saved in this session, preventing duplicate:', videoUrl);
       return true;
     }
     
-    // Validate topic - ensure we have a non-empty topic
-    const videoTopic = result.topic?.trim() ? result.topic : 'Untitled Video';
-    console.log('🔎 [saveVideoToGallery] Using video topic:', videoTopic);
+    // Create a promise for this save operation
+    const savePromise = (async () => {
+      try {
+        // Check if this video URL already exists in the database
+        const { data: existingVideos, error: checkError } = await supabase
+          .from('generated_videos')
+          .select('id, video_url')
+          .eq('video_url', videoUrl)
+          .limit(1);
+          
+        if (checkError) {
+          console.error('🔎 [saveVideoToGallery] Error checking for existing video:', checkError);
+        } else if (existingVideos && existingVideos.length > 0) {
+          console.log('🔎 [saveVideoToGallery] Video with this URL already exists in database:', existingVideos[0].id);
+          // Mark as saved in our memory cache
+          savedVideoUrls.add(videoUrl);
+          return true;
+        }
     
-    // Calculate expiry time (7 days from now)
-    const expiryTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        // Validate topic - ensure we have a non-empty topic
+        const videoTopic = result.topic?.trim() ? result.topic : 'Untitled Video';
+        console.log('🔎 [saveVideoToGallery] Using video topic:', videoTopic);
+        
+        // Calculate expiry time (7 days from now)
+        const expiryTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        
+        const videoData = {
+          user_id: userId,
+          topic: videoTopic,
+          video_url: videoUrl,
+          audio_url: result.audio_url,
+          transcript_url: result.transcript_url,
+          images_zip_url: result.images_zip_url,
+          thumbnail_url: result.thumbnail_url,
+          expiry_time: expiryTime
+        };
+        
+        console.log('🔎 [saveVideoToGallery] Formatted video data for insert:', videoData);
+        
+        const { data, error } = await supabase
+          .from('generated_videos')
+          .insert(videoData)
+          .select();
+        
+        if (error) {
+          console.error('🔎 [saveVideoToGallery] Error saving video to database:', error);
+          console.error('🔎 [saveVideoToGallery] Error details:', error.details, error.hint, error.message);
+          toast.error(`Failed to save video to gallery: ${error.message || 'Unknown error'}`);
+          return false;
+        } else {
+          console.log('🔎 [saveVideoToGallery] Video saved successfully:', data);
+          // Mark this video URL as saved to prevent duplicates in this session
+          savedVideoUrls.add(videoUrl);
+          toast.success('Video saved to your gallery! Videos are automatically deleted after 7 days.');
+          return true;
+        }
+      } finally {
+        // Always clean up the in-progress operation when done
+        saveOperationsInProgress.delete(videoUrl);
+      }
+    })();
     
-    const videoData = {
-      user_id: userId,
-      topic: videoTopic,
-      video_url: result.video_url,
-      audio_url: result.audio_url,
-      transcript_url: result.transcript_url,
-      images_zip_url: result.images_zip_url,
-      thumbnail_url: result.thumbnail_url,
-      expiry_time: expiryTime
-    };
+    // Store the promise so we can track/prevent concurrent operations
+    saveOperationsInProgress.set(videoUrl, savePromise);
     
-    console.log('🔎 [saveVideoToGallery] Formatted video data for insert:', videoData);
+    // Wait for and return the result
+    return await savePromise;
     
-    const { data, error } = await supabase.from('generated_videos').insert(videoData).select();
-    
-    if (error) {
-      console.error('🔎 [saveVideoToGallery] Error saving video to database:', error);
-      console.error('🔎 [saveVideoToGallery] Error details:', error.details, error.hint, error.message);
-      toast.error(`Failed to save video to gallery: ${error.message || 'Unknown error'}`);
-      return false;
-    } else {
-      console.log('🔎 [saveVideoToGallery] Video saved successfully:', data);
-      // Mark this video as saved to prevent duplicates
-      savedVideoIds.add(videoIdentifier);
-      toast.success('Video saved to your gallery! Note: Videos are automatically deleted after 7 days.');
-      return true;
-    }
   } catch (dbError: any) {
     console.error('🔎 [saveVideoToGallery] Exception saving video to database:', dbError);
     toast.error(`Failed to save to gallery: ${dbError.message || 'Unknown error'}`);

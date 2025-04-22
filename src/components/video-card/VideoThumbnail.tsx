@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { Play } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface VideoThumbnailProps {
   thumbnail: string;
@@ -38,6 +39,21 @@ const VideoThumbnail = ({ thumbnail, title, url }: VideoThumbnailProps) => {
     setImgSrc('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjExMzYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzRiNTU2MyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPlZpZGVvPC90ZXh0Pjwvc3ZnPg==');
   };
   
+  const handlePlayClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    // Validate the URL before trying to play
+    if (!url || !url.startsWith('http')) {
+      console.error('VideoThumbnail: Invalid video URL:', url);
+      toast.error('Sorry, this video cannot be played. The URL is invalid.');
+      return;
+    }
+    
+    // Open in a new tab as a fallback method to ensure playback works
+    console.log('VideoThumbnail: Opening video in new tab:', url);
+    window.open(url, '_blank');
+  };
+  
   return (
     <div className="relative aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
       {imgError ? (
@@ -58,11 +74,9 @@ const VideoThumbnail = ({ thumbnail, title, url }: VideoThumbnailProps) => {
           variant="ghost" 
           size="icon" 
           className="rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm" 
-          asChild
+          onClick={handlePlayClick}
         >
-          <a href={url} target="_blank" rel="noopener noreferrer" onClick={() => console.log('Video play button clicked, URL:', url)}>
-            <Play className="h-8 w-8 text-white" />
-          </a>
+          <Play className="h-8 w-8 text-white" />
         </Button>
       </div>
       

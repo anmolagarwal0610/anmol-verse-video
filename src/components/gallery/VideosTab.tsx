@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { getVideos } from '@/lib/video/services/videoGallery';
 import VideoCard from '@/components/video-card';
@@ -36,15 +35,42 @@ const VideosTab = () => {
         const fetchedVideos = await getVideos();
         console.log('🔎 [VideosTab] Videos fetched:', fetchedVideos.length);
         
-        // Filter out any potentially duplicate videos (based on URL)
-        const uniqueVideoUrls = new Set<string>();
-        const uniqueVideos = fetchedVideos.filter(video => {
-          if (!video.url || uniqueVideoUrls.has(video.url)) {
+        // Filter out invalid videos (missing URL or topic)
+        const validVideos = fetchedVideos.filter(video => {
+          if (!video.url) {
+            console.warn('🔎 [VideosTab] Filtering out video with no URL:', video.id);
             return false;
           }
-          uniqueVideoUrls.add(video.url);
           return true;
         });
+        
+        console.log('🔎 [VideosTab] Valid videos after URL check:', validVideos.length);
+        
+        // Filter out duplicate videos based on URL - keeping the newest one with each URL
+        const uniqueVideos = validVideos.reduce<VideoData[]>((acc, current) => {
+          const existingVideoIndex = acc.findIndex(v => v.url === current.url);
+          
+          if (existingVideoIndex >= 0) {
+            // If this video is newer than the existing one, replace it
+            const existingVideo = acc[existingVideoIndex];
+            const existingDate = new Date(existingVideo.created_at).getTime();
+            const currentDate = new Date(current.created_at).getTime();
+            
+            if (currentDate > existingDate) {
+              acc[existingVideoIndex] = current;
+            }
+          } else {
+            // This is a unique video URL, add it to our list
+            acc.push(current);
+          }
+          
+          return acc;
+        }, []);
+        
+        // Sort videos by creation date, newest first
+        uniqueVideos.sort((a, b) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
         
         console.log('🔎 [VideosTab] Unique videos after filtering:', uniqueVideos.length);
         
@@ -110,7 +136,7 @@ const VideosTab = () => {
       {user && (
         <GalleryNotice 
           type="video"
-          message="Download any videos you want to keep to your device."
+          message="Videos are stored for 7 days. Download any videos you want to keep."
         />
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
