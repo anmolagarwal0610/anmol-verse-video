@@ -27,6 +27,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   const startTimeRef = useRef<number | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastProgressUpdateRef = useRef<number>(0);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   const POLLING_INTERVAL = 3000; // 3 seconds
   const MAX_TIMEOUT = 480000; // 8 minutes (480,000 milliseconds)
@@ -42,6 +43,11 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
+    }
+    
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
     }
   };
   
@@ -115,7 +121,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
     }
   };
   
-  const generate = async (params: VideoGenerationParams) => {
+  const generate = async (params: VideoGenerationParams): Promise<void> => {
     try {
       reset();
       setStatus('generating');
@@ -154,17 +160,15 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         }, MAX_TIMEOUT);
 
         // Setup progress updates based on time
-        const progressInterval = setInterval(() => {
+        progressIntervalRef.current = setInterval(() => {
           const newProgress = updateProgressBasedOnTime();
           if (newProgress >= 99 || status === 'completed' || status === 'error') {
-            clearInterval(progressInterval);
+            if (progressIntervalRef.current) {
+              clearInterval(progressIntervalRef.current);
+              progressIntervalRef.current = null;
+            }
           }
         }, 5000); // Update every 5 seconds
-
-        // Clean up progress interval on unmount
-        return () => {
-          clearInterval(progressInterval);
-        };
       } else {
         throw new Error('Invalid response from server');
       }
