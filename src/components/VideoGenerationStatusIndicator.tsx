@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
@@ -20,9 +21,11 @@ const VideoGenerationStatusIndicator = () => {
     return null;
   }
   
-  // Calculate how long the generation has been running (updated to 8 minutes)
-  const minutes = Math.floor(progress / 100 * 8);
-  const showCancelButton = minutes >= 8;
+  // Calculate remaining time based on progress (out of 8 minutes)
+  const remainingMinutes = Math.max(0, Math.round((100 - progress) / 100 * 8));
+  const showCancelButton = progress > 0 && progress < 100;
+  
+  console.log('StatusIndicator progress:', progress);
   
   return (
     <TooltipProvider>
@@ -58,7 +61,7 @@ const VideoGenerationStatusIndicator = () => {
             <p className="text-sm font-medium">Video generation in progress</p>
             <Progress value={progress} className="h-2 w-48" />
             <p className="text-xs text-muted-foreground">
-              Est. time remaining: ~{Math.max(0, 8 - minutes)} minutes
+              Est. time remaining: ~{remainingMinutes} {remainingMinutes === 1 ? 'minute' : 'minutes'}
             </p>
             <Button 
               size="sm" 
