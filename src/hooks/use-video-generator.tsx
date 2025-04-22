@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { generateVideo, checkVideoStatus } from '@/lib/video/api';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
@@ -30,6 +29,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastProgressUpdateRef = useRef<number>(0);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const saveAttemptedRef = useRef<boolean>(false);
   
   const { user } = useAuth();
   
@@ -38,7 +38,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   const ESTIMATED_TIME = 300000; // 5 minutes for progress bar
   
   const cleanup = () => {
-    console.log('Cleanup called - clearing intervals and timeouts');
+    console.log('🔎 [useVideoGenerator] Cleanup called - clearing intervals and timeouts');
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
       pollingRef.current = null;
@@ -56,7 +56,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   };
   
   const reset = () => {
-    console.log('Reset called - resetting all state');
+    console.log('🔎 [useVideoGenerator] Reset called - resetting all state');
     cleanup();
     setStatus('idle');
     setProgress(0);
@@ -66,6 +66,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
     startTimeRef.current = null;
     lastProgressUpdateRef.current = 0;
     setCurrentTopic('');
+    saveAttemptedRef.current = false;
   };
   
   useEffect(() => {
@@ -74,24 +75,54 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   
   // Add an effect to handle saving the video when generation completes
   useEffect(() => {
-    if (status === 'completed' && result && user) {
-      console.log('Video generation completed with authenticated user. Attempting to save to gallery.');
-      console.log('User ID:', user.id);
-      console.log('Result data:', result);
-      
-      // Attempt to save the video to the gallery
-      saveVideoToGallery(result, user.id)
-        .then(() => {
-          console.log('Video successfully saved to gallery');
-        })
-        .catch((err) => {
-          console.error('Failed to save video to gallery:', err);
-          toast.error(`Failed to save video to your gallery: ${err instanceof Error ? err.message : 'Unknown error'}`);
-        });
-    } else if (status === 'completed' && result && !user) {
-      console.warn('Video generated successfully but user is not authenticated. Cannot save to gallery.');
-    }
-  }, [status, result, user]);
+    const handleVideoSave = async () => {
+      if (status === 'completed' && result && user && !saveAttemptedRef.current) {
+        console.log('🔎 [useVideoGenerator] Video generation completed with authenticated user. Attempting to save to gallery.');
+        console.log('🔎 [useVideoGenerator] User ID:', user.id);
+        console.log('🔎 [useVideoGenerator] Result data:', JSON.stringify(result, null, 2));
+        console.log('🔎 [useVideoGenerator] Current topic from state:', currentTopic);
+        
+        // Set flag to prevent duplicate saves
+        saveAttemptedRef.current = true;
+        
+        // Make sure topic is set in the result
+        if (!result.topic && currentTopic) {
+          console.log('🔎 [useVideoGenerator] Topic missing in result, using current topic:', currentTopic);
+          const enrichedResult = {
+            ...result,
+            topic: currentTopic
+          };
+          
+          // Update the result state with the enriched data
+          setResult(enrichedResult);
+          
+          // Attempt to save with the enriched result
+          try {
+            await saveVideoToGallery(enrichedResult, user.id);
+            console.log('🔎 [useVideoGenerator] Video successfully saved to gallery with topic:', currentTopic);
+          } catch (err) {
+            console.error('🔎 [useVideoGenerator] Failed to save video to gallery:', err);
+            toast.error(`Failed to save video to your gallery: ${err instanceof Error ? err.message : 'Unknown error'}`);
+          }
+        } else {
+          // Attempt to save with the existing result
+          try {
+            await saveVideoToGallery(result, user.id);
+            console.log('🔎 [useVideoGenerator] Video successfully saved to gallery');
+          } catch (err) {
+            console.error('🔎 [useVideoGenerator] Failed to save video to gallery:', err);
+            toast.error(`Failed to save video to your gallery: ${err instanceof Error ? err.message : 'Unknown error'}`);
+          }
+        }
+      } else if (status === 'completed' && result && !user) {
+        console.warn('🔎 [useVideoGenerator] Video generated successfully but user is not authenticated. Cannot save to gallery.');
+      } else if (status === 'completed' && saveAttemptedRef.current) {
+        console.log('🔎 [useVideoGenerator] Save already attempted, skipping duplicate save');
+      }
+    };
+    
+    handleVideoSave();
+  }, [status, result, user, currentTopic]);
   
   const updateProgressBasedOnTime = () => {
     if (!startTimeRef.current) return 0;
@@ -113,36 +144,37 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
 
   const pollStatus = async (id: string) => {
     try {
-      console.log(`Polling status for task: ${id}`);
+      console.log(`🔎 [useVideoGenerator] Polling status for task: ${id}`);
       const statusResponse = await checkVideoStatus(id);
-      console.log('Status response:', statusResponse);
+      console.log('🔎 [useVideoGenerator] Status response:', statusResponse);
       
       // Update progress based on time
       updateProgressBasedOnTime();
       
       if (statusResponse.status === 'Completed') {
-        console.log('Video generation completed successfully');
+        console.log('🔎 [useVideoGenerator] Video generation completed successfully');
         setStatus('completed');
         setProgress(100);
         
+        console.log('🔎 [useVideoGenerator] Setting result with topic:', currentTopic);
         setResult({
           ...statusResponse,
-          topic: currentTopic
+          topic: currentTopic || statusResponse.topic
         });
         
         cleanup();
         toast.success('Video generation completed!');
       } else if (statusResponse.status === 'Error') {
-        console.error('Error in video generation:', statusResponse.message);
+        console.error('🔎 [useVideoGenerator] Error in video generation:', statusResponse.message);
         setStatus('error');
         setError(statusResponse.message || 'Unknown error occurred');
         cleanup();
         toast.error(`Error: ${statusResponse.message || 'Unknown error'}`);
       } else {
-        console.log(`Video still processing: ${statusResponse.status}`);
+        console.log(`🔎 [useVideoGenerator] Video still processing: ${statusResponse.status}`);
       }
     } catch (err) {
-      console.error('Error polling status:', err);
+      console.error('🔎 [useVideoGenerator] Error polling status:', err);
     }
   };
   
@@ -152,31 +184,32 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
       setStatus('generating');
       setCurrentTopic(params.topic);
       
-      console.log('Generating video with params:', params);
+      console.log('🔎 [useVideoGenerator] Generating video with params:', params);
+      console.log('🔎 [useVideoGenerator] Topic being set:', params.topic);
       
       startTimeRef.current = Date.now();
-      console.log('Start time set:', new Date(startTimeRef.current).toISOString());
+      console.log('🔎 [useVideoGenerator] Start time set:', new Date(startTimeRef.current).toISOString());
       
       const response = await generateVideo(params);
       
       if (response && response.task_id) {
-        console.log(`Received task_id: ${response.task_id}`);
+        console.log(`🔎 [useVideoGenerator] Received task_id: ${response.task_id}`);
         setTaskId(response.task_id);
         setStatus('polling');
         setProgress(5); // Initial progress
-        console.log('Status set to polling, initial progress: 5%');
+        console.log('🔎 [useVideoGenerator] Status set to polling, initial progress: 5%');
         
         // Setup polling
-        console.log(`Setting up polling interval: ${POLLING_INTERVAL}ms`);
+        console.log(`🔎 [useVideoGenerator] Setting up polling interval: ${POLLING_INTERVAL}ms`);
         pollingRef.current = setInterval(() => {
           pollStatus(response.task_id);
         }, POLLING_INTERVAL);
         
         // Setup timeout
-        console.log(`Setting up max timeout: ${MAX_TIMEOUT}ms`);
+        console.log(`🔎 [useVideoGenerator] Setting up max timeout: ${MAX_TIMEOUT}ms`);
         timeoutRef.current = setTimeout(() => {
           if (status !== 'completed' && status !== 'error') {
-            console.warn('Generation timed out after 8 minutes');
+            console.warn('🔎 [useVideoGenerator] Generation timed out after 8 minutes');
             setStatus('error');
             setError('Generation timed out after 8 minutes');
             cleanup();
@@ -199,7 +232,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      console.error('Error generating video:', errorMessage);
+      console.error('🔎 [useVideoGenerator] Error generating video:', errorMessage);
       setStatus('error');
       setError(errorMessage);
       toast.error(`Failed to start video generation: ${errorMessage}`);

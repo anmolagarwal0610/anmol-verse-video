@@ -9,15 +9,22 @@ export const saveVideoToGallery = async (
   userId: string
 ) => {
   try {
-    console.log('Saving video to gallery for user:', userId);
-    console.log('Video data to save:', result);
+    console.log('🔎 [saveVideoToGallery] Starting save operation with userId:', userId);
+    console.log('🔎 [saveVideoToGallery] Result topic:', result.topic);
+    console.log('🔎 [saveVideoToGallery] Full result object:', JSON.stringify(result, null, 2));
+    console.log('🔎 [saveVideoToGallery] Stack trace:', new Error().stack);
+    
+    // Validate topic - ensure we have a non-empty topic
+    if (!result.topic || result.topic.trim() === '') {
+      console.warn('🔎 [saveVideoToGallery] Missing or empty topic, using "Untitled Video"');
+    }
     
     // Calculate expiry time (7 days from now)
     const expiryTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     
     const videoData = {
       user_id: userId,
-      topic: result.topic || 'Untitled Video',
+      topic: result.topic?.trim() ? result.topic : 'Untitled Video',
       video_url: result.video_url,
       audio_url: result.audio_url,
       transcript_url: result.transcript_url,
@@ -26,22 +33,22 @@ export const saveVideoToGallery = async (
       expiry_time: expiryTime
     };
     
-    console.log('Formatted video data for insert:', videoData);
+    console.log('🔎 [saveVideoToGallery] Formatted video data for insert:', videoData);
     
     const { data, error } = await supabase.from('generated_videos').insert(videoData).select();
     
     if (error) {
-      console.error('Error saving video to database:', error);
-      console.error('Error details:', error.details, error.hint, error.message);
+      console.error('🔎 [saveVideoToGallery] Error saving video to database:', error);
+      console.error('🔎 [saveVideoToGallery] Error details:', error.details, error.hint, error.message);
       toast.error(`Failed to save video to gallery: ${error.message || 'Unknown error'}`);
       return false;
     } else {
-      console.log('Video saved successfully:', data);
+      console.log('🔎 [saveVideoToGallery] Video saved successfully:', data);
       toast.success('Video saved to your gallery! Note: Videos are automatically deleted after 7 days.');
       return true;
     }
   } catch (dbError: any) {
-    console.error('Exception saving video to database:', dbError);
+    console.error('🔎 [saveVideoToGallery] Exception saving video to database:', dbError);
     toast.error(`Failed to save to gallery: ${dbError.message || 'Unknown error'}`);
     return false;
   }
@@ -49,7 +56,7 @@ export const saveVideoToGallery = async (
 
 export const getVideos = async (): Promise<VideoData[]> => {
   try {
-    console.log('Fetching videos from database...');
+    console.log('🔎 [getVideos] Fetching videos from database...');
     
     // Get videos from Supabase
     const { data: videos, error } = await supabase
@@ -58,25 +65,26 @@ export const getVideos = async (): Promise<VideoData[]> => {
       .order('created_at', { ascending: false });
       
     if (error) {
-      console.error('Error fetching videos from database:', error);
+      console.error('🔎 [getVideos] Error fetching videos from database:', error);
       throw error;
     }
     
     if (!videos || videos.length === 0) {
-      console.log('No videos found in database');
+      console.log('🔎 [getVideos] No videos found in database');
       return [];
     }
     
-    console.log(`Found ${videos.length} videos in database`);
+    console.log(`🔎 [getVideos] Found ${videos.length} videos in database`);
+    console.log('🔎 [getVideos] First video sample:', videos[0]);
     
     // Map database videos to VideoData format
-    return videos.map(video => {
+    const mappedVideos = videos.map(video => {
       const embeddedSVG = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjExMzYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzRiNTU2MyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPlZpZGVvPC90ZXh0Pjwvc3ZnPg==';
       
       return {
         id: video.id,
-        title: video.topic,
-        prompt: video.topic,
+        title: video.topic || 'Untitled Video',
+        prompt: video.topic || 'No topic provided',
         url: video.video_url || '',
         thumbnail: video.thumbnail_url || embeddedSVG,
         created_at: video.created_at,
@@ -85,8 +93,11 @@ export const getVideos = async (): Promise<VideoData[]> => {
         imagesZipUrl: video.images_zip_url
       };
     });
+    
+    console.log('🔎 [getVideos] Mapped videos sample:', mappedVideos[0]);
+    return mappedVideos;
   } catch (error) {
-    console.error('Error fetching videos:', error);
+    console.error('🔎 [getVideos] Error fetching videos:', error);
     return [];
   }
 };
