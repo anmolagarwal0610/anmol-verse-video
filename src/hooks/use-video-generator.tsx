@@ -98,8 +98,8 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         cleanup();
         toast.error(`Error: ${statusResponse.message || 'Unknown error'}`);
       } else if (statusResponse.status === 'Processing' && statusResponse.progress !== undefined) {
-        // If the API returns a progress value, use it
-        setProgress(Math.round(statusResponse.progress));
+        // Only use the progress from the API if it's available
+        setProgress(Math.round(statusResponse.progress || 0));
       }
       
       // If no specific progress is provided by the API, we continue with our time-based progress

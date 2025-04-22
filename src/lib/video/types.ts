@@ -1,3 +1,4 @@
+
 export interface VideoGenerationParams {
   username: string;
   topic: string;
@@ -31,4 +32,5 @@ export interface VideoStatusResponse {
   images_zip_url?: string;
   thumbnail_url?: string;
   topic?: string;
+  progress?: number; // Added progress property
 }
