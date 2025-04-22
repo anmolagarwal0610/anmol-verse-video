@@ -36,7 +36,7 @@ interface IdleRequestOptions {
   timeout: number;
 }
 
-// Declare global to add requestIdleCallback to window
+// Declare global to add requestIdleCallback to window - only declare this once
 declare global {
   interface Window {
     requestIdleCallback: (
@@ -166,16 +166,7 @@ const Profile = lazy(() => import('@/pages/Profile'));
 const Settings = lazy(() => import('@/pages/Settings'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
-// Type definition for requestIdleCallback
-declare global {
-  interface Window {
-    requestIdleCallback: (
-      callback: IdleRequestCallback,
-      options?: IdleRequestOptions
-    ) => number;
-    cancelIdleCallback: (handle: number) => void;
-  }
-}
+// Note: Removed duplicate declaration of requestIdleCallback here
 
 const App = () => {
   // Polyfill requestIdleCallback for browsers that don't support it
