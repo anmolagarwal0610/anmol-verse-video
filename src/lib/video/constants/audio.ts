@@ -1,4 +1,3 @@
-
 // Audio-related constants
 export const AUDIO_LANGUAGES = {
   "English": "English",
@@ -26,7 +25,7 @@ export const VOICE_OPTIONS: Record<string, VoiceOption> = {
     name: "Rachel",
     category: "Narration",
     language: "English",
-    previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/9BWtsMINqrJLrRacOk9x/405766b8-1f4e-4d3c-aba1-6f25333823ec.mp3"
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/21m00Tcm4TlvDq8ikWAM/b4928a68-c03b-411f-8533-3d5c299fd451.mp3"
   },
   "c6bExSiHfx47LERqW2VK": {
     id: "c6bExSiHfx47LERqW2VK",
@@ -63,6 +62,27 @@ export const VOICE_OPTIONS: Record<string, VoiceOption> = {
     language: "English",
     previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/CwhRBWXzGAHq8TQ4Fs17/58ee3ff5-f6f2-4628-93b8-e38eb31806b0.mp3"
   },
+  "EXAVITQu4vr4xnSDxMaL": {
+    id: "EXAVITQu4vr4xnSDxMaL",
+    name: "Sarah",
+    category: "News",
+    language: "English",
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/EXAVITQu4vr4xnSDxMaL/01a3e33c-6e99-4ee7-8543-ff2216a32186.mp3"
+  },
+  "JBFqnCBsd6RMkjVDRZzb": {
+    id: "JBFqnCBsd6RMkjVDRZzb",
+    name: "George",
+    category: "Narration, British",
+    language: "English",
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/JBFqnCBsd6RMkjVDRZzb/e6206d1a-0721-4787-aafb-06a6e705cac5.mp3"
+  },
+  "SAz9YHcvj6GT2YYXdXww": {
+    id: "SAz9YHcvj6GT2YYXdXww",
+    name: "River",
+    category: "Social Media, American",
+    language: "English",
+    previewUrl: "https://storage.googleapis.com/eleven-public-prod/premade/voices/SAz9YHcvj6GT2YYXdXww/e6c95f0b-2227-491a-b3d7-2249240decb7.mp3"
+  },
   "google_male": {
     id: "google_male",
     name: "Google - Male",
@@ -77,7 +97,6 @@ export const VOICE_OPTIONS: Record<string, VoiceOption> = {
     language: "English",
     previewUrl: "https://storage.googleapis.com/kiratpur-ka-hero/Voices/english_Female.mp3"
   },
-  // Note: The IDs below will be normalized to just google_male and google_female in the API call
   "google_male_hindi": {
     id: "google_male_hindi",
     name: "Google - Male (Hindi)",
