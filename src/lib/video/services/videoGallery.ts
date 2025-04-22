@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { VideoStatusResponse } from '../types';
 import { toast } from 'sonner';
@@ -26,7 +25,7 @@ export const saveVideoToGallery = async (
       console.error('Error saving video to database:', error);
       toast.error(`Failed to save video to gallery: ${error.message || 'Unknown error'}`);
     } else {
-      toast.success('Video saved to your gallery!');
+      toast.success('Video saved to your gallery! Note: Videos are automatically deleted after 7 days.');
     }
   } catch (dbError: any) {
     console.error('Error saving video to database:', dbError);
@@ -34,20 +33,14 @@ export const saveVideoToGallery = async (
   }
 };
 
-export const getVideos = async (userId: string | undefined): Promise<VideoData[]> => {
+export const getVideos = async (): Promise<VideoData[]> => {
   try {
-    console.log('Fetching videos for user:', userId);
+    console.log('Fetching videos from database...');
     
-    if (!userId) {
-      console.log('No user ID provided, returning empty array');
-      return [];
-    }
-    
-    // Get videos from Supabase for the specific user
+    // Get videos from Supabase
     const { data: videos, error } = await supabase
       .from('generated_videos')
       .select('*')
-      .eq('user_id', userId)
       .order('created_at', { ascending: false });
       
     if (error) {
@@ -56,11 +49,11 @@ export const getVideos = async (userId: string | undefined): Promise<VideoData[]
     }
     
     if (!videos || videos.length === 0) {
-      console.log('No videos found for user');
+      console.log('No videos found in database');
       return [];
     }
     
-    console.log(`Found ${videos.length} videos for user ${userId}`);
+    console.log(`Found ${videos.length} videos in database`);
     
     // Map database videos to VideoData format
     return videos.map(video => {
@@ -75,13 +68,11 @@ export const getVideos = async (userId: string | undefined): Promise<VideoData[]
         created_at: video.created_at,
         audioUrl: video.audio_url,
         transcriptUrl: video.transcript_url,
-        imagesZipUrl: video.images_zip_url,
-        expiryTime: video.expiry_time
+        imagesZipUrl: video.images_zip_url
       };
     });
   } catch (error) {
     console.error('Error fetching videos:', error);
-    // Return empty array on error
     return [];
   }
 };

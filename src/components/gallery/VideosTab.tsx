@@ -29,7 +29,7 @@ const VideosTab = () => {
           return;
         }
 
-        const fetchedVideos = await getVideos(user.id);
+        const fetchedVideos = await getVideos();
         setVideos(fetchedVideos);
       } catch (error) {
         console.error('Error fetching videos:', error);

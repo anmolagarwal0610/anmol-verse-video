@@ -1,5 +1,4 @@
 
-import { memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranscriptGenerator } from '@/hooks/use-transcript-generator';
@@ -31,10 +30,10 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
     handleRetry
   } = useTranscriptGenerator(onTranscriptGenerated);
 
-  const redirectToAuth = useCallback(() => {
+  const redirectToAuth = () => {
     navigate('/auth');
     setShowAuthDialog(false);
-  }, [navigate, setShowAuthDialog]);
+  };
 
   return (
     <>
@@ -42,7 +41,7 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
         className="w-full max-w-3xl glass-panel rounded-2xl p-6 md:p-8"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
       >
         <FormInput 
           prompt={prompt}
@@ -81,4 +80,4 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
   );
 };
 
-export default memo(TranscriptForm);
+export default TranscriptForm;

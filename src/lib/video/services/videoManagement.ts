@@ -33,8 +33,7 @@ export const getVideoById = async (id: string): Promise<VideoData | null> => {
         created_at: video.created_at,
         audioUrl: video.audio_url,
         transcriptUrl: video.transcript_url,
-        imagesZipUrl: video.images_zip_url,
-        expiryTime: video.expiry_time
+        imagesZipUrl: video.images_zip_url
       };
     }
     

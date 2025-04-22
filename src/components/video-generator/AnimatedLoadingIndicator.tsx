@@ -13,7 +13,6 @@ const AnimatedLoadingIndicator = ({ progress, status }: AnimatedLoadingIndicator
   
   // Update milestone based on progress
   useEffect(() => {
-    console.log('Progress updated:', progress);
     if (progress < 20) {
       setMilestone("initializing");
     } else if (progress < 40) {
@@ -35,10 +34,7 @@ const AnimatedLoadingIndicator = ({ progress, status }: AnimatedLoadingIndicator
 
   const progressCircle = {
     hidden: { pathLength: 0 },
-    visible: { 
-      pathLength: progress / 100, 
-      transition: { duration: 0.5, ease: "easeInOut" } 
-    }
+    visible: { pathLength: progress / 100, transition: { duration: 1, ease: "easeInOut" } }
   };
   
   const pulseVariants = {
@@ -122,8 +118,6 @@ const AnimatedLoadingIndicator = ({ progress, status }: AnimatedLoadingIndicator
             strokeWidth="8"
             strokeLinecap="round"
             variants={progressCircle}
-            initial="hidden"
-            animate="visible"
           />
         </svg>
         
@@ -183,7 +177,7 @@ const AnimatedLoadingIndicator = ({ progress, status }: AnimatedLoadingIndicator
         className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg max-w-md"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.5 }}
+        transition={{ delay: 1, duration: 0.5 }}
       >
         <p className="text-sm text-center text-muted-foreground">
           <span className="font-medium">Did you know?</span> AI video generation analyzes billions 

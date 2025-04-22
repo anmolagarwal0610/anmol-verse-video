@@ -1,153 +1,42 @@
-import { Suspense, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { Toaster } from '@/components/ui/sonner';
-import { AuthProvider } from '@/hooks/use-auth';
-import { VideoGenerationProvider } from '@/contexts/VideoGenerationContext';
-import WelcomeMessage from '@/components/WelcomeMessage';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import { Loader2 } from 'lucide-react';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { useIntelligentPrefetch } from '@/utils/route-prefetching';
-import * as RouteComponents from '@/routes/route-config';
-
-// Components that should be available immediately
-const PageLoader = () => (
-  <div className="flex h-[50vh] w-full items-center justify-center">
-    <Loader2 className="h-8 w-8 animate-spin text-primary/70" />
-  </div>
-);
-
-// Component to use the prefetch hook
-const IntelligentPrefetcher = () => {
-  useIntelligentPrefetch();
-  return null;
-};
+import { Routes, Route, Navigate } from 'react-router-dom'
+import Index from '@/pages/Index'
+import NotFound from '@/pages/NotFound'
+import Auth from '@/pages/Auth'
+import AuthCallback from '@/pages/AuthCallback'
+import Transcript from '@/pages/Transcript'
+import Video from '@/pages/Video'
+import VideoGeneration from '@/pages/VideoGeneration'
+import ImageGeneration from '@/pages/ImageGeneration'
+import Gallery from '@/pages/Gallery'
+import Profile from '@/pages/Profile'
+import Settings from '@/pages/Settings'
+import WelcomeMessage from '@/components/WelcomeMessage'
+import { Toaster } from '@/components/ui/sonner'
+import { AuthProvider } from '@/hooks/use-auth'
+import { VideoGenerationProvider } from '@/contexts/VideoGenerationContext'
 
 const App = () => {
-  // Polyfill requestIdleCallback for browsers that don't support it
-  useEffect(() => {
-    if (typeof window.requestIdleCallback !== 'function') {
-      (window as any).requestIdleCallback = function(callback: IdleRequestCallback) {
-        const id = setTimeout(() => {
-          const deadline = {
-            didTimeout: false,
-            timeRemaining: function() { return 15; }
-          };
-          callback(deadline);
-        }, 1);
-        return id;
-      };
-      
-      (window as any).cancelIdleCallback = function(id: number) {
-        clearTimeout(id);
-      };
-    }
-  }, []);
-
   return (
-    <ErrorBoundary>
-      <AuthProvider>
-        <VideoGenerationProvider>
-          <WelcomeMessage />
-          
-          <MainLayout>
-            <IntelligentPrefetcher />
-            <Routes>
-              <Route 
-                path="/" 
-                element={
-                  <Suspense fallback={<PageLoader />}>
-                    <RouteComponents.Index />
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/auth" 
-                element={
-                  <Suspense fallback={<PageLoader />}>
-                    <RouteComponents.Auth />
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/auth/callback" 
-                element={
-                  <Suspense fallback={<PageLoader />}>
-                    <RouteComponents.AuthCallback />
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/transcript" 
-                element={
-                  <Suspense fallback={<PageLoader />}>
-                    <RouteComponents.Transcript />
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/videos/:id" 
-                element={
-                  <Suspense fallback={<PageLoader />}>
-                    <RouteComponents.Video />
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/videos/generate" 
-                element={
-                  <Suspense fallback={<PageLoader />}>
-                    <RouteComponents.VideoGeneration />
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/images" 
-                element={
-                  <Suspense fallback={<PageLoader />}>
-                    <RouteComponents.ImageGeneration />
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/gallery" 
-                element={
-                  <Suspense fallback={<PageLoader />}>
-                    <RouteComponents.Gallery />
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/profile" 
-                element={
-                  <Suspense fallback={<PageLoader />}>
-                    <RouteComponents.Profile />
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/settings" 
-                element={
-                  <Suspense fallback={<PageLoader />}>
-                    <RouteComponents.Settings />
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="*" 
-                element={
-                  <Suspense fallback={<PageLoader />}>
-                    <RouteComponents.NotFound />
-                  </Suspense>
-                } 
-              />
-            </Routes>
-          </MainLayout>
-          
-          <Toaster position="bottom-center" />
-        </VideoGenerationProvider>
-      </AuthProvider>
-    </ErrorBoundary>
+    <AuthProvider>
+      <VideoGenerationProvider>
+        <WelcomeMessage />
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/transcript" element={<Transcript />} />
+          <Route path="/videos/:id" element={<Video />} />
+          {/* Video Genie route */}
+          <Route path="/videos/generate" element={<VideoGeneration />} />
+          <Route path="/images" element={<ImageGeneration />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Toaster position="bottom-center" />
+      </VideoGenerationProvider>
+    </AuthProvider>
   );
 };
 

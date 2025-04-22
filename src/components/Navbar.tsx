@@ -1,6 +1,5 @@
-
-import { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
 import AuthButtons from '@/components/AuthButtons';
@@ -9,17 +8,6 @@ import { BrandLogo } from './navbar/BrandLogo';
 import { DesktopNav } from './navbar/DesktopNav';
 import { MobileMenu } from './navbar/MobileMenu';
 import { MenuToggle } from './navbar/MenuToggle';
-import { createRouteObserver } from '@/utils/performance';
-import VideoGenerationStatusIndicator from './VideoGenerationStatusIndicator';
-
-// Define route mapping for prefetching
-const ROUTE_MODULES: Record<string, () => Promise<any>> = {
-  '/': () => import('@/pages/Index'),
-  '/videos/generate': () => import('@/pages/VideoGeneration'),
-  '/images': () => import('@/pages/ImageGeneration'),
-  '/transcript': () => import('@/pages/Transcript'),
-  '/gallery': () => import('@/pages/Gallery'),
-};
 
 const Navbar = () => {
   const location = useLocation();
@@ -27,8 +15,6 @@ const Navbar = () => {
   const [scrollY, setScrollY] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useIsMobile();
-  const prefetchedRoutes = useRef<Set<string>>(new Set());
-  const navLinksRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -40,7 +26,6 @@ const Navbar = () => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
-  // Pending redirect logic
   useEffect(() => {
     const pendingPath = sessionStorage.getItem('pendingRedirectPath');
     
@@ -65,56 +50,6 @@ const Navbar = () => {
     }
   }, [location, navigate]);
 
-  // Set up intersection observer for route prefetching
-  useEffect(() => {
-    if (isMobile) return; // Skip for mobile devices to save data
-    
-    const observer = createRouteObserver((entry) => {
-      const linkElement = entry.target as HTMLAnchorElement;
-      const href = linkElement.getAttribute('href');
-      
-      if (href && ROUTE_MODULES[href] && !prefetchedRoutes.current.has(href)) {
-        console.log(`🔄 Prefetching route from navbar: ${href}`);
-        
-        // Prefetch the module
-        ROUTE_MODULES[href]()
-          .then(() => {
-            console.log(`✅ Successfully prefetched: ${href}`);
-            prefetchedRoutes.current.add(href);
-          })
-          .catch(err => {
-            console.error(`❌ Failed to prefetch ${href}:`, err);
-          });
-      }
-    });
-    
-    // Observe all navigation links
-    if (navLinksRef.current && observer) {
-      const links = navLinksRef.current.querySelectorAll('a[href]');
-      links.forEach(link => {
-        observer.observe(link);
-      });
-    }
-    
-    return () => {
-      if (observer) {
-        observer.disconnect();
-      }
-    };
-  }, [isMobile]);
-
-  // Prefetch on hover
-  const handleLinkHover = (path: string) => {
-    if (ROUTE_MODULES[path] && !prefetchedRoutes.current.has(path)) {
-      console.log(`🔍 [Navbar] Prefetching on hover: ${path}`);
-      ROUTE_MODULES[path]()
-        .then(() => {
-          prefetchedRoutes.current.add(path);
-        })
-        .catch(console.error);
-    }
-  };
-
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const isActive = (path: string) => location.pathname === path;
 
@@ -127,12 +62,9 @@ const Navbar = () => {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <BrandLogo />
-        <div ref={navLinksRef}>
-          <DesktopNav isActive={isActive} onLinkHover={handleLinkHover} />
-        </div>
+        <DesktopNav isActive={isActive} />
         <div className="flex items-center gap-3">
           <UserCredits />
-          <VideoGenerationStatusIndicator />
           <AuthButtons />
           <MenuToggle isOpen={isMenuOpen} onToggle={toggleMenu} />
         </div>

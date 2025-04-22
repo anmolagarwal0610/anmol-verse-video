@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+
 import { useIsMobile } from '@/hooks/use-mobile';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/home/HeroSection';

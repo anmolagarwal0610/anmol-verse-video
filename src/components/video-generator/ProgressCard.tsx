@@ -21,12 +21,8 @@ interface ProgressCardProps {
 const ProgressCard = ({ progress, status }: ProgressCardProps) => {
   const { cancelGeneration } = useVideoGenerationContext();
   
-  // Calculate remaining time based on progress
-  const remainingMinutes = Math.max(0, Math.round((100 - progress) / 100 * 8));
-  const showCancelButton = progress > 0 && progress < 100;
-  
-  // Log progress for debugging
-  console.log('ProgressCard rendering with progress:', progress);
+  const minutes = Math.floor(progress / 100 * 8);
+  const showCancelButton = minutes >= 8;
   
   return (
     <Card className="w-full shadow-lg border-indigo-200 dark:border-indigo-800">
@@ -47,7 +43,7 @@ const ProgressCard = ({ progress, status }: ProgressCardProps) => {
         <div className="flex items-center justify-center space-x-2 text-indigo-600/70 dark:text-indigo-300/70">
           <Clock className="h-5 w-5" />
           <p className="text-sm">
-            Estimated time: approximately {remainingMinutes} {remainingMinutes === 1 ? 'minute' : 'minutes'} remaining
+            Estimated time: approximately {Math.max(0, 8 - minutes)} minutes remaining
           </p>
         </div>
         
