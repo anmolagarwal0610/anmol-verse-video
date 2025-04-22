@@ -1,11 +1,11 @@
 
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { useVideoGenerator } from '@/hooks/use-video-generator';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
-import { useSaveVideo } from '@/hooks/use-save-video';
+import { saveVideoToGallery } from '@/lib/video/services/videoGallery';
 import { useVideoGenerationState } from '@/hooks/use-video-generation-state';
 
 interface VideoGenerationContextType {
@@ -26,7 +26,8 @@ const VideoGenerationContext = createContext<VideoGenerationContextType | undefi
 export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { saveVideoToGallery } = useSaveVideo();
+  const saveAttemptedRef = useRef<boolean>(false);
+  
   const {
     status,
     progress,
@@ -57,7 +58,9 @@ export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = 
 
   useEffect(() => {
     console.log('VideoGenerationContext: Syncing result from generator:', generatorResult);
-    setResult(generatorResult);
+    if (generatorResult) {
+      setResult(generatorResult);
+    }
   }, [generatorResult, setResult]);
 
   useEffect(() => {
@@ -65,28 +68,44 @@ export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = 
     setError(generatorError);
   }, [generatorError, setError]);
   
-  // Handle video completion and errors
+  // Handle video completion and saving - this is now the ONLY place where videos are saved
   useEffect(() => {
-    console.log('VideoGenerationContext: Status effect triggered:', status);
-    console.log('VideoGenerationContext: Result:', result);
-    console.log('VideoGenerationContext: Error:', error);
-    console.log('VideoGenerationContext: User:', user);
+    const handleVideoSave = async () => {
+      console.log('VideoGenerationContext: Status effect triggered:', status);
+      console.log('VideoGenerationContext: Result:', result);
+      console.log('VideoGenerationContext: Error:', error);
+      console.log('VideoGenerationContext: User:', user);
+      console.log('VideoGenerationContext: Save attempted:', saveAttemptedRef.current);
+      
+      if (status === 'completed' && result && user && !saveAttemptedRef.current) {
+        console.log('VideoGenerationContext: Saving video to gallery');
+        saveAttemptedRef.current = true;
+        
+        // Ensure topic is properly set
+        const enrichedResult = {
+          ...result,
+          topic: result.topic || currentTopic || 'Untitled Video'
+        };
+        
+        console.log('VideoGenerationContext: Enriched result with topic:', enrichedResult.topic);
+        
+        // Only place where save is triggered
+        await saveVideoToGallery(enrichedResult, user.id);
+      } else if (status === 'completed' && !user) {
+        console.warn('VideoGenerationContext: User not authenticated, cannot save video');
+      } else if (status === 'completed' && saveAttemptedRef.current) {
+        console.log('VideoGenerationContext: Save already attempted');
+      }
+    };
     
-    if (status === 'completed' && result && user) {
-      console.log('VideoGenerationContext: Saving video to gallery');
-      saveVideoToGallery(result, user.id);
-    }
-    
-    if (status === 'error' && error) {
-      console.error('VideoGenerationContext: Error handling triggered:', error);
-      toast.error(`Error: ${error}`);
-    }
-  }, [status, result, error, user, saveVideoToGallery]);
+    handleVideoSave();
+  }, [status, result, user, currentTopic]);
   
   const generateVideo = async (params: VideoGenerationParams) => {
     try {
       console.log('VideoGenerationContext: Starting video generation with params:', params);
       reset();
+      saveAttemptedRef.current = false;
       setStatus('generating');
       setCurrentTopic(params.topic);
       await generate(params);
@@ -100,6 +119,7 @@ export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = 
   const cancelGeneration = () => {
     console.log('VideoGenerationContext: Cancelling generation');
     reset();
+    saveAttemptedRef.current = false;
     toast.info('Video generation cancelled');
   };
   

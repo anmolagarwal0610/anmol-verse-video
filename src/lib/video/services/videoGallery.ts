@@ -4,6 +4,9 @@ import { VideoStatusResponse } from '../types';
 import { toast } from 'sonner';
 import { VideoData } from '@/components/video-card';
 
+// Track saved video IDs to prevent duplicate saves
+const savedVideoIds = new Set<string>();
+
 export const saveVideoToGallery = async (
   result: VideoStatusResponse, 
   userId: string
@@ -11,20 +14,33 @@ export const saveVideoToGallery = async (
   try {
     console.log('🔎 [saveVideoToGallery] Starting save operation with userId:', userId);
     console.log('🔎 [saveVideoToGallery] Result topic:', result.topic);
-    console.log('🔎 [saveVideoToGallery] Full result object:', JSON.stringify(result, null, 2));
-    console.log('🔎 [saveVideoToGallery] Stack trace:', new Error().stack);
+    console.log('🔎 [saveVideoToGallery] Result video_url:', result.video_url);
+    
+    // Skip if no video URL (indicates incomplete generation)
+    if (!result.video_url) {
+      console.warn('🔎 [saveVideoToGallery] No video URL provided, skipping save');
+      return false;
+    }
+    
+    // Create a unique ID based on video URL to deduplicate
+    const videoIdentifier = result.video_url;
+    
+    // Check if we've already saved this video
+    if (savedVideoIds.has(videoIdentifier)) {
+      console.log('🔎 [saveVideoToGallery] Video already saved, preventing duplicate:', videoIdentifier);
+      return true;
+    }
     
     // Validate topic - ensure we have a non-empty topic
-    if (!result.topic || result.topic.trim() === '') {
-      console.warn('🔎 [saveVideoToGallery] Missing or empty topic, using "Untitled Video"');
-    }
+    const videoTopic = result.topic?.trim() ? result.topic : 'Untitled Video';
+    console.log('🔎 [saveVideoToGallery] Using video topic:', videoTopic);
     
     // Calculate expiry time (7 days from now)
     const expiryTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     
     const videoData = {
       user_id: userId,
-      topic: result.topic?.trim() ? result.topic : 'Untitled Video',
+      topic: videoTopic,
       video_url: result.video_url,
       audio_url: result.audio_url,
       transcript_url: result.transcript_url,
@@ -44,6 +60,8 @@ export const saveVideoToGallery = async (
       return false;
     } else {
       console.log('🔎 [saveVideoToGallery] Video saved successfully:', data);
+      // Mark this video as saved to prevent duplicates
+      savedVideoIds.add(videoIdentifier);
       toast.success('Video saved to your gallery! Note: Videos are automatically deleted after 7 days.');
       return true;
     }
@@ -75,7 +93,6 @@ export const getVideos = async (): Promise<VideoData[]> => {
     }
     
     console.log(`🔎 [getVideos] Found ${videos.length} videos in database`);
-    console.log('🔎 [getVideos] First video sample:', videos[0]);
     
     // Map database videos to VideoData format
     const mappedVideos = videos.map(video => {

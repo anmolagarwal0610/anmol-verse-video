@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { generateVideo, checkVideoStatus } from '@/lib/video/api';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
@@ -29,7 +30,9 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastProgressUpdateRef = useRef<number>(0);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const saveAttemptedRef = useRef<boolean>(false);
+  
+  // IMPORTANT: We're moving save responsibility to VideoGenerationContext only
+  // This hook will no longer attempt to save videos directly
   
   const { user } = useAuth();
   
@@ -66,63 +69,14 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
     startTimeRef.current = null;
     lastProgressUpdateRef.current = 0;
     setCurrentTopic('');
-    saveAttemptedRef.current = false;
   };
   
   useEffect(() => {
     return cleanup;
   }, []);
   
-  // Add an effect to handle saving the video when generation completes
-  useEffect(() => {
-    const handleVideoSave = async () => {
-      if (status === 'completed' && result && user && !saveAttemptedRef.current) {
-        console.log('🔎 [useVideoGenerator] Video generation completed with authenticated user. Attempting to save to gallery.');
-        console.log('🔎 [useVideoGenerator] User ID:', user.id);
-        console.log('🔎 [useVideoGenerator] Result data:', JSON.stringify(result, null, 2));
-        console.log('🔎 [useVideoGenerator] Current topic from state:', currentTopic);
-        
-        // Set flag to prevent duplicate saves
-        saveAttemptedRef.current = true;
-        
-        // Make sure topic is set in the result
-        if (!result.topic && currentTopic) {
-          console.log('🔎 [useVideoGenerator] Topic missing in result, using current topic:', currentTopic);
-          const enrichedResult = {
-            ...result,
-            topic: currentTopic
-          };
-          
-          // Update the result state with the enriched data
-          setResult(enrichedResult);
-          
-          // Attempt to save with the enriched result
-          try {
-            await saveVideoToGallery(enrichedResult, user.id);
-            console.log('🔎 [useVideoGenerator] Video successfully saved to gallery with topic:', currentTopic);
-          } catch (err) {
-            console.error('🔎 [useVideoGenerator] Failed to save video to gallery:', err);
-            toast.error(`Failed to save video to your gallery: ${err instanceof Error ? err.message : 'Unknown error'}`);
-          }
-        } else {
-          // Attempt to save with the existing result
-          try {
-            await saveVideoToGallery(result, user.id);
-            console.log('🔎 [useVideoGenerator] Video successfully saved to gallery');
-          } catch (err) {
-            console.error('🔎 [useVideoGenerator] Failed to save video to gallery:', err);
-            toast.error(`Failed to save video to your gallery: ${err instanceof Error ? err.message : 'Unknown error'}`);
-          }
-        }
-      } else if (status === 'completed' && result && !user) {
-        console.warn('🔎 [useVideoGenerator] Video generated successfully but user is not authenticated. Cannot save to gallery.');
-      } else if (status === 'completed' && saveAttemptedRef.current) {
-        console.log('🔎 [useVideoGenerator] Save already attempted, skipping duplicate save');
-      }
-    };
-    
-    handleVideoSave();
-  }, [status, result, user, currentTopic]);
+  // Remove the video save effect to avoid duplicate saves
+  // The VideoGenerationContext will handle saving exclusively
   
   const updateProgressBasedOnTime = () => {
     if (!startTimeRef.current) return 0;

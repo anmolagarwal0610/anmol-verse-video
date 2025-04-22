@@ -24,7 +24,6 @@ const VideosTab = () => {
       setError(null);
       try {
         console.log('🔎 [VideosTab] Fetching videos, user authenticated:', !!user);
-        console.log('🔎 [VideosTab] Auth state:', { user, isAuthenticated: !!user });
         
         if (!user) {
           console.log('🔎 [VideosTab] No authenticated user, cannot fetch videos');
@@ -37,11 +36,23 @@ const VideosTab = () => {
         const fetchedVideos = await getVideos();
         console.log('🔎 [VideosTab] Videos fetched:', fetchedVideos.length);
         
-        if (fetchedVideos.length > 0) {
-          console.log('🔎 [VideosTab] First video sample:', JSON.stringify(fetchedVideos[0], null, 2));
+        // Filter out any potentially duplicate videos (based on URL)
+        const uniqueVideoUrls = new Set<string>();
+        const uniqueVideos = fetchedVideos.filter(video => {
+          if (!video.url || uniqueVideoUrls.has(video.url)) {
+            return false;
+          }
+          uniqueVideoUrls.add(video.url);
+          return true;
+        });
+        
+        console.log('🔎 [VideosTab] Unique videos after filtering:', uniqueVideos.length);
+        
+        if (uniqueVideos.length > 0) {
+          console.log('🔎 [VideosTab] First video sample:', JSON.stringify(uniqueVideos[0], null, 2));
         }
         
-        setVideos(fetchedVideos);
+        setVideos(uniqueVideos);
       } catch (fetchError: any) {
         console.error('🔎 [VideosTab] Error fetching videos:', fetchError);
         setError(fetchError?.message || 'Failed to load videos');
@@ -104,7 +115,7 @@ const VideosTab = () => {
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {videos.map((video, index) => (
-          <VideoCard key={video.id} video={video} index={index} />
+          <VideoCard key={video.id || index} video={video} index={index} />
         ))}
       </div>
     </>
