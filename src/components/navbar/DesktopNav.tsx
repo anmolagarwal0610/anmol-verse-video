@@ -1,7 +1,7 @@
 
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { NavItems } from "./NavItems";
+import { navItems } from "./NavItems";
 
 interface DesktopNavProps {
   isActive: (path: string) => boolean;
@@ -12,7 +12,7 @@ export const DesktopNav = ({ isActive, onLinkHover }: DesktopNavProps) => {
   return (
     <nav className="hidden md:flex items-center">
       <ul className="flex space-x-1">
-        {NavItems.map((item) => (
+        {navItems.map((item) => (
           <li key={item.path}>
             <NavLink
               to={item.path}

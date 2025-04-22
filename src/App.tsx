@@ -1,4 +1,3 @@
-
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
@@ -148,7 +147,10 @@ const NotFound = lazy(() => import('@/pages/NotFound'));
 // Type definition for requestIdleCallback
 declare global {
   interface Window {
-    requestIdleCallback: (callback: () => void) => number;
+    requestIdleCallback: (
+      callback: IdleRequestCallback,
+      options?: IdleRequestOptions
+    ) => number;
     cancelIdleCallback: (handle: number) => void;
   }
 }
@@ -157,11 +159,18 @@ const App = () => {
   // Polyfill requestIdleCallback for browsers that don't support it
   useEffect(() => {
     if (!('requestIdleCallback' in window)) {
-      window.requestIdleCallback = (callback) => {
-        return setTimeout(() => callback(), 200);
+      window.requestIdleCallback = function(callback: IdleRequestCallback) {
+        const id = setTimeout(() => {
+          const deadline = {
+            didTimeout: false,
+            timeRemaining: function() { return 15; }
+          };
+          callback(deadline);
+        }, 1);
+        return id;
       };
-      window.cancelIdleCallback = (handle) => {
-        clearTimeout(handle);
+      window.cancelIdleCallback = function(id) {
+        clearTimeout(id);
       };
     }
   }, []);
