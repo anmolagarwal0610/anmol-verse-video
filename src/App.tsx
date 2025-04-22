@@ -1,3 +1,4 @@
+
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
@@ -24,6 +25,27 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => (
     </div>
   </div>
 );
+
+// Type definitions for requestIdleCallback
+type IdleRequestCallback = (deadline: IdleDeadline) => void;
+interface IdleDeadline {
+  didTimeout: boolean;
+  timeRemaining: () => number;
+}
+interface IdleRequestOptions {
+  timeout: number;
+}
+
+// Declare global to add requestIdleCallback to window
+declare global {
+  interface Window {
+    requestIdleCallback: (
+      callback: IdleRequestCallback,
+      options?: IdleRequestOptions
+    ) => number;
+    cancelIdleCallback: (handle: number) => void;
+  }
+}
 
 // Preload critical routes when idle
 const useIntelligentPrefetch = () => {

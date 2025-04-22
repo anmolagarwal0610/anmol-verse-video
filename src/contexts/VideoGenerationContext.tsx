@@ -8,6 +8,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { useSaveVideo } from '@/hooks/use-save-video';
 import { useVideoGenerationState } from '@/hooks/use-video-generation-state';
 
+// Import VideoGenerationStatus from use-video-generator
+import { VideoGenerationStatus } from '@/hooks/use-video-generator';
+
 interface VideoGenerationContextType {
   status: VideoGenerationStatus;
   progress: number;
@@ -17,9 +20,6 @@ interface VideoGenerationContextType {
   cancelGeneration: () => void;
   isGenerating: boolean;
 }
-
-// Import VideoGenerationStatus from use-video-generator
-import { VideoGenerationStatus } from '@/hooks/use-video-generator';
 
 const VideoGenerationContext = createContext<VideoGenerationContextType | undefined>(undefined);
 
@@ -42,7 +42,7 @@ export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = 
     setCurrentTopic
   } = useVideoGenerationState();
   
-  const { generate } = useVideoGenerator();
+  const { generateVideo: generate, isGenerating } = useVideoGenerator();
   
   // Handle video completion and errors
   useEffect(() => {
