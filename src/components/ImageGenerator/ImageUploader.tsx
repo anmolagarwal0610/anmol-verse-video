@@ -16,7 +16,8 @@ const ImageUploader = ({ form }: ImageUploaderProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const model = form.watch('model');
-  const isProModel = model === 'pro';
+  // Enable for both advanced and pro
+  const isAllowedModel = model === 'advanced' || model === 'pro';
   
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -102,8 +103,10 @@ const ImageUploader = ({ form }: ImageUploaderProps) => {
       control={form.control}
       name="referenceImageUrl"
       render={({ field }) => (
-        <FormItem className={isProModel ? "" : "opacity-50"}>
-          <FormLabel>Reference Image {isProModel ? "(Optional)" : ""}</FormLabel>
+        <FormItem className={isAllowedModel ? "" : "opacity-50"}>
+          <FormLabel>
+            Reference Image {isAllowedModel ? "(Optional)" : ""}
+          </FormLabel>
           <div className="space-y-3">
             {referenceImageUrl ? (
               <div className="relative w-full max-w-[300px] h-auto">
@@ -130,7 +133,7 @@ const ImageUploader = ({ form }: ImageUploaderProps) => {
                     ref={inputRef}
                     onChange={handleFileChange}
                     accept="image/*"
-                    disabled={isUploading || !isProModel}
+                    disabled={isUploading || !isAllowedModel}
                     className="sr-only"
                   />
                 </FormControl>
@@ -138,7 +141,7 @@ const ImageUploader = ({ form }: ImageUploaderProps) => {
                   type="button"
                   variant="outline"
                   onClick={() => inputRef.current?.click()}
-                  disabled={isUploading || !isProModel}
+                  disabled={isUploading || !isAllowedModel}
                 >
                   <Upload className="mr-2 h-4 w-4" />
                   {isUploading ? 'Uploading...' : 'Upload Reference Image'}
@@ -147,7 +150,7 @@ const ImageUploader = ({ form }: ImageUploaderProps) => {
             )}
             <FormDescription>
               Upload a reference image to guide the generation.
-              {!isProModel && <span className="text-yellow-500 block">(Only available with Pro model)</span>}
+              {!isAllowedModel && <span className="text-yellow-500 block">(Only available with Advanced or Pro model)</span>}
             </FormDescription>
             <FormMessage />
           </div>
