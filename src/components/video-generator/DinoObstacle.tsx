@@ -4,6 +4,7 @@ import React, { forwardRef } from "react";
 
 interface DinoObstacleProps {
   gameOver: boolean;
+  isActive: boolean; // New prop to control if the obstacle should animate
   score: number;
 }
 
@@ -22,16 +23,25 @@ const calcObstacleAnimDuration = (score: number) => {
 };
 
 const DinoObstacle = forwardRef<HTMLDivElement, DinoObstacleProps>(
-  ({ gameOver, score }, ref) => (
-    <div
-      ref={ref}
-      className={`dino-obstacle${gameOver ? " dino-stop" : ""}`}
-      style={{
-        height: calcObstacleHeight(score),
-        animationDuration: calcObstacleAnimDuration(score),
-      }}
-    />
-  )
+  ({ gameOver, isActive, score }, ref) => {
+    console.log("DinoObstacle rendering:", { gameOver, isActive, score });
+    
+    // Only animate when game is active and not over
+    const shouldAnimate = isActive && !gameOver;
+    
+    return (
+      <div
+        ref={ref}
+        className={`dino-obstacle${!shouldAnimate ? " dino-stop" : ""}`}
+        style={{
+          height: calcObstacleHeight(score),
+          animationDuration: calcObstacleAnimDuration(score),
+          // Position the obstacle off-screen initially when not active
+          left: !isActive ? "100%" : undefined
+        }}
+      />
+    );
+  }
 );
 
 DinoObstacle.displayName = "DinoObstacle";

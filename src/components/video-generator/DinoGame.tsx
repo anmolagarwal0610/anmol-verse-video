@@ -6,6 +6,7 @@ import DinoObstacle from './DinoObstacle';
 import DinoGameStyles from './DinoGameStyles';
 
 const DinoGame = () => {
+  console.log("DinoGame component rendering");
   const [isJumping, setIsJumping] = useState(false);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
@@ -18,9 +19,15 @@ const DinoGame = () => {
   const obstacleRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>(0);
   
+  // Debug game state changes
+  useEffect(() => {
+    console.log("Game state changed:", { gameStarted, gameOver });
+  }, [gameStarted, gameOver]);
+  
   // Handle the jump action
   const handleJump = useCallback(() => {
     if (!isJumping && gameStarted && !gameOver) {
+      console.log("Jump triggered");
       setIsJumping(true);
       setTimeout(() => setIsJumping(false), 500);
     }
@@ -28,6 +35,7 @@ const DinoGame = () => {
   
   // Start the game
   const startGame = useCallback(() => {
+    console.log("Game starting");
     setGameStarted(true);
     setGameOver(false);
     setScore(0);
@@ -36,9 +44,15 @@ const DinoGame = () => {
   
   // Restart the game after game over
   const restartGame = useCallback(() => {
+    console.log("Game restarting");
     setGameOver(false);
     setScore(0);
     setPrimaryGradient("linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)");
+    
+    // Set a small delay before starting the game again
+    setTimeout(() => {
+      setGameStarted(true);
+    }, 50);
   }, []);
   
   // Check for collision between the dino and obstacle
@@ -65,6 +79,7 @@ const DinoGame = () => {
     if (gameOver || !gameStarted) return;
     
     if (checkCollision()) {
+      console.log("Collision detected, game over");
       setGameOver(true);
       setPrimaryGradient("linear-gradient(135deg, #ef4444 0%, #f97316 100%)");
       return;
@@ -77,6 +92,8 @@ const DinoGame = () => {
   // Set up key events
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      console.log("Key pressed:", e.code, { gameStarted, gameOver });
+      
       if (e.code === 'Space' || e.key === 'ArrowUp') {
         if (!gameStarted && !gameOver) {
           startGame();
@@ -94,11 +111,17 @@ const DinoGame = () => {
   
   // Start game loop when the game starts
   useEffect(() => {
+    console.log("Game loop effect triggered:", { gameStarted, gameOver });
+    
     if (gameStarted && !gameOver) {
+      console.log("Starting game loop");
       animationRef.current = requestAnimationFrame(gameLoop);
     }
     
-    return () => cancelAnimationFrame(animationRef.current);
+    return () => {
+      console.log("Cleaning up game loop");
+      cancelAnimationFrame(animationRef.current);
+    };
   }, [gameLoop, gameStarted, gameOver]);
   
   return (
@@ -107,7 +130,7 @@ const DinoGame = () => {
       <div className="dino-score">Score: {score}</div>
       
       <DinoMonkey ref={dinoRef} isJumping={isJumping} />
-      <DinoObstacle ref={obstacleRef} gameOver={gameOver} score={score} />
+      <DinoObstacle ref={obstacleRef} gameOver={gameOver} isActive={gameStarted} score={score} />
       
       {!gameStarted && !gameOver && (
         <div className="dino-game-over">
