@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -10,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 import { Link } from 'react-router-dom';
 import AnimatedLoadingIndicator from './AnimatedLoadingIndicator';
-import WaitingGame from './WaitingGame';
 import DinoGame from './DinoGame';
 
 interface ProgressCardProps {
