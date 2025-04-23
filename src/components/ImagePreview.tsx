@@ -24,32 +24,6 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
     }
   }, [imageUrl]);
   
-  // Validate image URL on mount and when changed
-  useEffect(() => {
-    if (!imageUrl) return;
-    
-    // Verify the image URL is valid and accessible
-    const validateImage = () => {
-      const img = new Image();
-      img.src = imageUrl;
-      
-      img.onload = () => {
-        console.log('ImagePreview: Image loaded successfully:', imageUrl);
-        setImgError(false);
-        setImgSrc(imageUrl);
-      };
-      
-      img.onerror = () => {
-        console.error('ImagePreview: Failed to load image:', imageUrl);
-        setImgError(true);
-        // Use a fallback for broken images
-        setImgSrc('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjY0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNGI1NTYzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+SW1hZ2UgTm90IEF2YWlsYWJsZTwvdGV4dD48L3N2Zz4=');
-      };
-    };
-    
-    validateImage();
-  }, [imageUrl]);
-  
   if (!imgSrc) return null;
 
   const copyImageUrl = () => {
@@ -61,7 +35,6 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
   };
   
   const handleImageError = () => {
-    console.error('ImagePreview: Failed to render image:', imageUrl);
     setImgError(true);
     setImgSrc('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjY0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNGI1NTYzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+SW1hZ2UgTm90IEF2YWlsYWJsZTwvdGV4dD48L3N2Zz4=');
   };
