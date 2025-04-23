@@ -33,11 +33,18 @@ export const useVideoGenerationState = (): VideoGenerationState => {
     error: null as string | null,
     currentTopic: '',
   };
+  
   if (persisted) {
     try {
       const parsed = JSON.parse(persisted);
-      initial = { ...initial, ...parsed };
-    } catch (e) {}
+      // Only restore if the data is valid and complete
+      if (parsed && typeof parsed === 'object') {
+        initial = { ...initial, ...parsed };
+      }
+    } catch (e) {
+      // If parsing fails, use default initial state
+      console.error('Failed to parse saved video generation state:', e);
+    }
   }
 
   const [status, setStatus] = useState<VideoGenerationStatus>(initial.status);
@@ -49,6 +56,7 @@ export const useVideoGenerationState = (): VideoGenerationState => {
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Function to persist state to localStorage
   const persist = (
     s: Partial<{
       status?: VideoGenerationStatus;
@@ -58,16 +66,19 @@ export const useVideoGenerationState = (): VideoGenerationState => {
       currentTopic?: string;
     }> = {}
   ) => {
-    const data = {
-      status: s.status ?? status,
-      progress: s.progress ?? progress,
-      result: s.result ?? result,
-      error: s.error ?? error,
-      currentTopic: s.currentTopic ?? currentTopic,
-    };
     try {
+      const data = {
+        status: s.status ?? status,
+        progress: s.progress ?? progress,
+        result: s.result ?? result,
+        error: s.error ?? error,
+        currentTopic: s.currentTopic ?? currentTopic,
+      };
+      
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch {}
+    } catch (e) {
+      console.error('Failed to persist video generation state:', e);
+    }
   };
 
   // Sync each state update to localStorage
@@ -77,6 +88,7 @@ export const useVideoGenerationState = (): VideoGenerationState => {
   useEffect(() => { persist({ error }); }, [error]);
   useEffect(() => { persist({ currentTopic }); }, [currentTopic]);
 
+  // Cleanup function for intervals and timeouts
   const cleanup = () => {
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
@@ -88,6 +100,7 @@ export const useVideoGenerationState = (): VideoGenerationState => {
     }
   };
 
+  // Reset all state and clear localStorage
   const reset = () => {
     cleanup();
     setStatus('idle');
@@ -97,7 +110,9 @@ export const useVideoGenerationState = (): VideoGenerationState => {
     setCurrentTopic('');
     try {
       localStorage.removeItem(STORAGE_KEY);
-    } catch {}
+    } catch (e) {
+      console.error('Failed to remove video generation state from storage:', e);
+    }
   };
 
   return {

@@ -236,4 +236,3 @@ const DinoGame: React.FC = () => {
 };
 
 export default DinoGame;
-
