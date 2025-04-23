@@ -39,20 +39,46 @@ const ImageUploader = ({ form }: ImageUploaderProps) => {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `reference-images/${fileName}`;
+      const bucketName = 'image-references';
+      
+      console.log('🔍 [ImageUploader] Attempting upload to bucket:', bucketName);
+      console.log('🔍 [ImageUploader] File path:', filePath);
+      
+      // First check if the bucket exists
+      const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+      
+      console.log('🔍 [ImageUploader] Available buckets:', buckets);
+      
+      if (bucketsError) {
+        console.error('🔍 [ImageUploader] Error listing buckets:', bucketsError);
+        throw new Error(`Error checking buckets: ${bucketsError.message}`);
+      }
+      
+      const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
+      
+      if (!bucketExists) {
+        console.error('🔍 [ImageUploader] Bucket does not exist:', bucketName);
+        throw new Error(`Bucket '${bucketName}' does not exist`);
+      }
       
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
-        .from('image-references')
+        .from(bucketName)
         .upload(filePath, file);
       
       if (error) {
+        console.error('🔍 [ImageUploader] Upload error:', error);
         throw error;
       }
       
+      console.log('🔍 [ImageUploader] Upload successful:', data);
+      
       // Get the public URL
       const { data: publicUrlData } = supabase.storage
-        .from('image-references')
+        .from(bucketName)
         .getPublicUrl(filePath);
+      
+      console.log('🔍 [ImageUploader] Public URL:', publicUrlData.publicUrl);
       
       // Set the reference image URL in form
       form.setValue('referenceImageUrl', publicUrlData.publicUrl);
