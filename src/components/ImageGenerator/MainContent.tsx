@@ -15,6 +15,7 @@ interface MainContentProps {
   isGenerating: boolean;
   imageUrl: string | null;
   showGalleryMessage: boolean;
+  calculateEstimatedCreditCost: () => number;
 }
 
 const MainContent = ({ 
@@ -22,7 +23,8 @@ const MainContent = ({
   onSubmit, 
   isGenerating, 
   imageUrl, 
-  showGalleryMessage 
+  showGalleryMessage,
+  calculateEstimatedCreditCost
 }: MainContentProps) => {
   const isMobile = useIsMobile();
 
@@ -38,7 +40,8 @@ const MainContent = ({
           <ImageGenerationForm 
             form={form} 
             onSubmit={onSubmit} 
-            isGenerating={isGenerating} 
+            isGenerating={isGenerating}
+            calculateEstimatedCreditCost={calculateEstimatedCreditCost}
           />
         </motion.div>
         

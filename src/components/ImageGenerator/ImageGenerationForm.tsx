@@ -12,10 +12,12 @@ import OutputFormatSelect from './OutputFormatSelect';
 import SeedControl from './SeedControl';
 import GuidanceControl from './GuidanceControl';
 import ImageUploader from './ImageUploader';
+import PixelSelection from '@/components/shared/PixelSelection';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
 import { FormValues } from '@/hooks/use-image-generator';
+import { calculateCreditCost } from '@/lib/constants/pixelOptions';
 import {
   Dialog,
   DialogContent,
@@ -29,13 +31,27 @@ interface ImageGenerationFormProps {
   form: UseFormReturn<FormValues>;
   onSubmit: (values: FormValues) => Promise<void>;
   isGenerating: boolean;
+  calculateEstimatedCreditCost: () => number;
 }
 
-const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFormProps) => {
+const ImageGenerationForm = ({ form, onSubmit, isGenerating, calculateEstimatedCreditCost }: ImageGenerationFormProps) => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [creditCost, setCreditCost] = useState(0);
+  
+  // Watch for form changes that affect credit cost
+  const model = form.watch('model');
+  const pixelOption = form.watch('pixelOption');
+  const pixelOptionValue = form.watch('pixelOptionValue');
+  const aspectRatio = form.watch('aspectRatio');
+  const customRatio = form.watch('customRatio');
+  
+  // Update credit cost whenever relevant form values change
+  useEffect(() => {
+    setCreditCost(calculateEstimatedCreditCost());
+  }, [model, pixelOption, pixelOptionValue, aspectRatio, customRatio, calculateEstimatedCreditCost]);
   
   const handleFormSubmit = async (values: FormValues) => {
     console.log('🔍 [ImageGenerationForm] Form submitted with values:', values);
@@ -76,13 +92,23 @@ const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFo
   }, [user]);
   
   // Watch for model changes to update form fields availability
-  const selectedModel = form.watch('model');
   useEffect(() => {
     // If model changes from pro to something else, reset guidance to default
-    if (selectedModel !== 'pro') {
+    if (model !== 'pro') {
       form.setValue('guidance', 3.5);
     }
-  }, [selectedModel, form]);
+  }, [model, form]);
+  
+  // Generate button label
+  const getButtonLabel = () => {
+    if (isGenerating) return "Generating...";
+    
+    if (model === 'basic') {
+      return "Generate Image (Free)";
+    } else {
+      return `Generate Image (${creditCost} credits)`;
+    }
+  };
   
   return (
     <>
@@ -98,7 +124,16 @@ const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFo
             className="min-h-[100px] resize-none"
           />
           
-          {/* Moved AspectRatioSelect to be the 2nd option as requested */}
+          {/* Add Pixel Selection component right after prompt */}
+          <PixelSelection
+            form={form}
+            name="pixelOption"
+            label="Resolution"
+            description="Higher resolution creates more detailed images but uses more credits."
+            disabled={isGenerating}
+          />
+          
+          {/* AspectRatioSelect */}
           <AspectRatioSelect form={form} />
           
           <ModelSelect form={form} />
@@ -137,7 +172,7 @@ const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFo
             ) : (
               <>
                 <Wand2 className="mr-2 h-4 w-4" />
-                Generate Image
+                {getButtonLabel()}
               </>
             )}
           </Button>

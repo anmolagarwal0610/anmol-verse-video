@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
 import { imageGeneratorSchema, FormValues } from '@/lib/schemas/imageGeneratorSchema';
 import { generateImageFromPrompt } from '@/lib/services/imageGenerationService';
+import { PIXEL_OPTIONS } from '@/lib/constants/pixelOptions';
 
 export { type FormValues } from '@/lib/schemas/imageGeneratorSchema';
 
@@ -22,6 +23,7 @@ export function useImageGenerator() {
     defaultValues: {
       prompt: '',
       model: 'basic',
+      pixelOption: '1080p',
       aspectRatio: '16:9',
       guidance: 3.5,
       outputFormat: 'png',
@@ -68,6 +70,53 @@ export function useImageGenerator() {
     }
   }, [user, form]);
   
+  // Calculate estimated credit cost based on form values
+  const calculateEstimatedCreditCost = useCallback(() => {
+    const model = form.watch('model');
+    const aspectRatio = form.watch('aspectRatio');
+    const customRatio = form.watch('customRatio');
+    const pixelOption = form.watch('pixelOption');
+    const pixelOptionValue = form.watch('pixelOptionValue');
+    
+    if (model === 'basic') return 0;
+    
+    // Get the maximum pixel dimension
+    let maxDimension = PIXEL_OPTIONS['1080p']; // default
+    
+    if (pixelOption === 'custom' && pixelOptionValue) {
+      maxDimension = pixelOptionValue;
+    } else if (pixelOption !== 'custom') {
+      maxDimension = PIXEL_OPTIONS[pixelOption as keyof typeof PIXEL_OPTIONS] as number;
+    }
+    
+    // Calculate dimensions based on aspect ratio
+    const [widthRatio, heightRatio] = (aspectRatio === 'custom' && customRatio 
+      ? customRatio 
+      : aspectRatio).split(':').map(Number);
+    
+    let width, height;
+    
+    if (widthRatio > heightRatio) {
+      // Landscape orientation - maximize width
+      width = maxDimension;
+      height = Math.round((heightRatio / widthRatio) * width);
+    } else {
+      // Portrait or square orientation - maximize height
+      height = maxDimension;
+      width = Math.round((widthRatio / heightRatio) * height);
+    }
+    
+    // Calculate credit cost based on pixels and model
+    const totalPixels = width * height;
+    const pixelsInMillions = totalPixels / 1000000;
+    
+    // Round to nearest million pixels, minimum 1M
+    const roundedPixelsInMillions = Math.max(1, Math.round(pixelsInMillions));
+    
+    const costPerMillion = model === 'advanced' ? 10 : model === 'pro' ? 70 : 0;
+    return roundedPixelsInMillions * costPerMillion;
+  }, [form]);
+  
   const handleGenerateImage = useCallback(async (values: FormValues) => {
     console.log('🔍 [useImageGenerator] Generate image called with values:', values);
     
@@ -113,6 +162,7 @@ export function useImageGenerator() {
     imageUrl,
     isGenerating,
     showGalleryMessage,
+    calculateEstimatedCreditCost,
     generateImageFromPrompt: handleGenerateImage
   };
 }

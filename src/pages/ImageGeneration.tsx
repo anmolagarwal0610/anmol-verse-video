@@ -12,7 +12,8 @@ const ImageGeneration = () => {
     imageUrl, 
     isGenerating, 
     showGalleryMessage, 
-    generateImageFromPrompt 
+    generateImageFromPrompt,
+    calculateEstimatedCreditCost
   } = useImageGenerator();
 
   return (
@@ -28,6 +29,7 @@ const ImageGeneration = () => {
           isGenerating={isGenerating}
           imageUrl={imageUrl}
           showGalleryMessage={showGalleryMessage}
+          calculateEstimatedCreditCost={calculateEstimatedCreditCost}
         />
         
         <TipsSection />

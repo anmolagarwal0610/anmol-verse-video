@@ -1,7 +1,8 @@
 
 import { toast } from 'sonner';
-import { generateImage as apiGenerateImage, calculateDimensions } from '@/lib/imageApi';
+import { generateImage as apiGenerateImage } from '@/lib/imageApi';
 import { ImageGenerationOptions } from './types';
+import { PIXEL_OPTIONS } from '@/lib/constants/pixelOptions';
 
 /**
  * Enhances a prompt with selected image styles
@@ -57,9 +58,43 @@ export async function generateImage(options: ImageGenerationOptions): Promise<st
 }
 
 /**
- * Calculate dimensions based on aspect ratio
+ * Calculate dimensions based on aspect ratio and pixel option
  */
-export function getDimensionsFromRatio(aspectRatio: string, customRatio?: string): {width: number, height: number} {
+export function getDimensionsFromRatio(
+  aspectRatio: string, 
+  pixelOption: string, 
+  pixelOptionValue?: number,
+  customRatio?: string
+): { width: number, height: number } {
+  // Determine the maximum dimension from the pixel option
+  let maxDimension: number;
+  
+  if (pixelOption === 'custom' && pixelOptionValue) {
+    maxDimension = pixelOptionValue;
+  } else {
+    maxDimension = PIXEL_OPTIONS[pixelOption as keyof typeof PIXEL_OPTIONS] as number;
+  }
+  
+  // Get the ratio values
   const ratio = aspectRatio === 'custom' && customRatio ? customRatio : aspectRatio;
-  return calculateDimensions(ratio);
+  const [widthRatio, heightRatio] = ratio.split(':').map(Number);
+  
+  // Calculate dimensions
+  let width, height;
+  
+  if (widthRatio > heightRatio) {
+    // Landscape orientation - maximize width
+    width = maxDimension;
+    height = Math.round((heightRatio / widthRatio) * width);
+  } else {
+    // Portrait or square orientation - maximize height
+    height = maxDimension;
+    width = Math.round((widthRatio / heightRatio) * height);
+  }
+  
+  // Ensure dimensions are multiples of 16 by rounding down
+  width = Math.floor(width / 16) * 16;
+  height = Math.floor(height / 16) * 16;
+  
+  return { width, height };
 }

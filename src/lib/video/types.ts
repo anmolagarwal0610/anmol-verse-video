@@ -1,8 +1,12 @@
 export interface VideoGenerationParams {
-  username: string;
+  username?: string;
   topic: string;
+  script_model?: string;
   image_model?: string;
   image_ratio?: string;
+  image_pixel?: number;
+  pixelOption?: string;
+  pixelOptionValue?: number;
   video_duration?: number;
   frame_fps?: number;
   subtitle_color?: string;
@@ -10,11 +14,10 @@ export interface VideoGenerationParams {
   video_category?: string;
   transition_style?: string;
   image_style?: string[];
-  audio_language?: 'English' | 'Hindi';
+  audio_language?: string;
   voice?: string;
-  subtitle_style?: 'Default' | 'Colour gradient' | 'Tilt animation' | 'Karaoke';
-  subtitle_script?: 'English' | 'Hindi';
-  script_model?: 'chatgpt' | 'deepseek';
+  subtitle_style?: string;
+  subtitle_script?: string;
 }
 
 export interface VideoGenerationResponse {

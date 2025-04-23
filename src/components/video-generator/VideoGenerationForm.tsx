@@ -17,6 +17,7 @@ import { VideoGenerationParams } from '@/lib/video/types';
 import { VideoGenerationFormProvider } from './VideoGenerationFormContext';
 import VideoGenerationConfirmDialog from './dialogs/VideoGenerationConfirmDialog';
 import { useVideoGenerationFormSubmit } from './hooks/useVideoGenerationFormSubmit';
+import { PIXEL_OPTIONS } from '@/lib/constants/pixelOptions';
 
 // Import form section components
 import BasicFormFields from './form-sections/BasicFormFields';
@@ -40,6 +41,9 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
       topic: '',
       image_model: IMAGE_MODELS.advanced.value,
       image_ratio: '16:9',
+      image_pixel: PIXEL_OPTIONS['1080p'],
+      pixelOption: '1080p',
+      pixelOptionValue: undefined,
       video_duration: 25,
       frame_fps: 5,
       subtitle_color: 'white',
