@@ -1,38 +1,47 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
-const PRIMARY_GRADIENT = "linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%)";
+// Tailwind and color scheme for light/dark compatibility
+const PRIMARY_GRADIENT =
+  "linear-gradient(135deg,#9b87f5 0%,#7E69AB 100%)";
 const OBSTACLE_COLOR = "#fff";
-const DINO_COLOR = "#fff"; // Consider changing for dark mode if desired
+const DINO_BG = "transparent"; // using emoji, no color fill
+
+const MONKEY_EMOJI = "🐵"; // simple 'character'
 
 const DinoGame: React.FC = () => {
+  const [started, setStarted] = useState(false);
   const [isJumping, setIsJumping] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
+
   const dinoRef = useRef<HTMLDivElement>(null);
   const obstacleRef = useRef<HTMLDivElement>(null);
 
   // Score timer
   useEffect(() => {
-    if (gameOver) return;
+    if (!started || gameOver) return;
     const scoreInterval = setInterval(() => {
       setScore((prev) => prev + 1);
     }, 100);
     return () => clearInterval(scoreInterval);
-  }, [gameOver]);
+  }, [gameOver, started]);
 
   // Jump logic
   const handleJump = () => {
-    if (isJumping || gameOver) return;
+    if (!started || isJumping || gameOver) return;
     setIsJumping(true);
     setTimeout(() => setIsJumping(false), 500);
   };
 
   // Collision detection
   useEffect(() => {
+    if (!started || gameOver) return;
     const interval = setInterval(() => {
       if (!dinoRef.current || !obstacleRef.current) return;
-      const dinoTop = parseInt(window.getComputedStyle(dinoRef.current).getPropertyValue("top"));
+      const dinoTop = parseInt(
+        window.getComputedStyle(dinoRef.current).getPropertyValue("top")
+      );
       const obstacleLeft = parseInt(
         window.getComputedStyle(obstacleRef.current).getPropertyValue("left")
       );
@@ -42,10 +51,11 @@ const DinoGame: React.FC = () => {
       }
     }, 10);
     return () => clearInterval(interval);
-  }, []);
+  }, [started, gameOver]);
 
   // Key listener
   useEffect(() => {
+    if (!started) return;
     const listener = (e: KeyboardEvent) => {
       if (e.code === "Space" || e.code === "ArrowUp") {
         handleJump();
@@ -53,17 +63,77 @@ const DinoGame: React.FC = () => {
     };
     window.addEventListener("keydown", listener);
     return () => window.removeEventListener("keydown", listener);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isJumping, gameOver]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isJumping, gameOver, started]);
+
+  // Restart the game
+  const handleRestart = () => {
+    setScore(0);
+    setGameOver(false);
+    setStarted(false); // So the user has to hit "Start" again
+  };
 
   return (
-    <div className="dino-game-container" tabIndex={0} aria-label="Dino game mini-game">
-      <div className="dino-score">Score: {score}</div>
-      <div ref={dinoRef} className={`dino-dino ${isJumping ? "dino-jump" : ""}`} />
-      <div ref={obstacleRef} className={`dino-obstacle ${gameOver ? "dino-stop" : ""}`} />
+    <div
+      className="dino-game-container"
+      tabIndex={0}
+      aria-label="Dino game mini-game"
+    >
+      {!started && !gameOver && (
+        <div className="flex flex-col items-center justify-center h-full gap-2">
+          <button
+            onClick={() => setStarted(true)}
+            className="px-5 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition"
+            style={{ marginTop: 35 }}
+          >
+            Start Game
+          </button>
+          <span className="text-white text-xs">Press Space or ↑ to jump</span>
+        </div>
+      )}
+      {started && (
+        <>
+          <div className="dino-score">Score: {score}</div>
+          <div
+            ref={dinoRef}
+            className={`dino-dino ${isJumping ? "dino-jump" : ""}`}
+            style={{
+              userSelect: "none",
+              background: DINO_BG,
+              fontSize: 36,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <span
+              role="img"
+              aria-label="Monkey"
+              style={{
+                fontSize: 36,
+                display: "inline-block",
+                verticalAlign: "middle",
+                pointerEvents: "none",
+              }}
+            >
+              {MONKEY_EMOJI}
+            </span>
+          </div>
+          <div
+            ref={obstacleRef}
+            className={`dino-obstacle ${gameOver ? "dino-stop" : ""}`}
+          />
+        </>
+      )}
       {gameOver && (
-        <div className="dino-game-over">
-          Game Over. Refresh or re-open to restart.
+        <div className="dino-game-over flex flex-col items-center justify-center">
+          <span>Game Over</span>
+          <button
+            className="mt-2 px-4 py-1 bg-purple-700 text-white rounded hover:bg-purple-800 shadow"
+            onClick={handleRestart}
+          >
+            Restart
+          </button>
         </div>
       )}
       <style>{`
@@ -108,7 +178,7 @@ const DinoGame: React.FC = () => {
           position: absolute;
           width: 50px;
           height: 50px;
-          background: ${DINO_COLOR};
+          background: ${DINO_BG};
           border-radius: 10px;
           bottom: 0;
           left: 55px;
@@ -151,9 +221,9 @@ const DinoGame: React.FC = () => {
           transform: translate(-50%, -50%);
           font-family: inherit;
           font-size: 17px;
-          background: rgba(8,6,40,0.64);
+          background: rgba(8,6,40,0.80);
           color: #fff;
-          padding: 14px 20px;
+          padding: 18px 24px 24px 24px;
           border-radius: 8px;
           box-shadow: 0 2px 32px 0 rgba(140,120,170,0.09);
           border: 1.5px solid #a391f6;
@@ -166,3 +236,4 @@ const DinoGame: React.FC = () => {
 };
 
 export default DinoGame;
+

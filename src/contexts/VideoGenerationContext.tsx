@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { useVideoGenerator } from '@/hooks/use-video-generator';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
@@ -18,7 +17,6 @@ interface VideoGenerationContextType {
   isGenerating: boolean;
 }
 
-// Import VideoGenerationStatus from use-video-generator
 import { VideoGenerationStatus } from '@/hooks/use-video-generator';
 
 const VideoGenerationContext = createContext<VideoGenerationContextType | undefined>(undefined);
@@ -45,7 +43,6 @@ export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = 
   
   const { generate, progress: generatorProgress, status: generatorStatus, result: generatorResult, error: generatorError } = useVideoGenerator();
   
-  // Sync state from generator
   useEffect(() => {
     console.log('VideoGenerationContext: Syncing progress from generator:', generatorProgress);
     setProgress(generatorProgress);
@@ -68,7 +65,6 @@ export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = 
     setError(generatorError);
   }, [generatorError, setError]);
   
-  // Handle video completion and saving - this is now the ONLY place where videos are saved
   useEffect(() => {
     const handleVideoSave = async () => {
       console.log('VideoGenerationContext: Status effect triggered:', status);
@@ -81,7 +77,6 @@ export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = 
         console.log('VideoGenerationContext: Saving video to gallery');
         saveAttemptedRef.current = true;
         
-        // Ensure topic is properly set
         const enrichedResult = {
           ...result,
           topic: result.topic || currentTopic || 'Untitled Video'
@@ -89,7 +84,6 @@ export const VideoGenerationProvider: React.FC<{ children: React.ReactNode }> = 
         
         console.log('VideoGenerationContext: Enriched result with topic:', enrichedResult.topic);
         
-        // Only place where save is triggered
         await saveVideoToGallery(enrichedResult, user.id);
       } else if (status === 'completed' && !user) {
         console.warn('VideoGenerationContext: User not authenticated, cannot save video');

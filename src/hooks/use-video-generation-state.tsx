@@ -1,7 +1,9 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { VideoGenerationStatus } from './use-video-generator';
 import { VideoStatusResponse } from '@/lib/video/types';
+
+const STORAGE_KEY = "videoGenState";
 
 interface VideoGenerationState {
   status: VideoGenerationStatus;
@@ -19,27 +21,73 @@ interface VideoGenerationState {
 }
 
 export const useVideoGenerationState = (): VideoGenerationState => {
-  const [status, setStatus] = useState<VideoGenerationStatus>('idle');
-  const [progress, setProgress] = useState(0);
-  const [result, setResult] = useState<VideoStatusResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [currentTopic, setCurrentTopic] = useState<string>('');
-  
+  // Restore from localStorage if available
+  const persisted =
+    typeof window !== 'undefined'
+      ? window.localStorage.getItem(STORAGE_KEY)
+      : null;
+  let initial = {
+    status: 'idle' as VideoGenerationStatus,
+    progress: 0,
+    result: null as VideoStatusResponse | null,
+    error: null as string | null,
+    currentTopic: '',
+  };
+  if (persisted) {
+    try {
+      const parsed = JSON.parse(persisted);
+      initial = { ...initial, ...parsed };
+    } catch (e) {}
+  }
+
+  const [status, setStatus] = useState<VideoGenerationStatus>(initial.status);
+  const [progress, setProgress] = useState(initial.progress);
+  const [result, setResult] = useState<VideoStatusResponse | null>(initial.result);
+  const [error, setError] = useState<string | null>(initial.error);
+  const [currentTopic, setCurrentTopic] = useState<string>(initial.currentTopic);
+
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+
+  const persist = (
+    s: Partial<{
+      status?: VideoGenerationStatus;
+      progress?: number;
+      result?: VideoStatusResponse | null;
+      error?: string | null;
+      currentTopic?: string;
+    }> = {}
+  ) => {
+    const data = {
+      status: s.status ?? status,
+      progress: s.progress ?? progress,
+      result: s.result ?? result,
+      error: s.error ?? error,
+      currentTopic: s.currentTopic ?? currentTopic,
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch {}
+  };
+
+  // Sync each state update to localStorage
+  useEffect(() => { persist({ status }); }, [status]);
+  useEffect(() => { persist({ progress }); }, [progress]);
+  useEffect(() => { persist({ result }); }, [result]);
+  useEffect(() => { persist({ error }); }, [error]);
+  useEffect(() => { persist({ currentTopic }); }, [currentTopic]);
+
   const cleanup = () => {
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
       pollingRef.current = null;
     }
-    
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
   };
-  
+
   const reset = () => {
     cleanup();
     setStatus('idle');
@@ -47,8 +95,11 @@ export const useVideoGenerationState = (): VideoGenerationState => {
     setResult(null);
     setError(null);
     setCurrentTopic('');
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
   };
-  
+
   return {
     status,
     progress,
@@ -61,6 +112,6 @@ export const useVideoGenerationState = (): VideoGenerationState => {
     setError,
     setCurrentTopic,
     reset,
-    cleanup
+    cleanup,
   };
 };
