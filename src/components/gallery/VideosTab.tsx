@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { getVideos } from '@/lib/video/services/videoGallery';
 import VideoCard from '@/components/video-card';
@@ -35,13 +36,17 @@ const VideosTab = () => {
         const fetchedVideos = await getVideos();
         console.log('🔎 [VideosTab] Videos fetched:', fetchedVideos.length);
         
-        // Filter out invalid videos (missing URL or topic)
+        if (fetchedVideos.length > 0) {
+          console.log('🔎 [VideosTab] Sample video URL:', fetchedVideos[0].url);
+        }
+        
+        // Filter out invalid videos (missing URL)
         const validVideos = fetchedVideos.filter(video => {
-          if (!video.url) {
-            console.warn('🔎 [VideosTab] Filtering out video with no URL:', video.id);
-            return false;
+          const hasValidUrl = video.url && video.url.startsWith('http');
+          if (!hasValidUrl) {
+            console.warn('🔎 [VideosTab] Filtering out video with invalid URL:', video.id);
           }
-          return true;
+          return hasValidUrl;
         });
         
         console.log('🔎 [VideosTab] Valid videos after URL check:', validVideos.length);

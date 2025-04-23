@@ -33,22 +33,14 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
   const fallbackThumbnail = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjExMzYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzRiNTU2MyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPlZpZGVvPC90ZXh0Pjwvc3ZnPg==';
   const thumbnailUrl = video.thumbnail || fallbackThumbnail;
   
-  // Verify video URL validity
-  useEffect(() => {
-    if (!video.url || !video.url.startsWith('http')) {
-      console.warn(`VideoCard: Invalid video URL detected for video ID ${video.id}:`, video.url);
-    }
-  }, [video.id, video.url]);
-
-  // Log video data when component mounts
+  // Log video data when component mounts for debugging
   useEffect(() => {
     console.log(`VideoCard: Rendering video card:`, {
       id: video.id,
       title: video.title || video.prompt,
+      hasUrl: !!video.url,
+      url: video.url,
       thumbnailUrl,
-      videoUrl: video.url,
-      hasNullThumbnail: !video.thumbnail,
-      isPlaceholderThumbnail: !video.thumbnail || (video.thumbnail && video.thumbnail.includes('placeholder'))
     });
   }, [video, thumbnailUrl]);
 
@@ -58,8 +50,9 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
       return;
     }
     
-    // We could navigate to a dedicated video page, but for now we'll just use the thumbnail click handler
+    // We could navigate to a dedicated video page, but for now directly open the video
     console.log("VideoCard clicked, URL:", video.url);
+    window.open(video.url, '_blank');
   };
 
   return (

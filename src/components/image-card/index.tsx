@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
@@ -38,23 +39,46 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
   
   const isOwner = user && image.user_id === user.id;
 
+  // Validate image URL on mount and when it changes
   useEffect(() => {
+    // Reset error state when image URL changes
     if (image.image_url) {
+      console.log(`ImageCard: Validating image URL for image ${image.id}:`, {
+        url: image.image_url.substring(0, 100) + '...',
+        isValid: image.image_url.startsWith('http')
+      });
+      
       setHasError(false);
       setIsLoading(true);
+      
+      // Pre-validate image URLs
+      if (!image.image_url.startsWith('http')) {
+        console.error(`ImageCard: Invalid image URL detected for ${image.id}`);
+        setHasError(true);
+        setIsLoading(false);
+        if (onError) onError();
+      }
+      
+      // Preload image to check if it's valid
+      const img = new Image();
+      img.onload = () => {
+        setIsLoading(false);
+        setHasError(false);
+        if (onLoad) onLoad();
+      };
+      img.onerror = () => {
+        console.error(`ImageCard: Failed to load image from URL: ${image.image_url.substring(0, 100)}...`);
+        setIsLoading(false);
+        setHasError(true);
+        if (onError) onError();
+      };
+      img.src = image.image_url;
+    } else {
+      setHasError(true);
+      setIsLoading(false);
+      if (onError) onError();
     }
-  }, [image.image_url]);
-
-  const handleImageLoad = () => {
-    setIsLoading(false);
-    if (onLoad) onLoad();
-  };
-
-  const handleImageError = () => {
-    setIsLoading(false);
-    setHasError(true);
-    if (onError) onError();
-  };
+  }, [image.image_url, image.id, onLoad, onError]);
 
   return (
     <motion.div
@@ -77,8 +101,15 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
             <img
               src={image.image_url}
               alt={image.prompt}
-              onLoad={handleImageLoad}
-              onError={handleImageError}
+              onLoad={() => {
+                setIsLoading(false);
+                if (onLoad) onLoad();
+              }}
+              onError={() => {
+                setIsLoading(false);
+                setHasError(true);
+                if (onError) onError();
+              }}
               className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-105 ${
                 isLoading ? 'opacity-0' : 'opacity-100'
               }`}
