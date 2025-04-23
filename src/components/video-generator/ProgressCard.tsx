@@ -1,4 +1,3 @@
-
 import {
   Card,
   CardContent,
@@ -12,6 +11,7 @@ import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 import { Link } from 'react-router-dom';
 import AnimatedLoadingIndicator from './AnimatedLoadingIndicator';
 import WaitingGame from './WaitingGame';
+import DinoGame from './DinoGame';
 
 interface ProgressCardProps {
   progress: number;
@@ -54,11 +54,11 @@ const ProgressCard = ({ progress, status }: ProgressCardProps) => {
             Status: <span className="font-medium text-indigo-700 dark:text-indigo-200">{status}</span>
           </p>
           <p className="text-xs text-center mt-2 text-indigo-500/70 dark:text-indigo-300/70">
-            Catch the dots while you wait!
+            Play while you wait!
           </p>
         </div>
 
-        <WaitingGame />
+        <DinoGame />
         
         <div className="flex flex-col space-y-2">
           <Link to="/images" className="w-full">
