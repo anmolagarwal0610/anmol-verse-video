@@ -81,12 +81,14 @@ export function useImageGenerator() {
     if (model === 'basic') return 0;
     
     // Get the maximum pixel dimension
-    let maxDimension = PIXEL_OPTIONS['1080p']; // default
+    let maxDimension: number;
     
     if (pixelOption === 'custom' && pixelOptionValue) {
       maxDimension = pixelOptionValue;
     } else if (pixelOption !== 'custom') {
       maxDimension = PIXEL_OPTIONS[pixelOption as keyof typeof PIXEL_OPTIONS] as number;
+    } else {
+      maxDimension = PIXEL_OPTIONS['1080p']; // default
     }
     
     // Calculate dimensions based on aspect ratio
@@ -94,7 +96,7 @@ export function useImageGenerator() {
       ? customRatio 
       : aspectRatio).split(':').map(Number);
     
-    let width, height;
+    let width: number, height: number;
     
     if (widthRatio > heightRatio) {
       // Landscape orientation - maximize width
