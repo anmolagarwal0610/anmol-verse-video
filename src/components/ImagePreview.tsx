@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Download, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -13,8 +13,44 @@ interface ImagePreviewProps {
 
 const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps) => {
   const isMobile = useIsMobile();
+  const [imgSrc, setImgSrc] = useState<string | null>(imageUrl);
+  const [imgError, setImgError] = useState<boolean>(false);
   
-  if (!imageUrl) return null;
+  // Update image source when imageUrl prop changes
+  useEffect(() => {
+    if (imageUrl) {
+      setImgSrc(imageUrl);
+      setImgError(false);
+    }
+  }, [imageUrl]);
+  
+  // Validate image URL on mount and when changed
+  useEffect(() => {
+    if (!imageUrl) return;
+    
+    // Verify the image URL is valid and accessible
+    const validateImage = () => {
+      const img = new Image();
+      img.src = imageUrl;
+      
+      img.onload = () => {
+        console.log('ImagePreview: Image loaded successfully:', imageUrl);
+        setImgError(false);
+        setImgSrc(imageUrl);
+      };
+      
+      img.onerror = () => {
+        console.error('ImagePreview: Failed to load image:', imageUrl);
+        setImgError(true);
+        // Use a fallback for broken images
+        setImgSrc('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjY0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNGI1NTYzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+SW1hZ2UgTm90IEF2YWlsYWJsZTwvdGV4dD48L3N2Zz4=');
+      };
+    };
+    
+    validateImage();
+  }, [imageUrl]);
+  
+  if (!imgSrc) return null;
 
   const copyImageUrl = () => {
     if (!imageUrl) return;
@@ -23,13 +59,20 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
       .then(() => toast.success('Image URL copied to clipboard!'))
       .catch(() => toast.error('Failed to copy URL'));
   };
+  
+  const handleImageError = () => {
+    console.error('ImagePreview: Failed to render image:', imageUrl);
+    setImgError(true);
+    setImgSrc('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjY0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNGI1NTYzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+SW1hZ2UgTm90IEF2YWlsYWJsZTwvdGV4dD48L3N2Zz4=');
+  };
 
   return (
     <div className="relative w-full h-full flex items-center justify-center group">
       <img 
-        src={imageUrl} 
+        src={imgSrc} 
         alt="Generated" 
         className="max-w-full max-h-full w-auto h-auto object-contain border border-indigo-200/20 rounded-lg shadow-lg"
+        onError={handleImageError}
       />
       
       <div className={`absolute ${isMobile ? 'bottom-2 right-2' : 'bottom-4 right-4'} flex ${isMobile ? 'flex-col space-y-2' : 'space-x-3'} opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
@@ -38,6 +81,7 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
           variant="secondary" 
           className="backdrop-blur-sm bg-white/20 hover:bg-white/40 border border-indigo-300/20"
           onClick={copyImageUrl}
+          disabled={imgError}
         >
           <Copy className="h-4 w-4 mr-1" /> Copy URL
         </Button>
@@ -45,10 +89,17 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
           size={isMobile ? "sm" : "default"}
           className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
           onClick={onDownload}
+          disabled={imgError}
         >
           <Download className="h-4 w-4 mr-1" /> Open
         </Button>
       </div>
+      
+      {imgError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-700/50 backdrop-blur-sm">
+          <p className="text-white text-sm">Unable to load image</p>
+        </div>
+      )}
     </div>
   );
 };

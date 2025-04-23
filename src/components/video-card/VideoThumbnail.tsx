@@ -42,6 +42,14 @@ const VideoThumbnail = ({ thumbnail, title, url }: VideoThumbnailProps) => {
   const handlePlayClick = (e: React.MouseEvent) => {
     e.preventDefault();
     
+    // Clean up the URL - removing any double slashes except those in http:// or https://
+    const cleanedUrl = url.replace(/(https?:\/\/)|(\/\/+)/g, match => {
+      return match === '//' ? '/' : match;
+    });
+    
+    console.log('VideoThumbnail: Original URL:', url);
+    console.log('VideoThumbnail: Cleaned URL:', cleanedUrl);
+    
     // Validate the URL before trying to play
     if (!url || !url.startsWith('http')) {
       console.error('VideoThumbnail: Invalid video URL:', url);
@@ -50,8 +58,8 @@ const VideoThumbnail = ({ thumbnail, title, url }: VideoThumbnailProps) => {
     }
     
     // Open in a new tab as a fallback method to ensure playback works
-    console.log('VideoThumbnail: Opening video in new tab:', url);
-    window.open(url, '_blank');
+    console.log('VideoThumbnail: Opening video in new tab:', cleanedUrl);
+    window.open(cleanedUrl, '_blank');
   };
   
   return (

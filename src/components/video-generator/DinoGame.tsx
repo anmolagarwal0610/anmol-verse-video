@@ -99,7 +99,9 @@ const DinoGame: React.FC = () => {
             className={`dino-dino ${isJumping ? "dino-jump" : ""}`}
             style={{
               userSelect: "none",
-              background: DINO_BG,
+              background: "transparent",
+              border: "none",
+              boxShadow: "none",
               fontSize: 36,
               display: "flex",
               alignItems: "center",
@@ -178,14 +180,12 @@ const DinoGame: React.FC = () => {
           position: absolute;
           width: 50px;
           height: 50px;
-          background: ${DINO_BG};
+          background: transparent;
           border-radius: 10px;
           bottom: 0;
           left: 55px;
           transition: top 0.21s cubic-bezier(.31,1.23,.78,1.11);
           top: 130px;
-          box-shadow: 0 4px 16px 0 rgba(120,90,200,0.09);
-          border: 2.5px solid #e7defc;
         }
         .dino-dino.dino-jump {
           animation: dinoJumpAnim 0.5s cubic-bezier(.47,1.64,.41,.8);
