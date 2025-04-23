@@ -163,6 +163,10 @@ export type Database = {
         Args: { user_id: string }
         Returns: boolean
       }
+      use_multiple_credits: {
+        Args: { user_id: string; credit_amount: number }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

@@ -19,7 +19,9 @@ export const useCredit = async (creditAmount: number = 1): Promise<boolean> => {
 
     // If credit amount is greater than 1, use the multiple credit function
     if (creditAmount > 1) {
-      const { data, error } = await supabase.rpc('use_multiple_credits', {
+      // Use any type to bypass TypeScript's type checking for RPC functions
+      // since we can't modify the Supabase types file
+      const { data, error } = await (supabase.rpc as any)('use_multiple_credits', {
         user_id: user.id,
         credit_amount: creditAmount
       });

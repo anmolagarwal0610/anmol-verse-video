@@ -27,3 +27,10 @@ export interface ImageGenerationOptions {
   imageStyles?: string[];
   referenceImageUrl?: string;
 }
+
+// Credit cost per model
+export const MODEL_CREDIT_COSTS = {
+  basic: 1,
+  advanced: 1,
+  pro: 5
+};

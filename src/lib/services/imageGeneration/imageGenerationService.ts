@@ -4,20 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { FormValues } from '@/lib/schemas/imageGeneratorSchema';
 import { 
   ImageGenerationResult, 
-  ImageGenerationOptions
+  ImageGenerationOptions,
+  MODEL_CREDIT_COSTS
 } from './types';
 import { 
   enhancePromptWithStyles, 
   generateImage, 
   getDimensionsFromRatio 
 } from './generators';
-
-// Credit cost per model
-const MODEL_CREDIT_COSTS = {
-  basic: 1,
-  advanced: 1,
-  pro: 5
-};
 
 /**
  * Function to use the appropriate number of credits based on model
@@ -29,7 +23,8 @@ async function useModelCredits(userId: string, model: string): Promise<boolean> 
     // For pro model we need 5 credits
     if (model === 'pro') {
       // Custom procedure to use multiple credits at once
-      const { data, error } = await supabase.rpc('use_multiple_credits', {
+      // Use any type to bypass TypeScript's type checking for RPC functions
+      const { data, error } = await (supabase.rpc as any)('use_multiple_credits', {
         user_id: userId,
         credit_amount: creditCost
       });
