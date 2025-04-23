@@ -25,4 +25,5 @@ export interface ImageGenerationOptions {
   negativePrompt?: string;
   seed?: number;
   imageStyles?: string[];
+  referenceImageUrl?: string;
 }

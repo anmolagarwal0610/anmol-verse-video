@@ -33,7 +33,8 @@ export async function generateImage(options: ImageGenerationOptions): Promise<st
       guidance: options.guidance,
       output_format: options.outputFormat,
       negative_prompt: options.negativePrompt,
-      seed: options.seed
+      seed: options.seed,
+      reference_image_url: options.referenceImageUrl
     });
     
     if (!result.data || result.data.length === 0) {

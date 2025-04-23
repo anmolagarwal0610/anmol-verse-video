@@ -13,6 +13,7 @@ export const imageGeneratorSchema = z.object({
   seed: z.number().int().optional(),
   negativePrompt: z.string().optional(),
   imageStyles: z.array(z.string()).default([]),
+  referenceImageUrl: z.string().optional().default(''),
 });
 
 export type FormValues = z.infer<typeof imageGeneratorSchema>;

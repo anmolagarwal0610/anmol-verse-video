@@ -11,6 +11,7 @@ import ImagePreferenceSelect from './ImagePreferenceSelect';
 import OutputFormatSelect from './OutputFormatSelect';
 import SeedControl from './SeedControl';
 import GuidanceControl from './GuidanceControl';
+import ImageUploader from './ImageUploader';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
@@ -74,6 +75,15 @@ const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFo
     console.log('🔍 [ImageGenerationForm] User authenticated:', user ? 'yes' : 'no');
   }, [user]);
   
+  // Watch for model changes to update form fields availability
+  const selectedModel = form.watch('model');
+  useEffect(() => {
+    // If model changes from pro to something else, reset guidance to default
+    if (selectedModel !== 'pro') {
+      form.setValue('guidance', 3.5);
+    }
+  }, [selectedModel, form]);
+  
   return (
     <>
       <Form {...form}>
@@ -92,6 +102,9 @@ const ImageGenerationForm = ({ form, onSubmit, isGenerating }: ImageGenerationFo
           <AspectRatioSelect form={form} />
           
           <ModelSelect form={form} />
+          
+          {/* Add Image Uploader for reference image */}
+          <ImageUploader form={form} />
           
           <ImagePreferenceSelect form={form} />
           

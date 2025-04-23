@@ -1,7 +1,6 @@
 
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { useCredit } from '@/lib/creditService';
 import { FormValues } from '@/lib/schemas/imageGeneratorSchema';
 import { 
   ImageGenerationResult, 
@@ -12,6 +11,56 @@ import {
   generateImage, 
   getDimensionsFromRatio 
 } from './generators';
+
+// Credit cost per model
+const MODEL_CREDIT_COSTS = {
+  basic: 1,
+  advanced: 1,
+  pro: 5
+};
+
+/**
+ * Function to use the appropriate number of credits based on model
+ */
+async function useModelCredits(userId: string, model: string): Promise<boolean> {
+  try {
+    const creditCost = MODEL_CREDIT_COSTS[model] || 1;
+    
+    // For pro model we need 5 credits
+    if (model === 'pro') {
+      // Custom procedure to use multiple credits at once
+      const { data, error } = await supabase.rpc('use_multiple_credits', {
+        user_id: userId,
+        credit_amount: creditCost
+      });
+      
+      if (error) {
+        console.error('Error using credits:', error);
+        toast.error(`Not enough credits. Pro model requires ${creditCost} credits.`);
+        return false;
+      }
+      
+      return data === true;
+    } else {
+      // Use the regular use_credit function for other models
+      const { data, error } = await supabase.rpc('use_credit', {
+        user_id: userId,
+      });
+      
+      if (error) {
+        console.error('Error using credit:', error);
+        toast.error(error.message || 'Failed to use credit');
+        return false;
+      }
+      
+      return data === true;
+    }
+  } catch (error: any) {
+    console.error('Unexpected error using credits:', error);
+    toast.error(error.message || 'An unexpected error occurred');
+    return false;
+  }
+}
 
 /**
  * Main entry point for generating images
@@ -28,11 +77,18 @@ export async function generateImageFromPrompt(
       hasUserId: !!userId
     });
     
-    // Credit check
-    const hasSufficientCredits = await useCredit();
+    // Early return if no user ID
+    if (!userId) {
+      toast.error('User ID is required to generate images');
+      return null;
+    }
+    
+    // Credit check based on model
+    const hasSufficientCredits = await useModelCredits(userId, values.model);
     
     if (!hasSufficientCredits) {
-      toast.error('Insufficient credits to generate image');
+      const creditCost = MODEL_CREDIT_COSTS[values.model] || 1;
+      toast.error(`Insufficient credits to generate image. ${values.model.charAt(0).toUpperCase() + values.model.slice(1)} model requires ${creditCost} credit(s).`);
       return null;
     }
     
@@ -52,7 +108,8 @@ export async function generateImageFromPrompt(
       outputFormat: values.outputFormat,
       negativePrompt: values.negativePrompt,
       seed: values.showSeed ? values.seed : undefined,
-      imageStyles: values.imageStyles
+      imageStyles: values.imageStyles,
+      referenceImageUrl: values.referenceImageUrl
     };
     
     // Generate image
@@ -62,33 +119,31 @@ export async function generateImageFromPrompt(
       return null;
     }
     
-    // Save to database if user is logged in
-    if (userId) {
-      try {
-        // Calculate expiry time (24 hours from now)
-        const expiryTime = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-        
-        const { error } = await supabase.from('generated_images').insert({
-          prompt: values.prompt,
-          image_url: generatedImageUrl,
-          user_id: userId,
-          width: dimensions.width,
-          height: dimensions.height,
-          model: values.model,
-          preferences: values.imageStyles,
-          expiry_time: expiryTime
-        });
-        
-        if (error) {
-          console.error('Error saving image to database:', error);
-          toast.error(`Failed to save image to gallery: ${error.message || 'Unknown error'}`);
-        } else {
-          toast.success('Image saved to your gallery! Note: Images are automatically deleted after 24 hours.');
-        }
-      } catch (dbError: any) {
-        console.error('Error saving image to database:', dbError);
-        toast.error(`Failed to save to gallery: ${dbError.message || 'Unknown error'}`);
+    // Save to database
+    try {
+      // Calculate expiry time (24 hours from now)
+      const expiryTime = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      
+      const { error } = await supabase.from('generated_images').insert({
+        prompt: values.prompt,
+        image_url: generatedImageUrl,
+        user_id: userId,
+        width: dimensions.width,
+        height: dimensions.height,
+        model: values.model,
+        preferences: values.imageStyles,
+        expiry_time: expiryTime
+      });
+      
+      if (error) {
+        console.error('Error saving image to database:', error);
+        toast.error(`Failed to save image to gallery: ${error.message || 'Unknown error'}`);
+      } else {
+        toast.success('Image saved to your gallery! Note: Images are automatically deleted after 24 hours.');
       }
+    } catch (dbError: any) {
+      console.error('Error saving image to database:', dbError);
+      toast.error(`Failed to save to gallery: ${dbError.message || 'Unknown error'}`);
     }
     
     // Return the generated image URL

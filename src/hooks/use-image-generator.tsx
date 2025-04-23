@@ -27,7 +27,8 @@ export function useImageGenerator() {
       outputFormat: 'png',
       showSeed: false,
       imageStyles: [],
-      negativePrompt: ''
+      negativePrompt: '',
+      referenceImageUrl: ''
     }
   });
   

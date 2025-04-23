@@ -10,6 +10,8 @@ export interface ImageGenerationParams {
   output_format: "jpeg" | "png";
   negative_prompt?: string;
   seed?: number;
+  reference_image_url?: string;
+  steps?: number;
 }
 
 export interface GeneratedImage {
@@ -30,7 +32,14 @@ export interface ImageGenerationResponse {
 const MODEL_MAP = {
   basic: "black-forest-labs/FLUX.1-schnell-Free",
   advanced: "black-forest-labs/FLUX.1-schnell",
-  pro: "pro-model-placeholder" // Disabled for now
+  pro: "black-forest-labs/FLUX.1-dev" // Pro model
+};
+
+// Steps by model
+const STEPS_MAP = {
+  basic: 4,
+  advanced: 4,
+  pro: 28
 };
 
 // Token to be replaced with proper authentication in production
@@ -42,10 +51,14 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
     
     const apiUrl = "https://api.together.xyz/v1/images/generations";
     
+    // Get model-specific steps
+    const modelType = params.model as 'basic' | 'advanced' | 'pro';
+    const steps = STEPS_MAP[modelType] || 4;
+    
     // Prepare the request payload
     const payload: Record<string, any> = {
       model: MODEL_MAP[params.model] || MODEL_MAP.basic,
-      steps: 4,
+      steps: steps,
       n: 1,
       height: params.height,
       width: params.width,
@@ -62,6 +75,11 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
     // Only add seed if it's provided
     if (params.seed !== undefined) {
       payload.seed = params.seed;
+    }
+    
+    // Add reference image if provided (only for Pro model)
+    if (params.reference_image_url && params.model === 'pro') {
+      payload.reference_image_url = params.reference_image_url;
     }
     
     // Prepare request options
@@ -144,5 +162,5 @@ export const IMAGE_STYLES = {
 export const MODEL_DESCRIPTIONS = {
   "basic": "Perfect for side projects and trying out ideas",
   "advanced": "Ideal for content creation and social media assets",
-  "pro": "Coming soon - For professional quality outputs"
+  "pro": "Premium quality with advanced features (costs 5 credits)"
 };

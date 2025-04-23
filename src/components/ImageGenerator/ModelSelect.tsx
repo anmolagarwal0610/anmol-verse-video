@@ -43,10 +43,13 @@ const ModelSelect = ({
                     <span className="text-xs text-muted-foreground">{MODEL_DESCRIPTIONS.advanced}</span>
                   </div>
                 </SelectItem>
-                <SelectItem value="pro" disabled>
+                <SelectItem 
+                  value="pro"
+                  disabled={!user}
+                >
                   <div className="flex flex-col">
-                    <span className="font-medium">Pro</span>
-                    <span className="text-xs text-muted-foreground">{MODEL_DESCRIPTIONS.pro}</span>
+                    <span className="font-medium">Pro {!user && "(Sign-in required)"}</span>
+                    <span className="text-xs text-muted-foreground">{MODEL_DESCRIPTIONS.pro} (5 credits)</span>
                   </div>
                 </SelectItem>
               </SelectContent>

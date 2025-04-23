@@ -20,6 +20,7 @@ export const generateVideo = async (params: VideoGenerationParams): Promise<{ vi
     return { videoId: data.videoId || data.id };
   } catch (error) {
     console.error('Error generating video:', error);
+    // This should return a mocked video ID only in development
     return { videoId: Math.random().toString(36).substring(2, 15) };
   }
 };

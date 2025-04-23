@@ -6,7 +6,7 @@ let cachedCredits = 0;
 let lastCheckedTime = 0;
 const CACHE_DURATION = 5000; // 5 seconds
 
-export const useCredit = async (): Promise<boolean> => {
+export const useCredit = async (creditAmount: number = 1): Promise<boolean> => {
   try {
     const {
       data: { user },
@@ -17,19 +17,39 @@ export const useCredit = async (): Promise<boolean> => {
       return false;
     }
 
-    const { data, error } = await supabase.rpc('use_credit', {
-      user_id: user.id,
-    });
+    // If credit amount is greater than 1, use the multiple credit function
+    if (creditAmount > 1) {
+      const { data, error } = await supabase.rpc('use_multiple_credits', {
+        user_id: user.id,
+        credit_amount: creditAmount
+      });
 
-    if (error) {
-      console.error('Error using credit:', error);
-      toast.error(error.message || 'Failed to use credit');
-      return false;
-    }
+      if (error) {
+        console.error('Error using multiple credits:', error);
+        toast.error(error.message || `Failed to use ${creditAmount} credits`);
+        return false;
+      }
 
-    if (data !== true) {
-      toast.error('You have no credits remaining. Please add more credits to continue.');
-      return false;
+      if (data !== true) {
+        toast.error(`You need at least ${creditAmount} credits to continue.`);
+        return false;
+      }
+    } else {
+      // Use the standard single credit function
+      const { data, error } = await supabase.rpc('use_credit', {
+        user_id: user.id,
+      });
+
+      if (error) {
+        console.error('Error using credit:', error);
+        toast.error(error.message || 'Failed to use credit');
+        return false;
+      }
+
+      if (data !== true) {
+        toast.error('You have no credits remaining. Please add more credits to continue.');
+        return false;
+      }
     }
     
     // Invalidate cache so next checkCredits will fetch the latest count
