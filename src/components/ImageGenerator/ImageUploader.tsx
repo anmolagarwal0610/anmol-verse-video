@@ -46,51 +46,10 @@ const ImageUploader = ({ form }: ImageUploaderProps) => {
       console.log('🔍 [ImageUploader] File size:', file.size, 'bytes');
       console.log('🔍 [ImageUploader] File type:', file.type);
       
-      // Check Supabase connection status
-      const { data: projectData, error: projectError } = await supabase.from('generated_images').select('id').limit(1);
-      console.log('🔍 [ImageUploader] Supabase connection test:', projectError ? 'Error' : 'OK');
-      if (projectError) {
-        console.error('🔍 [ImageUploader] Supabase connection error:', projectError);
-      }
+      // Skip bucket creation attempt - assume bucket exists from SQL migration
+      console.log('🔍 [ImageUploader] Proceeding with upload to existing bucket');
       
-      // First check if the bucket exists
-      console.log('🔍 [ImageUploader] Listing all storage buckets...');
-      const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
-      
-      console.log('🔍 [ImageUploader] Available buckets:', buckets ? buckets.map(b => b.name).join(', ') : 'None');
-      
-      if (bucketsError) {
-        console.error('🔍 [ImageUploader] Error listing buckets:', bucketsError);
-        throw new Error(`Error checking buckets: ${bucketsError.message}`);
-      }
-      
-      const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
-      
-      if (!bucketExists) {
-        console.error('🔍 [ImageUploader] Bucket does not exist:', bucketName);
-        
-        // Try creating the bucket on the fly if it doesn't exist
-        console.log('🔍 [ImageUploader] Attempting to create bucket programmatically');
-        try {
-          const { data: createBucketData, error: createBucketError } = await supabase.storage.createBucket(bucketName, {
-            public: true
-          });
-          
-          if (createBucketError) {
-            console.error('🔍 [ImageUploader] Failed to create bucket:', createBucketError);
-            throw new Error(`Failed to create bucket: ${createBucketError.message}`);
-          }
-          
-          console.log('🔍 [ImageUploader] Bucket created successfully:', createBucketData);
-          // Wait a moment for bucket registration
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        } catch (bucketCreateError: any) {
-          console.error('🔍 [ImageUploader] Bucket creation error:', bucketCreateError);
-          throw new Error(`Cannot create bucket: ${bucketCreateError.message}`);
-        }
-      }
-      
-      // Upload to Supabase Storage
+      // Upload directly to Supabase Storage
       console.log('🔍 [ImageUploader] Attempting file upload...');
       const { data, error } = await supabase.storage
         .from(bucketName)
@@ -98,6 +57,13 @@ const ImageUploader = ({ form }: ImageUploaderProps) => {
       
       if (error) {
         console.error('🔍 [ImageUploader] Upload error:', error);
+        
+        // If the error message suggests bucket doesn't exist, show a specific error
+        if (error.message && error.message.includes('bucket') && error.message.includes('exist')) {
+          toast.error(`Storage bucket '${bucketName}' not found. Please contact support.`);
+        } else {
+          toast.error(`Upload failed: ${error.message}`);
+        }
         throw error;
       }
       
@@ -116,7 +82,7 @@ const ImageUploader = ({ form }: ImageUploaderProps) => {
       
     } catch (error: any) {
       console.error('Error uploading image:', error);
-      toast.error(`Upload failed: ${error.message || 'Unknown error'}`);
+      // Error already displayed in toast above
     } finally {
       setIsUploading(false);
     }
