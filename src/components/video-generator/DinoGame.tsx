@@ -6,7 +6,7 @@ import DinoObstacle from './DinoObstacle';
 import DinoGameStyles from './DinoGameStyles';
 
 const DinoGame = () => {
-  console.log("DinoGame component rendering");
+  console.log("[DinoGame] Component rendering");
   const [isJumping, setIsJumping] = useState(false);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
@@ -15,19 +15,30 @@ const DinoGame = () => {
     "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)"
   );
   
+  // Add timer ref to track game elapsed time for debugging
+  const gameTimerRef = useRef<number>(0);
+  const frameCountRef = useRef<number>(0);
   const dinoRef = useRef<HTMLDivElement>(null);
   const obstacleRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>(0);
   
   // Debug game state changes
   useEffect(() => {
-    console.log("Game state changed:", { gameStarted, gameOver });
+    console.log("[DinoGame] Game state changed:", { gameStarted, gameOver });
+    
+    // Reset timer when game starts
+    if (gameStarted && !gameOver) {
+      console.log("[DinoGame] Game started, resetting timer");
+      gameTimerRef.current = Date.now();
+      frameCountRef.current = 0;
+    }
   }, [gameStarted, gameOver]);
   
   // Handle the jump action
   const handleJump = useCallback(() => {
     if (!isJumping && gameStarted && !gameOver) {
-      console.log("Jump triggered");
+      const elapsedTime = Date.now() - gameTimerRef.current;
+      console.log(`[DinoGame] Jump triggered at ${elapsedTime}ms since game start`);
       setIsJumping(true);
       setTimeout(() => setIsJumping(false), 500);
     }
@@ -35,23 +46,26 @@ const DinoGame = () => {
   
   // Start the game
   const startGame = useCallback(() => {
-    console.log("Game starting");
+    console.log("[DinoGame] Game starting");
     setGameStarted(true);
     setGameOver(false);
     setScore(0);
     setPrimaryGradient("linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)");
+    gameTimerRef.current = Date.now(); // Record start time
   }, []);
   
   // Restart the game after game over
   const restartGame = useCallback(() => {
-    console.log("Game restarting");
+    console.log("[DinoGame] Game restarting");
     setGameOver(false);
     setScore(0);
     setPrimaryGradient("linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)");
     
     // Set a small delay before starting the game again
     setTimeout(() => {
+      console.log("[DinoGame] Delayed game start after restart");
       setGameStarted(true);
+      gameTimerRef.current = Date.now(); // Record restart time
     }, 50);
   }, []);
   
@@ -60,10 +74,26 @@ const DinoGame = () => {
     const dino = dinoRef.current;
     const obstacle = obstacleRef.current;
     
-    if (!dino || !obstacle) return false;
+    if (!dino || !obstacle) {
+      console.log("[DinoGame] Collision check - missing elements:", { hasDino: !!dino, hasObstacle: !!obstacle });
+      return false;
+    }
     
     const dinoRect = dino.getBoundingClientRect();
     const obstacleRect = obstacle.getBoundingClientRect();
+    
+    // Log obstacle position during initial game phase (first 10 seconds)
+    const elapsedTime = Date.now() - gameTimerRef.current;
+    if (elapsedTime < 10000 && frameCountRef.current % 30 === 0) { // Log every 30 frames in first 10 seconds
+      console.log(`[DinoGame] Obstacle position at ${elapsedTime}ms:`, {
+        left: obstacleRect.left,
+        right: obstacleRect.right,
+        top: obstacleRect.top,
+        bottom: obstacleRect.bottom,
+        width: obstacleRect.width,
+        height: obstacleRect.height
+      });
+    }
     
     // More accurate collision detection with adjusted values for the emoji character
     return !(
@@ -78,8 +108,17 @@ const DinoGame = () => {
   const gameLoop = useCallback(() => {
     if (gameOver || !gameStarted) return;
     
+    frameCountRef.current++;
+    
+    // Log frame rate during initial phase
+    const elapsedTime = Date.now() - gameTimerRef.current;
+    if (elapsedTime < 10000 && frameCountRef.current % 60 === 0) {
+      const fps = frameCountRef.current / (elapsedTime / 1000);
+      console.log(`[DinoGame] Frame ${frameCountRef.current} at ${elapsedTime}ms, ~${fps.toFixed(1)} FPS`);
+    }
+    
     if (checkCollision()) {
-      console.log("Collision detected, game over");
+      console.log(`[DinoGame] Collision detected at ${elapsedTime}ms, game over`);
       setGameOver(true);
       setPrimaryGradient("linear-gradient(135deg, #ef4444 0%, #f97316 100%)");
       return;
@@ -92,12 +131,12 @@ const DinoGame = () => {
   // Set up key events
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      console.log("Key pressed:", e.code, { gameStarted, gameOver });
-      
       if (e.code === 'Space' || e.key === 'ArrowUp') {
         if (!gameStarted && !gameOver) {
+          console.log("[DinoGame] Starting game via keyboard");
           startGame();
         } else if (gameOver) {
+          console.log("[DinoGame] Restarting game via keyboard");
           restartGame();
         } else {
           handleJump();
@@ -111,18 +150,27 @@ const DinoGame = () => {
   
   // Start game loop when the game starts
   useEffect(() => {
-    console.log("Game loop effect triggered:", { gameStarted, gameOver });
+    console.log("[DinoGame] Game loop effect triggered:", { gameStarted, gameOver });
     
     if (gameStarted && !gameOver) {
-      console.log("Starting game loop");
+      console.log("[DinoGame] Starting game loop");
+      frameCountRef.current = 0;
       animationRef.current = requestAnimationFrame(gameLoop);
     }
     
     return () => {
-      console.log("Cleaning up game loop");
+      console.log("[DinoGame] Cleaning up game loop");
       cancelAnimationFrame(animationRef.current);
     };
   }, [gameLoop, gameStarted, gameOver]);
+  
+  // Ensure cleanup on unmount
+  useEffect(() => {
+    return () => {
+      console.log("[DinoGame] Component unmounting, cleaning up");
+      cancelAnimationFrame(animationRef.current);
+    };
+  }, []);
   
   return (
     <div className="dino-game-container" onClick={handleJump}>

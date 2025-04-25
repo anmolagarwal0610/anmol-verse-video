@@ -12,6 +12,7 @@ import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 import { Link } from 'react-router-dom';
 import AnimatedLoadingIndicator from './AnimatedLoadingIndicator';
 import DinoGame from './DinoGame';
+import { useEffect } from 'react';
 
 interface ProgressCardProps {
   progress: number;
@@ -21,10 +22,19 @@ interface ProgressCardProps {
 const ProgressCard = ({ progress, status }: ProgressCardProps) => {
   const { cancelGeneration } = useVideoGenerationContext();
   
-  console.log('ProgressCard: Rendering with progress:', progress, 'and status:', status);
+  console.log('[ProgressCard] Rendering with progress:', progress, 'and status:', status);
   
   const minutes = Math.floor(progress / 100 * 8);
   const showCancelButton = minutes >= 8;
+  
+  // Log when the component mounts to understand timing of DinoGame initialization
+  useEffect(() => {
+    console.log('[ProgressCard] Component mounted, DinoGame will be initialized');
+    
+    return () => {
+      console.log('[ProgressCard] Component unmounting');
+    };
+  }, []);
   
   return (
     <Card className="w-full shadow-lg border-indigo-200 dark:border-indigo-800">
@@ -58,7 +68,18 @@ const ProgressCard = ({ progress, status }: ProgressCardProps) => {
           </p>
         </div>
 
-        <DinoGame />
+        {/* Log right before DinoGame is rendered */}
+        <div 
+          className="relative"
+          ref={(node) => {
+            if (node) {
+              console.log('[ProgressCard] DinoGame container element ready:', 
+                { width: node.offsetWidth, height: node.offsetHeight });
+            }
+          }}
+        >
+          <DinoGame />
+        </div>
         
         <div className="flex flex-col space-y-2">
           <Link to="/images" className="w-full">

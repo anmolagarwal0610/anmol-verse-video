@@ -1,6 +1,6 @@
 
 // Obstacle bar, gets progressively taller as score increases
-import React, { forwardRef } from "react";
+import React, { forwardRef, useEffect } from "react";
 
 interface DinoObstacleProps {
   gameOver: boolean;
@@ -15,6 +15,7 @@ const calcObstacleHeight = (score: number) => {
   if (score < 80) return 42;
   return 54;
 };
+
 const calcObstacleAnimDuration = (score: number) => {
   // At first: 2.2s, down to 1.5s after a while
   if (score < 20) return "2.2s";
@@ -24,7 +25,26 @@ const calcObstacleAnimDuration = (score: number) => {
 
 const DinoObstacle = forwardRef<HTMLDivElement, DinoObstacleProps>(
   ({ gameOver, isActive, score }, ref) => {
-    console.log("DinoObstacle rendering:", { gameOver, isActive, score });
+    // Add more detailed logging for component renders and prop changes
+    console.log("[DinoObstacle] Rendering with props:", { 
+      gameOver, 
+      isActive, 
+      score, 
+      height: calcObstacleHeight(score),
+      animDuration: calcObstacleAnimDuration(score) 
+    });
+    
+    // Log when properties change
+    useEffect(() => {
+      console.log("[DinoObstacle] Props changed:", { gameOver, isActive, score });
+    }, [gameOver, isActive, score]);
+    
+    // Log when the ref is established
+    useEffect(() => {
+      if (ref) {
+        console.log("[DinoObstacle] Ref established:", ref);
+      }
+    }, [ref]);
     
     // Only animate when game is active and not over
     const shouldAnimate = isActive && !gameOver;
