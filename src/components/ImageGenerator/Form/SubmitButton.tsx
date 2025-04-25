@@ -1,0 +1,43 @@
+
+import { Wand2, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+interface SubmitButtonProps {
+  isGenerating: boolean;
+  model: string;
+  creditCost: number;
+}
+
+const SubmitButton = ({ isGenerating, model, creditCost }: SubmitButtonProps) => {
+  const isMobile = useIsMobile();
+  
+  const getButtonLabel = () => {
+    if (isGenerating) return "Generating...";
+    if (model === 'basic') return "Generate Image (Free)";
+    return `Generate Image (${creditCost} credits)`;
+  };
+
+  return (
+    <Button 
+      type="submit" 
+      className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700" 
+      size={isMobile ? "default" : "lg"}
+      disabled={isGenerating}
+    >
+      {isGenerating ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Generating...
+        </>
+      ) : (
+        <>
+          <Wand2 className="mr-2 h-4 w-4" />
+          {getButtonLabel()}
+        </>
+      )}
+    </Button>
+  );
+};
+
+export default SubmitButton;
