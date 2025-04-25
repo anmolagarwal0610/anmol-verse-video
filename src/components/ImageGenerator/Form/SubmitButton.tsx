@@ -2,20 +2,31 @@
 import { Wand2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/hooks/use-auth';
 
 interface SubmitButtonProps {
   isGenerating: boolean;
   model: string;
   creditCost: number;
+  onAuthRequired: () => void;
 }
 
-const SubmitButton = ({ isGenerating, model, creditCost }: SubmitButtonProps) => {
+const SubmitButton = ({ isGenerating, model, creditCost, onAuthRequired }: SubmitButtonProps) => {
   const isMobile = useIsMobile();
+  const { user } = useAuth();
   
   const getButtonLabel = () => {
     if (isGenerating) return "Generating...";
     if (model === 'basic') return "Generate Image (Free)";
     return `Generate Image (${creditCost} credits)`;
+  };
+
+  const handleButtonClick = (e: React.MouseEvent) => {
+    // If user is not authenticated and trying to use a premium feature, show auth dialog
+    if (!user && model !== 'basic') {
+      e.preventDefault();
+      onAuthRequired();
+    }
   };
 
   return (
@@ -24,6 +35,7 @@ const SubmitButton = ({ isGenerating, model, creditCost }: SubmitButtonProps) =>
       className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700" 
       size={isMobile ? "default" : "lg"}
       disabled={isGenerating}
+      onClick={handleButtonClick}
     >
       {isGenerating ? (
         <>

@@ -25,6 +25,10 @@ const FormWrapper = ({
   const navigate = useNavigate();
 
   const redirectToAuth = () => {
+    // Store the current path and form data for later restoration
+    sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
+    console.log('🔍 [ImageGenerator] Stored pending path:', window.location.pathname);
+    
     setShowAuthDialog(false);
     navigate('/auth');
   };

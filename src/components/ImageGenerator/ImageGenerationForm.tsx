@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { FormValues } from '@/hooks/use-image-generator';
+import { useAuth } from '@/hooks/use-auth';
 import PromptTextarea from './PromptTextarea';
 import ModelSelect from './ModelSelect';
 import AspectRatioSelect from './AspectRatioSelect';
@@ -30,16 +30,26 @@ const ImageGenerationForm = ({
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [creditCost, setCreditCost] = useState(0);
   const model = form.watch('model');
+  const { user } = useAuth();
   
   useEffect(() => {
     setCreditCost(calculateEstimatedCreditCost());
   }, [form.watch('model'), form.watch('pixelOption'), form.watch('pixelOptionValue'), 
       form.watch('aspectRatio'), form.watch('customRatio'), calculateEstimatedCreditCost]);
 
+  const handleSubmit = async (values: FormValues) => {
+    if (!user && model !== 'basic') {
+      setShowAuthDialog(true);
+      return;
+    }
+    
+    await onSubmit(values);
+  };
+
   return (
     <FormWrapper
       form={form}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       showAuthDialog={showAuthDialog}
       setShowAuthDialog={setShowAuthDialog}
     >
@@ -83,6 +93,7 @@ const ImageGenerationForm = ({
         isGenerating={isGenerating}
         model={model}
         creditCost={creditCost}
+        onAuthRequired={() => setShowAuthDialog(true)}
       />
     </FormWrapper>
   );
