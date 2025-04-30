@@ -1,18 +1,8 @@
-
 import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { 
-  IMAGE_MODELS,
-  VOICE_OPTIONS,
-} from '@/lib/api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { IMAGE_MODELS, VOICE_OPTIONS } from '@/lib/api';
 import { VideoGenerationParams } from '@/lib/video/types';
 import { VideoGenerationFormProvider } from './VideoGenerationFormContext';
 import VideoGenerationConfirmDialog from './dialogs/VideoGenerationConfirmDialog';
@@ -24,17 +14,16 @@ import BasicFormFields from './form-sections/BasicFormFields';
 import VisualsSection from './form-sections/VisualsSection';
 import AudioSection from './form-sections/audio';
 import SubtitlesSection from './form-sections/SubtitlesSection';
-
 interface VideoGenerationFormProps {
   onSubmit: (data: VideoGenerationParams) => void;
   isGenerating: boolean;
 }
-
-const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProps) => {
+const VideoGenerationForm = ({
+  onSubmit,
+  isGenerating
+}: VideoGenerationFormProps) => {
   // Get first English voice as default
-  const defaultVoice = Object.values(VOICE_OPTIONS)
-    .find(voice => voice.language === 'English')?.id || Object.keys(VOICE_OPTIONS)[0];
-  
+  const defaultVoice = Object.values(VOICE_OPTIONS).find(voice => voice.language === 'English')?.id || Object.keys(VOICE_OPTIONS)[0];
   const form = useForm<VideoGenerationParams>({
     defaultValues: {
       script_model: 'chatgpt',
@@ -50,39 +39,38 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
       subtitle_font: 'Arial',
       video_category: 'Hollywood Script',
       transition_style: 'fade',
-      image_style: [], 
+      image_style: [],
       audio_language: 'English',
       voice: defaultVoice,
       subtitle_style: 'Default',
       subtitle_script: 'English'
-    },
+    }
   });
-  
+
   // Watch audio_language to pass it to SubtitlesSection
   const audioLanguage = form.watch('audio_language');
   const selectedVoice = form.watch('voice');
   const videoDuration = form.watch('video_duration');
-  
-  const { 
+  const {
     showConfirmDialog,
     setShowConfirmDialog,
     validateAndShowConfirmation,
     handleConfirmedSubmit,
     formData,
     calculateCreditCost
-  } = useVideoGenerationFormSubmit({ onSubmit });
-  
+  } = useVideoGenerationFormSubmit({
+    onSubmit
+  });
+
   // Calculate credit cost for the current form values
   const creditCost = calculateCreditCost({
     ...form.getValues(),
     voice: selectedVoice
   });
-  
+
   // Determine if the selected voice is a Google voice
   const isGoogleVoice = selectedVoice?.startsWith('google_');
-  
-  return (
-    <Card className="w-full shadow-lg">
+  return <Card className="w-full shadow-lg">
       <CardHeader>
         <CardTitle className="text-2xl font-bold">Generate Video</CardTitle>
         <CardDescription>
@@ -90,7 +78,10 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <VideoGenerationFormProvider value={{ form, isGenerating }}>
+        <VideoGenerationFormProvider value={{
+        form,
+        isGenerating
+      }}>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(validateAndShowConfirmation)} className="space-y-8">
               <div className="space-y-6">
@@ -109,15 +100,9 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
                 
                 {/* Show cost messaging based on voice type */}
                 <div className="text-sm text-muted-foreground">
-                  {isGoogleVoice ? (
-                    <p className="text-emerald-600 dark:text-emerald-500">
+                  {isGoogleVoice ? <p className="text-emerald-600 dark:text-emerald-500">
                       ✓ Using Google voice (3 credits/second) - Lower cost option
-                    </p>
-                  ) : (
-                    <p className="text-amber-600 dark:text-amber-500">
-                      Using premium voice (11 credits/second)
-                    </p>
-                  )}
+                    </p> : <p className="text-amber-600 dark:text-amber-500">Using premium voice (11 credits/second)</p>}
                 </div>
               </div>
               
@@ -126,27 +111,15 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
                 <SubtitlesSection audioLanguage={audioLanguage} />
               </div>
               
-              <Button 
-                type="submit" 
-                disabled={isGenerating}
-                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
-              >
+              <Button type="submit" disabled={isGenerating} className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700">
                 {isGenerating ? 'Generating...' : `Generate Video (${creditCost} credits)`}
               </Button>
             </form>
           </Form>
         </VideoGenerationFormProvider>
         
-        <VideoGenerationConfirmDialog
-          open={showConfirmDialog}
-          onOpenChange={setShowConfirmDialog}
-          onConfirm={handleConfirmedSubmit}
-          topic={formData?.topic || ''}
-          creditCost={formData ? calculateCreditCost(formData) : 0}
-        />
+        <VideoGenerationConfirmDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog} onConfirm={handleConfirmedSubmit} topic={formData?.topic || ''} creditCost={formData ? calculateCreditCost(formData) : 0} />
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
-
 export default VideoGenerationForm;
