@@ -15,6 +15,7 @@ interface VideoGenerationConfirmDialogProps {
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   topic: string;
+  creditCost: number;
 }
 
 const VideoGenerationConfirmDialog = ({
@@ -22,6 +23,7 @@ const VideoGenerationConfirmDialog = ({
   onOpenChange,
   onConfirm,
   topic,
+  creditCost,
 }: VideoGenerationConfirmDialogProps) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -31,7 +33,7 @@ const VideoGenerationConfirmDialog = ({
           <AlertDialogDescription>
             You are about to generate a video with topic: <strong>{topic}</strong>
             <br /><br />
-            This action will use one credit from your account. Are you sure you want to proceed?
+            This action will use <strong>{creditCost} credits</strong> from your account. Are you sure you want to proceed?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

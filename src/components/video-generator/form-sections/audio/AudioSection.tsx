@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+
 import {
   FormField,
   FormItem,
@@ -8,63 +7,68 @@ import {
   FormDescription,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogHeader,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { useVideoGenerationForm } from '../../VideoGenerationFormContext';
-import { AUDIO_LANGUAGES, VOICE_OPTIONS } from '@/lib/video/constants/audio';
-import { useAudioPreview } from './hooks/useAudioPreview';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { LanguageSelector } from '@/components/shared/LanguageSelector';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { VOICE_OPTIONS } from '@/lib/video/constants/audio';
 import { VoiceItem } from './VoiceItem';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { useVideoGenerationForm } from '../../VideoGenerationFormContext';
 
 const AudioSection = () => {
   const { form, isGenerating } = useVideoGenerationForm();
-  const { playingVoice, playVoicePreview } = useAudioPreview();
-  const [voiceDialogOpen, setVoiceDialogOpen] = useState(false);
   
-  const selectedLanguage = form.watch('audio_language');
+  const audioLanguage = form.watch('audio_language');
   const selectedVoice = form.watch('voice');
   
-  const filteredVoices = Object.values(VOICE_OPTIONS).filter(
-    voice => {
-      // For regular voices, match the language
-      if (!voice.id.startsWith('google_')) {
-        return voice.language === selectedLanguage;
-      }
-      // For Google voices, only show language-specific ones
-      if (selectedLanguage === 'English') {
-        return voice.id === 'google_male' || voice.id === 'google_female';
-      } else if (selectedLanguage === 'Hindi') {
-        return voice.id === 'google_male_hindi' || voice.id === 'google_female_hindi';
-      }
-      return false;
-    }
+  // Filter voices by selected language
+  const filteredVoices = Object.entries(VOICE_OPTIONS).filter(
+    ([_, voice]) => voice.language === audioLanguage
   );
+  
+  // Group voices by provider
+  const googleVoices = filteredVoices.filter(([_, voice]) => voice.provider === 'google');
+  const elevenLabsVoices = filteredVoices.filter(([_, voice]) => voice.provider === 'elevenlabs');
+  const amazonVoices = filteredVoices.filter(([_, voice]) => voice.provider === 'amazon');
+  
+  // Determine active tab based on selected voice
+  const getActiveTab = () => {
+    if (selectedVoice?.startsWith('google_')) return 'google';
+    if (selectedVoice?.startsWith('eleven_')) return 'elevenlabs';
+    if (selectedVoice?.startsWith('amazon_')) return 'amazon';
+    return 'elevenlabs'; // Default to ElevenLabs
+  };
 
-  const selectedVoiceDetails = VOICE_OPTIONS[selectedVoice];
-
-  useEffect(() => {
-    // When language changes, set first available voice for that language
-    if (filteredVoices.length > 0) {
-      const currentVoice = VOICE_OPTIONS[selectedVoice];
-      if (!currentVoice || currentVoice.language !== selectedLanguage) {
-        form.setValue('voice', filteredVoices[0].id);
-      }
+  // Handle tab change to select first voice from the group
+  const handleTabChange = (value: string) => {
+    let voices;
+    switch (value) {
+      case 'google':
+        voices = googleVoices;
+        break;
+      case 'elevenlabs':
+        voices = elevenLabsVoices;
+        break;
+      case 'amazon':
+        voices = amazonVoices;
+        break;
+      default:
+        voices = elevenLabsVoices;
     }
-  }, [selectedLanguage]);
+    
+    // Select first voice from the group if any exist
+    if (voices.length > 0) {
+      form.setValue('voice', voices[0][0]);
+    }
+  };
+  
+  // Determine if the selected voice is a Google voice
+  const isGoogleVoice = selectedVoice?.startsWith('google_');
   
   return (
     <div className="space-y-6">
+      {/* Language selection */}
       <FormField
         control={form.control}
         name="audio_language"
@@ -72,41 +76,21 @@ const AudioSection = () => {
           <FormItem>
             <FormLabel>Audio Language</FormLabel>
             <FormControl>
-              <Select
-                value={field.value}
-                onValueChange={(value) => {
-                  field.onChange(value);
-                  
-                  const voicesForLanguage = Object.values(VOICE_OPTIONS).filter(
-                    voice => voice.language === value
-                  );
-                  
-                  if (voicesForLanguage.length > 0) {
-                    form.setValue('voice', voicesForLanguage[0].id);
-                  }
-                }}
+              <LanguageSelector 
+                value={field.value} 
+                onChange={field.onChange}
                 disabled={isGenerating}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select audio language" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(AUDIO_LANGUAGES).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
             </FormControl>
             <FormDescription>
-              Choose the language for your video's narration
+              Select the language for your video's audio
             </FormDescription>
             <FormMessage />
           </FormItem>
         )}
       />
       
+      {/* Voice selection */}
       <FormField
         control={form.control}
         name="voice"
@@ -114,54 +98,96 @@ const AudioSection = () => {
           <FormItem>
             <FormLabel>Voice</FormLabel>
             <FormControl>
-              <div className="flex items-center gap-4">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal"
-                  onClick={(e) => {
-                    // Prevent form submission
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setVoiceDialogOpen(true);
-                  }}
-                  type="button" // Explicitly set as button type to prevent form submission
-                  disabled={isGenerating}
-                >
-                  <span>{selectedVoiceDetails?.name || 'Select a voice'}</span>
-                </Button>
-              </div>
-            </FormControl>
-            <FormDescription>
-              Choose the voice for your video's narration
-            </FormDescription>
-            <FormMessage />
-
-            <Dialog open={voiceDialogOpen} onOpenChange={setVoiceDialogOpen}>
-              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Select a Voice</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  {filteredVoices.map((voice) => (
-                    <div 
-                      key={voice.id}
-                      className="relative rounded-lg border p-4 hover:bg-accent transition-colors"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        form.setValue('voice', voice.id);
-                        setVoiceDialogOpen(false);
-                      }}
-                    >
-                      <VoiceItem 
-                        voice={voice}
-                        playingVoice={playingVoice}
-                        onPlayPreview={playVoicePreview}
-                      />
+              <Tabs 
+                defaultValue={getActiveTab()} 
+                onValueChange={handleTabChange}
+                className="w-full"
+              >
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="elevenlabs" disabled={isGenerating}>
+                    ElevenLabs 
+                    {!isGoogleVoice && <Badge variant="outline" className="ml-2 bg-amber-100 text-amber-800 border-amber-200">Premium</Badge>}
+                  </TabsTrigger>
+                  <TabsTrigger value="google" disabled={isGenerating}>
+                    Google
+                    {isGoogleVoice && <Badge variant="outline" className="ml-2 bg-emerald-100 text-emerald-800 border-emerald-200">Budget</Badge>}
+                  </TabsTrigger>
+                  <TabsTrigger value="amazon" disabled={isGenerating}>
+                    Amazon
+                  </TabsTrigger>
+                </TabsList>
+                
+                {/* ElevenLabs voices */}
+                <TabsContent value="elevenlabs">
+                  <Card>
+                    <ScrollArea className="h-[240px] pr-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-4">
+                        {elevenLabsVoices.map(([voiceId, voice]) => (
+                          <VoiceItem 
+                            key={voiceId} 
+                            selected={field.value === voiceId} 
+                            onClick={() => field.onChange(voiceId)}
+                            voice={voice}
+                            voiceId={voiceId}
+                            disabled={isGenerating}
+                          />
+                        ))}
+                      </div>
+                    </ScrollArea>
+                    <div className="text-center p-2 text-sm text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-900/20 rounded-b-md">
+                      Premium voices cost 11 credits per second of video
                     </div>
-                  ))}
-                </div>
-              </DialogContent>
-            </Dialog>
+                  </Card>
+                </TabsContent>
+                
+                {/* Google voices */}
+                <TabsContent value="google">
+                  <Card>
+                    <ScrollArea className="h-[240px] pr-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-4">
+                        {googleVoices.map(([voiceId, voice]) => (
+                          <VoiceItem 
+                            key={voiceId} 
+                            selected={field.value === voiceId} 
+                            onClick={() => field.onChange(voiceId)}
+                            voice={voice}
+                            voiceId={voiceId}
+                            disabled={isGenerating}
+                          />
+                        ))}
+                      </div>
+                    </ScrollArea>
+                    <div className="text-center p-2 text-sm text-emerald-600 dark:text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 rounded-b-md">
+                      Budget-friendly option - only 3 credits per second of video
+                    </div>
+                  </Card>
+                </TabsContent>
+                
+                {/* Amazon voices */}
+                <TabsContent value="amazon">
+                  <Card>
+                    <ScrollArea className="h-[240px] pr-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-4">
+                        {amazonVoices.map(([voiceId, voice]) => (
+                          <VoiceItem 
+                            key={voiceId} 
+                            selected={field.value === voiceId} 
+                            onClick={() => field.onChange(voiceId)}
+                            voice={voice}
+                            voiceId={voiceId}
+                            disabled={isGenerating}
+                          />
+                        ))}
+                      </div>
+                    </ScrollArea>
+                    <div className="text-center p-2 text-sm text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-900/20 rounded-b-md">
+                      Premium voices cost 11 credits per second of video
+                    </div>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </FormControl>
+            <FormMessage />
           </FormItem>
         )}
       />

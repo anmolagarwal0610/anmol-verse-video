@@ -13,6 +13,7 @@ import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 import { Button } from '@/components/ui/button';
 import { LogIn } from 'lucide-react';
 import { toast } from 'sonner';
+import { useCredit } from '@/lib/creditService';
 
 const VideoGeneration = () => {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const VideoGeneration = () => {
     }
   }, [status, result, progress, error, user, loading]);
 
-  const handleSubmit = (data: VideoGenerationParams) => {
+  const handleSubmit = async (data: VideoGenerationParams) => {
     console.log("VideoGeneration: Form submitted with data:", data);
     
     if (!user) {
@@ -58,7 +59,27 @@ const VideoGeneration = () => {
       return;
     }
     
-    generateVideo(data);
+    // Calculate required credits
+    const duration = data.video_duration || 25;
+    const isGoogleVoice = data.voice?.startsWith('google_');
+    const creditRatePerSecond = isGoogleVoice ? 3 : 11;
+    const creditCost = Math.round(duration * creditRatePerSecond);
+    
+    try {
+      // Check and use multiple credits
+      const hasSufficientCredits = await useCredit(creditCost);
+      
+      if (!hasSufficientCredits) {
+        toast.error(`You need ${creditCost} credits to generate this video. Please add more credits to continue.`);
+        return;
+      }
+      
+      // Proceed with video generation
+      generateVideo(data);
+    } catch (error) {
+      console.error("VideoGeneration: Error using credits:", error);
+      toast.error("Failed to check credits. Please try again.");
+    }
   };
   
   const handleSignIn = () => {

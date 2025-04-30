@@ -19,6 +19,13 @@ import { EnhancedSlider } from '@/components/ui/enhanced-slider';
 
 const TimingFields = () => {
   const { form, isGenerating } = useVideoGenerationForm();
+  const selectedVoice = form.watch('voice');
+  const videoDuration = form.watch('video_duration');
+  
+  // Calculate credit cost based on duration and voice type
+  const isGoogleVoice = selectedVoice?.startsWith('google_');
+  const creditRatePerSecond = isGoogleVoice ? 3 : 11;
+  const estimatedCreditCost = Math.round(videoDuration * creditRatePerSecond);
   
   return (
     <>
@@ -44,7 +51,12 @@ const TimingFields = () => {
                   </Tooltip>
                 </TooltipProvider>
               </FormLabel>
-              <span className="text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">{value} seconds</span>
+              <div className="text-right">
+                <span className="text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">{value} seconds</span>
+                <div className="text-xs text-muted-foreground">
+                  Est. cost: {estimatedCreditCost} credits
+                </div>
+              </div>
             </div>
             <FormControl>
               <EnhancedSlider

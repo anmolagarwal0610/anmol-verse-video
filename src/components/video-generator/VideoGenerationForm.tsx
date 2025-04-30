@@ -60,14 +60,26 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
   
   // Watch audio_language to pass it to SubtitlesSection
   const audioLanguage = form.watch('audio_language');
+  const selectedVoice = form.watch('voice');
+  const videoDuration = form.watch('video_duration');
   
   const { 
     showConfirmDialog,
     setShowConfirmDialog,
     validateAndShowConfirmation,
     handleConfirmedSubmit,
-    formData
+    formData,
+    calculateCreditCost
   } = useVideoGenerationFormSubmit({ onSubmit });
+  
+  // Calculate credit cost for the current form values
+  const creditCost = calculateCreditCost({
+    ...form.getValues(),
+    voice: selectedVoice
+  });
+  
+  // Determine if the selected voice is a Google voice
+  const isGoogleVoice = selectedVoice?.startsWith('google_');
   
   return (
     <Card className="w-full shadow-lg">
@@ -94,6 +106,19 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Audio Settings</h3>
                 <AudioSection />
+                
+                {/* Show cost messaging based on voice type */}
+                <div className="text-sm text-muted-foreground">
+                  {isGoogleVoice ? (
+                    <p className="text-emerald-600 dark:text-emerald-500">
+                      ✓ Using Google voice (3 credits/second) - Lower cost option
+                    </p>
+                  ) : (
+                    <p className="text-amber-600 dark:text-amber-500">
+                      Using premium voice (11 credits/second)
+                    </p>
+                  )}
+                </div>
               </div>
               
               <div className="space-y-6">
@@ -106,7 +131,7 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
                 disabled={isGenerating}
                 className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
               >
-                {isGenerating ? 'Generating...' : 'Generate Video'}
+                {isGenerating ? 'Generating...' : `Generate Video (${creditCost} credits)`}
               </Button>
             </form>
           </Form>
@@ -117,6 +142,7 @@ const VideoGenerationForm = ({ onSubmit, isGenerating }: VideoGenerationFormProp
           onOpenChange={setShowConfirmDialog}
           onConfirm={handleConfirmedSubmit}
           topic={formData?.topic || ''}
+          creditCost={formData ? calculateCreditCost(formData) : 0}
         />
       </CardContent>
     </Card>
