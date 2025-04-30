@@ -52,13 +52,8 @@ export const VoiceItem = ({ voice, voiceId, selected, onClick, disabled = false 
         <div className="flex items-center gap-2">
           <span className="font-medium">{voice.name}</span>
           {!isGoogleVoice && (
-            <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100">
+            <Badge variant="secondary" className="bg-purple-100 text-purple-800 hover:bg-purple-100 border-purple-200">
               Premium
-            </Badge>
-          )}
-          {isGoogleVoice && (
-            <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-200">
-              Budget
             </Badge>
           )}
         </div>

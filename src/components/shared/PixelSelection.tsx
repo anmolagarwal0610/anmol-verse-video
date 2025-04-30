@@ -61,10 +61,10 @@ const PixelSelection = ({
                 <SelectTrigger>
                   <SelectValue placeholder="Select resolution" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[100]">
                   {Object.entries(PIXEL_OPTIONS).map(([key, value]) => (
                     <SelectItem key={key} value={key}>
-                      {key === "custom" ? "Custom" : `${key} (${value}p)`}
+                      {key === "custom" ? "Custom" : `${key}`}
                     </SelectItem>
                   ))}
                 </SelectContent>

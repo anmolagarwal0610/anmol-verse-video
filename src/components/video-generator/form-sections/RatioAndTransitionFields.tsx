@@ -19,6 +19,12 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Info } from 'lucide-react';
 import { ASPECT_RATIOS, TRANSITION_STYLES } from '@/lib/api';
 import { useVideoGenerationForm } from '../VideoGenerationFormContext';
@@ -38,6 +44,29 @@ const TransitionPreview = ({ style }: { style: string }) => {
         alt={`${style} transition preview`}
         className="w-full h-full object-cover"
       />
+    </div>
+  );
+};
+
+const AspectRatioPreview = ({ ratio }: { ratio: string }) => {
+  // Set appropriate dimensions for common ratios
+  const dimensions = {
+    '16:9': { width: 64, height: 36 },
+    '4:3': { width: 48, height: 36 },
+    '1:1': { width: 36, height: 36 },
+    '9:16': { width: 27, height: 48 },
+    '3:4': { width: 36, height: 48 },
+    '2:1': { width: 60, height: 30 },
+  };
+  
+  const { width, height } = dimensions[ratio as keyof typeof dimensions] || { width: 48, height: 36 };
+  
+  return (
+    <div 
+      className="bg-muted border border-border flex items-center justify-center rounded"
+      style={{ width, height }}
+    >
+      <span className="text-[10px] text-muted-foreground">{ratio}</span>
     </div>
   );
 };
@@ -65,9 +94,21 @@ const RatioAndTransitionFields = () => {
                 </SelectTrigger>
                 <SelectContent className="z-50 bg-background border shadow-lg">
                   {Object.entries(ASPECT_RATIOS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
+                    <TooltipProvider key={value}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <SelectItem value={value} className="flex items-center">
+                            <div className="flex items-center gap-2">
+                              <AspectRatioPreview ratio={value} />
+                              <span>{label}</span>
+                            </div>
+                          </SelectItem>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="z-[60]">
+                          <p>Aspect ratio: {value}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   ))}
                 </SelectContent>
               </Select>
