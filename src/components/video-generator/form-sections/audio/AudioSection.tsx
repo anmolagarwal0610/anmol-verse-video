@@ -10,7 +10,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { LanguageSelector } from '@/components/shared/LanguageSelector';
+import { LanguageSelector } from '@/components/shared/SelectBox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { VOICE_OPTIONS } from '@/lib/video/constants/audio';
 import { VoiceItem } from './VoiceItem';
@@ -27,10 +27,10 @@ const AudioSection = () => {
     ([_, voice]) => voice.language === audioLanguage
   );
   
-  // Group voices by provider
-  const googleVoices = filteredVoices.filter(([_, voice]) => voice.provider === 'google');
-  const elevenLabsVoices = filteredVoices.filter(([_, voice]) => voice.provider === 'elevenlabs');
-  const amazonVoices = filteredVoices.filter(([_, voice]) => voice.provider === 'amazon');
+  // Group voices by ID prefix
+  const googleVoices = filteredVoices.filter(([voiceId]) => voiceId.startsWith('google_'));
+  const elevenLabsVoices = filteredVoices.filter(([voiceId]) => !voiceId.startsWith('google_') && !voiceId.startsWith('amazon_'));
+  const amazonVoices = filteredVoices.filter(([voiceId]) => voiceId.startsWith('amazon_'));
   
   // Determine active tab based on selected voice
   const getActiveTab = () => {

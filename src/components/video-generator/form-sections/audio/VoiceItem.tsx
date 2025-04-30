@@ -1,26 +1,56 @@
 
 import { Button } from '@/components/ui/button';
-import { PlayIcon, PauseIcon } from 'lucide-react';
 import { VoiceOption } from '@/lib/video/constants/audio';
 import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
+import { PlayIcon, PauseIcon } from 'lucide-react';
 
 interface VoiceItemProps {
   voice: VoiceOption;
-  playingVoice: string | null;
-  onPlayPreview: (voiceId: string, previewUrl: string, event: React.MouseEvent) => void;
+  voiceId: string;
+  selected: boolean;
+  onClick: () => void;
+  disabled?: boolean;
 }
 
-export const VoiceItem = ({ voice, playingVoice, onPlayPreview }: VoiceItemProps) => {
-  const isGoogleVoice = voice.id.startsWith('google_');
-
+export const VoiceItem = ({ voice, voiceId, selected, onClick, disabled = false }: VoiceItemProps) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  
+  const isGoogleVoice = voiceId.startsWith('google_');
+  
+  const handlePlayPreview = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    
+    if (!voice.previewUrl) return;
+    
+    if (isPlaying && audio) {
+      audio.pause();
+      audio.currentTime = 0;
+      setIsPlaying(false);
+      return;
+    }
+    
+    const newAudio = new Audio(voice.previewUrl);
+    newAudio.onended = () => setIsPlaying(false);
+    newAudio.play();
+    setIsPlaying(true);
+    setAudio(newAudio);
+  };
+  
   return (
-    <div className="flex items-center justify-between w-full">
+    <div 
+      className={`flex items-center justify-between p-3 rounded-md cursor-pointer ${
+        selected ? 'bg-primary/10 border border-primary/50' : 'hover:bg-muted/50'
+      } ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
+      onClick={disabled ? undefined : onClick}
+    >
       <div>
         <div className="flex items-center gap-2">
           <span className="font-medium">{voice.name}</span>
           {!isGoogleVoice && (
             <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100">
-              High Quality
+              Premium
             </Badge>
           )}
         </div>
@@ -34,12 +64,10 @@ export const VoiceItem = ({ voice, playingVoice, onPlayPreview }: VoiceItemProps
           variant="ghost"
           size="icon"
           className="h-8 w-8 rounded-full"
-          onClick={(e) => {
-            e.stopPropagation();
-            onPlayPreview(voice.id, voice.previewUrl, e);
-          }}
+          onClick={handlePlayPreview}
+          disabled={disabled}
         >
-          {playingVoice === voice.id ? (
+          {isPlaying ? (
             <PauseIcon className="h-4 w-4" />
           ) : (
             <PlayIcon className="h-4 w-4" />
@@ -49,4 +77,3 @@ export const VoiceItem = ({ voice, playingVoice, onPlayPreview }: VoiceItemProps
     </div>
   );
 };
-
