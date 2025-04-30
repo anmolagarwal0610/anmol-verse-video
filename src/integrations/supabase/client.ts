@@ -14,15 +14,25 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     persistSession: true,
     autoRefreshToken: true,
     storageKey: 'anmol-verse-auth-token',
-    storage: localStorage
+    storage: localStorage,
+    flowType: 'pkce', // Explicitly use PKCE flow for better security
+    detectSessionInUrl: true, // Ensure session hash is properly detected
+    debug: true, // Enable debug mode for auth operations
   }
 });
 
 // Add some debugging for session detection
 if (typeof window !== 'undefined') {
   console.log('[Supabase Client] Initializing with persistSession=true and autoRefreshToken=true');
+  console.log('[Supabase Client] Current origin:', window.location.origin);
+  console.log('[Supabase Client] Current URL:', window.location.href);
   
   // Check if we have a session in localStorage
   const session = localStorage.getItem('anmol-verse-auth-token');
   console.log('[Supabase Client] Session in localStorage:', session ? 'exists' : 'not found');
+
+  // Listen for auth state changes
+  supabase.auth.onAuthStateChange((event, session) => {
+    console.log('[Supabase Client] Auth state changed:', event, 'Session:', session ? 'exists' : 'null');
+  });
 }
