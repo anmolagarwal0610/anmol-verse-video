@@ -26,7 +26,7 @@ export const SelectBox = ({
       <SelectTrigger className="w-full">
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent position="popper" className="w-full z-50 bg-background border shadow-lg">
         {Object.entries(options).map(([key, label]) => (
           <SelectItem key={key} value={key}>
             {label}

@@ -39,7 +39,7 @@ const SubtitleStyleFields = () => {
                 <SelectTrigger className="h-12 md:h-10">
                   <SelectValue placeholder="Select font" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50 bg-background border shadow-lg">
                   {Object.entries(SUBTITLE_FONTS).map(([value, fontData]) => (
                     <SelectItem 
                       key={value} 
@@ -73,7 +73,7 @@ const SubtitleStyleFields = () => {
                 <SelectTrigger className="h-12 md:h-10">
                   <SelectValue placeholder="Select color" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50 bg-background border shadow-lg">
                   {Object.entries(SUBTITLE_COLORS).map(([value, label]) => (
                     <SelectItem key={value} value={value} className="py-3 md:py-2.5">
                       {label}

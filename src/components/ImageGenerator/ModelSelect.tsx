@@ -27,7 +27,7 @@ const ModelSelect = ({
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select model" />
               </SelectTrigger>
-              <SelectContent position="popper" className="w-full z-50 bg-background border" side="bottom">
+              <SelectContent position="popper" className="w-full z-50 bg-background border shadow-lg">
                 <SelectItem value="basic">
                   <div className="flex flex-col">
                     <span className="font-medium">Basic</span>

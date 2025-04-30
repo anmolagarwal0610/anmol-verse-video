@@ -1,3 +1,4 @@
+
 import {
   FormField,
   FormItem,
@@ -44,7 +45,7 @@ const SubtitlesSection = ({ audioLanguage }: SubtitlesSectionProps) => {
                 <SelectTrigger className="h-12 md:h-10">
                   <SelectValue placeholder="Select subtitle style" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50 bg-background border shadow-lg">
                   {Object.entries(SUBTITLE_STYLES).map(([value, label]) => (
                     <SelectItem key={value} value={value} className="py-3 md:py-2.5">
                       {label}
@@ -96,7 +97,7 @@ const SubtitlesSection = ({ audioLanguage }: SubtitlesSectionProps) => {
                   <SelectTrigger className="h-12 md:h-10">
                     <SelectValue placeholder="Select subtitle language" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-50 bg-background border shadow-lg">
                     <SelectItem value="English" className="py-3 md:py-2.5">English</SelectItem>
                     <SelectItem value="Hindi" className="py-3 md:py-2.5">Hindi</SelectItem>
                   </SelectContent>
@@ -127,7 +128,7 @@ const SubtitlesSection = ({ audioLanguage }: SubtitlesSectionProps) => {
                 <SelectTrigger className="h-12 md:h-10">
                   <SelectValue placeholder="Select font" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50 bg-background border shadow-lg">
                   {Object.entries(SUBTITLE_FONTS)
                     .filter(([_, fontData]) => {
                       // If user selected Hindi audio and subtitle script is Hindi,
@@ -171,7 +172,7 @@ const SubtitlesSection = ({ audioLanguage }: SubtitlesSectionProps) => {
                 <SelectTrigger className="h-12 md:h-10">
                   <SelectValue placeholder="Select color" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50 bg-background border shadow-lg">
                   {Object.entries(SUBTITLE_COLORS).map(([value, label]) => (
                     <SelectItem key={value} value={value} className="py-3 md:py-2.5">
                       {label}

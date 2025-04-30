@@ -104,15 +104,15 @@ const AudioSection = () => {
                 className="w-full"
               >
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="elevenlabs" disabled={isGenerating}>
+                  <TabsTrigger value="elevenlabs" disabled={isGenerating} className="py-2">
                     ElevenLabs 
                     {!isGoogleVoice && <Badge variant="outline" className="ml-2 bg-amber-100 text-amber-800 border-amber-200">Premium</Badge>}
                   </TabsTrigger>
-                  <TabsTrigger value="google" disabled={isGenerating}>
+                  <TabsTrigger value="google" disabled={isGenerating} className="py-2">
                     Google
                     {isGoogleVoice && <Badge variant="outline" className="ml-2 bg-emerald-100 text-emerald-800 border-emerald-200">Budget</Badge>}
                   </TabsTrigger>
-                  <TabsTrigger value="amazon" disabled={isGenerating}>
+                  <TabsTrigger value="amazon" disabled={isGenerating} className="py-2">
                     Amazon
                   </TabsTrigger>
                 </TabsList>

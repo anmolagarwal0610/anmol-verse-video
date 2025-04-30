@@ -63,7 +63,7 @@ const RatioAndTransitionFields = () => {
                 <SelectTrigger>
                   <SelectValue placeholder="Select ratio" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50 bg-background border shadow-lg">
                   {Object.entries(ASPECT_RATIOS).map(([value, label]) => (
                     <SelectItem key={value} value={value}>
                       {label}
@@ -96,7 +96,7 @@ const RatioAndTransitionFields = () => {
                 <SelectTrigger>
                   <SelectValue placeholder="Select transition" />
                 </SelectTrigger>
-                <SelectContent className="max-h-[300px]">
+                <SelectContent className="max-h-[300px] z-50 bg-background border shadow-lg">
                   {Object.entries(TRANSITION_STYLES).map(([value, label]) => (
                     <HoverCard key={value}>
                       <HoverCardTrigger asChild>
@@ -104,7 +104,7 @@ const RatioAndTransitionFields = () => {
                           {label}
                         </SelectItem>
                       </HoverCardTrigger>
-                      <HoverCardContent side="right" className="w-fit">
+                      <HoverCardContent side="right" className="w-fit z-[70]">
                         <TransitionPreview style={value} />
                       </HoverCardContent>
                     </HoverCard>

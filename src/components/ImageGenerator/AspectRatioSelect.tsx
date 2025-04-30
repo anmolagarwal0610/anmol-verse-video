@@ -89,7 +89,7 @@ const AspectRatioSelect = ({
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select aspect ratio" />
                 </SelectTrigger>
-                <SelectContent position="popper" alignOffset={0} className="w-[var(--radix-select-trigger-width)] z-50 bg-background border" sideOffset={4}>
+                <SelectContent position="popper" className="w-full z-50 bg-background border shadow-lg">
                   {Object.entries(ASPECT_RATIOS).map(([value, label]) => (
                     <SelectItem key={value} value={value}>
                       <div className="flex items-center gap-2">

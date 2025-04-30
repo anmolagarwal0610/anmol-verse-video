@@ -64,7 +64,7 @@ export default function UserMenu() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild className="focus:outline-none">
         <Avatar className="h-8 w-8 cursor-pointer">
           <AvatarImage src={getAvatarUrl()} />
           <AvatarFallback className="bg-primary/10 text-primary">
@@ -72,7 +72,7 @@ export default function UserMenu() {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-56 mt-1 z-[60]">
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{displayName}</p>

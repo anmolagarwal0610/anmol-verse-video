@@ -44,6 +44,9 @@ export const VoiceItem = ({ voice, voiceId, selected, onClick, disabled = false 
         selected ? 'bg-primary/10 border border-primary/50' : 'hover:bg-muted/50'
       } ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
       onClick={disabled ? undefined : onClick}
+      role="button"
+      aria-pressed={selected}
+      tabIndex={disabled ? -1 : 0}
     >
       <div>
         <div className="flex items-center gap-2">
@@ -63,7 +66,7 @@ export const VoiceItem = ({ voice, voiceId, selected, onClick, disabled = false 
           type="button"
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-full"
+          className="h-9 w-9 rounded-full touch-manipulation flex-shrink-0"
           onClick={handlePlayPreview}
           disabled={disabled}
         >

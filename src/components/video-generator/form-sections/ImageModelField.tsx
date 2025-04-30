@@ -36,7 +36,7 @@ const ImageModelField = () => {
               <SelectTrigger>
                 <SelectValue placeholder="Select image model" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-50 bg-background border shadow-lg">
                 {Object.entries(IMAGE_MODELS).map(([key, model]) => (
                   <SelectItem key={key} value={model.value}>
                     <div className="flex flex-col">
