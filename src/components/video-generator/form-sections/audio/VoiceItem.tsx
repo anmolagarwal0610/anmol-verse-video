@@ -40,7 +40,7 @@ export const VoiceItem = ({ voice, voiceId, selected, onClick, disabled = false 
   
   return (
     <div 
-      className={`flex items-center justify-between p-3 rounded-md cursor-pointer ${
+      className={`flex items-center justify-between p-3 rounded-md cursor-pointer touch-manipulation ${
         selected ? 'bg-primary/10 border border-primary/50' : 'hover:bg-muted/50'
       } ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
       onClick={disabled ? undefined : onClick}
@@ -54,6 +54,11 @@ export const VoiceItem = ({ voice, voiceId, selected, onClick, disabled = false 
           {!isGoogleVoice && (
             <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100">
               Premium
+            </Badge>
+          )}
+          {isGoogleVoice && (
+            <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-200">
+              Budget
             </Badge>
           )}
         </div>

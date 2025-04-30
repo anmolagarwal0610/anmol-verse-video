@@ -1,4 +1,3 @@
-
 import {
   FormField,
   FormItem,
@@ -11,7 +10,6 @@ import { IMAGE_STYLES } from '@/lib/api';
 import { useVideoGenerationForm } from '../VideoGenerationFormContext';
 import ImageModelField from './ImageModelField';
 import RatioAndTransitionFields from './RatioAndTransitionFields';
-import DurationAndFpsFields from './DurationAndFpsFields';
 import { Checkbox } from '@/components/ui/checkbox';
 import PixelSelection from '@/components/shared/PixelSelection';
 import { useEffect } from 'react';
@@ -101,11 +99,8 @@ const VisualsSection = () => {
         )}
       />
       
-      {/* Other Visual Settings */}
+      {/* Other Visual Settings - Keeping only ratio and transition fields */}
       <RatioAndTransitionFields />
-      
-      {/* Duration and FPS Fields */}
-      <DurationAndFpsFields />
     </div>
   );
 };

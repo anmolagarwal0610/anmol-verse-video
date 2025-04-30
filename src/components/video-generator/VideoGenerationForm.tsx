@@ -1,3 +1,4 @@
+
 import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -14,16 +15,19 @@ import BasicFormFields from './form-sections/BasicFormFields';
 import VisualsSection from './form-sections/VisualsSection';
 import AudioSection from './form-sections/audio';
 import SubtitlesSection from './form-sections/SubtitlesSection';
+
 interface VideoGenerationFormProps {
   onSubmit: (data: VideoGenerationParams) => void;
   isGenerating: boolean;
 }
+
 const VideoGenerationForm = ({
   onSubmit,
   isGenerating
 }: VideoGenerationFormProps) => {
   // Get first English voice as default
   const defaultVoice = Object.values(VOICE_OPTIONS).find(voice => voice.language === 'English')?.id || Object.keys(VOICE_OPTIONS)[0];
+  
   const form = useForm<VideoGenerationParams>({
     defaultValues: {
       script_model: 'chatgpt',
@@ -51,6 +55,7 @@ const VideoGenerationForm = ({
   const audioLanguage = form.watch('audio_language');
   const selectedVoice = form.watch('voice');
   const videoDuration = form.watch('video_duration');
+  
   const {
     showConfirmDialog,
     setShowConfirmDialog,
@@ -68,8 +73,6 @@ const VideoGenerationForm = ({
     voice: selectedVoice
   });
 
-  // Determine if the selected voice is a Google voice
-  const isGoogleVoice = selectedVoice?.startsWith('google_');
   return <Card className="w-full shadow-lg">
       <CardHeader>
         <CardTitle className="text-2xl font-bold">Generate Video</CardTitle>
@@ -97,13 +100,6 @@ const VideoGenerationForm = ({
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Audio Settings</h3>
                 <AudioSection />
-                
-                {/* Show cost messaging based on voice type */}
-                <div className="text-sm text-muted-foreground">
-                  {isGoogleVoice ? <p className="text-emerald-600 dark:text-emerald-500">
-                      ✓ Using Google voice (3 credits/second) - Lower cost option
-                    </p> : <p className="text-amber-600 dark:text-amber-500">Using premium voice (11 credits/second)</p>}
-                </div>
               </div>
               
               <div className="space-y-6">

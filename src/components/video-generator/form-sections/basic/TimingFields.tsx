@@ -22,7 +22,7 @@ const TimingFields = () => {
   const selectedVoice = form.watch('voice');
   const videoDuration = form.watch('video_duration');
   
-  // Calculate credit cost based on duration and voice type
+  // Calculate credit cost based on duration and voice type (but don't show per-second cost)
   const isGoogleVoice = selectedVoice?.startsWith('google_');
   const creditRatePerSecond = isGoogleVoice ? 3 : 11;
   const estimatedCreditCost = Math.round(videoDuration * creditRatePerSecond);
@@ -45,7 +45,7 @@ const TimingFields = () => {
                         <Info className="h-4 w-4 ml-2 text-muted-foreground cursor-help" />
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent className="z-50">
                       <p className="max-w-xs">Your video might run a bit longer—just enough to let the story fully shine.</p>
                     </TooltipContent>
                   </Tooltip>
@@ -97,7 +97,7 @@ const TimingFields = () => {
                         <Info className="h-4 w-4 ml-2 text-muted-foreground cursor-help" />
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent className="z-50">
                       <p className="max-w-xs">Rate at which the images will change in the video</p>
                     </TooltipContent>
                   </Tooltip>
