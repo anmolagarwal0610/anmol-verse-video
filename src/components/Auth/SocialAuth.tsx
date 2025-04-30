@@ -1,7 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Chrome } from 'lucide-react';
+import { Chrome, Facebook } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SocialAuthProps {
@@ -41,6 +41,31 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
     }
   };
 
+  const handleFacebookSignIn = async () => {
+    try {
+      console.log('Starting Facebook sign in...');
+      console.log('Current URL:', window.location.href);
+      console.log('Redirect URL will be:', `${window.location.origin}/auth/callback`);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      
+      if (error) {
+        console.error('Error signing in with Facebook:', error);
+        throw error;
+      }
+      
+      console.log('Facebook sign in initiated successfully:', data);
+    } catch (error: any) {
+      console.error('Error signing in with Facebook:', error);
+      toast.error(error.message || 'An error occurred during Facebook sign in');
+    }
+  };
+
   return (
     <div className="grid gap-2">
       <Button 
@@ -51,6 +76,15 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
       >
         <Chrome className="h-4 w-4" />
         Google
+      </Button>
+      <Button 
+        variant="outline" 
+        onClick={handleFacebookSignIn}
+        disabled={isLoading}
+        className="gap-2"
+      >
+        <Facebook className="h-4 w-4" />
+        Facebook
       </Button>
     </div>
   );
