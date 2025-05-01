@@ -77,6 +77,7 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
         <Chrome className="h-4 w-4" />
         Google
       </Button>
+      {/* Facebook login button hidden for now
       <Button 
         variant="outline" 
         onClick={handleFacebookSignIn}
@@ -86,6 +87,7 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
         <Facebook className="h-4 w-4" />
         Facebook
       </Button>
+      */}
     </div>
   );
 };
