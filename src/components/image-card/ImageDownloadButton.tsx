@@ -23,13 +23,24 @@ const ImageDownloadButton = ({
     try {
       console.log('Opening image in new tab:', imageUrl);
       
+      // Detect zip files by extension or content type hint
+      const isZipFile = imageUrl.toLowerCase().endsWith('.zip') || 
+                        imageUrl.includes('zip') || 
+                        imageUrl.includes('archive');
+      
+      if (isZipFile) {
+        toast.info('Opening archive in a new tab. Your browser will handle the download.');
+      }
+      
       // Open the image in a new tab
       window.open(imageUrl, '_blank');
       
-      toast.success('Image opened in new tab');
+      if (!isZipFile) {
+        toast.success('Image opened in new tab');
+      }
     } catch (error) {
-      console.error('Error opening image:', error);
-      toast.error('Failed to open image. Please try again.');
+      console.error('Error opening image/file:', error);
+      toast.error('Failed to open file. Please try again.');
     } finally {
       setIsOpening(false);
     }

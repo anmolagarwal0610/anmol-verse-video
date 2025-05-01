@@ -3,8 +3,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Music, FileText, Archive, Download } from 'lucide-react';
+import { Music, FileText, Archive, Download, ExternalLink } from 'lucide-react';
 import { VideoData } from '@/components/video-card';
+import { toast } from 'sonner';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface VideoResourcesProps {
   video: VideoData;
@@ -14,6 +21,25 @@ const VideoResources = ({ video }: VideoResourcesProps) => {
   if (!video.audioUrl && !video.transcriptUrl && !video.imagesZipUrl) {
     return null;
   }
+
+  const handleResourceAction = (url: string | undefined, resourceType: string) => {
+    if (!url) return;
+    
+    try {
+      // For zip files, notify the user and use a safe approach to open in new tab
+      if (resourceType === 'Images Archive') {
+        toast.info(`Opening ${resourceType} in a new tab`);
+        window.open(url, '_blank');
+        return;
+      }
+      
+      // For other resources, open in a new tab
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error(`Failed to open ${resourceType}:`, error);
+      toast.error(`Unable to open ${resourceType}. Please try again.`);
+    }
+  };
 
   return (
     <motion.div 
@@ -38,14 +64,23 @@ const VideoResources = ({ video }: VideoResourcesProps) => {
                 <span>Audio</span>
               </TableCell>
               <TableCell className="text-right">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => window.open(video.audioUrl, '_blank')}
-                >
-                  <Download className="h-4 w-4" />
-                  <span className="sr-only">Download Audio</span>
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleResourceAction(video.audioUrl, 'Audio')}
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        <span className="sr-only">Open Audio</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Open in new tab</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableCell>
             </TableRow>
           )}
@@ -57,14 +92,23 @@ const VideoResources = ({ video }: VideoResourcesProps) => {
                 <span>Transcript</span>
               </TableCell>
               <TableCell className="text-right">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => window.open(video.transcriptUrl, '_blank')}
-                >
-                  <Download className="h-4 w-4" />
-                  <span className="sr-only">Download Transcript</span>
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleResourceAction(video.transcriptUrl, 'Transcript')}
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        <span className="sr-only">Open Transcript</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Open in new tab</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableCell>
             </TableRow>
           )}
@@ -76,14 +120,23 @@ const VideoResources = ({ video }: VideoResourcesProps) => {
                 <span>Images Archive</span>
               </TableCell>
               <TableCell className="text-right">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => window.open(video.imagesZipUrl, '_blank')}
-                >
-                  <Download className="h-4 w-4" />
-                  <span className="sr-only">Download Images</span>
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleResourceAction(video.imagesZipUrl, 'Images Archive')}
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        <span className="sr-only">Open Images Archive</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Open in new tab</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableCell>
             </TableRow>
           )}

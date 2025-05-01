@@ -1,5 +1,5 @@
 
-import { Download, ExternalLink, FileVideo, Music, FileText, Archive, Plus } from 'lucide-react';
+import { ExternalLink, FileVideo, Music, FileText, Archive, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -17,7 +17,8 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
+import { toast } from 'sonner';
 
 interface ResultCardProps {
   icon: React.ReactNode;
@@ -30,10 +31,20 @@ interface ResultCardProps {
 const ResultCard = ({ icon, title, description, url, isPrimary = false }: ResultCardProps) => {
   const isVideo = title.toLowerCase().includes('video');
   
-  const handleDownload = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!isVideo) {
-      event.preventDefault();
+  const handleResourceAction = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+
+    try {
+      // For zip files, use a specific method and notify the user
+      if (title === 'Image Collection') {
+        toast.info(`Opening ${title} in a new tab`);
+      }
+      
+      // Open all resources in a new tab
       window.open(url, '_blank');
+    } catch (error) {
+      console.error(`Failed to open ${title}:`, error);
+      toast.error(`Unable to open ${title}. Please try again.`);
     }
   };
   
@@ -63,15 +74,9 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
         </CardContent>
         <CardFooter className="flex justify-end space-x-2">
           <Button variant="outline" size="sm" asChild className="h-8 px-3 text-xs">
-            <a href={url} target="_blank" rel="noopener noreferrer">
+            <a href={url} target="_blank" rel="noopener noreferrer" onClick={handleResourceAction}>
               <ExternalLink className="mr-1 h-3.5 w-3.5" />
               Open
-            </a>
-          </Button>
-          <Button variant="default" size="sm" asChild className="h-8 px-3 text-xs bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800">
-            <a href={url} download onClick={handleDownload}>
-              <Download className="mr-1 h-3.5 w-3.5" />
-              Download
             </a>
           </Button>
         </CardFooter>
@@ -89,7 +94,7 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
             asChild
             className="h-9 px-3 text-xs hover:bg-slate-100 dark:hover:bg-slate-800"
           >
-            <a href={url} download onClick={handleDownload}>
+            <a href={url} target="_blank" rel="noopener noreferrer" onClick={handleResourceAction}>
               {icon}
               <span className="ml-2">{title}</span>
             </a>
