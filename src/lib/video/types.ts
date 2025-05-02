@@ -1,3 +1,4 @@
+
 export interface VideoGenerationParams {
   username?: string;
   topic: string;
@@ -34,4 +35,7 @@ export interface VideoStatusResponse {
   images_zip_url?: string;
   thumbnail_url?: string;
   topic?: string;
+  audio_duration?: number;
+  voice?: string;
+  frame_fps?: number;
 }

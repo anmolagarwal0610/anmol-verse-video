@@ -51,10 +51,11 @@ const VideoGenerationForm = ({
     }
   });
 
-  // Watch audio_language to pass it to SubtitlesSection
+  // Watch the values needed for credit calculation
   const audioLanguage = form.watch('audio_language');
   const selectedVoice = form.watch('voice');
   const videoDuration = form.watch('video_duration');
+  const frameFPS = form.watch('frame_fps');
   
   const {
     showConfirmDialog,
@@ -70,7 +71,9 @@ const VideoGenerationForm = ({
   // Calculate credit cost for the current form values
   const creditCost = calculateCreditCost({
     ...form.getValues(),
-    voice: selectedVoice
+    voice: selectedVoice,
+    video_duration: videoDuration,
+    frame_fps: frameFPS
   });
 
   return <Card className="w-full shadow-lg">
@@ -108,13 +111,23 @@ const VideoGenerationForm = ({
               </div>
               
               <Button type="submit" disabled={isGenerating} className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700">
-                {isGenerating ? 'Generating...' : `Generate Video (${creditCost} credits)`}
+                {isGenerating ? 'Generating...' : `Generate Video (Est. ${creditCost} credits*)`}
               </Button>
+              
+              <p className="text-xs text-muted-foreground text-center">
+                *Estimated cost. Actual credits will be charged based on final video length.
+              </p>
             </form>
           </Form>
         </VideoGenerationFormProvider>
         
-        <VideoGenerationConfirmDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog} onConfirm={handleConfirmedSubmit} topic={formData?.topic || ''} creditCost={formData ? calculateCreditCost(formData) : 0} />
+        <VideoGenerationConfirmDialog 
+          open={showConfirmDialog} 
+          onOpenChange={setShowConfirmDialog} 
+          onConfirm={handleConfirmedSubmit} 
+          topic={formData?.topic || ''} 
+          creditCost={formData ? calculateCreditCost(formData) : 0} 
+        />
       </CardContent>
     </Card>;
 };

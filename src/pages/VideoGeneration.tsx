@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCredit } from '@/lib/creditService';
+import { checkCredits } from '@/lib/creditService';
 
 const VideoGeneration = () => {
   const navigate = useNavigate();
@@ -37,14 +38,92 @@ const VideoGeneration = () => {
     console.log("VideoGeneration: Auth loading:", loading);
     console.log("VideoGeneration: User authenticated:", !!user);
     
-    // Scroll to results when generation completes
+    // Process video generation completion and deduct actual credits
     if (status === 'completed' && result) {
+      // Deduct credits based on actual audio duration if available
+      if (result.audio_duration && user) {
+        console.log("VideoGeneration: Processing credit deduction for audio duration:", result.audio_duration);
+        handleCreditDeduction(result.audio_duration);
+      }
+      
+      // Scroll to results when generation completes
       const resultsElement = document.getElementById('results-section');
       if (resultsElement) {
         resultsElement.scrollIntoView({ behavior: 'smooth' });
       }
     }
   }, [status, result, progress, error, user, loading]);
+  
+  // Function to calculate actual credit cost based on audio duration
+  const calculateActualCreditCost = (audioDuration: number, voice: string): number => {
+    // Convert audio duration to number if it's a string
+    const duration = typeof audioDuration === 'string' ? parseInt(audioDuration, 10) : audioDuration;
+    
+    // Determine if premium voice (non-Google voice)
+    const isPremiumVoice = !voice?.startsWith('google_');
+    
+    // Use the current frameFPS from result if available, otherwise default to 5
+    let imageRate = 5;
+    if (result?.frame_fps) {
+      const fps = result.frame_fps;
+      if (fps === 3) imageRate = 3;
+      else if (fps === 4) imageRate = 4;
+      else if (fps === 6) imageRate = 6;
+      else imageRate = 5;
+    }
+    
+    // Apply different rates based on voice type and image rate
+    let creditsPerSecond = 0;
+    
+    if (isPremiumVoice) {
+      // Premium voice rates
+      switch (imageRate) {
+        case 3: creditsPerSecond = 10.6; break;
+        case 4: creditsPerSecond = 10.2; break;
+        case 5: creditsPerSecond = 9.7; break;
+        case 6: creditsPerSecond = 9.4; break;
+        default: creditsPerSecond = 9.7; // Default to 5 sec rate
+      }
+    } else {
+      // Normal voice rates
+      switch (imageRate) {
+        case 3: creditsPerSecond = 4.1; break;
+        case 4: creditsPerSecond = 3.5; break;
+        case 5: creditsPerSecond = 3.3; break;
+        case 6: creditsPerSecond = 2.8; break;
+        default: creditsPerSecond = 3.3; // Default to 5 sec rate
+      }
+    }
+    
+    // Calculate the actual credit cost based on the audio duration
+    return Math.ceil(creditsPerSecond * duration);
+  };
+  
+  // Function to handle credit deduction based on actual audio duration
+  const handleCreditDeduction = async (audioDuration: number) => {
+    if (!user || !result) return;
+    
+    try {
+      // Use the voice from the generation parameters
+      const voice = result.voice || 'default';
+      
+      // Calculate actual credit cost based on audio duration and voice type
+      const creditCost = calculateActualCreditCost(audioDuration, voice);
+      console.log(`VideoGeneration: Deducting ${creditCost} credits for audio duration ${audioDuration}s`);
+      
+      // Deduct credits using the useCredit function
+      const success = await useCredit(creditCost);
+      
+      if (success) {
+        toast.success(`${creditCost} credits have been deducted for your video`);
+      } else {
+        toast.error('Failed to deduct credits. Please contact support.');
+      }
+    } catch (error) {
+      console.error('VideoGeneration: Error deducting credits:', error);
+      toast.error('An error occurred while processing credits');
+    }
+  };
 
   const handleSubmit = async (data: VideoGenerationParams) => {
     console.log("VideoGeneration: Form submitted with data:", data);
@@ -59,27 +138,9 @@ const VideoGeneration = () => {
       return;
     }
     
-    // Calculate required credits
-    const duration = data.video_duration || 25;
-    const isGoogleVoice = data.voice?.startsWith('google_');
-    const creditRatePerSecond = isGoogleVoice ? 3 : 11;
-    const creditCost = Math.round(duration * creditRatePerSecond);
-    
-    try {
-      // Check and use multiple credits
-      const hasSufficientCredits = await useCredit(creditCost);
-      
-      if (!hasSufficientCredits) {
-        toast.error(`You need ${creditCost} credits to generate this video. Please add more credits to continue.`);
-        return;
-      }
-      
-      // Proceed with video generation
-      generateVideo(data);
-    } catch (error) {
-      console.error("VideoGeneration: Error using credits:", error);
-      toast.error("Failed to check credits. Please try again.");
-    }
+    // The credit check is now done in the useVideoGenerationFormSubmit hook
+    // We can directly proceed with video generation
+    generateVideo(data);
   };
   
   const handleSignIn = () => {

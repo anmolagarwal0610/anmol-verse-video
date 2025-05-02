@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Music, FileText, Archive, Download, ExternalLink } from 'lucide-react';
+import { Music, FileText, Archive, ExternalLink } from 'lucide-react';
 import { VideoData } from '@/components/video-card';
 import { toast } from 'sonner';
 import {
@@ -26,14 +26,12 @@ const VideoResources = ({ video }: VideoResourcesProps) => {
     if (!url) return;
     
     try {
-      // For zip files, notify the user and use a safe approach to open in new tab
+      // For all resources, open in a new tab with proper message
       if (resourceType === 'Images Archive') {
         toast.info(`Opening ${resourceType} in a new tab`);
-        window.open(url, '_blank');
-        return;
       }
       
-      // For other resources, open in a new tab
+      // Open in a new tab
       window.open(url, '_blank');
     } catch (error) {
       console.error(`Failed to open ${resourceType}:`, error);
