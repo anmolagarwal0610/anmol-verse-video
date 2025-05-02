@@ -54,7 +54,7 @@ const TimingFields = () => {
   // Raw calculation before 1.2x factor
   const rawCreditCost = videoDuration * creditsPerSecond;
   
-  // Apply 1.2x factor and round up
+  // Apply 1.2x factor and round up (for estimation purposes)
   const estimatedCreditCost = Math.ceil(rawCreditCost * 1.2);
   
   console.log(`TimingFields: Credit calculation details - isGoogleVoice=${isGoogleVoice}, fps=${frameFPS}, creditsPerSecond=${creditsPerSecond}, rawCost=${rawCreditCost}, finalCost=${estimatedCreditCost}`);

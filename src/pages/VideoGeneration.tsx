@@ -128,13 +128,12 @@ const VideoGeneration = () => {
     console.log(`Using rate: ${creditsPerSecond} credits/sec for image rate: ${imageRate}`);
     
     // Calculate the actual credit cost based on the audio duration
+    // IMPORTANT: Remove the 1.2x factor from the final actual credit calculation
     const rawCredits = creditsPerSecond * duration;
-    console.log(`Raw credit calculation (before 1.2x factor): ${rawCredits}`);
+    console.log(`Raw credit calculation (final calculation): ${rawCredits}`);
     
-    const actualCredits = rawCredits * 1.2; // Apply 1.2x factor
-    console.log(`After applying 1.2x factor: ${actualCredits}`);
-    
-    const roundedCredits = Math.ceil(actualCredits);
+    // Round up to the nearest whole credit without applying the 1.2x factor
+    const roundedCredits = Math.ceil(rawCredits);
     console.log(`Final credit calculation (rounded up): ${roundedCredits}`);
     
     return roundedCredits;
@@ -155,12 +154,35 @@ const VideoGeneration = () => {
       const availableCredits = await checkCredits(true);
       console.log(`User has ${availableCredits} credits available, needs ${creditCost} for video`);
       
+      // Modified behavior: If user doesn't have enough credits, use all available credits
       if (availableCredits < creditCost) {
-        toast.error(`Insufficient credits. Required: ${creditCost}, Available: ${availableCredits}. Please add more credits.`);
-        return false;
+        console.log(`Insufficient credits. Using all ${availableCredits} available credits instead of ${creditCost} required`);
+        
+        // Only proceed if user has some credits
+        if (availableCredits > 0) {
+          // Deduct all available credits
+          const success = await useCredit(availableCredits);
+          
+          if (success) {
+            toast.success(`Video processed successfully. ${availableCredits} credits were deducted. You were short by ${creditCost - availableCredits} credits.`);
+            return true;
+          } else if (retryCount < 1) {
+            // Try once more after a short delay
+            console.log('Credit deduction failed, retrying once...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            return handleCreditDeduction(audioDuration, voice, retryCount + 1);
+          } else {
+            console.error('VideoGeneration: Failed to deduct credits despite multiple attempts');
+            toast.error('Failed to deduct credits. Please contact support.');
+            return false;
+          }
+        } else {
+          toast.error(`Insufficient credits. Required: ${creditCost}, Available: ${availableCredits}. Please add more credits.`);
+          return false;
+        }
       }
       
-      // Deduct credits using the useCredit function
+      // Normal flow - user has enough credits
       const success = await useCredit(creditCost);
       
       if (success) {

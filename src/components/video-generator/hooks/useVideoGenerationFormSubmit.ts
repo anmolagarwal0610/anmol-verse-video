@@ -1,7 +1,6 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { VideoGenerationParams } from '@/lib/videoGenerationApi';
+import { VideoGenerationParams } from '@/lib/video/types';
 import { toast } from 'sonner';
 import { checkCredits } from '@/lib/creditService';
 
@@ -19,46 +18,13 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
   
   // Calculate credit cost based on duration, image rate and voice type
   const calculateCreditCost = (data: VideoGenerationParams): number => {
-    const duration = data.video_duration || 25; // Default to 25 seconds if not specified
-    const frameRate = data.frame_fps || 5; // Default to 5 fps if not specified
+    // ... keep existing code (credit cost calculation logic with 1.2x factor)
+    // Note: We're keeping the 1.2x factor here because this is for estimation only
     
-    // Determine image rate (seconds between images)
-    let imageRate = 5; // Default
-    if (frameRate === 3) imageRate = 3;
-    else if (frameRate === 4) imageRate = 4;
-    else if (frameRate === 6) imageRate = 6;
-    else imageRate = 5;
-    
-    // Check if the voice is a Google voice (non-premium)
-    const isPremiumVoice = !data.voice?.startsWith('google_');
-    
-    // Apply different rates based on voice type and image rate
-    let creditsPerSecond = 0;
-    
-    if (isPremiumVoice) {
-      // Premium voice rates
-      switch (imageRate) {
-        case 3: creditsPerSecond = 10.6; break;
-        case 4: creditsPerSecond = 10.2; break;
-        case 5: creditsPerSecond = 9.7; break;
-        case 6: creditsPerSecond = 9.4; break;
-        default: creditsPerSecond = 9.7; // Default to 5 sec rate
-      }
-    } else {
-      // Normal voice rates
-      switch (imageRate) {
-        case 3: creditsPerSecond = 4.1; break;
-        case 4: creditsPerSecond = 3.5; break;
-        case 5: creditsPerSecond = 3.3; break;
-        case 6: creditsPerSecond = 2.8; break;
-        default: creditsPerSecond = 3.3; // Default to 5 sec rate
-      }
-    }
-    
-    console.log(`Credit calculation: voice=${data.voice}, isPremium=${isPremiumVoice}, fps=${frameRate}, imageRate=${imageRate}, creditsPerSecond=${creditsPerSecond}`);
+    console.log(`Credit calculation: voice=${data.voice}, isPremium=${!data.voice?.startsWith('google_')}, fps=${data.frame_fps}, imageRate=${getImageRate(data.frame_fps)}, creditsPerSecond=${getCreditsPerSecond(data.voice, data.frame_fps)}`);
     
     // Raw calculation before factor
-    const rawCredits = creditsPerSecond * duration;
+    const rawCredits = getCreditsPerSecond(data.voice, data.frame_fps) * (data.video_duration || 25);
     console.log(`Raw credits (before 1.2x factor): ${rawCredits}`);
     
     // Apply 1.2x factor and round up to next integer
@@ -67,6 +33,40 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     console.log(`Final credits (after 1.2x factor and rounding): ${finalCredits}`);
     
     return finalCredits;
+  };
+
+  // Helper function to get image rate from fps
+  const getImageRate = (fps?: number): number => {
+    if (fps === 3) return 3;
+    if (fps === 4) return 4;
+    if (fps === 6) return 6;
+    return 5; // Default
+  };
+
+  // Helper function to get credits per second based on voice and fps
+  const getCreditsPerSecond = (voice?: string, fps?: number): number => {
+    const isPremiumVoice = !voice?.startsWith('google_');
+    const imageRate = getImageRate(fps);
+    
+    if (isPremiumVoice) {
+      // Premium voice rates
+      switch (imageRate) {
+        case 3: return 10.6;
+        case 4: return 10.2;
+        case 5: return 9.7;
+        case 6: return 9.4;
+        default: return 9.7; // Default to 5 sec rate
+      }
+    } else {
+      // Normal voice rates
+      switch (imageRate) {
+        case 3: return 4.1;
+        case 4: return 3.5;
+        case 5: return 3.3;
+        case 6: return 2.8;
+        default: return 3.3; // Default to 5 sec rate
+      }
+    }
   };
 
   // Use cached credits first, only validate against backend when actually submitting
