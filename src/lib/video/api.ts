@@ -1,4 +1,3 @@
-
 import { API_CONFIG } from '../apiUtils';
 import type { VideoGenerationParams, VideoGenerationResponse, VideoStatusResponse } from './types';
 
@@ -74,7 +73,11 @@ export const checkVideoStatus = async (taskId: string): Promise<VideoStatusRespo
     const data = await response.json();
     console.log("Video status response:", data);
     
-    return data;
+    // Add the task_id to the response so it's available throughout the app
+    return {
+      ...data,
+      task_id: taskId
+    };
   } catch (error) {
     console.error('Error checking video status:', error);
     throw error;

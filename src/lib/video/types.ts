@@ -38,4 +38,5 @@ export interface VideoStatusResponse {
   audio_duration?: number;
   voice?: string;
   frame_fps?: number;
+  task_id?: string; // Add the missing task_id property
 }

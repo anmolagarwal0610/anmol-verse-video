@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { generateVideo, checkVideoStatus } from '@/lib/video/api';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
@@ -15,7 +14,7 @@ interface UseVideoGeneratorReturn {
   result: VideoStatusResponse | null;
   error: string | null;
   reset: () => void;
-  currentParams: VideoGenerationParams | null; // Add this to expose the current params
+  currentParams: VideoGenerationParams | null;
 }
 
 export const useVideoGenerator = (): UseVideoGeneratorReturn => {
@@ -25,7 +24,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   const [error, setError] = useState<string | null>(null);
   const [taskId, setTaskId] = useState<string | null>(null);
   const [currentTopic, setCurrentTopic] = useState<string>('');
-  const [currentParams, setCurrentParams] = useState<VideoGenerationParams | null>(null); // Store the current params
+  const [currentParams, setCurrentParams] = useState<VideoGenerationParams | null>(null);
   
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
@@ -68,7 +67,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
     startTimeRef.current = null;
     lastProgressUpdateRef.current = 0;
     setCurrentTopic('');
-    setCurrentParams(null); // Reset the current params
+    setCurrentParams(null);
   };
   
   useEffect(() => {
@@ -114,7 +113,8 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
           topic: currentTopic || statusResponse.topic,
           voice: currentParams?.voice || statusResponse.voice,
           audio_duration: statusResponse.audio_duration,
-          frame_fps: statusResponse.frame_fps || currentParams?.frame_fps
+          frame_fps: statusResponse.frame_fps || currentParams?.frame_fps,
+          task_id: id
         });
         
         setResult({
@@ -123,7 +123,9 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
           // Ensure the voice parameter from the original request is preserved
           voice: currentParams?.voice || statusResponse.voice,
           // Ensure frame_fps is preserved from params if not in response
-          frame_fps: statusResponse.frame_fps || currentParams?.frame_fps
+          frame_fps: statusResponse.frame_fps || currentParams?.frame_fps,
+          // Set the task_id from the polling request
+          task_id: id
         });
         
         cleanup();
@@ -214,6 +216,6 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
     result,
     error,
     reset,
-    currentParams // Expose the current params
+    currentParams
   };
 };
