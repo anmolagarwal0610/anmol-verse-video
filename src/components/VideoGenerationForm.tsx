@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { IMAGE_MODELS, VOICE_OPTIONS } from '@/lib/api';
 import { VideoGenerationParams } from '@/lib/video/types';
-import { VideoGenerationFormProvider } from './VideoGenerationFormContext';
+import { VideoGenerationFormProvider } from '@/components/video-generator/VideoGenerationFormContext';
 import VideoGenerationConfirmDialog from './video-generator/dialogs/VideoGenerationConfirmDialog';
 import { useVideoGenerationFormSubmit } from './video-generator/hooks/useVideoGenerationFormSubmit';
 import { PIXEL_OPTIONS } from '@/lib/constants/pixelOptions';
