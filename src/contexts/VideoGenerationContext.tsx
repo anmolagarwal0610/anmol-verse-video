@@ -32,11 +32,11 @@ export const VideoGenerationProvider = ({ children }: { children: React.ReactNod
           console.log('VideoGenerationContext: Saving video to gallery:', result);
           await saveVideoToGallery({
             topic: result.topic || 'Untitled Video',
-            videoUrl: result.video_url || '',
-            audioUrl: result.audio_url || '',
-            thumbnailUrl: result.thumbnail_url || '',
-            transcriptUrl: result.transcript_url || '',
-            imagesZipUrl: result.images_zip_url || '',
+            video_url: result.video_url || '',
+            audio_url: result.audio_url || '',
+            thumbnail_url: result.thumbnail_url || '',
+            transcript_url: result.transcript_url || '',
+            images_zip_url: result.images_zip_url || '',
           }, result.voice); // Add the voice parameter here as the second argument
           
           setIsVideoSaved(true);
