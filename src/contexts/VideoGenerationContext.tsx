@@ -1,9 +1,12 @@
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useVideoGenerator } from '@/hooks/use-video-generator';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
 import { saveVideoToGallery } from '@/lib/videoApi';
 import { toast } from 'sonner';
+
+// Session storage key for tracking saved videos
+const SAVED_VIDEOS_STORAGE_KEY = "savedVideoIds";
 
 interface VideoGenerationContextProps {
   status: ReturnType<typeof useVideoGenerator>['status'];
@@ -20,24 +23,49 @@ const VideoGenerationContext = createContext<VideoGenerationContextProps | null>
 
 export const VideoGenerationProvider = ({ children }: { children: React.ReactNode }) => {
   const [isVideoSaved, setIsVideoSaved] = useState<boolean>(false);
-  const [savedVideoIds, setSavedVideoIds] = useState<Set<string>>(new Set());
+  // Initialize savedVideoIds from session storage
+  const [savedVideoIds, setSavedVideoIds] = useState<Set<string>>(() => {
+    try {
+      const saved = sessionStorage.getItem(SAVED_VIDEOS_STORAGE_KEY);
+      return saved ? new Set(JSON.parse(saved)) : new Set<string>();
+    } catch (e) {
+      console.error("Error restoring saved videos from session storage:", e);
+      return new Set<string>();
+    }
+  });
+  
   const { generate, status, progress, result, error, reset, currentParams } = useVideoGenerator();
 
   const isGenerating = status === 'generating' || status === 'polling';
 
+  // Persist savedVideoIds to session storage when they change
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        SAVED_VIDEOS_STORAGE_KEY, 
+        JSON.stringify(Array.from(savedVideoIds))
+      );
+      console.log("Updated saved videos in session storage:", Array.from(savedVideoIds));
+    } catch (e) {
+      console.error("Error saving video IDs to session storage:", e);
+    }
+  }, [savedVideoIds]);
+
   // Auto-save the video when generation completes
-  React.useEffect(() => {
+  useEffect(() => {
     if (status === 'completed' && result && !isVideoSaved) {
       // Check if we've already saved this video to prevent duplicates
       const videoId = result.task_id || '';
       const alreadySaved = savedVideoIds.has(videoId);
       
       console.log(`VideoGenerationContext: Video ID ${videoId} - Already saved: ${alreadySaved}`);
+      console.log(`VideoGenerationContext: Saved videos tracked:`, Array.from(savedVideoIds));
       
       if (!alreadySaved && videoId) {
         const saveVideo = async () => {
           try {
             console.log('VideoGenerationContext: Saving video to gallery:', result);
+            console.log('VideoGenerationContext: Using frame_fps:', result.frame_fps || currentParams?.frame_fps);
             
             // Pass the entire result object to saveVideoToGallery
             await saveVideoToGallery(result, result.voice || '');
@@ -65,9 +93,13 @@ export const VideoGenerationProvider = ({ children }: { children: React.ReactNod
     if (status === 'idle' || status === 'generating') {
       setIsVideoSaved(false);
     }
-  }, [status, result, isVideoSaved, savedVideoIds]);
+  }, [status, result, isVideoSaved, savedVideoIds, currentParams]);
 
   const generateVideo = (params: VideoGenerationParams) => {
+    // Log parameters to verify frame_fps is being passed correctly
+    console.log('VideoGenerationContext: Generating video with params:', params);
+    console.log('VideoGenerationContext: frame_fps value:', params.frame_fps);
+    
     generate(params);
   };
 

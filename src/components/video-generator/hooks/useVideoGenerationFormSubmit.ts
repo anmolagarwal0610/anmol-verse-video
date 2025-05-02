@@ -76,6 +76,9 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
       return;
     }
     
+    // Explicitly log the frame_fps value to verify it's being captured correctly
+    console.log(`Validating submission with frame_fps: ${data.frame_fps}`);
+    
     // Calculate estimated credit cost
     const estimatedCredits = calculateCreditCost(data);
     console.log(`Estimated video credits: ${estimatedCredits} for topic "${data.topic}"`);

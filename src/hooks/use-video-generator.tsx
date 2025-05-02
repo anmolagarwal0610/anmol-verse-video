@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { generateVideo, checkVideoStatus } from '@/lib/video/api';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
@@ -107,7 +108,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         setProgress(100);
         
         console.log('🔎 [useVideoGenerator] Setting result with topic:', currentTopic);
-        // Log detailed information about the response
+        // Log detailed information about the response and current params
         console.log('🔎 [useVideoGenerator] Response details:', {
           status: statusResponse.status,
           topic: currentTopic || statusResponse.topic,
@@ -117,13 +118,20 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
           task_id: id
         });
         
+        console.log('🔎 [useVideoGenerator] Original params details:', {
+          topic: currentParams?.topic,
+          voice: currentParams?.voice,
+          frame_fps: currentParams?.frame_fps,
+          video_duration: currentParams?.video_duration
+        });
+        
         setResult({
           ...statusResponse,
           topic: currentTopic || statusResponse.topic,
           // Ensure the voice parameter from the original request is preserved
           voice: currentParams?.voice || statusResponse.voice,
           // Ensure frame_fps is preserved from params if not in response
-          frame_fps: statusResponse.frame_fps || currentParams?.frame_fps,
+          frame_fps: currentParams?.frame_fps || statusResponse.frame_fps,
           // Set the task_id from the polling request
           task_id: id
         });

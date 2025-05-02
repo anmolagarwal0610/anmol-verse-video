@@ -16,6 +16,9 @@ import { toast } from 'sonner';
 import { useCredit } from '@/lib/creditService';
 import { checkCredits } from '@/lib/creditService';
 
+// Session storage key for tracking processed videos
+const PROCESSED_VIDEOS_STORAGE_KEY = "processedVideoIds";
+
 const VideoGeneration = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
@@ -31,7 +34,29 @@ const VideoGeneration = () => {
   } = useVideoGenerationContext();
   
   // Track which video results have had credits deducted already
-  const [processedVideoIds, setProcessedVideoIds] = useState<Set<string>>(new Set());
+  // Initialize from session storage to persist across page refreshes
+  const [processedVideoIds, setProcessedVideoIds] = useState<Set<string>>(() => {
+    try {
+      const saved = sessionStorage.getItem(PROCESSED_VIDEOS_STORAGE_KEY);
+      return saved ? new Set(JSON.parse(saved)) : new Set<string>();
+    } catch (e) {
+      console.error("Error restoring processed videos from session storage:", e);
+      return new Set<string>();
+    }
+  });
+  
+  // Persist processed video IDs to session storage when they change
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        PROCESSED_VIDEOS_STORAGE_KEY, 
+        JSON.stringify(Array.from(processedVideoIds))
+      );
+      console.log("Updated processed videos in session storage:", Array.from(processedVideoIds));
+    } catch (e) {
+      console.error("Error saving processed videos to session storage:", e);
+    }
+  }, [processedVideoIds]);
   
   useEffect(() => {
     // Log the current status for debugging
@@ -51,6 +76,7 @@ const VideoGeneration = () => {
       const hasBeenProcessed = processedVideoIds.has(videoId);
       
       console.log(`VideoGeneration: Video ID ${videoId} - Already processed: ${hasBeenProcessed}`);
+      console.log(`VideoGeneration: Processed videos tracked:`, Array.from(processedVideoIds));
       
       // Only deduct credits if this is the first time processing this video result
       if (!hasBeenProcessed && videoId && result.audio_duration && user) {
@@ -60,7 +86,11 @@ const VideoGeneration = () => {
         const originalVoice = currentParams?.voice || result.voice || 'default';
         console.log("VideoGeneration: Using original voice from params:", originalVoice);
         
-        handleCreditDeduction(result.audio_duration, originalVoice)
+        // Get the original frame_fps parameter from generation parameters
+        const originalFrameFps = currentParams?.frame_fps || result.frame_fps || 5;
+        console.log("VideoGeneration: Using original frame_fps from params:", originalFrameFps);
+        
+        handleCreditDeduction(result.audio_duration, originalVoice, originalFrameFps)
           .then(success => {
             if (success) {
               // Mark this video as processed to prevent future deductions
@@ -83,23 +113,21 @@ const VideoGeneration = () => {
   }, [status, result, progress, error, user, loading, currentParams, processedVideoIds]);
   
   // Function to calculate actual credit cost based on audio duration
-  const calculateActualCreditCost = (audioDuration: number, voice: string): number => {
+  const calculateActualCreditCost = (audioDuration: number, voice: string, frameFps: number): number => {
     // Convert audio duration to number if it's a string
     const duration = typeof audioDuration === 'string' ? parseInt(audioDuration, 10) : audioDuration;
     
     // Determine if premium voice (non-Google voice) by checking the voice ID prefix
     const isPremiumVoice = !voice?.startsWith('google_');
-    console.log(`Calculating credit cost for duration: ${duration}s, voice: ${voice}, isPremium: ${isPremiumVoice}`);
+    console.log(`Calculating credit cost for duration: ${duration}s, voice: ${voice}, isPremium: ${isPremiumVoice}, frameFps: ${frameFps}`);
     
-    // Use the current frameFPS from result if available, otherwise default to 5
-    let imageRate = 5;
-    if (result?.frame_fps) {
-      const fps = result.frame_fps;
-      if (fps === 3) imageRate = 3;
-      else if (fps === 4) imageRate = 4;
-      else if (fps === 6) imageRate = 6;
-      else imageRate = 5;
-    }
+    // Use the current frameFPS from result or passed parameter
+    let imageRate = frameFps;
+    if (frameFps === 3) imageRate = 3;
+    else if (frameFps === 4) imageRate = 4;
+    else if (frameFps === 6) imageRate = 6;
+    else imageRate = 5; // Default
+    
     console.log(`Using image rate: ${imageRate}s between images`);
     
     // Apply different rates based on voice type and image rate
@@ -128,7 +156,7 @@ const VideoGeneration = () => {
     console.log(`Using rate: ${creditsPerSecond} credits/sec for image rate: ${imageRate}`);
     
     // Calculate the actual credit cost based on the audio duration
-    // IMPORTANT: Remove the 1.2x factor from the final actual credit calculation
+    // IMPORTANT: No 1.2x factor for the final actual credit calculation
     const rawCredits = creditsPerSecond * duration;
     console.log(`Raw credit calculation (final calculation): ${rawCredits}`);
     
@@ -140,13 +168,13 @@ const VideoGeneration = () => {
   };
   
   // Function to handle credit deduction based on actual audio duration
-  const handleCreditDeduction = async (audioDuration: number, voice: string, retryCount = 0): Promise<boolean> => {
+  const handleCreditDeduction = async (audioDuration: number, voice: string, frameFps: number = 5, retryCount = 0): Promise<boolean> => {
     if (!user || !result) return false;
     
     try {
       // Calculate actual credit cost based on audio duration and voice type
-      const creditCost = calculateActualCreditCost(audioDuration, voice);
-      console.log(`VideoGeneration: Deducting ${creditCost} credits for audio duration ${audioDuration}s with voice ${voice}`);
+      const creditCost = calculateActualCreditCost(audioDuration, voice, frameFps);
+      console.log(`VideoGeneration: Deducting ${creditCost} credits for audio duration ${audioDuration}s with voice ${voice} at frameFps ${frameFps}`);
       console.log(`VideoGeneration: Original parameters - voice: ${currentParams?.voice}, fps: ${currentParams?.frame_fps}, duration: ${currentParams?.video_duration}`);
       console.log(`VideoGeneration: Actual result - voice: ${result.voice}, fps: ${result.frame_fps}, audio_duration: ${result.audio_duration}`);
       
@@ -170,7 +198,7 @@ const VideoGeneration = () => {
             // Try once more after a short delay
             console.log('Credit deduction failed, retrying once...');
             await new Promise(resolve => setTimeout(resolve, 1000));
-            return handleCreditDeduction(audioDuration, voice, retryCount + 1);
+            return handleCreditDeduction(audioDuration, voice, frameFps, retryCount + 1);
           } else {
             console.error('VideoGeneration: Failed to deduct credits despite multiple attempts');
             toast.error('Failed to deduct credits. Please contact support.');
@@ -192,7 +220,7 @@ const VideoGeneration = () => {
         // Try once more after a short delay
         console.log('Credit deduction failed, retrying once...');
         await new Promise(resolve => setTimeout(resolve, 1000));
-        return handleCreditDeduction(audioDuration, voice, retryCount + 1);
+        return handleCreditDeduction(audioDuration, voice, frameFps, retryCount + 1);
       } else {
         console.error('VideoGeneration: Failed to deduct credits despite multiple attempts');
         toast.error('Failed to deduct credits. Please contact support.');
