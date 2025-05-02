@@ -30,14 +30,8 @@ export const VideoGenerationProvider = ({ children }: { children: React.ReactNod
       const saveVideo = async () => {
         try {
           console.log('VideoGenerationContext: Saving video to gallery:', result);
-          await saveVideoToGallery({
-            topic: result.topic || 'Untitled Video',
-            video_url: result.video_url || '',
-            audio_url: result.audio_url || '',
-            thumbnail_url: result.thumbnail_url || '',
-            transcript_url: result.transcript_url || '',
-            images_zip_url: result.images_zip_url || '',
-          }, result.voice); // Add the voice parameter here as the second argument
+          // Pass the entire result object directly instead of creating a new partial object
+          await saveVideoToGallery(result, result.voice || '');
           
           setIsVideoSaved(true);
           console.log('VideoGenerationContext: Video saved successfully');
