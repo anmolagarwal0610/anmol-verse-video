@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -6,7 +7,7 @@ import VideoGenerationForm from '@/components/video-generator/VideoGenerationFor
 import ProgressCard from '@/components/video-generator/ProgressCard';
 import ResultsSection from '@/components/video-generator/ResultsSection';
 import ErrorDisplay from '@/components/video-generator/ErrorDisplay';
-import { VideoGenerationParams } from '@/lib/videoGenerationApi';
+import { VideoGenerationParams } from '@/lib/video/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,8 @@ const VideoGeneration = () => {
     error, 
     generateVideo,
     cancelGeneration,
-    isGenerating 
+    isGenerating,
+    currentParams // We'll use this to access the original parameters
   } = useVideoGenerationContext();
 
   useEffect(() => {
@@ -42,7 +44,13 @@ const VideoGeneration = () => {
       // Deduct credits based on actual audio duration if available
       if (result.audio_duration && user) {
         console.log("VideoGeneration: Processing credit deduction for audio duration:", result.audio_duration);
-        handleCreditDeduction(result.audio_duration, result.voice || 'default');
+        
+        // Get the original voice parameter from the generation parameters
+        // This ensures we use the same voice type that was selected during the initial request
+        const originalVoice = currentParams?.voice || result.voice || 'default';
+        console.log("VideoGeneration: Using original voice from params:", originalVoice);
+        
+        handleCreditDeduction(result.audio_duration, originalVoice);
       }
       
       // Scroll to results when generation completes
@@ -51,14 +59,14 @@ const VideoGeneration = () => {
         resultsElement.scrollIntoView({ behavior: 'smooth' });
       }
     }
-  }, [status, result, progress, error, user, loading]);
+  }, [status, result, progress, error, user, loading, currentParams]);
   
   // Function to calculate actual credit cost based on audio duration
   const calculateActualCreditCost = (audioDuration: number, voice: string): number => {
     // Convert audio duration to number if it's a string
     const duration = typeof audioDuration === 'string' ? parseInt(audioDuration, 10) : audioDuration;
     
-    // Determine if premium voice (non-Google voice)
+    // Determine if premium voice (non-Google voice) by checking the voice ID prefix
     const isPremiumVoice = !voice?.startsWith('google_');
     console.log(`Calculating credit cost for duration: ${duration}s, voice: ${voice}, isPremium: ${isPremiumVoice}`);
     

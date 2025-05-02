@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { generateVideo, checkVideoStatus } from '@/lib/video/api';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
@@ -15,6 +14,7 @@ interface UseVideoGeneratorReturn {
   result: VideoStatusResponse | null;
   error: string | null;
   reset: () => void;
+  currentParams: VideoGenerationParams | null; // Add this to expose the current params
 }
 
 export const useVideoGenerator = (): UseVideoGeneratorReturn => {
@@ -24,15 +24,13 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   const [error, setError] = useState<string | null>(null);
   const [taskId, setTaskId] = useState<string | null>(null);
   const [currentTopic, setCurrentTopic] = useState<string>('');
+  const [currentParams, setCurrentParams] = useState<VideoGenerationParams | null>(null); // Store the current params
   
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastProgressUpdateRef = useRef<number>(0);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  
-  // IMPORTANT: We're moving save responsibility to VideoGenerationContext only
-  // This hook will no longer attempt to save videos directly
   
   const { user } = useAuth();
   
@@ -69,14 +67,12 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
     startTimeRef.current = null;
     lastProgressUpdateRef.current = 0;
     setCurrentTopic('');
+    setCurrentParams(null); // Reset the current params
   };
   
   useEffect(() => {
     return cleanup;
   }, []);
-  
-  // Remove the video save effect to avoid duplicate saves
-  // The VideoGenerationContext will handle saving exclusively
   
   const updateProgressBasedOnTime = () => {
     if (!startTimeRef.current) return 0;
@@ -113,7 +109,9 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         console.log('🔎 [useVideoGenerator] Setting result with topic:', currentTopic);
         setResult({
           ...statusResponse,
-          topic: currentTopic || statusResponse.topic
+          topic: currentTopic || statusResponse.topic,
+          // Ensure the voice parameter from the original request is preserved
+          voice: currentParams?.voice || statusResponse.voice
         });
         
         cleanup();
@@ -137,9 +135,12 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
       reset();
       setStatus('generating');
       setCurrentTopic(params.topic);
+      // Store the original params for later use
+      setCurrentParams(params);
       
       console.log('🔎 [useVideoGenerator] Generating video with params:', params);
       console.log('🔎 [useVideoGenerator] Topic being set:', params.topic);
+      console.log('🔎 [useVideoGenerator] Voice being used:', params.voice);
       
       startTimeRef.current = Date.now();
       console.log('🔎 [useVideoGenerator] Start time set:', new Date(startTimeRef.current).toISOString());
@@ -199,6 +200,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
     progress,
     result,
     error,
-    reset
+    reset,
+    currentParams // Expose the current params
   };
 };
