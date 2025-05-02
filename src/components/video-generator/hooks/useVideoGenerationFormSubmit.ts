@@ -55,7 +55,7 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
       }
     }
     
-    console.log(`Credit calculation: voice=${data.voice}, isPremium=${isPremiumVoice}, fps=${frameRate}, creditsPerSecond=${creditsPerSecond}`);
+    console.log(`Credit calculation: voice=${data.voice}, isPremium=${isPremiumVoice}, fps=${frameRate}, imageRate=${imageRate}, creditsPerSecond=${creditsPerSecond}`);
     
     // Raw calculation before factor
     const rawCredits = creditsPerSecond * duration;

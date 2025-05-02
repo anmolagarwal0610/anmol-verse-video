@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import { Separator } from '@/components/ui/separator';
@@ -27,9 +27,12 @@ const VideoGeneration = () => {
     generateVideo,
     cancelGeneration,
     isGenerating,
-    currentParams // We'll use this to access the original parameters
+    currentParams
   } = useVideoGenerationContext();
-
+  
+  // Track which video results have had credits deducted already
+  const [processedVideoIds, setProcessedVideoIds] = useState<Set<string>>(new Set());
+  
   useEffect(() => {
     // Log the current status for debugging
     console.log("VideoGeneration: Current generation status:", status);
@@ -41,16 +44,34 @@ const VideoGeneration = () => {
     
     // Process video generation completion and deduct actual credits
     if (status === 'completed' && result) {
-      // Deduct credits based on actual audio duration if available
-      if (result.audio_duration && user) {
+      console.log("VideoGeneration: Video completed, checking if credits need to be deducted");
+      
+      // Check if this video result has already been processed
+      const videoId = result.task_id || '';
+      const hasBeenProcessed = processedVideoIds.has(videoId);
+      
+      console.log(`VideoGeneration: Video ID ${videoId} - Already processed: ${hasBeenProcessed}`);
+      
+      // Only deduct credits if this is the first time processing this video result
+      if (!hasBeenProcessed && videoId && result.audio_duration && user) {
         console.log("VideoGeneration: Processing credit deduction for audio duration:", result.audio_duration);
         
         // Get the original voice parameter from the generation parameters
-        // This ensures we use the same voice type that was selected during the initial request
         const originalVoice = currentParams?.voice || result.voice || 'default';
         console.log("VideoGeneration: Using original voice from params:", originalVoice);
         
-        handleCreditDeduction(result.audio_duration, originalVoice);
+        handleCreditDeduction(result.audio_duration, originalVoice)
+          .then(success => {
+            if (success) {
+              // Mark this video as processed to prevent future deductions
+              setProcessedVideoIds(prev => {
+                const updated = new Set(prev);
+                updated.add(videoId);
+                return updated;
+              });
+              console.log(`VideoGeneration: Marked video ${videoId} as processed to prevent duplicate charges`);
+            }
+          });
       }
       
       // Scroll to results when generation completes
@@ -59,7 +80,7 @@ const VideoGeneration = () => {
         resultsElement.scrollIntoView({ behavior: 'smooth' });
       }
     }
-  }, [status, result, progress, error, user, loading, currentParams]);
+  }, [status, result, progress, error, user, loading, currentParams, processedVideoIds]);
   
   // Function to calculate actual credit cost based on audio duration
   const calculateActualCreditCost = (audioDuration: number, voice: string): number => {

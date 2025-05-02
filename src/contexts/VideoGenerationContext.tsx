@@ -13,13 +13,14 @@ interface VideoGenerationContextProps {
   generateVideo: (params: VideoGenerationParams) => void;
   cancelGeneration: () => void;
   isGenerating: boolean;
-  currentParams: VideoGenerationParams | null; // Add this to expose the current params
+  currentParams: VideoGenerationParams | null;
 }
 
 const VideoGenerationContext = createContext<VideoGenerationContextProps | null>(null);
 
 export const VideoGenerationProvider = ({ children }: { children: React.ReactNode }) => {
   const [isVideoSaved, setIsVideoSaved] = useState<boolean>(false);
+  const [savedVideoIds, setSavedVideoIds] = useState<Set<string>>(new Set());
   const { generate, status, progress, result, error, reset, currentParams } = useVideoGenerator();
 
   const isGenerating = status === 'generating' || status === 'polling';
@@ -27,28 +28,44 @@ export const VideoGenerationProvider = ({ children }: { children: React.ReactNod
   // Auto-save the video when generation completes
   React.useEffect(() => {
     if (status === 'completed' && result && !isVideoSaved) {
-      const saveVideo = async () => {
-        try {
-          console.log('VideoGenerationContext: Saving video to gallery:', result);
-          // Pass the entire result object directly instead of creating a new partial object
-          await saveVideoToGallery(result, result.voice || '');
-          
-          setIsVideoSaved(true);
-          console.log('VideoGenerationContext: Video saved successfully');
-        } catch (err) {
-          console.error('VideoGenerationContext: Error saving video:', err);
-          toast.error('Failed to save video to your gallery');
-        }
-      };
+      // Check if we've already saved this video to prevent duplicates
+      const videoId = result.task_id || '';
+      const alreadySaved = savedVideoIds.has(videoId);
+      
+      console.log(`VideoGenerationContext: Video ID ${videoId} - Already saved: ${alreadySaved}`);
+      
+      if (!alreadySaved && videoId) {
+        const saveVideo = async () => {
+          try {
+            console.log('VideoGenerationContext: Saving video to gallery:', result);
+            
+            // Pass the entire result object to saveVideoToGallery
+            await saveVideoToGallery(result, result.voice || '');
+            
+            // Mark this video as saved
+            setSavedVideoIds(prev => {
+              const updated = new Set(prev);
+              updated.add(videoId);
+              return updated;
+            });
+            
+            setIsVideoSaved(true);
+            console.log(`VideoGenerationContext: Video ${videoId} saved successfully and marked to prevent duplicates`);
+          } catch (err) {
+            console.error('VideoGenerationContext: Error saving video:', err);
+            toast.error('Failed to save video to your gallery');
+          }
+        };
 
-      saveVideo();
+        saveVideo();
+      }
     }
     
     // Reset the saved flag when we start a new generation
     if (status === 'idle' || status === 'generating') {
       setIsVideoSaved(false);
     }
-  }, [status, result, isVideoSaved]);
+  }, [status, result, isVideoSaved, savedVideoIds]);
 
   const generateVideo = (params: VideoGenerationParams) => {
     generate(params);
