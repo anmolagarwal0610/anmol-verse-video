@@ -9,6 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Loader2 } from 'lucide-react';
 
 interface VideoGenerationConfirmDialogProps {
   open: boolean;
@@ -16,6 +17,7 @@ interface VideoGenerationConfirmDialogProps {
   onConfirm: () => void;
   topic: string;
   creditCost: number;
+  isCheckingCredits?: boolean;
 }
 
 const VideoGenerationConfirmDialog = ({
@@ -24,6 +26,7 @@ const VideoGenerationConfirmDialog = ({
   onConfirm,
   topic,
   creditCost,
+  isCheckingCredits = false
 }: VideoGenerationConfirmDialogProps) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -38,8 +41,15 @@ const VideoGenerationConfirmDialog = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>
-            Generate Video
+          <AlertDialogAction onClick={onConfirm} disabled={isCheckingCredits}>
+            {isCheckingCredits ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Checking Credits...
+              </>
+            ) : (
+              'Generate Video'
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

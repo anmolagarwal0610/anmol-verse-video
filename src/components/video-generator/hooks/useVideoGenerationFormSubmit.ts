@@ -77,7 +77,8 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     const estimatedCredits = creditsPerSecond * duration * 1.2;
     return Math.ceil(estimatedCredits);
   };
-  
+
+  // Use cached credits first, only validate against backend when actually submitting
   const validateAndShowConfirmation = async (data: VideoGenerationParams) => {
     if (!data.topic || data.topic.trim() === '') {
       toast.error('Please enter a topic for your video');
@@ -88,7 +89,31 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     const estimatedCredits = calculateCreditCost(data);
     console.log(`Estimated video credits: ${estimatedCredits} for topic "${data.topic}"`);
     
-    // Check if user has enough credits
+    // First set the form data and show dialog immediately to improve UX
+    setFormData({
+      ...data,
+      username: username
+    });
+    
+    setShowConfirmDialog(true);
+
+    // Optional: Start credit check in the background but don't block the UI
+    if (user) {
+      checkCredits(false).then(credits => {
+        console.log(`Background check: User has ${credits} credits, needs ${estimatedCredits}`);
+        // We don't need to take action here, as we'll do the real validation when user confirms
+      }).catch(err => {
+        console.error('Background credit check error:', err);
+      });
+    }
+  };
+  
+  const handleConfirmedSubmit = async () => {
+    if (!formData) return;
+    
+    const estimatedCredits = calculateCreditCost(formData);
+    
+    // Only now do we need to validate credits before proceeding
     if (user) {
       try {
         setIsCheckingCredits(true);
@@ -100,37 +125,19 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
         
         if (availableCredits < estimatedCredits) {
           toast.error(`You need at least ${estimatedCredits} credits to generate this video. Please add more credits to continue.`);
+          setShowConfirmDialog(false);
           return;
         }
-        
-        // If we get here, user has enough credits
-        setFormData({
-          ...data,
-          username: username
-        });
-        
-        setShowConfirmDialog(true);
       } catch (err) {
         setIsCheckingCredits(false);
         console.error('Error checking credits:', err);
         toast.error('Unable to verify credit balance. Please try again later.');
+        return;
       }
-    } else {
-      // For non-authenticated users, just set the form data
-      setFormData({
-        ...data,
-        username: username
-      });
-      
-      setShowConfirmDialog(true);
     }
-  };
-  
-  const handleConfirmedSubmit = () => {
-    if (formData) {
-      onSubmit(formData);
-      setShowConfirmDialog(false);
-    }
+    
+    onSubmit(formData);
+    setShowConfirmDialog(false);
   };
   
   return {

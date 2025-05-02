@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 
 let cachedCredits = 0;
 let lastCheckedTime = 0;
-const CACHE_DURATION = 5000; // 5 seconds
+const CACHE_DURATION = 30000; // 30 seconds - increased from 5 to reduce network calls
 const MAX_RETRIES = 2;
 const RETRY_DELAY = 1000; // 1 second delay between retries
 
