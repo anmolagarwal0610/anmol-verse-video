@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { generateVideo, checkVideoStatus } from '@/lib/video/api';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
@@ -107,11 +108,22 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         setProgress(100);
         
         console.log('🔎 [useVideoGenerator] Setting result with topic:', currentTopic);
+        // Log detailed information about the response
+        console.log('🔎 [useVideoGenerator] Response details:', {
+          status: statusResponse.status,
+          topic: currentTopic || statusResponse.topic,
+          voice: currentParams?.voice || statusResponse.voice,
+          audio_duration: statusResponse.audio_duration,
+          frame_fps: statusResponse.frame_fps || currentParams?.frame_fps
+        });
+        
         setResult({
           ...statusResponse,
           topic: currentTopic || statusResponse.topic,
           // Ensure the voice parameter from the original request is preserved
-          voice: currentParams?.voice || statusResponse.voice
+          voice: currentParams?.voice || statusResponse.voice,
+          // Ensure frame_fps is preserved from params if not in response
+          frame_fps: statusResponse.frame_fps || currentParams?.frame_fps
         });
         
         cleanup();
@@ -141,6 +153,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
       console.log('🔎 [useVideoGenerator] Generating video with params:', params);
       console.log('🔎 [useVideoGenerator] Topic being set:', params.topic);
       console.log('🔎 [useVideoGenerator] Voice being used:', params.voice);
+      console.log('🔎 [useVideoGenerator] Frame FPS (image rate):', params.frame_fps);
       
       startTimeRef.current = Date.now();
       console.log('🔎 [useVideoGenerator] Start time set:', new Date(startTimeRef.current).toISOString());

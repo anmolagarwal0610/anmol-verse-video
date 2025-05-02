@@ -21,11 +21,43 @@ const TimingFields = () => {
   const { form, isGenerating } = useVideoGenerationForm();
   const selectedVoice = form.watch('voice');
   const videoDuration = form.watch('video_duration');
+  const frameFPS = form.watch('frame_fps'); // Add this to watch frame_fps changes
   
-  // Calculate credit cost based on duration and voice type (but don't show per-second cost)
+  // Log the values for debugging
+  console.log(`TimingFields: voice=${selectedVoice}, duration=${videoDuration}, frameFPS=${frameFPS}`);
+  
+  // Calculate credit cost based on duration and voice type
   const isGoogleVoice = selectedVoice?.startsWith('google_');
-  const creditRatePerSecond = isGoogleVoice ? 3 : 11;
-  const estimatedCreditCost = Math.round(videoDuration * creditRatePerSecond);
+  
+  // Determine credits per second based on image rate and voice type
+  let creditsPerSecond;
+  if (isGoogleVoice) {
+    // Normal voice rates based on image rate (frameFPS)
+    switch (frameFPS) {
+      case 3: creditsPerSecond = 4.1; break;
+      case 4: creditsPerSecond = 3.5; break;
+      case 5: creditsPerSecond = 3.3; break;
+      case 6: creditsPerSecond = 2.8; break;
+      default: creditsPerSecond = 3.3; // Default to 5 sec rate
+    }
+  } else {
+    // Premium voice rates based on image rate
+    switch (frameFPS) {
+      case 3: creditsPerSecond = 10.6; break;
+      case 4: creditsPerSecond = 10.2; break;
+      case 5: creditsPerSecond = 9.7; break;
+      case 6: creditsPerSecond = 9.4; break;
+      default: creditsPerSecond = 9.7; // Default to 5 sec rate
+    }
+  }
+  
+  // Raw calculation before 1.2x factor
+  const rawCreditCost = videoDuration * creditsPerSecond;
+  
+  // Apply 1.2x factor and round up
+  const estimatedCreditCost = Math.ceil(rawCreditCost * 1.2);
+  
+  console.log(`TimingFields: Credit calculation details - isGoogleVoice=${isGoogleVoice}, fps=${frameFPS}, creditsPerSecond=${creditsPerSecond}, rawCost=${rawCreditCost}, finalCost=${estimatedCreditCost}`);
   
   return (
     <>
@@ -124,12 +156,15 @@ const TimingFields = () => {
                   },
                   { value: 6, label: '6s' },
                 ]}
-                onValueChange={([newValue]) => onChange(newValue)}
+                onValueChange={([newValue]) => {
+                  console.log(`Image rate changed to: ${newValue}`);
+                  onChange(newValue);
+                }}
                 disabled={isGenerating}
               />
             </FormControl>
             <FormDescription>
-              Number of seconds between image changes
+              Number of seconds between image changes. Lower values use more credits.
             </FormDescription>
             <FormMessage />
           </FormItem>

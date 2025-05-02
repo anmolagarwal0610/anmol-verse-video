@@ -38,44 +38,35 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     if (isPremiumVoice) {
       // Premium voice rates
       switch (imageRate) {
-        case 3:
-          creditsPerSecond = 10.6;
-          break;
-        case 4:
-          creditsPerSecond = 10.2;
-          break;
-        case 5:
-          creditsPerSecond = 9.7;
-          break;
-        case 6:
-          creditsPerSecond = 9.4;
-          break;
-        default:
-          creditsPerSecond = 9.7; // Default to 5 sec rate
+        case 3: creditsPerSecond = 10.6; break;
+        case 4: creditsPerSecond = 10.2; break;
+        case 5: creditsPerSecond = 9.7; break;
+        case 6: creditsPerSecond = 9.4; break;
+        default: creditsPerSecond = 9.7; // Default to 5 sec rate
       }
     } else {
       // Normal voice rates
       switch (imageRate) {
-        case 3:
-          creditsPerSecond = 4.1;
-          break;
-        case 4:
-          creditsPerSecond = 3.5;
-          break;
-        case 5:
-          creditsPerSecond = 3.3;
-          break;
-        case 6:
-          creditsPerSecond = 2.8;
-          break;
-        default:
-          creditsPerSecond = 3.3; // Default to 5 sec rate
+        case 3: creditsPerSecond = 4.1; break;
+        case 4: creditsPerSecond = 3.5; break;
+        case 5: creditsPerSecond = 3.3; break;
+        case 6: creditsPerSecond = 2.8; break;
+        default: creditsPerSecond = 3.3; // Default to 5 sec rate
       }
     }
     
+    console.log(`Credit calculation: voice=${data.voice}, isPremium=${isPremiumVoice}, fps=${frameRate}, creditsPerSecond=${creditsPerSecond}`);
+    
+    // Raw calculation before factor
+    const rawCredits = creditsPerSecond * duration;
+    console.log(`Raw credits (before 1.2x factor): ${rawCredits}`);
+    
     // Apply 1.2x factor and round up to next integer
-    const estimatedCredits = creditsPerSecond * duration * 1.2;
-    return Math.ceil(estimatedCredits);
+    const estimatedCredits = rawCredits * 1.2;
+    const finalCredits = Math.ceil(estimatedCredits);
+    console.log(`Final credits (after 1.2x factor and rounding): ${finalCredits}`);
+    
+    return finalCredits;
   };
 
   // Use cached credits first, only validate against backend when actually submitting
@@ -88,6 +79,7 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     // Calculate estimated credit cost
     const estimatedCredits = calculateCreditCost(data);
     console.log(`Estimated video credits: ${estimatedCredits} for topic "${data.topic}"`);
+    console.log(`Form data details: voice=${data.voice}, fps=${data.frame_fps}, duration=${data.video_duration}`);
     
     // First set the form data and show dialog immediately to improve UX
     setFormData({

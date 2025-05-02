@@ -79,6 +79,7 @@ const VideoGeneration = () => {
       else if (fps === 6) imageRate = 6;
       else imageRate = 5;
     }
+    console.log(`Using image rate: ${imageRate}s between images`);
     
     // Apply different rates based on voice type and image rate
     let creditsPerSecond = 0;
@@ -106,9 +107,15 @@ const VideoGeneration = () => {
     console.log(`Using rate: ${creditsPerSecond} credits/sec for image rate: ${imageRate}`);
     
     // Calculate the actual credit cost based on the audio duration
-    const actualCredits = creditsPerSecond * duration * 1.2; // Apply 1.2x factor
+    const rawCredits = creditsPerSecond * duration;
+    console.log(`Raw credit calculation (before 1.2x factor): ${rawCredits}`);
+    
+    const actualCredits = rawCredits * 1.2; // Apply 1.2x factor
+    console.log(`After applying 1.2x factor: ${actualCredits}`);
+    
     const roundedCredits = Math.ceil(actualCredits);
-    console.log(`Raw credit calculation: ${actualCredits}, rounded up: ${roundedCredits}`);
+    console.log(`Final credit calculation (rounded up): ${roundedCredits}`);
+    
     return roundedCredits;
   };
   
@@ -120,6 +127,8 @@ const VideoGeneration = () => {
       // Calculate actual credit cost based on audio duration and voice type
       const creditCost = calculateActualCreditCost(audioDuration, voice);
       console.log(`VideoGeneration: Deducting ${creditCost} credits for audio duration ${audioDuration}s with voice ${voice}`);
+      console.log(`VideoGeneration: Original parameters - voice: ${currentParams?.voice}, fps: ${currentParams?.frame_fps}, duration: ${currentParams?.video_duration}`);
+      console.log(`VideoGeneration: Actual result - voice: ${result.voice}, fps: ${result.frame_fps}, audio_duration: ${result.audio_duration}`);
       
       // Check if user has sufficient credits before deducting
       const availableCredits = await checkCredits(true);
