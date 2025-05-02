@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -43,7 +42,7 @@ const VideoGeneration = () => {
       // Deduct credits based on actual audio duration if available
       if (result.audio_duration && user) {
         console.log("VideoGeneration: Processing credit deduction for audio duration:", result.audio_duration);
-        handleCreditDeduction(result.audio_duration);
+        handleCreditDeduction(result.audio_duration, result.voice || 'default');
       }
       
       // Scroll to results when generation completes
@@ -96,20 +95,25 @@ const VideoGeneration = () => {
     }
     
     // Calculate the actual credit cost based on the audio duration
-    return Math.ceil(creditsPerSecond * duration);
+    const actualCredits = creditsPerSecond * duration;
+    return Math.ceil(actualCredits);
   };
   
   // Function to handle credit deduction based on actual audio duration
-  const handleCreditDeduction = async (audioDuration: number) => {
+  const handleCreditDeduction = async (audioDuration: number, voice: string) => {
     if (!user || !result) return;
     
     try {
-      // Use the voice from the generation parameters
-      const voice = result.voice || 'default';
-      
       // Calculate actual credit cost based on audio duration and voice type
       const creditCost = calculateActualCreditCost(audioDuration, voice);
-      console.log(`VideoGeneration: Deducting ${creditCost} credits for audio duration ${audioDuration}s`);
+      console.log(`VideoGeneration: Deducting ${creditCost} credits for audio duration ${audioDuration}s with voice ${voice}`);
+      
+      // Check if user has sufficient credits before deducting
+      const availableCredits = await checkCredits(true);
+      if (availableCredits < creditCost) {
+        toast.error(`Insufficient credits. Required: ${creditCost}, Available: ${availableCredits}. Please add more credits.`);
+        return;
+      }
       
       // Deduct credits using the useCredit function
       const success = await useCredit(creditCost);
@@ -117,6 +121,7 @@ const VideoGeneration = () => {
       if (success) {
         toast.success(`${creditCost} credits have been deducted for your video`);
       } else {
+        console.error('VideoGeneration: Failed to deduct credits despite having sufficient balance');
         toast.error('Failed to deduct credits. Please contact support.');
       }
     } catch (error) {

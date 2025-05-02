@@ -17,6 +17,8 @@ export const useCredit = async (creditAmount: number = 1): Promise<boolean> => {
       return false;
     }
 
+    console.log(`Attempting to use ${creditAmount} credits for user ${user.id}`);
+
     // If credit amount is greater than 1, use the multiple credit function
     if (creditAmount > 1) {
       // Use any type to bypass TypeScript's type checking for RPC functions
@@ -33,9 +35,12 @@ export const useCredit = async (creditAmount: number = 1): Promise<boolean> => {
       }
 
       if (data !== true) {
+        console.error('Failed to use credits: insufficient balance');
         toast.error(`You need at least ${creditAmount} credits to continue.`);
         return false;
       }
+
+      console.log(`Successfully used ${creditAmount} credits`);
     } else {
       // Use the standard single credit function
       const { data, error } = await supabase.rpc('use_credit', {
@@ -49,9 +54,12 @@ export const useCredit = async (creditAmount: number = 1): Promise<boolean> => {
       }
 
       if (data !== true) {
+        console.error('Failed to use credit: insufficient balance');
         toast.error('You have no credits remaining. Please add more credits to continue.');
         return false;
       }
+
+      console.log('Successfully used 1 credit');
     }
     
     // Invalidate cache so next checkCredits will fetch the latest count

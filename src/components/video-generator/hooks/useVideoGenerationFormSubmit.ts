@@ -88,19 +88,33 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     
     // Check if user has enough credits
     if (user) {
-      const availableCredits = await checkCredits(true);
-      if (availableCredits < estimatedCredits) {
-        toast.error(`You need at least ${estimatedCredits} credits to generate this video. Please add more credits to continue.`);
-        return;
+      try {
+        const availableCredits = await checkCredits(true);
+        if (availableCredits < estimatedCredits) {
+          toast.error(`You need at least ${estimatedCredits} credits to generate this video. Please add more credits to continue.`);
+          return;
+        }
+        
+        // If we get here, user has enough credits
+        setFormData({
+          ...data,
+          username: username
+        });
+        
+        setShowConfirmDialog(true);
+      } catch (err) {
+        console.error('Error checking credits:', err);
+        toast.error('Unable to verify credit balance. Please try again later.');
       }
+    } else {
+      // For non-authenticated users, just set the form data
+      setFormData({
+        ...data,
+        username: username
+      });
+      
+      setShowConfirmDialog(true);
     }
-    
-    setFormData({
-      ...data,
-      username: username
-    });
-    
-    setShowConfirmDialog(true);
   };
   
   const handleConfirmedSubmit = () => {
