@@ -13,32 +13,39 @@ import {
   getDimensionsFromRatio 
 } from './imageGeneration/generators';
 import { calculateCreditCost } from '@/lib/constants/pixelOptions';
+import { checkCredits, useCredit } from '@/lib/creditService';
 
 /**
  * Function to use the appropriate number of credits based on model and dimensions
  */
-async function useModelCredits(userId: string, model: string, width: number, height: number): Promise<boolean> {
+async function useModelCredits(userId: string, model: string, width: number, height: number, retryCount = 0): Promise<boolean> {
   try {
     if (model === 'basic') return true; // Basic model is free
     
     const creditCost = calculateCreditCost(width, height, model);
     console.log(`Using ${creditCost} credits for model ${model} with dimensions ${width}x${height}`);
     
+    // Verify available credits before attempting to use them
+    const availableCredits = await checkCredits(true);
+    console.log(`User has ${availableCredits} credits available, needs ${creditCost}`);
+    
+    if (availableCredits < creditCost) {
+      toast.error(`Not enough credits. This image requires ${creditCost} credits. You have ${availableCredits}.`);
+      return false;
+    }
+    
     // Use multiple credits
     if (creditCost > 0) {
-      // Use any type to bypass TypeScript's type checking for RPC functions
-      const { data, error } = await (supabase.rpc as any)('use_multiple_credits', {
-        user_id: userId,
-        credit_amount: creditCost
-      });
+      const success = await useCredit(creditCost);
       
-      if (error) {
-        console.error('Error using credits:', error);
-        toast.error(`Not enough credits. This image requires ${creditCost} credits.`);
-        return false;
+      if (!success && retryCount < 1) {
+        console.log('Credit deduction failed, retrying once...');
+        // Short delay before retry
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return useModelCredits(userId, model, width, height, retryCount + 1);
       }
       
-      return data === true;
+      return success;
     } else {
       return true; // No credits needed (basic model)
     }
@@ -83,6 +90,7 @@ export async function generateImageFromPrompt(
     console.log('Calculated dimensions:', dimensions);
     
     // Credit check based on model and dimensions
+    console.log('Performing credit check and deduction...');
     const hasSufficientCredits = await useModelCredits(
       userId, 
       values.model, 
@@ -92,9 +100,12 @@ export async function generateImageFromPrompt(
     
     if (!hasSufficientCredits) {
       const creditCost = calculateCreditCost(dimensions.width, dimensions.height, values.model);
-      toast.error(`Insufficient credits to generate image. This image requires ${creditCost} credit(s).`);
+      console.error(`Credit check/deduction failed for cost: ${creditCost}`);
+      // Toast error is already shown in useModelCredits
       return null;
     }
+    
+    console.log('Credit check/deduction successful, proceeding with image generation');
     
     // Enhance prompt with style preferences if provided
     const enhancedPrompt = enhancePromptWithStyles(values.prompt, values.imageStyles);

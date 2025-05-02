@@ -60,6 +60,7 @@ const VideoGeneration = () => {
     
     // Determine if premium voice (non-Google voice)
     const isPremiumVoice = !voice?.startsWith('google_');
+    console.log(`Calculating credit cost for duration: ${duration}s, voice: ${voice}, isPremium: ${isPremiumVoice}`);
     
     // Use the current frameFPS from result if available, otherwise default to 5
     let imageRate = 5;
@@ -94,14 +95,18 @@ const VideoGeneration = () => {
       }
     }
     
+    console.log(`Using rate: ${creditsPerSecond} credits/sec for image rate: ${imageRate}`);
+    
     // Calculate the actual credit cost based on the audio duration
-    const actualCredits = creditsPerSecond * duration;
-    return Math.ceil(actualCredits);
+    const actualCredits = creditsPerSecond * duration * 1.2; // Apply 1.2x factor
+    const roundedCredits = Math.ceil(actualCredits);
+    console.log(`Raw credit calculation: ${actualCredits}, rounded up: ${roundedCredits}`);
+    return roundedCredits;
   };
   
   // Function to handle credit deduction based on actual audio duration
-  const handleCreditDeduction = async (audioDuration: number, voice: string) => {
-    if (!user || !result) return;
+  const handleCreditDeduction = async (audioDuration: number, voice: string, retryCount = 0): Promise<boolean> => {
+    if (!user || !result) return false;
     
     try {
       // Calculate actual credit cost based on audio duration and voice type
@@ -110,9 +115,11 @@ const VideoGeneration = () => {
       
       // Check if user has sufficient credits before deducting
       const availableCredits = await checkCredits(true);
+      console.log(`User has ${availableCredits} credits available, needs ${creditCost} for video`);
+      
       if (availableCredits < creditCost) {
         toast.error(`Insufficient credits. Required: ${creditCost}, Available: ${availableCredits}. Please add more credits.`);
-        return;
+        return false;
       }
       
       // Deduct credits using the useCredit function
@@ -120,13 +127,21 @@ const VideoGeneration = () => {
       
       if (success) {
         toast.success(`${creditCost} credits have been deducted for your video`);
+        return true;
+      } else if (retryCount < 1) {
+        // Try once more after a short delay
+        console.log('Credit deduction failed, retrying once...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return handleCreditDeduction(audioDuration, voice, retryCount + 1);
       } else {
-        console.error('VideoGeneration: Failed to deduct credits despite having sufficient balance');
+        console.error('VideoGeneration: Failed to deduct credits despite multiple attempts');
         toast.error('Failed to deduct credits. Please contact support.');
+        return false;
       }
     } catch (error) {
       console.error('VideoGeneration: Error deducting credits:', error);
       toast.error('An error occurred while processing credits');
+      return false;
     }
   };
 

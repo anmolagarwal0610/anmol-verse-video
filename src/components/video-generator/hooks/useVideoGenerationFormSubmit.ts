@@ -13,6 +13,7 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
   const { user } = useAuth();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [formData, setFormData] = useState<VideoGenerationParams | null>(null);
+  const [isCheckingCredits, setIsCheckingCredits] = useState(false);
   
   const username = user?.email?.split('@')[0] || '';
   
@@ -85,11 +86,18 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     
     // Calculate estimated credit cost
     const estimatedCredits = calculateCreditCost(data);
+    console.log(`Estimated video credits: ${estimatedCredits} for topic "${data.topic}"`);
     
     // Check if user has enough credits
     if (user) {
       try {
+        setIsCheckingCredits(true);
+        // Force a refresh of the credit count to ensure accuracy
         const availableCredits = await checkCredits(true);
+        setIsCheckingCredits(false);
+        
+        console.log(`User has ${availableCredits} credits, needs ${estimatedCredits}`);
+        
         if (availableCredits < estimatedCredits) {
           toast.error(`You need at least ${estimatedCredits} credits to generate this video. Please add more credits to continue.`);
           return;
@@ -103,6 +111,7 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
         
         setShowConfirmDialog(true);
       } catch (err) {
+        setIsCheckingCredits(false);
         console.error('Error checking credits:', err);
         toast.error('Unable to verify credit balance. Please try again later.');
       }
@@ -130,6 +139,7 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     validateAndShowConfirmation,
     handleConfirmedSubmit,
     formData,
-    calculateCreditCost
+    calculateCreditCost,
+    isCheckingCredits
   };
 };
