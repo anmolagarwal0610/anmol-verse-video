@@ -37,7 +37,8 @@ export const VideoGenerationProvider = ({ children }: { children: React.ReactNod
             thumbnailUrl: result.thumbnail_url || '',
             transcriptUrl: result.transcript_url || '',
             imagesZipUrl: result.images_zip_url || '',
-          });
+          }, result.voice); // Add the voice parameter here as the second argument
+          
           setIsVideoSaved(true);
           console.log('VideoGenerationContext: Video saved successfully');
         } catch (err) {
