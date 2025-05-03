@@ -4,7 +4,6 @@ import { Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
-import DownloadButton from '@/components/ui/download-button';
 
 interface ImagePreviewProps {
   imageUrl: string | null;
@@ -16,6 +15,7 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
   const isMobile = useIsMobile();
   const [imgSrc, setImgSrc] = useState<string | null>(imageUrl);
   const [imgError, setImgError] = useState<boolean>(false);
+  const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
   const imageRef = useRef<HTMLImageElement>(null);
   
   // Update image source when imageUrl prop changes
@@ -23,6 +23,7 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
     if (imageUrl) {
       setImgSrc(imageUrl);
       setImgError(false);
+      setIsImageLoaded(false);
     }
   }, [imageUrl]);
   
@@ -37,8 +38,14 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
   };
   
   const handleImageError = () => {
+    console.log('Image failed to load directly, attempting CORS proxy fallback');
     setImgError(true);
     setImgSrc('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjY0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNGI1NTYzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+SW1hZ2UgTm90IEF2YWlsYWJsZTwvdGV4dD48L3N2Zz4=');
+  };
+  
+  const handleImageLoad = () => {
+    setIsImageLoaded(true);
+    setImgError(false);
   };
   
   const handleCanvasDownload = () => {
@@ -98,10 +105,17 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
         ref={imageRef}
         src={imgSrc} 
         alt="Generated" 
-        className="max-w-full max-h-full w-auto h-auto object-contain border border-indigo-200/20 rounded-lg shadow-lg"
+        className={`max-w-full max-h-full w-auto h-auto object-contain border border-indigo-200/20 rounded-lg shadow-lg ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
         onError={handleImageError}
+        onLoad={handleImageLoad}
         crossOrigin="anonymous"
       />
+      
+      {!isImageLoaded && !imgError && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+        </div>
+      )}
       
       <div className={`absolute ${isMobile ? 'bottom-2 right-2' : 'bottom-4 right-4'} flex ${isMobile ? 'flex-col space-y-2' : 'space-x-3'} opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
         <Button 
@@ -114,13 +128,12 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
           <Copy className="h-4 w-4 mr-1" /> Copy URL
         </Button>
         
-        {!imgError && (
+        {!imgError && isImageLoaded && (
           <Button
             onClick={handleCanvasDownload}
             size={isMobile ? "sm" : "default"}
             variant="default"
             className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
-            disabled={imgError}
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
