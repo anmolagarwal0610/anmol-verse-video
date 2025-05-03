@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import DownloadButton from '@/components/ui/download-button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Music, FileText, Archive, ExternalLink } from 'lucide-react';
 import { VideoData } from '@/components/video-card';
@@ -51,7 +52,7 @@ const VideoResources = ({ video }: VideoResourcesProps) => {
         <TableHeader>
           <TableRow>
             <TableHead>Type</TableHead>
-            <TableHead className="text-right">Action</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -61,7 +62,14 @@ const VideoResources = ({ video }: VideoResourcesProps) => {
                 <Music className="h-4 w-4 mr-2 text-blue-500" />
                 <span>Audio</span>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right flex items-center justify-end space-x-2">
+                <DownloadButton 
+                  url={video.audioUrl} 
+                  fileType="audio" 
+                  size="sm" 
+                  variant="secondary"
+                  className="h-8 px-3 text-xs"
+                />
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -89,7 +97,14 @@ const VideoResources = ({ video }: VideoResourcesProps) => {
                 <FileText className="h-4 w-4 mr-2 text-green-500" />
                 <span>Transcript</span>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right flex items-center justify-end space-x-2">
+                <DownloadButton 
+                  url={video.transcriptUrl} 
+                  fileType="transcript" 
+                  size="sm" 
+                  variant="secondary"
+                  className="h-8 px-3 text-xs"
+                />
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -117,7 +132,14 @@ const VideoResources = ({ video }: VideoResourcesProps) => {
                 <Archive className="h-4 w-4 mr-2 text-amber-500" />
                 <span>Images Archive</span>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right flex items-center justify-end space-x-2">
+                <DownloadButton 
+                  url={video.imagesZipUrl} 
+                  fileType="archive" 
+                  size="sm" 
+                  variant="secondary"
+                  className="h-8 px-3 text-xs"
+                />
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>

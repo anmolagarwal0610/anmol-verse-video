@@ -2,8 +2,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useVideoGenerator } from '@/hooks/use-video-generator';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
-import { saveVideoToGallery } from '@/lib/videoApi';
+import { saveVideoToGallery } from '@/lib/video/services/videoGallery';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/use-auth';
 
 // Session storage key for tracking saved videos
 const SAVED_VIDEOS_STORAGE_KEY = "savedVideoIds";
@@ -22,6 +23,7 @@ interface VideoGenerationContextProps {
 const VideoGenerationContext = createContext<VideoGenerationContextProps | null>(null);
 
 export const VideoGenerationProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
   const [isVideoSaved, setIsVideoSaved] = useState<boolean>(false);
   // Initialize savedVideoIds from session storage
   const [savedVideoIds, setSavedVideoIds] = useState<Set<string>>(() => {
@@ -53,7 +55,7 @@ export const VideoGenerationProvider = ({ children }: { children: React.ReactNod
 
   // Auto-save the video when generation completes
   useEffect(() => {
-    if (status === 'completed' && result && !isVideoSaved) {
+    if (status === 'completed' && result && !isVideoSaved && user) {
       // Check if we've already saved this video to prevent duplicates
       const videoId = result.task_id || '';
       const alreadySaved = savedVideoIds.has(videoId);
@@ -65,10 +67,11 @@ export const VideoGenerationProvider = ({ children }: { children: React.ReactNod
         const saveVideo = async () => {
           try {
             console.log('VideoGenerationContext: Saving video to gallery:', result);
+            console.log('VideoGenerationContext: Using userId:', user.id);
             console.log('VideoGenerationContext: Using frame_fps:', result.frame_fps || currentParams?.frame_fps);
             
-            // Pass the entire result object to saveVideoToGallery
-            await saveVideoToGallery(result, result.voice || '');
+            // Pass the user ID explicitly to ensure it's not empty
+            await saveVideoToGallery(result, user.id);
             
             // Mark this video as saved
             setSavedVideoIds(prev => {
@@ -87,13 +90,15 @@ export const VideoGenerationProvider = ({ children }: { children: React.ReactNod
 
         saveVideo();
       }
+    } else if (status === 'completed' && result && !user) {
+      console.log('VideoGenerationContext: Cannot save video - user not authenticated');
     }
     
     // Reset the saved flag when we start a new generation
     if (status === 'idle' || status === 'generating') {
       setIsVideoSaved(false);
     }
-  }, [status, result, isVideoSaved, savedVideoIds, currentParams]);
+  }, [status, result, isVideoSaved, savedVideoIds, currentParams, user]);
 
   const generateVideo = (params: VideoGenerationParams) => {
     // Log parameters to verify frame_fps is being passed correctly

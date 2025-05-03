@@ -4,6 +4,7 @@ import { Download, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
+import DownloadButton from '@/components/ui/download-button';
 
 interface ImagePreviewProps {
   imageUrl: string | null;
@@ -58,6 +59,20 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
         >
           <Copy className="h-4 w-4 mr-1" /> Copy URL
         </Button>
+        
+        {imageUrl && !imgError && (
+          <DownloadButton 
+            url={imageUrl} 
+            fileType="image" 
+            size={isMobile ? "sm" : "default"} 
+            variant="default"
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+            onClick={onDownload}
+          >
+            Download
+          </DownloadButton>
+        )}
+        
         <Button 
           size={isMobile ? "sm" : "default"}
           className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"

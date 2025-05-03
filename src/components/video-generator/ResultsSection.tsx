@@ -1,6 +1,7 @@
 
 import { ExternalLink, FileVideo, Music, FileText, Archive, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import DownloadButton from '@/components/ui/download-button';
 import {
   Card,
   CardContent,
@@ -10,7 +11,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { VideoStatusResponse } from '@/lib/videoGenerationApi';
-import { useAuth } from '@/hooks/use-auth';
 import { Link } from 'react-router-dom';
 import {
   Tooltip,
@@ -30,6 +30,11 @@ interface ResultCardProps {
 
 const ResultCard = ({ icon, title, description, url, isPrimary = false }: ResultCardProps) => {
   const isVideo = title.toLowerCase().includes('video');
+  const fileType = 
+    title === 'Video' ? 'video' : 
+    title === 'Audio Track' ? 'audio' : 
+    title === 'Transcript' ? 'transcript' : 
+    title === 'Image Collection' ? 'archive' : 'video';
   
   const handleResourceAction = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -72,7 +77,14 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
             </video>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-end space-x-2">
+        <CardFooter className="flex justify-between space-x-2">
+          <DownloadButton 
+            url={url} 
+            fileType="video" 
+            size="sm" 
+            variant="default"
+            className="h-8 px-3 text-xs"
+          />
           <Button variant="outline" size="sm" asChild className="h-8 px-3 text-xs">
             <a href={url} target="_blank" rel="noopener noreferrer" onClick={handleResourceAction}>
               <ExternalLink className="mr-1 h-3.5 w-3.5" />
@@ -86,24 +98,36 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
   
   return (
     <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            asChild
-            className="h-9 px-3 text-xs hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            <a href={url} target="_blank" rel="noopener noreferrer" onClick={handleResourceAction}>
-              {icon}
-              <span className="ml-2">{title}</span>
-            </a>
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{description}</p>
-        </TooltipContent>
-      </Tooltip>
+      <div className="flex items-center gap-2">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="h-9 px-3 text-xs hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <a href={url} target="_blank" rel="noopener noreferrer" onClick={handleResourceAction}>
+                {icon}
+                <span className="ml-2">{title}</span>
+              </a>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{description}</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <DownloadButton 
+          url={url} 
+          fileType={fileType}
+          size="sm" 
+          variant="secondary"
+          className="h-8 px-3 text-xs"
+        >
+          {title}
+        </DownloadButton>
+      </div>
     </TooltipProvider>
   );
 };

@@ -36,7 +36,7 @@ export default function Auth() {
           </div>
           
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-            Welcome to <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">AnmolVerse</span>
+            Welcome to <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">DumbLabs.AI</span>
           </h1>
           
           <p className="text-lg text-muted-foreground">
@@ -96,7 +96,7 @@ export default function Auth() {
       
       <div className="container mx-auto px-4 pb-10">
         <div className="text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} AnmolVerse. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} DumbLabs.AI. All rights reserved.</p>
         </div>
       </div>
     </div>
