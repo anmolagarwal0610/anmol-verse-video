@@ -9,6 +9,9 @@ import ImageMetadata from './ImageMetadata';
 import ImageDeleteButton from './ImageDeleteButton';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
+import { ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 export interface ImageData {
   id: string;
@@ -52,6 +55,22 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
     if (onError) onError();
   };
 
+  const handleOpenInNewTab = () => {
+    // Use CORS proxy for opening the image in a new tab
+    import('@/lib/utils/corsProxy').then(({ fetchWithCorsProxy }) => {
+      // Just construct the URL with the proxy but don't fetch yet
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(image.image_url)}`;
+      
+      try {
+        window.open(proxyUrl, '_blank');
+        toast.success('Image opened in new tab');
+      } catch (error) {
+        console.error('Error opening image:', error);
+        toast.error('Failed to open image. Please try again.');
+      }
+    });
+  };
+
   return (
     <motion.div
       className="h-full"
@@ -82,21 +101,25 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
             />
           )}
 
-          {!hasError && (
-            <div className={`absolute inset-0 bg-black/30 ${alwaysShowDelete ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity duration-200 flex items-center justify-center gap-2`}>
-              <ImageDownloadButton 
-                imageUrl={image.image_url}
+          {/* Always show action buttons for all images */}
+          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
+            <Button 
+              variant="ghost"
+              size="icon"
+              className="bg-black/50 hover:bg-black/70 text-white rounded-full"
+              onClick={handleOpenInNewTab}
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+            
+            {(isOwner || alwaysShowDelete) && (
+              <ImageDeleteButton 
+                imageId={image.id}
                 variant="overlay"
+                onDelete={onDelete}
               />
-              {(isOwner || alwaysShowDelete) && (
-                <ImageDeleteButton 
-                  imageId={image.id}
-                  variant="overlay"
-                  onDelete={onDelete}
-                />
-              )}
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         <div className="p-4 flex-grow flex flex-col justify-between space-y-4">
@@ -118,10 +141,33 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
             )}
           </div>
 
-          <ImageMetadata 
-            createdAt={image.created_at}
-            expiryTime={image.expiry_time}
-          />
+          <div className="flex justify-between items-center mt-2">
+            <ImageMetadata 
+              createdAt={image.created_at}
+              expiryTime={image.expiry_time}
+            />
+            
+            {/* Always visible button row at the bottom */}
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1"
+                onClick={handleOpenInNewTab}
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                <span>Open</span>
+              </Button>
+              
+              {(isOwner || alwaysShowDelete) && (
+                <ImageDeleteButton 
+                  imageId={image.id}
+                  variant="standalone"
+                  onDelete={onDelete}
+                />
+              )}
+            </div>
+          </div>
         </div>
       </Card>
     </motion.div>

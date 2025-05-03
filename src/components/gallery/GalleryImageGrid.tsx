@@ -77,7 +77,7 @@ const GalleryImageGrid = ({ images: initialImages }: GalleryImageGridProps) => {
             onLoad={() => handleImageLoad(image.id)}
             onError={() => handleImageError(image.id)}
             onDelete={() => handleImageDelete(image.id)}
-            alwaysShowDelete={failedImages.has(image.id)}
+            alwaysShowDelete={true} // Always show delete button
           />
         </div>
       ))}

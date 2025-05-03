@@ -45,7 +45,7 @@ const DownloadButton = ({
 
   const showPersistentMessage = () => {
     // Show a persistent toast that doesn't auto-dismiss
-    toast("If automatic download doesn't work, you can right-click on the image and select 'Save Image As...'", {
+    toast("If automatic download doesn't work, right-click on the image and select 'Save Image As...'", {
       duration: Infinity, // Keep it visible until user dismisses
       position: 'top-center',
       action: {
@@ -65,7 +65,7 @@ const DownloadButton = ({
       console.log('Starting download for URL:', url);
       
       // Always prioritize the working proxy first (api.allorigins.win)
-      const response = await fetchWithCorsProxy(url, {}, 2); // Start with index 2 (third proxy in the array)
+      const response = await fetchWithCorsProxy(url);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch ${fileType}`);
@@ -92,7 +92,7 @@ const DownloadButton = ({
       toast.dismiss(toastId);
       toast.success(`${fileType.charAt(0).toUpperCase() + fileType.slice(1)} download started`);
       
-      // Show the persistent fallback message
+      // Always show the persistent fallback message
       showPersistentMessage();
       
       // Call the optional onClick callback if provided
