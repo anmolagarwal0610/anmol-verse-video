@@ -6,6 +6,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { imageGeneratorSchema, FormValues } from '@/lib/schemas/imageGeneratorSchema';
 import { generateImageFromPrompt } from '@/lib/services/imageGenerationService';
 import { PIXEL_OPTIONS } from '@/lib/constants/pixelOptions';
+import { fetchWithCorsProxy } from '@/lib/utils/corsProxy';
+import { supabase } from '@/integrations/supabase/client';
 
 export { type FormValues } from '@/lib/schemas/imageGeneratorSchema';
 
