@@ -1,5 +1,3 @@
 
-import { API_CONFIG } from './config/api';
-import { fetchWithCorsProxy } from './utils/corsProxy';
-
-export { API_CONFIG, fetchWithCorsProxy };
+export { API_CONFIG } from './config/api';
+export { fetchWithCorsProxy } from './utils/corsProxy';

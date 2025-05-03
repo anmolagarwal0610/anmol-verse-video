@@ -6,8 +6,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { imageGeneratorSchema, FormValues } from '@/lib/schemas/imageGeneratorSchema';
 import { generateImageFromPrompt } from '@/lib/services/imageGenerationService';
 import { PIXEL_OPTIONS } from '@/lib/constants/pixelOptions';
-import { fetchWithCorsProxy } from '@/lib/utils/corsProxy';
-import { supabase } from '@/integrations/supabase/client';
 
 export { type FormValues } from '@/lib/schemas/imageGeneratorSchema';
 
@@ -143,91 +141,12 @@ export function useImageGenerator() {
     }
   }, [isGenerating, user]);
   
-  // Add a function to convert image URL to Blob for more reliable storage
-  const convertUrlToBlob = async (url: string): Promise<Blob | null> => {
-    try {
-      console.log('🔄 Converting URL to blob:', url);
-      
-      // Use the CORS proxy for fetching
-      const response = await fetchWithCorsProxy(url);
-      
-      if (!response.ok) {
-        console.error('❌ Failed to fetch image for conversion:', response.status);
-        return null;
-      }
-      
-      const blob = await response.blob();
-      console.log(`✅ Successfully converted URL to blob: ${blob.size} bytes`);
-      return blob;
-    } catch (error) {
-      console.error('❌ Error converting URL to blob:', error);
-      return null;
-    }
-  };
-  
-  // Modify the saveImageToGallery function to handle blob conversion
-  const saveImageToGallery = async (imageUrl: string, prompt: string, modelType: string, width: number, height: number, preferences: string[]) => {
-    try {
-      if (!user) {
-        console.log('⚠️ User not authenticated, showing gallery message');
-        setShowGalleryMessage(true);
-        return;
-      }
-
-      // Log the URL we're trying to save
-      console.log('🔍 Attempting to save image URL to gallery:', imageUrl);
-      
-      // Verify the URL is valid
-      if (!imageUrl || !imageUrl.startsWith('http')) {
-        console.error('❌ Invalid image URL:', imageUrl);
-        toast.error('Invalid image URL');
-        return;
-      }
-
-      // Convert to blob first to verify the image is accessible
-      const imageBlob = await convertUrlToBlob(imageUrl);
-      if (!imageBlob) {
-        console.error('❌ Could not access the image data');
-        toast.error('Could not access the image data. Please try again.');
-        return;
-      }
-      
-      console.log('✅ Image blob created successfully:', imageBlob.size, 'bytes');
-      
-      // Now we know the image is accessible, proceed with saving to Supabase
-      const { data, error } = await supabase.from('generated_images').insert({
-        prompt: prompt,
-        image_url: imageUrl,
-        model: modelType,
-        preferences: preferences,
-        width: width,
-        height: height,
-        user_id: user.id,
-        // Set expiry for 7 days from now
-        expiry_time: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-      });
-      
-      if (error) {
-        console.error('❌ Error saving image to database:', error);
-        toast.error('Failed to save image to gallery');
-        return;
-      }
-      
-      toast.success('Image saved to your gallery!');
-      console.log('✅ Image saved to gallery successfully');
-    } catch (error) {
-      console.error('❌ Error saving image to gallery:', error);
-      toast.error('Failed to save image to gallery');
-    }
-  };
-  
   return {
     form,
     imageUrl,
     isGenerating,
     showGalleryMessage,
     calculateEstimatedCreditCost,
-    generateImageFromPrompt: handleGenerateImage,
-    saveImageToGallery
+    generateImageFromPrompt: handleGenerateImage
   };
 }
