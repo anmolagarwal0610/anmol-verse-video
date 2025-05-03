@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
   const isMobile = useIsMobile();
   const [imgSrc, setImgSrc] = useState<string | null>(imageUrl);
   const [imgError, setImgError] = useState<boolean>(false);
+  const imageRef = useRef<HTMLImageElement>(null);
   
   // Update image source when imageUrl prop changes
   useEffect(() => {
@@ -48,10 +49,12 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
   return (
     <div className="relative w-full h-full flex items-center justify-center group">
       <img 
+        ref={imageRef}
         src={imgSrc} 
         alt="Generated" 
         className="max-w-full max-h-full w-auto h-auto object-contain border border-indigo-200/20 rounded-lg shadow-lg"
         onError={handleImageError}
+        crossOrigin="anonymous"  // Add crossOrigin to help with CORS for canvas operations
       />
       
       <div className={`absolute ${isMobile ? 'bottom-2 right-2' : 'bottom-4 right-4'} flex ${isMobile ? 'flex-col space-y-2' : 'space-x-3'} opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
@@ -73,6 +76,7 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
             variant="default"
             className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
             onClick={handleDownloadComplete}
+            imageRef={imageRef}  // Pass the image reference
           />
         )}
       </div>

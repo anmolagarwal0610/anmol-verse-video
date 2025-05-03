@@ -12,6 +12,7 @@ interface DownloadButtonProps extends Omit<ButtonProps, 'onClick'> {
   variant?: 'default' | 'secondary' | 'outline' | 'destructive' | 'ghost' | 'link';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   onClick?: () => void;
+  imageRef?: React.RefObject<HTMLImageElement>; // Add reference to already loaded image
 }
 
 const DownloadButton = ({ 
@@ -22,6 +23,7 @@ const DownloadButton = ({
   size = 'default',
   className,
   onClick,
+  imageRef,
   ...props 
 }: DownloadButtonProps) => {
   const getFileExtension = () => {
@@ -41,7 +43,70 @@ const DownloadButton = ({
     return `${prefix}_${timestamp}${getFileExtension()}`;
   };
 
-  const handleDownload = async () => {
+  // Function to download from an image element that's already loaded in the DOM
+  const downloadFromImageElement = async () => {
+    try {
+      if (!imageRef?.current) {
+        throw new Error("Image reference is not available");
+      }
+
+      toast.loading(`Preparing ${fileType} for download...`);
+      
+      // Create a canvas and draw the image to it
+      const canvas = document.createElement('canvas');
+      canvas.width = imageRef.current.naturalWidth;
+      canvas.height = imageRef.current.naturalHeight;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error("Could not create canvas context");
+      }
+      
+      // Draw the image to the canvas
+      ctx.drawImage(imageRef.current, 0, 0);
+      
+      // Convert canvas to blob
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error("Failed to convert canvas to blob"));
+          },
+          'image/png',
+          1.0
+        );
+      });
+      
+      console.log(`Created blob from canvas: ${blob.size} bytes, type: ${blob.type}`);
+      
+      // Create download link
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename || getDefaultFilename();
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up
+      window.URL.revokeObjectURL(downloadUrl);
+      toast.dismiss();
+      toast.success(`${fileType.charAt(0).toUpperCase() + fileType.slice(1)} downloaded successfully`);
+      
+      // Call the optional onClick callback if provided
+      if (onClick) {
+        onClick();
+      }
+    } catch (error) {
+      console.error('Canvas download error:', error);
+      // Fall back to proxy download if canvas approach fails
+      handleProxyDownload();
+    }
+  };
+
+  const handleProxyDownload = async () => {
     try {
       toast.loading(`Preparing ${fileType} for download...`);
       
@@ -83,6 +148,15 @@ const DownloadButton = ({
       console.error('Download error:', error);
       toast.dismiss();
       toast.error(`Failed to download ${fileType}`);
+    }
+  };
+
+  const handleDownload = async () => {
+    // If we have an image reference and it's an image file, use the canvas approach
+    if (imageRef?.current && fileType === 'image') {
+      await downloadFromImageElement();
+    } else {
+      await handleProxyDownload();
     }
   };
 
