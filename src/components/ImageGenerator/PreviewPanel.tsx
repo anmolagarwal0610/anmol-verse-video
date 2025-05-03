@@ -14,8 +14,7 @@ const PreviewPanel = ({ isGenerating, imageUrl, outputFormat }: PreviewPanelProp
   const isMobile = useIsMobile();
   
   const handleDownload = () => {
-    console.log('Image downloaded or opened successfully');
-    toast.success('Image downloaded successfully');
+    console.log('✅ Image downloaded or opened successfully');
   };
 
   return (

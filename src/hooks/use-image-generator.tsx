@@ -146,17 +146,21 @@ export function useImageGenerator() {
   // Add a function to convert image URL to Blob for more reliable storage
   const convertUrlToBlob = async (url: string): Promise<Blob | null> => {
     try {
+      console.log('🔄 Converting URL to blob:', url);
+      
       // Use the CORS proxy for fetching
       const response = await fetchWithCorsProxy(url);
       
       if (!response.ok) {
-        console.error('Failed to fetch image for conversion:', response.status);
+        console.error('❌ Failed to fetch image for conversion:', response.status);
         return null;
       }
       
-      return await response.blob();
+      const blob = await response.blob();
+      console.log(`✅ Successfully converted URL to blob: ${blob.size} bytes`);
+      return blob;
     } catch (error) {
-      console.error('Error converting URL to blob:', error);
+      console.error('❌ Error converting URL to blob:', error);
       return null;
     }
   };
@@ -165,16 +169,17 @@ export function useImageGenerator() {
   const saveImageToGallery = async (imageUrl: string, prompt: string, modelType: string, width: number, height: number, preferences: string[]) => {
     try {
       if (!user) {
-        console.log('User not authenticated, showing gallery message');
+        console.log('⚠️ User not authenticated, showing gallery message');
         setShowGalleryMessage(true);
         return;
       }
 
       // Log the URL we're trying to save
-      console.log('Attempting to save image URL to gallery:', imageUrl);
+      console.log('🔍 Attempting to save image URL to gallery:', imageUrl);
       
       // Verify the URL is valid
       if (!imageUrl || !imageUrl.startsWith('http')) {
+        console.error('❌ Invalid image URL:', imageUrl);
         toast.error('Invalid image URL');
         return;
       }
@@ -182,11 +187,12 @@ export function useImageGenerator() {
       // Convert to blob first to verify the image is accessible
       const imageBlob = await convertUrlToBlob(imageUrl);
       if (!imageBlob) {
+        console.error('❌ Could not access the image data');
         toast.error('Could not access the image data. Please try again.');
         return;
       }
       
-      console.log('Image blob created successfully:', imageBlob.size, 'bytes');
+      console.log('✅ Image blob created successfully:', imageBlob.size, 'bytes');
       
       // Now we know the image is accessible, proceed with saving to Supabase
       const { data, error } = await supabase.from('generated_images').insert({
@@ -202,15 +208,15 @@ export function useImageGenerator() {
       });
       
       if (error) {
-        console.error('Error saving image to database:', error);
+        console.error('❌ Error saving image to database:', error);
         toast.error('Failed to save image to gallery');
         return;
       }
       
       toast.success('Image saved to your gallery!');
-      console.log('Image saved to gallery successfully');
+      console.log('✅ Image saved to gallery successfully');
     } catch (error) {
-      console.error('Error saving image to gallery:', error);
+      console.error('❌ Error saving image to gallery:', error);
       toast.error('Failed to save image to gallery');
     }
   };

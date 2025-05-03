@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, ButtonProps } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { toast } from 'sonner';
@@ -26,6 +26,8 @@ const DownloadButton = ({
   imageRef,
   ...props 
 }: DownloadButtonProps) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  
   const getFileExtension = () => {
     switch (fileType) {
       case 'image': return '.jpg';
@@ -45,17 +47,23 @@ const DownloadButton = ({
 
   // Function to download from an image element that's already loaded in the DOM
   const downloadFromImageElement = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
+    
     try {
       if (!imageRef?.current) {
+        console.error("Image reference is not available");
         throw new Error("Image reference is not available");
       }
 
       toast.loading(`Preparing ${fileType} for download...`);
+      console.log("🖼️ Downloading from image element:", imageRef.current.src);
       
       // Create a canvas and draw the image to it
       const canvas = document.createElement('canvas');
       canvas.width = imageRef.current.naturalWidth;
       canvas.height = imageRef.current.naturalHeight;
+      console.log(`🎨 Created canvas: ${canvas.width}x${canvas.height}`);
       
       const ctx = canvas.getContext('2d');
       if (!ctx) {
@@ -77,7 +85,7 @@ const DownloadButton = ({
         );
       });
       
-      console.log(`Created blob from canvas: ${blob.size} bytes, type: ${blob.type}`);
+      console.log(`🔢 Created blob from canvas: ${blob.size} bytes, type: ${blob.type}`);
       
       // Create download link
       const downloadUrl = window.URL.createObjectURL(blob);
@@ -101,28 +109,34 @@ const DownloadButton = ({
       }
     } catch (error) {
       console.error('Canvas download error:', error);
+      toast.dismiss();
+      toast.error(`Failed to download ${fileType} via canvas. Trying proxy method...`);
       // Fall back to proxy download if canvas approach fails
-      handleProxyDownload();
+      await handleProxyDownload();
+    } finally {
+      setIsDownloading(false);
     }
   };
 
   const handleProxyDownload = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
+    
     try {
       toast.loading(`Preparing ${fileType} for download...`);
+      console.log(`🌐 Downloading via proxy: ${url}`);
       
       // Use CORS proxy for fetching external resources, especially images
-      const response = fileType === 'image' 
-        ? await fetchWithCorsProxy(url)
-        : await fetch(url);
+      const response = await fetchWithCorsProxy(url);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch ${fileType}`);
       }
       
-      console.log(`Download response status: ${response.status}, type: ${response.headers.get('content-type')}`);
+      console.log(`✅ Download response status: ${response.status}, type: ${response.headers.get('content-type')}`);
       
       const blob = await response.blob();
-      console.log(`Blob size: ${blob.size}, type: ${blob.type}`);
+      console.log(`🔢 Blob size: ${blob.size}, type: ${blob.type}`);
       
       // Create download link
       const downloadUrl = window.URL.createObjectURL(blob);
@@ -148,14 +162,18 @@ const DownloadButton = ({
       console.error('Download error:', error);
       toast.dismiss();
       toast.error(`Failed to download ${fileType}`);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
   const handleDownload = async () => {
     // If we have an image reference and it's an image file, use the canvas approach
     if (imageRef?.current && fileType === 'image') {
+      console.log("🖼️ Using canvas download method for image");
       await downloadFromImageElement();
     } else {
+      console.log("🌐 Using proxy download method");
       await handleProxyDownload();
     }
   };
@@ -166,10 +184,11 @@ const DownloadButton = ({
       variant={variant}
       size={size}
       className={className}
+      disabled={isDownloading}
       {...props}
     >
       <Download className="mr-2 h-4 w-4" />
-      Download {fileType.charAt(0).toUpperCase() + fileType.slice(1)}
+      {isDownloading ? `Downloading...` : `Download ${fileType.charAt(0).toUpperCase() + fileType.slice(1)}`}
     </Button>
   );
 };
