@@ -78,8 +78,9 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
       </div>
       
       {imgError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-700/50 backdrop-blur-sm">
-          <p className="text-white text-sm">Unable to load image</p>
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-700/50 backdrop-blur-sm p-4">
+          <p className="text-white text-sm mb-2 text-center">Unable to load image</p>
+          <p className="text-white/70 text-xs text-center">The generated image may be available through the download button</p>
         </div>
       )}
     </div>

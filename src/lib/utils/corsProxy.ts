@@ -17,14 +17,16 @@ export const fetchWithCorsProxy = async (url: string, options: RequestInit = {},
     const response = await fetch(proxyUrl, options);
     
     if (response.ok) {
-      console.log(`Proxy ${proxyIndex + 1} successful`);
+      console.log(`Proxy ${proxyIndex + 1} successful with status:`, response.status);
       return response;
     }
     
     console.log(`Proxy ${proxyIndex + 1} failed with status:`, response.status, response.statusText);
+    // Try the next proxy
     return fetchWithCorsProxy(url, options, proxyIndex + 1);
   } catch (error) {
     console.error(`Proxy ${proxyIndex + 1} threw error:`, error);
+    // Try the next proxy
     return fetchWithCorsProxy(url, options, proxyIndex + 1);
   }
 };

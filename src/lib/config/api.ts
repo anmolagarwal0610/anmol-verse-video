@@ -4,8 +4,8 @@ export const API_CONFIG = {
   API_KEY: "supersecret123",
   FALLBACK_BASE_URL: "https://api-fallback.example.com",
   CORS_PROXIES: [
+    "https://api.allorigins.win/raw?url=",
     "https://corsproxy.io/?",
-    "https://cors-anywhere.herokuapp.com/",
-    "https://api.allorigins.win/raw?url="
+    "https://cors-anywhere.herokuapp.com/"
   ]
 } as const;

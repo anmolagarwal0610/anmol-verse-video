@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, ButtonProps } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { toast } from 'sonner';
@@ -24,6 +24,8 @@ const DownloadButton = ({
   onClick,
   ...props 
 }: DownloadButtonProps) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  
   const getFileExtension = () => {
     switch (fileType) {
       case 'image': return '.jpg';
@@ -41,14 +43,29 @@ const DownloadButton = ({
     return `${prefix}_${timestamp}${getFileExtension()}`;
   };
 
+  const showPersistentMessage = () => {
+    // Show a persistent toast that doesn't auto-dismiss
+    toast("If automatic download doesn't work, you can right-click on the image and select 'Save Image As...'", {
+      duration: Infinity, // Keep it visible until user dismisses
+      position: 'top-center',
+      action: {
+        label: "Got it",
+        onClick: () => toast.dismiss()
+      }
+    });
+  };
+
   const handleDownload = async () => {
+    if (isDownloading) return;
+    
+    setIsDownloading(true);
+    const toastId = toast.loading(`Preparing ${fileType} for download...`);
+    
     try {
-      toast.loading(`Preparing ${fileType} for download...`);
+      console.log('Starting download for URL:', url);
       
-      // Use CORS proxy for fetching external resources, especially images
-      const response = fileType === 'image' 
-        ? await fetchWithCorsProxy(url)
-        : await fetch(url);
+      // Always prioritize the working proxy first (api.allorigins.win)
+      const response = await fetchWithCorsProxy(url, {}, 2); // Start with index 2 (third proxy in the array)
       
       if (!response.ok) {
         throw new Error(`Failed to fetch ${fileType}`);
@@ -72,8 +89,11 @@ const DownloadButton = ({
       
       // Clean up
       window.URL.revokeObjectURL(downloadUrl);
-      toast.dismiss();
-      toast.success(`${fileType.charAt(0).toUpperCase() + fileType.slice(1)} downloaded successfully`);
+      toast.dismiss(toastId);
+      toast.success(`${fileType.charAt(0).toUpperCase() + fileType.slice(1)} download started`);
+      
+      // Show the persistent fallback message
+      showPersistentMessage();
       
       // Call the optional onClick callback if provided
       if (onClick) {
@@ -81,8 +101,13 @@ const DownloadButton = ({
       }
     } catch (error) {
       console.error('Download error:', error);
-      toast.dismiss();
-      toast.error(`Failed to download ${fileType}`);
+      toast.dismiss(toastId);
+      toast.error(`We couldn't automatically download your ${fileType}`);
+      
+      // Always show the manual download instructions on error
+      showPersistentMessage();
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -92,10 +117,11 @@ const DownloadButton = ({
       variant={variant}
       size={size}
       className={className}
+      disabled={isDownloading}
       {...props}
     >
       <Download className="mr-2 h-4 w-4" />
-      Download {fileType.charAt(0).toUpperCase() + fileType.slice(1)}
+      {isDownloading ? 'Downloading...' : `Download ${fileType.charAt(0).toUpperCase() + fileType.slice(1)}`}
     </Button>
   );
 };
