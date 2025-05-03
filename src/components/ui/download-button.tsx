@@ -10,6 +10,7 @@ interface DownloadButtonProps extends Omit<ButtonProps, 'onClick'> {
   fileType?: 'image' | 'video' | 'transcript' | 'audio' | 'archive';
   variant?: 'default' | 'secondary' | 'outline' | 'destructive' | 'ghost' | 'link';
   size?: 'default' | 'sm' | 'lg' | 'icon';
+  onClick?: () => void;
 }
 
 const DownloadButton = ({ 
@@ -19,6 +20,7 @@ const DownloadButton = ({
   variant = 'outline',
   size = 'default',
   className,
+  onClick,
   ...props 
 }: DownloadButtonProps) => {
   const getFileExtension = () => {
@@ -66,6 +68,11 @@ const DownloadButton = ({
       window.URL.revokeObjectURL(downloadUrl);
       toast.dismiss();
       toast.success(`${fileType.charAt(0).toUpperCase() + fileType.slice(1)} downloaded successfully`);
+      
+      // Call the optional onClick callback if provided
+      if (onClick) {
+        onClick();
+      }
     } catch (error) {
       console.error('Download error:', error);
       toast.dismiss();
