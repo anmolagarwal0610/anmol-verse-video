@@ -3,6 +3,7 @@ import React from 'react';
 import { Button, ButtonProps } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { toast } from 'sonner';
+import { fetchWithCorsProxy } from '@/lib/utils/corsProxy';
 
 interface DownloadButtonProps extends Omit<ButtonProps, 'onClick'> {
   url: string;
@@ -44,14 +45,19 @@ const DownloadButton = ({
     try {
       toast.loading(`Preparing ${fileType} for download...`);
       
-      // Fetch the file as a blob
-      const response = await fetch(url);
+      // Use CORS proxy for fetching external resources, especially images
+      const response = fileType === 'image' 
+        ? await fetchWithCorsProxy(url)
+        : await fetch(url);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch ${fileType}`);
       }
       
+      console.log(`Download response status: ${response.status}, type: ${response.headers.get('content-type')}`);
+      
       const blob = await response.blob();
+      console.log(`Blob size: ${blob.size}, type: ${blob.type}`);
       
       // Create download link
       const downloadUrl = window.URL.createObjectURL(blob);

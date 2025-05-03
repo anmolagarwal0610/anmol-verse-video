@@ -13,12 +13,9 @@ interface PreviewPanelProps {
 const PreviewPanel = ({ isGenerating, imageUrl, outputFormat }: PreviewPanelProps) => {
   const isMobile = useIsMobile();
   
-  const downloadImage = async () => {
-    if (!imageUrl) return;
-    
-    // Open the image in a new tab
-    window.open(imageUrl, '_blank');
-    toast.success('Image opened in new tab');
+  const handleDownload = () => {
+    console.log('Image downloaded or opened successfully');
+    toast.success('Image downloaded successfully');
   };
 
   return (
@@ -35,7 +32,7 @@ const PreviewPanel = ({ isGenerating, imageUrl, outputFormat }: PreviewPanelProp
           <ImagePreview 
             imageUrl={imageUrl} 
             outputFormat={outputFormat} 
-            onDownload={downloadImage} 
+            onDownload={handleDownload} 
           />
         </div>
       ) : (

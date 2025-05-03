@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Download, Copy } from 'lucide-react';
+import { Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -40,6 +40,11 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
     setImgSrc('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjY0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjNGI1NTYzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+SW1hZ2UgTm90IEF2YWlsYWJsZTwvdGV4dD48L3N2Zz4=');
   };
 
+  const handleDownloadComplete = () => {
+    // Call the parent's onDownload callback
+    onDownload();
+  };
+
   return (
     <div className="relative w-full h-full flex items-center justify-center group">
       <img 
@@ -67,20 +72,9 @@ const ImagePreview = ({ imageUrl, outputFormat, onDownload }: ImagePreviewProps)
             size={isMobile ? "sm" : "default"} 
             variant="default"
             className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
-            onClick={onDownload}
-          >
-            Download
-          </DownloadButton>
+            onClick={handleDownloadComplete}
+          />
         )}
-        
-        <Button 
-          size={isMobile ? "sm" : "default"}
-          className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
-          onClick={onDownload}
-          disabled={imgError}
-        >
-          <Download className="h-4 w-4 mr-1" /> Open
-        </Button>
       </div>
       
       {imgError && (
