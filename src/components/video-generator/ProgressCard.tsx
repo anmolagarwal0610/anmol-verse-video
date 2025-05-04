@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 import { Link } from 'react-router-dom';
 import AnimatedLoadingIndicator from './AnimatedLoadingIndicator';
-import DinoGame from './DinoGame';
+import WaitingGame from './WaitingGame';
 import { useEffect } from 'react';
 
 interface ProgressCardProps {
@@ -27,9 +27,9 @@ const ProgressCard = ({ progress, status }: ProgressCardProps) => {
   const minutes = Math.floor(progress / 100 * 8);
   const showCancelButton = minutes >= 8;
   
-  // Log when the component mounts to understand timing of DinoGame initialization
+  // Log when the component mounts
   useEffect(() => {
-    console.log('[ProgressCard] Component mounted, DinoGame will be initialized');
+    console.log('[ProgressCard] Component mounted');
     
     return () => {
       console.log('[ProgressCard] Component unmounting');
@@ -63,23 +63,10 @@ const ProgressCard = ({ progress, status }: ProgressCardProps) => {
           <p className="text-sm text-center text-indigo-600 dark:text-indigo-300">
             Status: <span className="font-medium text-indigo-700 dark:text-indigo-200">{status}</span>
           </p>
-          <p className="text-xs text-center mt-2 text-indigo-500/70 dark:text-indigo-300/70">
-            Play while you wait!
-          </p>
         </div>
 
-        {/* Log right before DinoGame is rendered */}
-        <div 
-          className="relative"
-          ref={(node) => {
-            if (node) {
-              console.log('[ProgressCard] DinoGame container element ready:', 
-                { width: node.offsetWidth, height: node.offsetHeight });
-            }
-          }}
-        >
-          <DinoGame />
-        </div>
+        {/* Replace DinoGame with WaitingGame component */}
+        {progress > 10 && <WaitingGame />}
         
         <div className="flex flex-col space-y-2">
           <Link to="/images" className="w-full">
