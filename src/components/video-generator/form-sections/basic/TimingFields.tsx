@@ -21,7 +21,7 @@ const TimingFields = () => {
   const { form, isGenerating } = useVideoGenerationForm();
   const selectedVoice = form.watch('voice');
   const videoDuration = form.watch('video_duration');
-  const frameFPS = form.watch('frame_fps'); // Add this to watch frame_fps changes
+  const frameFPS = form.watch('frame_fps');
   
   // Log the values for debugging
   console.log(`TimingFields: voice=${selectedVoice}, duration=${videoDuration}, frameFPS=${frameFPS}`);
@@ -60,7 +60,7 @@ const TimingFields = () => {
   console.log(`TimingFields: Credit calculation details - isGoogleVoice=${isGoogleVoice}, fps=${frameFPS}, creditsPerSecond=${creditsPerSecond}, rawCost=${rawCreditCost}, finalCost=${estimatedCreditCost}`);
   
   return (
-    <>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Approximate Video Duration */}
       <FormField
         control={form.control}
@@ -170,7 +170,7 @@ const TimingFields = () => {
           </FormItem>
         )}
       />
-    </>
+    </div>
   );
 };
 
