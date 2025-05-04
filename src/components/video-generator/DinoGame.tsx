@@ -150,11 +150,20 @@ export default function DinoGame() {
 
         .obstacle {
           position: absolute;
-          font-size: 32px;
+          font-size: 40px;
           bottom: 0;
           left: 100%;
           animation: obstacleAnim 2s linear infinite;
           line-height: 1;
+          padding: 4px;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          box-sizing: border-box;
+          border-radius: 8px;
+          box-shadow: 0 0 10px 4px rgba(255, 255, 255, 0.4); /* ✨ Glow */
         }
 
         .obstacle.stop {
