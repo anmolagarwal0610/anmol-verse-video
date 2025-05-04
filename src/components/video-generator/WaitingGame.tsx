@@ -1,72 +1,34 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Gamepad } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 
 const WaitingGame = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [position, setPosition] = useState({ x: 50, y: 50 });
-  const [score, setScore] = useState(0);
-  
-  const moveDot = useCallback(() => {
-    if (isPlaying) {
-      setPosition({
-        x: Math.random() * 90 + 5,
-        y: Math.random() * 90 + 5,
-      });
-    }
-  }, [isPlaying]);
-  
-  const handleClick = () => {
-    if (isPlaying) {
-      setScore(prev => prev + 1);
-      moveDot();
-    }
-  };
-  
-  const startGame = () => {
-    setIsPlaying(true);
-    setScore(0);
-    moveDot();
-  };
+  const [showGame, setShowGame] = useState(false);
   
   return (
-    <div className="mt-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Gamepad className="h-4 w-4 text-indigo-500" />
-          <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">Waiting Game</span>
-        </div>
-        {!isPlaying ? (
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={startGame}
-            className="text-xs hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950"
+    <Card className="mt-6 w-full max-w-md mx-auto">
+      <CardContent className="pt-6 text-center">
+        <h3 className="text-lg font-medium mb-4">Taking a bit longer than expected...</h3>
+        <p className="mb-4 text-muted-foreground text-sm">
+          Some videos take a bit longer to generate. We're working on it!
+        </p>
+        
+        {!showGame ? (
+          <button
+            onClick={() => setShowGame(true)}
+            className="text-sm text-primary hover:text-primary/80 underline"
           >
-            Start Game
-          </Button>
+            Pass the time with a game?
+          </button>
         ) : (
-          <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400">Score: {score}</span>
+          <div className="my-4 text-center">
+            <p className="text-sm text-muted-foreground mb-4">
+              Games are currently unavailable. We're working on adding fun activities for you to enjoy while waiting.
+            </p>
+          </div>
         )}
-      </div>
-      
-      {isPlaying && (
-        <div 
-          className="relative w-full h-[200px] bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-900 dark:to-indigo-950 rounded-lg overflow-hidden cursor-pointer shadow-inner"
-          onClick={handleClick}
-        >
-          <div
-            className="absolute w-4 h-4 bg-gradient-to-br from-indigo-400 to-indigo-600 dark:from-indigo-500 dark:to-indigo-700 rounded-full transition-all duration-200 cursor-pointer hover:scale-110 shadow-lg"
-            style={{
-              left: `${position.x}%`,
-              top: `${position.y}%`,
-              transform: 'translate(-50%, -50%)'
-            }}
-          />
-        </div>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

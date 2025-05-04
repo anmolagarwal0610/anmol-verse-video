@@ -41,6 +41,8 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
   const { user } = useAuth();
   
   const isOwner = user && image.user_id === user.id;
+  // Only show delete buttons for images owned by the user (not for default gallery images)
+  const showDelete = isOwner || (alwaysShowDelete && user);
 
   // Handle image load/error events
   const handleImageLoad = () => {
@@ -112,7 +114,7 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
               <ExternalLink className="h-4 w-4" />
             </Button>
             
-            {(isOwner || alwaysShowDelete) && (
+            {showDelete && (
               <ImageDeleteButton 
                 imageId={image.id}
                 variant="overlay"
@@ -159,7 +161,7 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
                 <span>Open</span>
               </Button>
               
-              {(isOwner || alwaysShowDelete) && (
+              {showDelete && (
                 <ImageDeleteButton 
                   imageId={image.id}
                   variant="standalone"

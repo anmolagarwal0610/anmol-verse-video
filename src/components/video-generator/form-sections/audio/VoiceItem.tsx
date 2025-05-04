@@ -2,8 +2,42 @@
 import { Button } from '@/components/ui/button';
 import { VoiceOption } from '@/lib/video/constants/audio';
 import { Badge } from '@/components/ui/badge';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PlayIcon, PauseIcon } from 'lucide-react';
+
+// Create a static audio controller that will be shared across all VoiceItem components
+const audioController = {
+  currentAudio: null as HTMLAudioElement | null,
+  currentVoiceId: null as string | null,
+  
+  play(audio: HTMLAudioElement, voiceId: string) {
+    // If there's already an audio playing, stop it first
+    if (this.currentAudio && this.currentAudio !== audio) {
+      this.currentAudio.pause();
+      this.currentAudio.currentTime = 0;
+    }
+    
+    // Set the new current audio and play it
+    this.currentAudio = audio;
+    this.currentVoiceId = voiceId;
+    audio.play();
+  },
+  
+  stop() {
+    if (this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio.currentTime = 0;
+      this.currentAudio = null;
+      this.currentVoiceId = null;
+    }
+  },
+  
+  isPlaying(voiceId: string) {
+    return this.currentVoiceId === voiceId && 
+           this.currentAudio && 
+           !this.currentAudio.paused;
+  }
+};
 
 interface VoiceItemProps {
   voice: VoiceOption;
@@ -18,24 +52,52 @@ export const VoiceItem = ({ voice, voiceId, selected, onClick, disabled = false 
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   
   const isGoogleVoice = voiceId.startsWith('google_');
+
+  // Update local playing state based on the global audio controller
+  useEffect(() => {
+    const updatePlayingState = () => {
+      setIsPlaying(audioController.isPlaying(voiceId));
+    };
+    
+    // Set up interval to check playing status
+    const intervalId = setInterval(updatePlayingState, 100);
+    
+    // Clean up interval on unmount
+    return () => {
+      clearInterval(intervalId);
+      
+      // If this component's audio is currently playing when unmounted, stop it
+      if (audioController.isPlaying(voiceId)) {
+        audioController.stop();
+      }
+    };
+  }, [voiceId]);
   
   const handlePlayPreview = (event: React.MouseEvent) => {
     event.stopPropagation();
     
     if (!voice.previewUrl) return;
     
-    if (isPlaying && audio) {
-      audio.pause();
-      audio.currentTime = 0;
+    if (isPlaying) {
+      // If this voice is currently playing, stop it
+      audioController.stop();
       setIsPlaying(false);
       return;
     }
     
-    const newAudio = new Audio(voice.previewUrl);
-    newAudio.onended = () => setIsPlaying(false);
-    newAudio.play();
+    // Create new audio instance if needed
+    let audioElement = audio;
+    if (!audioElement) {
+      audioElement = new Audio(voice.previewUrl);
+      audioElement.onended = () => {
+        setIsPlaying(false);
+      };
+      setAudio(audioElement);
+    }
+    
+    // Play the audio using the controller
+    audioController.play(audioElement, voiceId);
     setIsPlaying(true);
-    setAudio(newAudio);
   };
   
   return (
