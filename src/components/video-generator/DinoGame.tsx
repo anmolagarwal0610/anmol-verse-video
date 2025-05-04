@@ -60,7 +60,7 @@ export default function DinoGame() {
   useEffect(() => {
     if (!gameStarted || gameOver) return;
     const ticker = setInterval(() => {
-      const opts = ["🌴", "🍌"];
+      const opts = ["🌴", "🔥"];
       setObstacleEmoji(opts[Math.floor(Math.random() * opts.length)]);
     }, 2000);
     return () => clearInterval(ticker);
@@ -163,7 +163,7 @@ export default function DinoGame() {
           justify-content: center;
           font-size: 40px;
           line-height: 1;
-          animation: obstacleAnim 1.7s linear infinite; /* 20% faster */
+          animation: obstacleAnim 1.5s linear infinite; /* 10% faster than 1.7s = 1.53, rounded to 1.5 */
         }
         .obstacle.stop {
           animation-play-state: paused;
@@ -179,7 +179,7 @@ export default function DinoGame() {
           bottom: -20px;
           left: 0;
           width: 100%;
-          height: 20px;
+          height: 24px; /* increased by 20% from 20px to 24px */
           background: rgba(255,255,255,0.3);
           border-radius: 4px;
         }
