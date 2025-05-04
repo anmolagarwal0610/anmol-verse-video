@@ -2,9 +2,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import DownloadButton from '@/components/ui/download-button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Music, FileText, Archive, ExternalLink } from 'lucide-react';
+import { Music, FileText, Archive, ExternalLink, Download } from 'lucide-react';
 import { VideoData } from '@/components/video-card';
 import { toast } from 'sonner';
 import {
@@ -40,6 +39,24 @@ const VideoResources = ({ video }: VideoResourcesProps) => {
     }
   };
 
+  const handleDownload = (url: string | undefined, resourceType: string) => {
+    if (!url) return;
+    
+    try {
+      const downloadUrl = url;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `${resourceType.toLowerCase().replace(' ', '_')}_${new Date().toISOString().slice(0, 10)}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(`${resourceType} download started`);
+    } catch (error) {
+      console.error(`Failed to download ${resourceType}:`, error);
+      toast.error(`Unable to download ${resourceType}. Please try again.`);
+    }
+  };
+
   return (
     <motion.div 
       className="glass-panel rounded-xl p-6"
@@ -48,120 +65,175 @@ const VideoResources = ({ video }: VideoResourcesProps) => {
       transition={{ duration: 0.5, delay: 0.3 }}
     >
       <h2 className="text-lg font-medium mb-4">Resources</h2>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Type</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {video.audioUrl && (
-            <TableRow>
-              <TableCell className="flex items-center">
-                <Music className="h-4 w-4 mr-2 text-blue-500" />
-                <span>Audio</span>
-              </TableCell>
-              <TableCell className="text-right flex items-center justify-end space-x-2">
-                <DownloadButton 
-                  url={video.audioUrl} 
-                  fileType="audio" 
-                  size="sm" 
-                  variant="secondary"
-                  className="h-8 px-3 text-xs"
-                />
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleResourceAction(video.audioUrl, 'Audio')}
-                      >
+      <div className="space-y-3">
+        {video.audioUrl && (
+          <div className="flex items-center justify-between gap-3 p-2.5 bg-slate-50/50 dark:bg-slate-800/30 rounded-lg border border-slate-200/50 dark:border-slate-700/50 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800">
+                <Music className="h-4 w-4 text-blue-500" />
+              </div>
+              <span className="font-medium">Audio</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                      className="h-8 w-8 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-700/70"
+                    >
+                      <a href="#" onClick={(e) => {
+                        e.preventDefault();
+                        handleResourceAction(video.audioUrl, 'Audio');
+                      }}>
                         <ExternalLink className="h-4 w-4" />
                         <span className="sr-only">Open Audio</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Open in new tab</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </TableCell>
-            </TableRow>
-          )}
+                      </a>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Open in new tab</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-700/70"
+                      onClick={() => handleDownload(video.audioUrl, 'Audio')}
+                    >
+                      <Download className="h-4 w-4" />
+                      <span className="sr-only">Download Audio</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Download audio</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+        )}
           
-          {video.transcriptUrl && (
-            <TableRow>
-              <TableCell className="flex items-center">
-                <FileText className="h-4 w-4 mr-2 text-green-500" />
-                <span>Transcript</span>
-              </TableCell>
-              <TableCell className="text-right flex items-center justify-end space-x-2">
-                <DownloadButton 
-                  url={video.transcriptUrl} 
-                  fileType="transcript" 
-                  size="sm" 
-                  variant="secondary"
-                  className="h-8 px-3 text-xs"
-                />
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleResourceAction(video.transcriptUrl, 'Transcript')}
-                      >
+        {video.transcriptUrl && (
+          <div className="flex items-center justify-between gap-3 p-2.5 bg-slate-50/50 dark:bg-slate-800/30 rounded-lg border border-slate-200/50 dark:border-slate-700/50 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800">
+                <FileText className="h-4 w-4 text-green-500" />
+              </div>
+              <span className="font-medium">Transcript</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                      className="h-8 w-8 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-700/70"
+                    >
+                      <a href="#" onClick={(e) => {
+                        e.preventDefault();
+                        handleResourceAction(video.transcriptUrl, 'Transcript');
+                      }}>
                         <ExternalLink className="h-4 w-4" />
                         <span className="sr-only">Open Transcript</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Open in new tab</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </TableCell>
-            </TableRow>
-          )}
+                      </a>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Open in new tab</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-700/70"
+                      onClick={() => handleDownload(video.transcriptUrl, 'Transcript')}
+                    >
+                      <Download className="h-4 w-4" />
+                      <span className="sr-only">Download Transcript</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Download transcript</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+        )}
           
-          {video.imagesZipUrl && (
-            <TableRow>
-              <TableCell className="flex items-center">
-                <Archive className="h-4 w-4 mr-2 text-amber-500" />
-                <span>Images Archive</span>
-              </TableCell>
-              <TableCell className="text-right flex items-center justify-end space-x-2">
-                <DownloadButton 
-                  url={video.imagesZipUrl} 
-                  fileType="archive" 
-                  size="sm" 
-                  variant="secondary"
-                  className="h-8 px-3 text-xs"
-                />
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleResourceAction(video.imagesZipUrl, 'Images Archive')}
-                      >
+        {video.imagesZipUrl && (
+          <div className="flex items-center justify-between gap-3 p-2.5 bg-slate-50/50 dark:bg-slate-800/30 rounded-lg border border-slate-200/50 dark:border-slate-700/50 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800">
+                <Archive className="h-4 w-4 text-amber-500" />
+              </div>
+              <span className="font-medium">Images Archive</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                      className="h-8 w-8 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-700/70"
+                    >
+                      <a href="#" onClick={(e) => {
+                        e.preventDefault();
+                        handleResourceAction(video.imagesZipUrl, 'Images Archive');
+                      }}>
                         <ExternalLink className="h-4 w-4" />
                         <span className="sr-only">Open Images Archive</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Open in new tab</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+                      </a>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Open in new tab</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-700/70"
+                      onClick={() => handleDownload(video.imagesZipUrl, 'Images Archive')}
+                    >
+                      <Download className="h-4 w-4" />
+                      <span className="sr-only">Download Images Archive</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Download images</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 };

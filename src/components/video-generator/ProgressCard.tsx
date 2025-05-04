@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 import { Link } from 'react-router-dom';
 import AnimatedLoadingIndicator from './AnimatedLoadingIndicator';
-import WaitingGame from './WaitingGame';
+import DinoGame from './DinoGame';
 import { useEffect } from 'react';
 
 interface ProgressCardProps {
@@ -65,8 +65,8 @@ const ProgressCard = ({ progress, status }: ProgressCardProps) => {
           </p>
         </div>
 
-        {/* Replace DinoGame with WaitingGame component */}
-        {progress > 10 && <WaitingGame />}
+        {/* DinoGame component */}
+        <DinoGame />
         
         <div className="flex flex-col space-y-2">
           <Link to="/images" className="w-full">

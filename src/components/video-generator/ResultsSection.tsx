@@ -1,5 +1,5 @@
 
-import { ExternalLink, FileVideo, Music, FileText, Archive, Plus } from 'lucide-react';
+import { ExternalLink, FileVideo, Music, FileText, Archive, Plus, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DownloadButton from '@/components/ui/download-button';
 import {
@@ -98,35 +98,60 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
   
   return (
     <TooltipProvider>
-      <div className="flex items-center gap-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="h-9 px-3 text-xs hover:bg-slate-100 dark:hover:bg-slate-800"
-            >
-              <a href={url} target="_blank" rel="noopener noreferrer" onClick={handleResourceAction}>
-                {icon}
-                <span className="ml-2">{title}</span>
-              </a>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{description}</p>
-          </TooltipContent>
-        </Tooltip>
+      <div className="flex items-center justify-between gap-3 p-2.5 bg-slate-50/50 dark:bg-slate-800/30 rounded-lg border border-slate-200/50 dark:border-slate-700/50 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800">
+            {icon}
+          </div>
+          <span className="font-medium">{title}</span>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                asChild
+                className="h-8 w-8 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-700/70"
+              >
+                <a href={url} target="_blank" rel="noopener noreferrer" onClick={handleResourceAction}>
+                  <ExternalLink className="h-4 w-4" />
+                  <span className="sr-only">Open {title}</span>
+                </a>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Open in new tab</p>
+            </TooltipContent>
+          </Tooltip>
 
-        <DownloadButton 
-          url={url} 
-          fileType={fileType}
-          size="sm" 
-          variant="secondary"
-          className="h-8 px-3 text-xs"
-        >
-          {title}
-        </DownloadButton>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-700/70"
+                onClick={() => {
+                  const downloadUrl = url;
+                  const link = document.createElement('a');
+                  link.href = downloadUrl;
+                  link.download = `${title.toLowerCase().replace(' ', '_')}_${new Date().toISOString().slice(0, 10)}`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  toast.success(`${title} download started`);
+                }}
+              >
+                <Download className="h-4 w-4" />
+                <span className="sr-only">Download {title}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Download {fileType}</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
       </div>
     </TooltipProvider>
   );
@@ -161,7 +186,7 @@ const ResultsSection = ({ result }: ResultsSectionProps) => {
           </div>
         )}
         
-        <div className="flex items-center justify-center gap-2 mt-4">
+        <div className="flex flex-col space-y-3 mt-4">
           {result.audio_url && (
             <ResultCard
               icon={<Music className="h-4 w-4 text-blue-500" />}
