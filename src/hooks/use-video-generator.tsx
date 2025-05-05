@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { generateVideo, checkVideoStatus } from '@/lib/video/api';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
@@ -125,6 +124,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
           video_duration: currentParams?.video_duration
         });
         
+        // Ensure we set the topic from current params first, falling back to API response
         setResult({
           ...statusResponse,
           topic: currentTopic || statusResponse.topic,

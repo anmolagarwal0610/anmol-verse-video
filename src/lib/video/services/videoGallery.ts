@@ -13,6 +13,7 @@ export const saveVideoToGallery = async (
 ): Promise<boolean> => {
   try {
     console.log('🔎 [saveVideoToGallery] Starting save operation with userId:', userId);
+    console.log('🔎 [saveVideoToGallery] Video result to save:', result);
     
     // Skip if no video URL (indicates incomplete generation)
     if (!result.video_url) {
@@ -46,7 +47,7 @@ export const saveVideoToGallery = async (
     }
 
     // Validate topic - ensure we have a non-empty topic
-    const videoTopic = result.topic?.trim() ? result.topic : 'Untitled Video';
+    const videoTopic = result.topic && result.topic.trim() ? result.topic : 'Untitled Video';
     console.log('🔎 [saveVideoToGallery] Using video topic:', videoTopic);
     
     // Calculate expiry time (7 days from now)
