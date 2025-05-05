@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { VideoStatusResponse } from '@/lib/video/types';
 import { useAuth } from '@/hooks/use-auth';
 import { saveVideoToGallery } from '@/lib/video/services/videoGallery';
-import { VideoPlayer } from '@/components/video-player';
+import VideoPlayer from '@/components/video-player'; // Changed from named import to default import
 import { toast } from 'sonner';
 import { Separator } from '@/components/ui/separator';
 
@@ -93,7 +93,8 @@ const ResultsSection = ({ result }: ResultsSectionProps) => {
         {result.video_url && (
           <VideoPlayer
             videoUrl={result.video_url}
-            posterUrl={result.thumbnail_url || undefined}
+            poster={result.thumbnail_url || undefined}
+            className=""
           />
         )}
       </div>
