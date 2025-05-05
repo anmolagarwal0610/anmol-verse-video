@@ -43,29 +43,17 @@ const DownloadButton = ({
     return `${prefix}_${timestamp}${getFileExtension()}`;
   };
 
-  const showPersistentMessage = () => {
-    // Show a persistent toast that doesn't auto-dismiss
-    toast("If automatic download doesn't work, right-click on the image and select 'Save Image As...'", {
-      duration: Infinity, // Keep it visible until user dismisses
-      position: 'top-center',
-      action: {
-        label: "Got it",
-        onClick: () => toast.dismiss()
-      }
-    });
-  };
-
   const handleDownload = async () => {
     if (isDownloading) return;
     
     setIsDownloading(true);
-    const toastId = toast.loading(`Preparing ${fileType} for download...`);
+    const toastId = toast.loading(`Downloading ${fileType}...`);
     
     try {
       console.log('Starting download for URL:', url);
       
-      // Always prioritize the working proxy first (api.allorigins.win)
-      const response = await fetchWithCorsProxy(url);
+      // Fetch the file directly without proxy
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch ${fileType}`);
@@ -92,9 +80,6 @@ const DownloadButton = ({
       toast.dismiss(toastId);
       toast.success(`${fileType.charAt(0).toUpperCase() + fileType.slice(1)} download started`);
       
-      // Always show the persistent fallback message
-      showPersistentMessage();
-      
       // Call the optional onClick callback if provided
       if (onClick) {
         onClick();
@@ -102,10 +87,37 @@ const DownloadButton = ({
     } catch (error) {
       console.error('Download error:', error);
       toast.dismiss(toastId);
-      toast.error(`We couldn't automatically download your ${fileType}`);
+      toast.error(`We couldn't download your ${fileType}. Trying with CORS proxy...`);
       
-      // Always show the manual download instructions on error
-      showPersistentMessage();
+      // Try again with proxy
+      try {
+        // Fallback to proxy for CORS issues
+        const response = await fetchWithCorsProxy(url);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch ${fileType}`);
+        }
+        
+        const blob = await response.blob();
+        
+        // Create download link
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = filename || getDefaultFilename();
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Clean up
+        window.URL.revokeObjectURL(downloadUrl);
+        toast.success(`${fileType.charAt(0).toUpperCase() + fileType.slice(1)} download started`);
+      } catch (proxyError) {
+        console.error('Proxy download error:', proxyError);
+        toast.error(`We couldn't download your ${fileType}. Please try again later.`);
+      }
     } finally {
       setIsDownloading(false);
     }

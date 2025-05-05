@@ -7,15 +7,31 @@ export default function DinoGame() {
   const [score, setScore] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [obstacleEmoji, setObstacleEmoji] = useState("🌴");
+  const [speedLevel, setSpeedLevel] = useState(0); // To track speed increases
   const dinoRef = useRef(null);
   const obstacleRef = useRef(null);
 
-  // Score counter
+  // Score counter and difficulty increase
   useEffect(() => {
     if (!gameStarted || gameOver) return;
+    
     const scoreInterval = setInterval(() => setScore((s) => s + 1), 100);
+    
+    // Check if we need to increase the speed
+    const newSpeedLevel = Math.floor(score / 200);
+    if (newSpeedLevel > speedLevel) {
+      setSpeedLevel(newSpeedLevel);
+      
+      // Update the animation duration
+      if (obstacleRef.current) {
+        const baseSpeed = 1.5; // Base animation duration in seconds
+        const newDuration = baseSpeed * Math.pow(0.95, newSpeedLevel); // Reduce by 5% for each level
+        obstacleRef.current.style.animationDuration = `${newDuration}s`;
+      }
+    }
+    
     return () => clearInterval(scoreInterval);
-  }, [gameStarted, gameOver]);
+  }, [gameStarted, gameOver, score, speedLevel]);
 
   // Jump logic
   const handleJump = () => {
@@ -72,18 +88,29 @@ export default function DinoGame() {
     setScore(0);
     setGameStarted(false);
     setIsJumping(false);
+    setSpeedLevel(0); // Reset speed level
     // reset obstacle animation
     if (obstacleRef.current) {
       obstacleRef.current.style.animation = "none";
+      obstacleRef.current.style.animationDuration = "1.5s"; // Reset to base speed
       // force reflow
       void obstacleRef.current.offsetHeight;
       obstacleRef.current.style.animation = "";
     }
   };
 
+  // Set custom animation duration based on speed level
+  const getObstacleClassName = () => {
+    const baseClass = `obstacle ${gameOver ? "stop" : ""}`;
+    return baseClass;
+  };
+
   return (
     <div className="game-container">
       <div className="score">Score: {score}</div>
+      {speedLevel > 0 && (
+        <div className="level">Level: {speedLevel + 1}</div>
+      )}
 
       <div ref={dinoRef} className={`dino ${isJumping ? "jump" : ""}`}>
         🐵
@@ -92,7 +119,7 @@ export default function DinoGame() {
       {gameStarted && (
         <div
           ref={obstacleRef}
-          className={`obstacle ${gameOver ? "stop" : ""}`}
+          className={getObstacleClassName()}
         >
           {obstacleEmoji}
         </div>
@@ -114,7 +141,7 @@ export default function DinoGame() {
           position: relative;
           width: 100%;
           max-width: 500px;
-          height: 200px;
+          height: 220px; /* extra room for obstacle base */
           background: linear-gradient(135deg, #7e69ab, #9b87f5);
           overflow: hidden;
           border-radius: 16px;
@@ -127,6 +154,17 @@ export default function DinoGame() {
           position: absolute;
           top: 10px;
           left: 16px;
+          color: white;
+          font-size: 18px;
+          font-weight: bold;
+          font-family: monospace;
+          z-index: 10;
+        }
+        
+        .level {
+          position: absolute;
+          top: 10px;
+          right: 16px;
           color: white;
           font-size: 18px;
           font-weight: bold;

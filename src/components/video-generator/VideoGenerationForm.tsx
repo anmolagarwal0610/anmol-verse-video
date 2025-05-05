@@ -9,6 +9,7 @@ import { VideoGenerationFormProvider } from './VideoGenerationFormContext';
 import VideoGenerationConfirmDialog from './dialogs/VideoGenerationConfirmDialog';
 import { useVideoGenerationFormSubmit } from './hooks/useVideoGenerationFormSubmit';
 import { PIXEL_OPTIONS } from '@/lib/constants/pixelOptions';
+import { Loader2 } from 'lucide-react';
 
 // Import form section components
 import BasicFormFields from './form-sections/BasicFormFields';
@@ -63,7 +64,8 @@ const VideoGenerationForm = ({
     validateAndShowConfirmation,
     handleConfirmedSubmit,
     formData,
-    calculateCreditCost
+    calculateCreditCost,
+    isCheckingCredits
   } = useVideoGenerationFormSubmit({
     onSubmit
   });
@@ -86,7 +88,7 @@ const VideoGenerationForm = ({
       <CardContent>
         <VideoGenerationFormProvider value={{
         form,
-        isGenerating
+        isGenerating: isGenerating || isCheckingCredits
       }}>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(validateAndShowConfirmation)} className="space-y-8">
@@ -110,8 +112,21 @@ const VideoGenerationForm = ({
                 <SubtitlesSection audioLanguage={audioLanguage} />
               </div>
               
-              <Button type="submit" disabled={isGenerating} className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700">
-                {isGenerating ? 'Generating...' : `Generate Video (Est. ${creditCost} credits*)`}
+              <Button 
+                type="submit" 
+                disabled={isGenerating || isCheckingCredits} 
+                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+              >
+                {isCheckingCredits ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Checking Credits...
+                  </>
+                ) : isGenerating ? (
+                  'Generating...'
+                ) : (
+                  `Generate Video (Est. ${creditCost} credits*)`
+                )}
               </Button>
               
               <p className="text-xs text-muted-foreground text-center">

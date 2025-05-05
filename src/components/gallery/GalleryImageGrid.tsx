@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { GeneratedImage } from './GalleryTypes';
 import ImageCard from '@/components/image-card'; 
+import { useAuth } from '@/hooks/use-auth';
 
 interface GalleryImageGridProps {
   images: GeneratedImage[];
@@ -12,6 +13,7 @@ const GalleryImageGrid = ({ images: initialImages }: GalleryImageGridProps) => {
   const [images, setImages] = useState<GeneratedImage[]>(initialImages);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+  const { user } = useAuth();
   
   useEffect(() => {
     // Update images when initialImages changes
