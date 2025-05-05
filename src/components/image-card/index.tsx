@@ -58,19 +58,14 @@ const ImageCard = ({ image, index, onLoad, onError, onDelete, alwaysShowDelete =
   };
 
   const handleOpenInNewTab = () => {
-    // Use CORS proxy for opening the image in a new tab
-    import('@/lib/utils/corsProxy').then(({ fetchWithCorsProxy }) => {
-      // Just construct the URL with the proxy but don't fetch yet
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(image.image_url)}`;
-      
-      try {
-        window.open(proxyUrl, '_blank');
-        toast.success('Image opened in new tab');
-      } catch (error) {
-        console.error('Error opening image:', error);
-        toast.error('Failed to open image. Please try again.');
-      }
-    });
+    try {
+      // Open the direct image URL without using a proxy
+      window.open(image.image_url, '_blank');
+      toast.success('Image opened in new tab');
+    } catch (error) {
+      console.error('Error opening image:', error);
+      toast.error('Failed to open image. Please try again.');
+    }
   };
 
   return (

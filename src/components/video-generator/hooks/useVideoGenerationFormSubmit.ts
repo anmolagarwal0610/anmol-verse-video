@@ -13,13 +13,13 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [formData, setFormData] = useState<VideoGenerationParams | null>(null);
   const [isCheckingCredits, setIsCheckingCredits] = useState(false);
+  const [hasSufficientCredits, setHasSufficientCredits] = useState<boolean | null>(null);
   
   const username = user?.email?.split('@')[0] || '';
   
   // Calculate credit cost based on duration, image rate and voice type
   const calculateCreditCost = (data: VideoGenerationParams): number => {
     // ... keep existing code (credit cost calculation logic with 1.2x factor)
-    // Note: We're keeping the 1.2x factor here because this is for estimation only
     
     console.log(`Credit calculation: voice=${data.voice}, isPremium=${!data.voice?.startsWith('google_')}, fps=${data.frame_fps}, imageRate=${getImageRate(data.frame_fps)}, creditsPerSecond=${getCreditsPerSecond(data.voice, data.frame_fps)}`);
     
@@ -45,7 +45,7 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
 
   // Helper function to get credits per second based on voice and fps
   const getCreditsPerSecond = (voice?: string, fps?: number): number => {
-    const isPremiumVoice = !voice?.startsWith('google_');
+    const isPremiumVoice = voice ? !voice.startsWith('google_') : false;
     const imageRate = getImageRate(fps);
     
     if (isPremiumVoice) {
@@ -69,37 +69,48 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     }
   };
 
-  // Use cached credits first, only validate against backend when actually submitting
+  // Start credit check in the background and show dialog immediately
   const validateAndShowConfirmation = async (data: VideoGenerationParams) => {
     if (!data.topic || data.topic.trim() === '') {
       toast.error('Please enter a topic for your video');
       return;
     }
     
-    // Explicitly log the frame_fps value to verify it's being captured correctly
     console.log(`Validating submission with frame_fps: ${data.frame_fps}`);
     
     // Calculate estimated credit cost
     const estimatedCredits = calculateCreditCost(data);
     console.log(`Estimated video credits: ${estimatedCredits} for topic "${data.topic}"`);
-    console.log(`Form data details: voice=${data.voice}, fps=${data.frame_fps}, duration=${data.video_duration}`);
     
-    // First set the form data and show dialog immediately to improve UX
+    // Set the form data and show dialog immediately to improve UX
     setFormData({
       ...data,
       username: username
     });
     
+    // Reset credit check state
+    setHasSufficientCredits(null);
     setShowConfirmDialog(true);
-
-    // Optional: Start credit check in the background but don't block the UI
+    
+    // Start credit check in parallel
     if (user) {
-      checkCredits(false).then(credits => {
-        console.log(`Background check: User has ${credits} credits, needs ${estimatedCredits}`);
-        // We don't need to take action here, as we'll do the real validation when user confirms
-      }).catch(err => {
-        console.error('Background credit check error:', err);
-      });
+      setIsCheckingCredits(true);
+      try {
+        const availableCredits = await checkCredits(true);
+        console.log(`Credit check completed: User has ${availableCredits} credits, needs ${estimatedCredits}`);
+        setHasSufficientCredits(availableCredits >= estimatedCredits);
+        
+        // If credits are insufficient, show a toast but keep the dialog open
+        if (availableCredits < estimatedCredits) {
+          toast.error(`You need at least ${estimatedCredits} credits to generate this video. Please add more credits to continue.`);
+        }
+      } catch (error) {
+        console.error('Error checking credits:', error);
+        setHasSufficientCredits(false);
+        toast.error('Unable to verify credit balance. Please try again later.');
+      } finally {
+        setIsCheckingCredits(false);
+      }
     }
   };
   
@@ -108,11 +119,23 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     
     const estimatedCredits = calculateCreditCost(formData);
     
-    // Only now do we need to validate credits before proceeding
-    if (user) {
+    // If we already checked credits, use that result
+    if (hasSufficientCredits === false) {
+      toast.error(`Insufficient credits. You need at least ${estimatedCredits} credits to generate this video.`);
+      setShowConfirmDialog(false);
+      return;
+    }
+    
+    // If we're still checking credits, wait for it to complete
+    if (isCheckingCredits) {
+      console.log("Still checking credits, please wait...");
+      return; // User needs to wait and try again
+    }
+    
+    // If we haven't checked yet or we know there are enough credits, proceed
+    if (user && hasSufficientCredits === null) {
       try {
         setIsCheckingCredits(true);
-        // Force a refresh of the credit count to ensure accuracy
         const availableCredits = await checkCredits(true);
         setIsCheckingCredits(false);
         
@@ -123,6 +146,7 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
           setShowConfirmDialog(false);
           return;
         }
+        setHasSufficientCredits(true);
       } catch (err) {
         setIsCheckingCredits(false);
         console.error('Error checking credits:', err);
@@ -142,6 +166,7 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     handleConfirmedSubmit,
     formData,
     calculateCreditCost,
-    isCheckingCredits
+    isCheckingCredits,
+    hasSufficientCredits
   };
 };

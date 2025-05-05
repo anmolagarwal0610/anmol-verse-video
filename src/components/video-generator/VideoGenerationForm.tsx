@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { IMAGE_MODELS, VOICE_OPTIONS } from '@/lib/api';
 import { VideoGenerationParams } from '@/lib/video/types';
-import { VideoGenerationFormProvider } from './VideoGenerationFormContext';
+import { VideoGenerationFormProvider } from '@/components/video-generator/VideoGenerationFormContext';
 import VideoGenerationConfirmDialog from './dialogs/VideoGenerationConfirmDialog';
 import { useVideoGenerationFormSubmit } from './hooks/useVideoGenerationFormSubmit';
 import { PIXEL_OPTIONS } from '@/lib/constants/pixelOptions';
@@ -63,7 +63,9 @@ const VideoGenerationForm = ({
     validateAndShowConfirmation,
     handleConfirmedSubmit,
     formData,
-    calculateCreditCost
+    calculateCreditCost,
+    isCheckingCredits,
+    hasSufficientCredits
   } = useVideoGenerationFormSubmit({
     onSubmit
   });
@@ -126,7 +128,9 @@ const VideoGenerationForm = ({
           onOpenChange={setShowConfirmDialog} 
           onConfirm={handleConfirmedSubmit} 
           topic={formData?.topic || ''} 
-          creditCost={formData ? calculateCreditCost(formData) : 0} 
+          creditCost={formData ? calculateCreditCost(formData) : 0}
+          isCheckingCredits={isCheckingCredits}
+          hasSufficientCredits={hasSufficientCredits}
         />
       </CardContent>
     </Card>;

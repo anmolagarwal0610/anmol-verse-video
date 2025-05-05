@@ -18,6 +18,7 @@ interface VideoGenerationConfirmDialogProps {
   topic: string;
   creditCost: number;
   isCheckingCredits?: boolean;
+  hasSufficientCredits?: boolean | null;
 }
 
 const VideoGenerationConfirmDialog = ({
@@ -26,7 +27,8 @@ const VideoGenerationConfirmDialog = ({
   onConfirm,
   topic,
   creditCost,
-  isCheckingCredits = false
+  isCheckingCredits = false,
+  hasSufficientCredits = null
 }: VideoGenerationConfirmDialogProps) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -37,15 +39,31 @@ const VideoGenerationConfirmDialog = ({
             You are about to generate a video with topic: <strong>{topic}</strong>
             <br /><br />
             This action will use <strong>{creditCost} credits</strong> from your account. Are you sure you want to proceed?
+            
+            {isCheckingCredits && (
+              <div className="mt-4 flex items-center justify-center text-amber-500">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Checking available credits...
+              </div>
+            )}
+            
+            {hasSufficientCredits === false && (
+              <div className="mt-4 text-red-500 font-semibold">
+                Insufficient credits. Please add more credits to continue.
+              </div>
+            )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} disabled={isCheckingCredits}>
+          <AlertDialogAction 
+            onClick={onConfirm} 
+            disabled={isCheckingCredits || hasSufficientCredits === false}
+          >
             {isCheckingCredits ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Checking Credits...
+                Verifying...
               </>
             ) : (
               'Generate Video'

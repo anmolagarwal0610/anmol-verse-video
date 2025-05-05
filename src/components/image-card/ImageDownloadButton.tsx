@@ -32,7 +32,7 @@ const ImageDownloadButton = ({
         toast.info('Opening archive in a new tab. Your browser will handle the download.');
       }
       
-      // Open the image in a new tab
+      // Open the image in a new tab without using a proxy
       window.open(imageUrl, '_blank');
       
       if (!isZipFile) {
