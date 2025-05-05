@@ -24,6 +24,21 @@ export default function DinoGame() {
     setTimeout(() => setIsJumping(false), 500);
   };
 
+  // Function to restart the game
+  const restartGame = () => {
+    setGameOver(false);
+    setScore(0);
+    setGameStarted(false);
+    setIsJumping(false);
+    // reset obstacle animation
+    if (obstacleRef.current) {
+      obstacleRef.current.style.animation = "none";
+      // force reflow
+      void obstacleRef.current.offsetHeight;
+      obstacleRef.current.style.animation = "";
+    }
+  };
+
   // Collision detection
   useEffect(() => {
     if (!gameStarted || gameOver) return;
@@ -44,12 +59,18 @@ export default function DinoGame() {
     return () => clearInterval(check);
   }, [gameStarted, gameOver]);
 
-  // Start / jump on Space
+  // Start / jump / restart on Space
   useEffect(() => {
     const listener = (e) => {
       if (e.code === "Space" || e.code === "ArrowUp") {
-        if (!gameStarted) setGameStarted(true);
-        else handleJump();
+        if (!gameStarted && !gameOver) {
+          setGameStarted(true);
+        } else if (!gameOver) {
+          handleJump();
+        } else if (gameOver) {
+          // Add spacebar restart functionality
+          restartGame();
+        }
       }
     };
     window.addEventListener("keydown", listener);
@@ -65,21 +86,6 @@ export default function DinoGame() {
     }, 2000);
     return () => clearInterval(ticker);
   }, [gameStarted, gameOver]);
-
-  // Restart game
-  const restartGame = () => {
-    setGameOver(false);
-    setScore(0);
-    setGameStarted(false);
-    setIsJumping(false);
-    // reset obstacle animation
-    if (obstacleRef.current) {
-      obstacleRef.current.style.animation = "none";
-      // force reflow
-      void obstacleRef.current.offsetHeight;
-      obstacleRef.current.style.animation = "";
-    }
-  };
 
   return (
     <div className="game-container">
@@ -105,6 +111,7 @@ export default function DinoGame() {
       {gameOver && (
         <div className="game-over">
           <div>Game Over. Score: {score}</div>
+          <div className="mt-1 text-sm text-white/70">Press Space to Restart</div>
           <button onClick={restartGame}>Restart</button>
         </div>
       )}

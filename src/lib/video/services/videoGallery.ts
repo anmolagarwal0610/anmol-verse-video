@@ -13,6 +13,7 @@ export const saveVideoToGallery = async (
 ): Promise<boolean> => {
   try {
     console.log('🔎 [saveVideoToGallery] Starting save operation with userId:', userId);
+    console.log('🔎 [saveVideoToGallery] Result object:', result);
     
     // Skip if no video URL (indicates incomplete generation)
     if (!result.video_url) {
@@ -46,8 +47,21 @@ export const saveVideoToGallery = async (
     }
 
     // Validate topic - ensure we have a non-empty topic
-    const videoTopic = result.topic?.trim() ? result.topic : 'Untitled Video';
-    console.log('🔎 [saveVideoToGallery] Using video topic:', videoTopic);
+    let videoTopic = 'Untitled Video';
+    
+    // Enhanced topic validation and logging
+    if (result.topic) {
+      console.log('🔎 [saveVideoToGallery] Raw topic from result:', result.topic);
+      const trimmedTopic = result.topic.trim();
+      if (trimmedTopic) {
+        videoTopic = trimmedTopic;
+        console.log('🔎 [saveVideoToGallery] Using valid topic:', videoTopic);
+      } else {
+        console.warn('🔎 [saveVideoToGallery] Topic was empty after trimming');
+      }
+    } else {
+      console.warn('🔎 [saveVideoToGallery] No topic provided in result object');
+    }
     
     // Calculate expiry time (7 days from now)
     const expiryTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -72,7 +86,8 @@ export const saveVideoToGallery = async (
       toast.error(`Failed to save video to gallery: ${error.message || 'Unknown error'}`);
       return false;
     } else {
-      console.log('🔎 [saveVideoToGallery] Video saved successfully');
+      console.log('🔎 [saveVideoToGallery] Video saved successfully with topic:', videoTopic);
+      console.log('🔎 [saveVideoToGallery] Database response:', data);
       // Mark this video URL as saved to prevent duplicates in this session
       savedVideoUrls.add(videoUrl);
       toast.success('Video saved to your gallery! Videos are automatically deleted after 7 days.');
@@ -111,6 +126,7 @@ export const getVideos = async (): Promise<VideoData[]> => {
     // Log a few video URLs for debugging
     if (videos.length > 0) {
       console.log('🔎 [getVideos] Sample video_url from database:', videos[0].video_url);
+      console.log('🔎 [getVideos] Sample topic from database:', videos[0].topic);
     }
     
     // Map database videos to VideoData format
@@ -126,10 +142,14 @@ export const getVideos = async (): Promise<VideoData[]> => {
         console.log('🔎 [getVideos] Video URL for ID', video.id, ':', videoUrl);
       }
       
+      // Make sure we have a title, even if topic is null/empty
+      const title = video.topic && video.topic.trim() ? video.topic : 'Untitled Video';
+      console.log('🔎 [getVideos] Using title for video', video.id, ':', title);
+      
       return {
         id: video.id,
-        title: video.topic || 'Untitled Video',
-        prompt: video.topic || 'No topic provided',
+        title: title,
+        prompt: title,
         url: videoUrl,
         thumbnail: video.thumbnail_url || embeddedSVG,
         created_at: video.created_at,
