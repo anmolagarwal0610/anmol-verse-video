@@ -128,24 +128,19 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button 
+              <DownloadButton 
+                url={url}
+                fileType={fileType}
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-700/70"
+                className="h-8 w-8 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-700/70 p-0"
                 onClick={() => {
-                  const downloadUrl = url;
-                  const link = document.createElement('a');
-                  link.href = downloadUrl;
-                  link.download = `${title.toLowerCase().replace(' ', '_')}_${new Date().toISOString().slice(0, 10)}`;
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                  toast.success(`${title} download started`);
+                  console.log(`Starting download for ${title}`);
                 }}
               >
                 <Download className="h-4 w-4" />
                 <span className="sr-only">Download {title}</span>
-              </Button>
+              </DownloadButton>
             </TooltipTrigger>
             <TooltipContent>
               <p>Download {fileType}</p>
