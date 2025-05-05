@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Clock, ExternalLink } from 'lucide-react';
+import { Clock, LoaderCircle, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 import { Link } from 'react-router-dom';
@@ -43,6 +43,7 @@ const ProgressCard = ({ progress, status }: ProgressCardProps) => {
           <CardTitle className="text-xl font-semibold text-indigo-900 dark:text-indigo-100">
             Video Generation in Progress
           </CardTitle>
+          <LoaderCircle className="h-6 w-6 animate-spin text-indigo-600 dark:text-indigo-400" />
         </div>
         <CardDescription className="text-indigo-600/70 dark:text-indigo-300/70">
           Your video is being created - you can navigate away from this page

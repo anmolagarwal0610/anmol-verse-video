@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button, ButtonProps } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { toast } from 'sonner';
+import { fetchWithCorsProxy } from '@/lib/utils/corsProxy';
 
 interface DownloadButtonProps extends Omit<ButtonProps, 'onClick'> {
   url: string;
@@ -42,26 +43,57 @@ const DownloadButton = ({
     return `${prefix}_${timestamp}${getFileExtension()}`;
   };
 
+  const showPersistentMessage = () => {
+    // Show a persistent toast that doesn't auto-dismiss
+    toast("If automatic download doesn't work, right-click on the image and select 'Save Image As...'", {
+      duration: Infinity, // Keep it visible until user dismisses
+      position: 'top-center',
+      action: {
+        label: "Got it",
+        onClick: () => toast.dismiss()
+      }
+    });
+  };
+
   const handleDownload = async () => {
     if (isDownloading) return;
     
     setIsDownloading(true);
-    const toastId = toast.loading(`Downloading ${fileType}...`);
+    const toastId = toast.loading(`Preparing ${fileType} for download...`);
     
     try {
       console.log('Starting download for URL:', url);
       
-      // Create a direct link to download the file
+      // Always prioritize the working proxy first (api.allorigins.win)
+      const response = await fetchWithCorsProxy(url);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${fileType}`);
+      }
+      
+      console.log(`Download response status: ${response.status}, type: ${response.headers.get('content-type')}`);
+      
+      const blob = await response.blob();
+      console.log(`Blob size: ${blob.size}, type: ${blob.type}`);
+      
+      // Create download link
+      const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = url;
+      link.href = downloadUrl;
       link.download = filename || getDefaultFilename();
-      link.target = '_blank';
+      
+      // Trigger download
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
+      // Clean up
+      window.URL.revokeObjectURL(downloadUrl);
       toast.dismiss(toastId);
       toast.success(`${fileType.charAt(0).toUpperCase() + fileType.slice(1)} download started`);
+      
+      // Always show the persistent fallback message
+      showPersistentMessage();
       
       // Call the optional onClick callback if provided
       if (onClick) {
@@ -70,7 +102,10 @@ const DownloadButton = ({
     } catch (error) {
       console.error('Download error:', error);
       toast.dismiss(toastId);
-      toast.error(`Couldn't download ${fileType}. Try right-clicking and selecting 'Save link as...'`);
+      toast.error(`We couldn't automatically download your ${fileType}`);
+      
+      // Always show the manual download instructions on error
+      showPersistentMessage();
     } finally {
       setIsDownloading(false);
     }

@@ -7,25 +7,15 @@ export default function DinoGame() {
   const [score, setScore] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [obstacleEmoji, setObstacleEmoji] = useState("🌴");
-  const [gameSpeed, setGameSpeed] = useState(1.5); // Base game speed
   const dinoRef = useRef(null);
   const obstacleRef = useRef(null);
 
   // Score counter
   useEffect(() => {
     if (!gameStarted || gameOver) return;
-    const scoreInterval = setInterval(() => {
-      setScore((s) => {
-        // Increase game speed by 5% every 200 points
-        if ((s + 1) % 200 === 0 && s > 0) {
-          setGameSpeed(prevSpeed => prevSpeed * 1.05);
-          console.log("Speed increased to:", gameSpeed * 1.05);
-        }
-        return s + 1;
-      });
-    }, 100);
+    const scoreInterval = setInterval(() => setScore((s) => s + 1), 100);
     return () => clearInterval(scoreInterval);
-  }, [gameStarted, gameOver, gameSpeed]);
+  }, [gameStarted, gameOver]);
 
   // Jump logic
   const handleJump = () => {
@@ -54,17 +44,12 @@ export default function DinoGame() {
     return () => clearInterval(check);
   }, [gameStarted, gameOver]);
 
-  // Start / jump / restart on Space
+  // Start / jump on Space
   useEffect(() => {
     const listener = (e) => {
       if (e.code === "Space" || e.code === "ArrowUp") {
-        if (!gameStarted) {
-          setGameStarted(true);
-        } else if (gameOver) {
-          restartGame();
-        } else {
-          handleJump();
-        }
+        if (!gameStarted) setGameStarted(true);
+        else handleJump();
       }
     };
     window.addEventListener("keydown", listener);
@@ -85,8 +70,7 @@ export default function DinoGame() {
   const restartGame = () => {
     setGameOver(false);
     setScore(0);
-    setGameSpeed(1.5); // Reset speed to base speed
-    setGameStarted(true); // Automatically start the game again
+    setGameStarted(false);
     setIsJumping(false);
     // reset obstacle animation
     if (obstacleRef.current) {
@@ -109,7 +93,6 @@ export default function DinoGame() {
         <div
           ref={obstacleRef}
           className={`obstacle ${gameOver ? "stop" : ""}`}
-          style={{ animationDuration: `${1.5 / gameSpeed}s` }} // Dynamic speed based on gameSpeed
         >
           {obstacleEmoji}
         </div>
@@ -123,7 +106,6 @@ export default function DinoGame() {
         <div className="game-over">
           <div>Game Over. Score: {score}</div>
           <button onClick={restartGame}>Restart</button>
-          <div className="mt-2 text-sm">Press Space to restart</div>
         </div>
       )}
 
@@ -181,7 +163,7 @@ export default function DinoGame() {
           justify-content: center;
           font-size: 40px;
           line-height: 1;
-          animation: obstacleAnim 1.5s linear infinite; /* Base speed, will be overridden by inline style */
+          animation: obstacleAnim 1.5s linear infinite; /* 10% faster than 1.7s = 1.53, rounded to 1.5 */
         }
         .obstacle.stop {
           animation-play-state: paused;
@@ -233,12 +215,6 @@ export default function DinoGame() {
         .game-over button:hover {
           background: #f2d5ff;
           transform: scale(1.05);
-        }
-        .mt-2 {
-          margin-top: 0.5rem;
-        }
-        .text-sm {
-          font-size: 0.875rem;
         }
       `}</style>
     </div>

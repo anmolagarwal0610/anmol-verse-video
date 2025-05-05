@@ -69,7 +69,7 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     }
   };
 
-  // Show dialog immediately and start credit check in the background
+  // Start credit check in the background and show dialog immediately
   const validateAndShowConfirmation = async (data: VideoGenerationParams) => {
     if (!data.topic || data.topic.trim() === '') {
       toast.error('Please enter a topic for your video');
@@ -82,7 +82,7 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     const estimatedCredits = calculateCreditCost(data);
     console.log(`Estimated video credits: ${estimatedCredits} for topic "${data.topic}"`);
     
-    // Set the form data and show dialog immediately
+    // Set the form data and show dialog immediately to improve UX
     setFormData({
       ...data,
       username: username
@@ -92,29 +92,25 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     setHasSufficientCredits(null);
     setShowConfirmDialog(true);
     
-    // Start credit check in parallel (only if user is logged in)
+    // Start credit check in parallel
     if (user) {
       setIsCheckingCredits(true);
-      
-      // Start background credit check
-      checkCredits(true)
-        .then(availableCredits => {
-          console.log(`Credit check completed: User has ${availableCredits} credits, needs ${estimatedCredits}`);
-          setHasSufficientCredits(availableCredits >= estimatedCredits);
-          
-          // If credits are insufficient, show a toast but keep the dialog open
-          if (availableCredits < estimatedCredits) {
-            toast.error(`You need at least ${estimatedCredits} credits to generate this video. Please add more credits to continue.`);
-          }
-        })
-        .catch(error => {
-          console.error('Error checking credits:', error);
-          setHasSufficientCredits(false);
-          toast.error('Unable to verify credit balance. Please try again later.');
-        })
-        .finally(() => {
-          setIsCheckingCredits(false);
-        });
+      try {
+        const availableCredits = await checkCredits(true);
+        console.log(`Credit check completed: User has ${availableCredits} credits, needs ${estimatedCredits}`);
+        setHasSufficientCredits(availableCredits >= estimatedCredits);
+        
+        // If credits are insufficient, show a toast but keep the dialog open
+        if (availableCredits < estimatedCredits) {
+          toast.error(`You need at least ${estimatedCredits} credits to generate this video. Please add more credits to continue.`);
+        }
+      } catch (error) {
+        console.error('Error checking credits:', error);
+        setHasSufficientCredits(false);
+        toast.error('Unable to verify credit balance. Please try again later.');
+      } finally {
+        setIsCheckingCredits(false);
+      }
     }
   };
   
