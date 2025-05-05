@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -75,7 +74,6 @@ export const useGalleryImages = () => {
           );
         
         if (isMounted) {
-          // Ensure we use directly the image URLs - no proxy needed
           setImages(validImages as GeneratedImage[]);
           setIsLoadingImages(false);
         }

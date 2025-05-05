@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { useAuth } from '@/hooks/use-auth';
 
 interface ImageDownloadButtonProps {
   imageUrl: string;
@@ -17,7 +16,6 @@ const ImageDownloadButton = ({
   variant = 'standalone'
 }: ImageDownloadButtonProps) => {
   const [isOpening, setIsOpening] = useState(false);
-  const { user } = useAuth();
   
   const handleOpenInNewTab = async () => {
     setIsOpening(true);
@@ -34,7 +32,7 @@ const ImageDownloadButton = ({
         toast.info('Opening archive in a new tab. Your browser will handle the download.');
       }
       
-      // Open the image directly - no proxy needed for opening in new tab
+      // Open the image in a new tab
       window.open(imageUrl, '_blank');
       
       if (!isZipFile) {

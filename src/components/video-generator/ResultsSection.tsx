@@ -53,50 +53,6 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
     }
   };
   
-  const handleDownload = async (resourceUrl: string, resourceType: string) => {
-    const toastId = toast.loading(`Downloading ${resourceType}...`);
-    
-    try {
-      // Get file extension
-      let fileExtension = '.mp4';
-      if (resourceType === 'Audio Track') fileExtension = '.mp3';
-      else if (resourceType === 'Transcript') fileExtension = '.txt';
-      else if (resourceType === 'Image Collection') fileExtension = '.zip';
-      
-      // Create a filename
-      const filename = `${resourceType.toLowerCase().replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}${fileExtension}`;
-      
-      // Fetch directly without proxy
-      const response = await fetch(resourceUrl);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to download ${resourceType}`);
-      }
-      
-      const blob = await response.blob();
-      
-      // Create download link
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = filename;
-      
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Clean up
-      window.URL.revokeObjectURL(downloadUrl);
-      toast.dismiss(toastId);
-      toast.success(`${resourceType} download started`);
-    } catch (error) {
-      console.error(`Failed to download ${resourceType}:`, error);
-      toast.dismiss(toastId);
-      toast.error(`Unable to download ${resourceType}. Please try again.`);
-    }
-  };
-  
   if (isVideo) {
     return (
       <Card className="w-full shadow-md border-indigo-300/50 dark:border-indigo-800/50">
@@ -176,7 +132,16 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-700/70"
-                onClick={() => handleDownload(url, title)}
+                onClick={() => {
+                  const downloadUrl = url;
+                  const link = document.createElement('a');
+                  link.href = downloadUrl;
+                  link.download = `${title.toLowerCase().replace(' ', '_')}_${new Date().toISOString().slice(0, 10)}`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  toast.success(`${title} download started`);
+                }}
               >
                 <Download className="h-4 w-4" />
                 <span className="sr-only">Download {title}</span>

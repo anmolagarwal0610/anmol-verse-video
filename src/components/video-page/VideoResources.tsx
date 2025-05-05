@@ -12,7 +12,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { fetchWithCorsProxy } from '@/lib/utils/corsProxy';
 
 interface VideoResourcesProps {
   video: VideoData;
@@ -40,48 +39,20 @@ const VideoResources = ({ video }: VideoResourcesProps) => {
     }
   };
 
-  const handleDownload = async (url: string | undefined, resourceType: string) => {
+  const handleDownload = (url: string | undefined, resourceType: string) => {
     if (!url) return;
     
     try {
-      toast.loading(`Downloading ${resourceType}...`);
-      
-      // Get file extension based on resourceType
-      let fileExtension = '.txt';
-      if (resourceType === 'Audio') fileExtension = '.mp3';
-      else if (resourceType === 'Images Archive') fileExtension = '.zip';
-      else if (resourceType === 'Transcript') fileExtension = '.txt';
-      
-      // Create filename
-      const filename = `${resourceType.toLowerCase().replace(' ', '_')}_${new Date().toISOString().slice(0, 10)}${fileExtension}`;
-      
-      // Fetch the file directly (no proxy for downloads)
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to download ${resourceType}`);
-      }
-      
-      const blob = await response.blob();
-      
-      // Create download link
-      const downloadUrl = window.URL.createObjectURL(blob);
+      const downloadUrl = url;
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.download = filename;
-      
-      // Append to body, click and remove
+      link.download = `${resourceType.toLowerCase().replace(' ', '_')}_${new Date().toISOString().slice(0, 10)}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
-      // Clean up
-      window.URL.revokeObjectURL(downloadUrl);
-      toast.dismiss();
       toast.success(`${resourceType} download started`);
     } catch (error) {
       console.error(`Failed to download ${resourceType}:`, error);
-      toast.dismiss();
       toast.error(`Unable to download ${resourceType}. Please try again.`);
     }
   };
