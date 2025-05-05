@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { VideoStatusResponse } from '@/lib/video/types';
 import { useAuth } from '@/hooks/use-auth';
 import { saveVideoToGallery } from '@/lib/video/services/videoGallery';
-import VideoPlayer from '@/components/video-player'; // Changed from named import to default import
+import VideoPlayer from '@/components/video-player/VideoPlayer'; // Direct import from the component file
 import { toast } from 'sonner';
 import { Separator } from '@/components/ui/separator';
+import DownloadButton from '@/components/ui/download-button';
 
 interface ResultsSectionProps {
   result: VideoStatusResponse;
@@ -52,38 +53,6 @@ const ResultsSection = ({ result }: ResultsSectionProps) => {
       toast.error(`Failed to copy ${type} URL`);
     });
   };
-
-  const handleDownload = (url: string, filename: string) => {
-    try {
-      // Create a direct link to download the file
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      toast.success('Download started');
-    } catch (error) {
-      console.error('Error downloading file:', error);
-      toast.error('Failed to download file. Please try again.');
-    }
-  };
-  
-  const ResourceButton = ({ icon, label, url, onClick, disabled = false }: ResourceButtonProps) => {
-    return (
-      <Button
-        variant="outline"
-        size="sm"
-        className="flex items-center gap-2"
-        onClick={onClick}
-        disabled={disabled || !url}
-      >
-        {icon}
-        <span>{label}</span>
-      </Button>
-    );
-  };
   
   return (
     <div className="space-y-6">
@@ -94,7 +63,6 @@ const ResultsSection = ({ result }: ResultsSectionProps) => {
           <VideoPlayer
             videoUrl={result.video_url}
             poster={result.thumbnail_url || undefined}
-            className=""
           />
         )}
       </div>
@@ -122,37 +90,45 @@ const ResultsSection = ({ result }: ResultsSectionProps) => {
         <div>
           <h4 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Resources</h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            <ResourceButton
-              icon={<Film className="h-4 w-4" />}
-              label="Video"
-              url={result.video_url}
-              onClick={() => handleCopyText(result.video_url || '', 'Video')}
-              disabled={!result.video_url}
-            />
+            {result.video_url && (
+              <DownloadButton
+                url={result.video_url}
+                fileType="video"
+                filename={`video-${Date.now()}.mp4`}
+                size="sm"
+                className="flex items-center gap-2"
+              />
+            )}
             
-            <ResourceButton
-              icon={<Headphones className="h-4 w-4" />}
-              label="Audio"
-              url={result.audio_url}
-              onClick={() => result.audio_url && handleDownload(result.audio_url, `audio-${Date.now()}.mp3`)}
-              disabled={!result.audio_url}
-            />
+            {result.audio_url && (
+              <DownloadButton
+                url={result.audio_url}
+                fileType="audio"
+                filename={`audio-${Date.now()}.mp3`}
+                size="sm"
+                className="flex items-center gap-2"
+              />
+            )}
             
-            <ResourceButton
-              icon={<FileText className="h-4 w-4" />}
-              label="Transcript"
-              url={result.transcript_url}
-              onClick={() => result.transcript_url && handleDownload(result.transcript_url, `transcript-${Date.now()}.txt`)}
-              disabled={!result.transcript_url}
-            />
+            {result.transcript_url && (
+              <DownloadButton
+                url={result.transcript_url}
+                fileType="transcript"
+                filename={`transcript-${Date.now()}.txt`}
+                size="sm"
+                className="flex items-center gap-2"
+              />
+            )}
             
-            <ResourceButton
-              icon={<FileArchive className="h-4 w-4" />}
-              label="Images"
-              url={result.images_zip_url}
-              onClick={() => result.images_zip_url && handleDownload(result.images_zip_url, `images-${Date.now()}.zip`)}
-              disabled={!result.images_zip_url}
-            />
+            {result.images_zip_url && (
+              <DownloadButton
+                url={result.images_zip_url}
+                fileType="archive"
+                filename={`images-${Date.now()}.zip`}
+                size="sm"
+                className="flex items-center gap-2"
+              />
+            )}
           </div>
         </div>
         
