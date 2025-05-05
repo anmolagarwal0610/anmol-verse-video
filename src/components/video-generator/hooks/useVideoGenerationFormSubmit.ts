@@ -22,6 +22,7 @@ export const useVideoGenerationFormSubmit = ({ onSubmit }: UseVideoGenerationFor
     
     // Find the voice object to check if it's premium
     const voiceObject = VOICE_OPTIONS[voiceId];
+    // Handle the case where is_premium might not exist in the type
     const isPremiumVoice = voiceObject?.is_premium || false;
     
     console.log(`Calculating credits - Voice: ${voiceId}, Premium: ${isPremiumVoice}, Duration: ${videoDuration}s, FPS: ${frameFPS}`);

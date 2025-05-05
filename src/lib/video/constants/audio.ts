@@ -1,3 +1,4 @@
+
 // Audio-related constants
 export const AUDIO_LANGUAGES = {
   "English": "English",
@@ -10,6 +11,7 @@ export interface VoiceOption {
   category: string;
   language: string;
   previewUrl: string;
+  is_premium?: boolean; // Added is_premium as optional property
 }
 
 export const VOICE_OPTIONS: Record<string, VoiceOption> = {
@@ -88,27 +90,31 @@ export const VOICE_OPTIONS: Record<string, VoiceOption> = {
     name: "Google - Male",
     category: "Text to Speech",
     language: "English",
-    previewUrl: "https://storage.googleapis.com/kiratpur-ka-hero/Voices/english_male.mp3"
+    previewUrl: "https://storage.googleapis.com/kiratpur-ka-hero/Voices/english_male.mp3",
+    is_premium: false
   },
   "google_female": {
     id: "google_female",
     name: "Google - Female",
     category: "Text to Speech",
     language: "English",
-    previewUrl: "https://storage.googleapis.com/kiratpur-ka-hero/Voices/english_Female.mp3"
+    previewUrl: "https://storage.googleapis.com/kiratpur-ka-hero/Voices/english_Female.mp3",
+    is_premium: false
   },
   "google_male_hindi": {
     id: "google_male_hindi",
     name: "Google - Male (Hindi)",
     category: "Text to Speech",
     language: "Hindi",
-    previewUrl: "https://storage.googleapis.com/kiratpur-ka-hero/Voices/Hindi_male.mp3"
+    previewUrl: "https://storage.googleapis.com/kiratpur-ka-hero/Voices/Hindi_male.mp3",
+    is_premium: false
   },
   "google_female_hindi": {
     id: "google_female_hindi",
     name: "Google - Female (Hindi)",
     category: "Text to Speech",
     language: "Hindi",
-    previewUrl: "https://storage.googleapis.com/kiratpur-ka-hero/Voices/Hindi_Female.mp3"
+    previewUrl: "https://storage.googleapis.com/kiratpur-ka-hero/Voices/Hindi_Female.mp3",
+    is_premium: false
   }
 } as const;
