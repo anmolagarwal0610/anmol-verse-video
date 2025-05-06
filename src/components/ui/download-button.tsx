@@ -50,9 +50,9 @@ const DownloadButton = ({
   
     setIsDownloading(true);
   
-    const toastId = toast.loading(`Preparing ${fileType} for download...`, {
+    toast(`Preparing ${fileType} for download...`, {
       closeButton: true,
-      duration: 4000, // 4 seconds
+      duration: 4000,
     });
   
     try {
@@ -66,7 +66,6 @@ const DownloadButton = ({
       link.click();
       document.body.removeChild(link);
   
-      toast.dismiss(toastId);
       toast.success(`${fileType} download started`, {
         closeButton: true,
         duration: 4000,
@@ -74,7 +73,6 @@ const DownloadButton = ({
   
       if (onClick) onClick();
     } catch (error) {
-      toast.dismiss(toastId);
       toast.warning(`Could not download ${fileType}. Opening in new tab...`, {
         closeButton: true,
         duration: 4000,
@@ -85,7 +83,6 @@ const DownloadButton = ({
       setIsDownloading(false);
     }
   };
-
 
 
 
