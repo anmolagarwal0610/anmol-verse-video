@@ -1,8 +1,11 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { generateTranscript } from '@/lib/api';
-import { useCredit } from '@/lib/creditService';
+import { 
+  generateTranscriptFromPrompt, 
+  TRANSCRIPT_CREDIT_COST,
+  TranscriptGenerationOptions 
+} from '@/lib/services/transcriptGeneration';
 import { useAuth } from '@/hooks/use-auth';
 
 export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: string) => void) => {
@@ -40,35 +43,35 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
     setGenerationProgress(10);
     
     try {
-      // Check and use a credit
-      const hasSufficientCredits = await useCredit();
-      
-      if (!hasSufficientCredits) {
-        setIsGenerating(false);
-        return;
-      }
-      
-      console.log("Submitting prompt for transcript generation:", { prompt, scriptModel, language });
-      
       // Show loading progress
       const progressInterval = setInterval(() => {
         setGenerationProgress(prev => Math.min(prev + 5, 90));
       }, 1000);
       
-      const result = await generateTranscript(prompt, scriptModel, language);
+      // Use the new service for transcript generation
+      const options: TranscriptGenerationOptions = {
+        prompt,
+        scriptModel,
+        language
+      };
+      
+      const result = await generateTranscriptFromPrompt(options, user.id);
       
       clearInterval(progressInterval);
       setGenerationProgress(100);
       
-      if (result.transcript && result.transcript.startsWith('Failed to generate transcript') || 
-          result.transcript && result.transcript.startsWith('Error:')) {
+      if (!result) {
+        // Error already handled in service with toast
+        setIsGenerating(false);
+        return;
+      }
+      
+      if (!result.success) {
         setError(result.transcript);
         setDebugInfo(`Time: ${new Date().toISOString()}, Prompt: "${prompt}"`);
-        toast.error('Failed to generate transcript');
       } else {
-        setTranscript(result.transcript || '');
-        setGuide(result.guide || '');
-        toast.success('Your transcript has been generated!');
+        setTranscript(result.transcript);
+        setGuide(result.guide);
         
         if (onTranscriptGenerated && result.transcript) {
           onTranscriptGenerated(result.transcript);
@@ -89,6 +92,9 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
     handleGenerate(new Event('submit') as any);
   };
 
+  // Calculate credit cost (always fixed)
+  const calculateCreditCost = () => TRANSCRIPT_CREDIT_COST;
+
   return {
     prompt,
     setPrompt,
@@ -106,6 +112,7 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
     setShowAuthDialog,
     handleGenerate,
     handleRetry,
-    proxyAttempt
+    proxyAttempt,
+    calculateCreditCost
   };
 };

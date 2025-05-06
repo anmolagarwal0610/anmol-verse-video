@@ -31,13 +31,17 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
     showAuthDialog,
     setShowAuthDialog,
     handleGenerate,
-    handleRetry
+    handleRetry,
+    calculateCreditCost
   } = useTranscriptGenerator(onTranscriptGenerated);
 
   const redirectToAuth = () => {
     navigate('/auth');
     setShowAuthDialog(false);
   };
+
+  // Calculate credit cost
+  const creditCost = calculateCreditCost();
 
   return (
     <>
@@ -56,6 +60,7 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
           onLanguageChange={setLanguage}
           onSubmit={handleGenerate}
           isGenerating={isGenerating}
+          creditCost={creditCost}
         />
 
         {isGenerating && (

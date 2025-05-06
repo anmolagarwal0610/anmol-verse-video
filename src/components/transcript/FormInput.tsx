@@ -28,6 +28,7 @@ interface FormInputProps {
   onLanguageChange: (value: 'English' | 'Hindi' | 'Hinglish') => void;
   onSubmit: (e: React.FormEvent) => void;
   isGenerating: boolean;
+  creditCost?: number;
 }
 
 export const FormInput = ({ 
@@ -38,7 +39,8 @@ export const FormInput = ({
   onScriptModelChange,
   onLanguageChange,
   onSubmit, 
-  isGenerating 
+  isGenerating,
+  creditCost = 3
 }: FormInputProps) => {
   const form = useForm({
     defaultValues: {
@@ -138,7 +140,7 @@ export const FormInput = ({
           ) : (
             <>
               <FileText className="mr-2 h-4 w-4" />
-              Generate Transcript
+              Generate Transcript ({creditCost} credits)
             </>
           )}
         </Button>
