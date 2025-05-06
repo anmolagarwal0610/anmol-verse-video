@@ -49,15 +49,17 @@ const DownloadButton = ({
     e.preventDefault();
   
     setIsDownloading(true);
+  
     const toastId = toast.loading(`Preparing ${fileType} for download...`, {
       closeButton: true,
+      duration: 4000, // 4 seconds
     });
   
     try {
       const link = document.createElement('a');
       link.href = url;
       link.download = filename || getDefaultFilename();
-      link.target = '_blank'; // ✅ Opens in new tab if download fails
+      link.target = '_blank';
       link.rel = 'noopener noreferrer';
   
       document.body.appendChild(link);
@@ -67,21 +69,23 @@ const DownloadButton = ({
       toast.dismiss(toastId);
       toast.success(`${fileType} download started`, {
         closeButton: true,
+        duration: 4000,
       });
   
       if (onClick) onClick();
     } catch (error) {
       toast.dismiss(toastId);
-      toast.warning(`Could not trigger download. Opening in new tab...`, {
+      toast.warning(`Could not download ${fileType}. Opening in new tab...`, {
         closeButton: true,
+        duration: 4000,
       });
   
-      // ✅ Explicitly open in new tab to prevent current tab navigation
       window.open(url, '_blank', 'noopener');
     } finally {
       setIsDownloading(false);
     }
   };
+
 
 
 
