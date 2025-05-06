@@ -108,33 +108,33 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         setProgress(100);
         
         console.log('🔎 [useVideoGenerator] Setting result with topic:', currentTopic);
+        console.log('🔎 [useVideoGenerator] Original params had topic:', currentParams?.topic);
+        
         // Log detailed information about the response and current params
         console.log('🔎 [useVideoGenerator] Response details:', {
           status: statusResponse.status,
-          topic: currentTopic || statusResponse.topic,
+          topic: statusResponse.topic || currentTopic,
           voice: currentParams?.voice || statusResponse.voice,
           audio_duration: statusResponse.audio_duration,
           frame_fps: statusResponse.frame_fps || currentParams?.frame_fps,
           task_id: id
         });
         
-        console.log('🔎 [useVideoGenerator] Original params details:', {
-          topic: currentParams?.topic,
-          voice: currentParams?.voice,
-          frame_fps: currentParams?.frame_fps,
-          video_duration: currentParams?.video_duration
-        });
-        
-        setResult({
+        // Create a properly combined result that prioritizes the topic from params if available
+        const finalResult = {
           ...statusResponse,
-          topic: currentTopic || statusResponse.topic,
+          // Explicitly preserve the topic from currentParams (from the form) if it exists and is not empty
+          topic: currentParams?.topic || statusResponse.topic || currentTopic,
           // Ensure the voice parameter from the original request is preserved
           voice: currentParams?.voice || statusResponse.voice,
           // Ensure frame_fps is preserved from params if not in response
           frame_fps: currentParams?.frame_fps || statusResponse.frame_fps,
           // Set the task_id from the polling request
           task_id: id
-        });
+        };
+        
+        console.log('🔎 [useVideoGenerator] Final result with topic:', finalResult.topic);
+        setResult(finalResult);
         
         cleanup();
         toast.success('Video generation completed!');

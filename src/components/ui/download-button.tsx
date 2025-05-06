@@ -49,7 +49,9 @@ const DownloadButton = ({
     e.preventDefault();
   
     setIsDownloading(true);
-    const toastId = toast.loading(`Preparing ${fileType} for download...`);
+    const toastId = toast.loading(`Preparing ${fileType} for download...`, {
+      closeButton: true
+    });
   
     try {
       console.log('Attempting to fetch file for download:', url);
@@ -72,13 +74,17 @@ const DownloadButton = ({
       window.URL.revokeObjectURL(blobUrl);
   
       toast.dismiss(toastId);
-      toast.success(`${fileType} download started`);
+      toast.success(`${fileType} download started`, {
+        closeButton: true
+      });
   
       if (onClick) onClick();
     } catch (error) {
       console.warn('Download failed, falling back to opening in new tab:', error);
       toast.dismiss(toastId);
-      toast.warning(`Could not download ${fileType} directly due to CORS. Opening in new tab...`);
+      toast.warning(`Could not download ${fileType} directly due to CORS. Opening in new tab...`, {
+        closeButton: true
+      });
   
       // Fallback: open in new tab
       window.open(url, '_blank', 'noopener');
@@ -86,6 +92,7 @@ const DownloadButton = ({
       toast("If download doesn't start, right-click the new tab and select 'Save As...'", {
         duration: 6000,
         position: 'top-center',
+        closeButton: true
       });
     } finally {
       setIsDownloading(false);

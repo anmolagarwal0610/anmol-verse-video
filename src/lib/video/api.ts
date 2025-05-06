@@ -1,9 +1,11 @@
+
 import { API_CONFIG } from '../apiUtils';
 import type { VideoGenerationParams, VideoGenerationResponse, VideoStatusResponse } from './types';
 
 export const generateVideo = async (params: VideoGenerationParams): Promise<VideoGenerationResponse> => {
   try {
     console.log("Generating video with params:", params);
+    console.log("Topic being sent to API:", params.topic);
     
     // Normalize Google voice IDs by removing language suffixes
     let normalizedParams = { ...params };
