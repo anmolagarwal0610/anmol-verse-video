@@ -14,7 +14,6 @@ export const saveVideoToGallery = async (
   try {
     console.log('[VIDEO GALLERY] Starting save operation with userId:', userId);
     console.log('[VIDEO GALLERY] Result object received:', JSON.stringify(result, null, 2));
-    console.log('[VIDEO GALLERY] Topic from result:', result.topic);
     
     // Skip if no video URL (indicates incomplete generation)
     if (!result.video_url) {
@@ -47,33 +46,37 @@ export const saveVideoToGallery = async (
       return true;
     }
 
-    // Validate topic - enhanced topic validation with detailed logging
-    console.log('[VIDEO GALLERY] Topic type check: ', typeof result.topic);
-    console.log('[VIDEO GALLERY] Topic value:', result.topic);
+    // TOPIC DETERMINATION - use a clear priority order:
+    // 1. originalTopic field from the result (highest priority)
+    // 2. topic field if it's not "Untitled Video"
+    // 3. task_id as a fallback
+    // 4. "Untitled Video" as last resort
+    
+    console.log('[VIDEO GALLERY] Topic determination data:', {
+      originalTopic: result.originalTopic,
+      topicField: result.topic,
+      taskId: result.task_id
+    });
     
     let videoTopic = 'Untitled Video';
     
-    if (result.topic) {
-      const trimmedTopic = result.topic.trim();
-      console.log('[VIDEO GALLERY] Trimmed topic:', trimmedTopic);
-      console.log('[VIDEO GALLERY] Trimmed topic length:', trimmedTopic.length);
-      
-      if (trimmedTopic.length > 0 && trimmedTopic !== 'Untitled Video') {
-        videoTopic = trimmedTopic;
-        console.log('[VIDEO GALLERY] Using valid topic:', videoTopic);
-      } else {
-        console.warn('[VIDEO GALLERY] Topic was empty or "Untitled Video" after trimming, checking for task_id');
-        // If we have a task_id but no valid topic, try to use that as a fallback
-        if (result.task_id) {
-          console.log('[VIDEO GALLERY] Using task_id as fallback for title:', result.task_id);
-          videoTopic = `Video ${result.task_id.substring(0, 8)}`;
-        } else {
-          console.warn('[VIDEO GALLERY] No valid topic or task_id, using default');
-        }
-      }
-    } else {
-      console.warn('[VIDEO GALLERY] No topic provided in result object, using default');
+    // First priority: originalTopic field (explicitly stored from form input)
+    if (result.originalTopic && result.originalTopic.trim() && result.originalTopic.trim() !== 'Untitled Video') {
+      videoTopic = result.originalTopic.trim();
+      console.log('[VIDEO GALLERY] Using originalTopic field for title:', videoTopic);
     }
+    // Second priority: topic field if valid
+    else if (result.topic && result.topic.trim() && result.topic.trim() !== 'Untitled Video') {
+      videoTopic = result.topic.trim();
+      console.log('[VIDEO GALLERY] Using topic field for title:', videoTopic);
+    }
+    // Third priority: task_id as fallback
+    else if (result.task_id) {
+      videoTopic = `Video ${result.task_id.substring(0, 8)}`;
+      console.log('[VIDEO GALLERY] Using task_id for title fallback:', videoTopic);
+    }
+    
+    console.log('[VIDEO GALLERY] Final topic being used for save:', videoTopic);
     
     // Calculate expiry time (7 days from now)
     const expiryTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -160,7 +163,7 @@ export const getVideos = async (): Promise<VideoData[]> => {
       return {
         id: video.id,
         title: title,
-        prompt: title,
+        prompt: title, // Use title as prompt for consistency
         url: videoUrl,
         thumbnail: video.thumbnail_url || embeddedSVG,
         created_at: video.created_at,

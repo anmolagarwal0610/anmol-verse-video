@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { generateVideo, checkVideoStatus } from '@/lib/video/api';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
@@ -111,7 +112,10 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         
         // CRITICAL: Ensure topic is correctly set
         // Use the topic from the original params as highest priority
-        const finalTopic = currentTopic && currentTopic.trim()
+        console.log('[VIDEO GENERATOR] Original topic value before processing:', currentTopic);
+        console.log('[VIDEO GENERATOR] Topic value from API before processing:', statusResponse.topic);
+        
+        const finalTopic = (currentTopic && currentTopic.trim() && currentTopic !== 'Untitled Video') 
           ? currentTopic.trim()
           : (statusResponse.topic && statusResponse.topic !== 'Untitled Video')
             ? statusResponse.topic
@@ -122,6 +126,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         setResult({
           ...statusResponse,
           topic: finalTopic, // Use our determined final topic
+          originalTopic: currentTopic, // Add the original topic as a separate field
           // Ensure the voice parameter from the original request is preserved
           voice: currentParams?.voice || statusResponse.voice,
           // Ensure frame_fps is preserved from params if not in response
@@ -153,6 +158,9 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
       
       // Validate topic and make sure it's not empty
       const sanitizedTopic = params.topic.trim();
+      console.log('[VIDEO GENERATOR] Original form topic:', params.topic);
+      console.log('[VIDEO GENERATOR] Sanitized topic:', sanitizedTopic);
+      
       if (!sanitizedTopic) {
         throw new Error('Topic cannot be empty');
       }
@@ -178,6 +186,8 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
       if (response && response.task_id) {
         console.log(`[VIDEO GENERATOR] Received task_id: ${response.task_id}`);
         console.log(`[VIDEO GENERATOR] Original topic preserved: ${sanitizedTopic}`);
+        console.log(`[VIDEO GENERATOR] API response originalTopic: ${response.originalTopic || 'not set'}`);
+        
         setTaskId(response.task_id);
         setStatus('polling');
         setProgress(5); // Initial progress

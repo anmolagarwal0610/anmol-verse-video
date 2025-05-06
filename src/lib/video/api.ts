@@ -46,6 +46,7 @@ export const generateVideo = async (params: VideoGenerationParams): Promise<Vide
     console.log("[VIDEO API] Video generation response:", data);
     
     // Add the original topic to the response to preserve it throughout the process
+    // Make sure we add it regardless of what the API returns
     return {
       ...data,
       originalTopic: params.topic
@@ -82,13 +83,28 @@ export const checkVideoStatus = async (taskId: string, originalTopic?: string): 
     console.log("[VIDEO API] Video status response:", data);
     
     // If the API returns "Untitled Video" but we have an original topic, use the original topic
-    const finalTopic = (data.topic === "Untitled Video" && originalTopic) ? originalTopic : data.topic;
-    console.log("[VIDEO API] Final topic to be used:", finalTopic);
+    // The prioritization logic should be:
+    // 1. Original topic if available (highest priority)
+    // 2. Response topic if it's not "Untitled Video"
+    // 3. "Untitled Video" as last resort
     
-    // Add the task_id to the response so it's available throughout the app
+    const finalTopic = (originalTopic && originalTopic.trim() && originalTopic !== "Untitled Video")
+      ? originalTopic
+      : (data.topic && data.topic !== "Untitled Video")
+        ? data.topic
+        : "Untitled Video";
+        
+    console.log("[VIDEO API] Final topic determination:", {
+      originalTopic,
+      responseTopic: data.topic,
+      finalTopic
+    });
+    
+    // Add the task_id and originalTopic to the response so they're available throughout the app
     return {
       ...data,
       topic: finalTopic,
+      originalTopic: originalTopic, // Explicitly pass through the originalTopic
       task_id: taskId
     };
   } catch (error) {

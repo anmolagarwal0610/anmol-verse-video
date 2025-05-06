@@ -9,9 +9,17 @@ import {
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { useVideoGenerationForm } from '../../VideoGenerationFormContext';
+import { useEffect } from 'react';
 
 const TopicField = () => {
   const { form, isGenerating } = useVideoGenerationForm();
+  
+  // Add logging to track topic changes
+  const topicValue = form.watch("topic");
+  
+  useEffect(() => {
+    console.log("[TOPIC FIELD] Current topic value:", topicValue);
+  }, [topicValue]);
   
   return (
     <FormField
@@ -26,6 +34,10 @@ const TopicField = () => {
               className="min-h-[100px]" 
               {...field}
               disabled={isGenerating}
+              onChange={(e) => {
+                console.log("[TOPIC FIELD] Topic changed to:", e.target.value);
+                field.onChange(e);
+              }}
             />
           </FormControl>
           <FormDescription>
