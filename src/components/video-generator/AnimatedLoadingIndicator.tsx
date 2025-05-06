@@ -1,7 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileVideo, Music, Wand2, Clapperboard, CheckCircle2 } from 'lucide-react';
 
 interface AnimatedLoadingIndicatorProps {
   progress: number;
@@ -52,27 +51,21 @@ const AnimatedLoadingIndicator = ({ progress, status }: AnimatedLoadingIndicator
   const milestoneAnimations = {
     initializing: {
       color: "#818cf8", // Indigo
-      icon: <Wand2 className="h-6 w-6" />
     },
     preparing_assets: {
       color: "#60a5fa", // Blue
-      icon: <Music className="h-6 w-6" />
     },
     generating_content: {
       color: "#34d399", // Emerald
-      icon: <Clapperboard className="h-6 w-6" />
     },
     processing_video: {
       color: "#a78bfa", // Violet
-      icon: <FileVideo className="h-6 w-6" />
     },
     finalizing: {
       color: "#f472b6", // Pink
-      icon: <CheckCircle2 className="h-6 w-6" />
     },
     error: {
       color: "#f87171", // Red
-      icon: <FileVideo className="h-6 w-6" />
     }
   };
   

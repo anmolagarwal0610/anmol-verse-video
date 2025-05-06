@@ -47,12 +47,12 @@ export const saveVideoToGallery = async (
     }
 
     // Validate topic - ensure we have a non-empty topic
-    let videoTopic = result.topic || 'Untitled Video';
+    let videoTopic = 'Untitled Video';
     
     // Enhanced topic validation and logging
     if (result.topic) {
       console.log('🔎 [saveVideoToGallery] Raw topic from result:', result.topic);
-      const trimmedTopic = typeof result.topic === 'string' ? result.topic.trim() : '';
+      const trimmedTopic = result.topic.trim();
       if (trimmedTopic) {
         videoTopic = trimmedTopic;
         console.log('🔎 [saveVideoToGallery] Using valid topic:', videoTopic);
