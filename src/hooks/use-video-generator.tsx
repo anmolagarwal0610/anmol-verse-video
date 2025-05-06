@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { generateVideo, checkVideoStatus } from '@/lib/video/api';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
@@ -107,7 +106,9 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         setStatus('completed');
         setProgress(100);
         
-        console.log('🔎 [useVideoGenerator] Setting result with topic:', currentTopic);
+        console.log('🔎 [useVideoGenerator] Current stored topic:', currentTopic);
+        console.log('🔎 [useVideoGenerator] Topic from API response:', statusResponse.topic);
+        
         // Log detailed information about the response and current params
         console.log('🔎 [useVideoGenerator] Response details:', {
           status: statusResponse.status,
@@ -125,9 +126,13 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
           video_duration: currentParams?.video_duration
         });
         
+        // ENSURE TOPIC IS CORRECTLY SET: Prioritize the original topic from params
+        const finalTopic = currentParams?.topic || currentTopic || statusResponse.topic || 'Untitled Video';
+        console.log('🔎 [useVideoGenerator] Final topic being set:', finalTopic);
+        
         setResult({
           ...statusResponse,
-          topic: currentTopic || statusResponse.topic,
+          topic: finalTopic, // Explicitly ensure topic is set correctly
           // Ensure the voice parameter from the original request is preserved
           voice: currentParams?.voice || statusResponse.voice,
           // Ensure frame_fps is preserved from params if not in response
@@ -156,7 +161,11 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
     try {
       reset();
       setStatus('generating');
+      
+      // IMPORTANT: Store the topic immediately from params
+      console.log('🔎 [useVideoGenerator] Setting current topic:', params.topic);
       setCurrentTopic(params.topic);
+      
       // Store the original params for later use
       setCurrentParams(params);
       

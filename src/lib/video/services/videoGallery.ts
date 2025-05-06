@@ -13,7 +13,7 @@ export const saveVideoToGallery = async (
 ): Promise<boolean> => {
   try {
     console.log('🔎 [saveVideoToGallery] Starting save operation with userId:', userId);
-    console.log('🔎 [saveVideoToGallery] Result object:', result);
+    console.log('🔎 [saveVideoToGallery] Result object received:', JSON.stringify(result, null, 2));
     
     // Skip if no video URL (indicates incomplete generation)
     if (!result.video_url) {
@@ -46,21 +46,25 @@ export const saveVideoToGallery = async (
       return true;
     }
 
-    // Validate topic - ensure we have a non-empty topic
+    // Validate topic - enhanced topic validation with detailed logging
+    console.log('🔎 [saveVideoToGallery] Topic from result object:', result.topic);
+    console.log('🔎 [saveVideoToGallery] Topic type:', typeof result.topic);
+    
     let videoTopic = 'Untitled Video';
     
-    // Enhanced topic validation and logging
     if (result.topic) {
-      console.log('🔎 [saveVideoToGallery] Raw topic from result:', result.topic);
       const trimmedTopic = result.topic.trim();
-      if (trimmedTopic) {
+      console.log('🔎 [saveVideoToGallery] Trimmed topic:', trimmedTopic);
+      console.log('🔎 [saveVideoToGallery] Trimmed topic length:', trimmedTopic.length);
+      
+      if (trimmedTopic.length > 0) {
         videoTopic = trimmedTopic;
         console.log('🔎 [saveVideoToGallery] Using valid topic:', videoTopic);
       } else {
-        console.warn('🔎 [saveVideoToGallery] Topic was empty after trimming');
+        console.warn('🔎 [saveVideoToGallery] Topic was empty after trimming, using default');
       }
     } else {
-      console.warn('🔎 [saveVideoToGallery] No topic provided in result object');
+      console.warn('🔎 [saveVideoToGallery] No topic provided in result object, using default');
     }
     
     // Calculate expiry time (7 days from now)
