@@ -5,62 +5,53 @@ export default function DinoGame() {
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
-  const [obstacleEmoji, setObstacleEmoji] = useState("🌴");
-  const [obstacleSpeed, setObstacleSpeed] = useState(1.5);
+  const [obstacleSrc, setObstacleSrc] = useState("/images/tree.png");
+
   const dinoRef = useRef(null);
   const obstacleRef = useRef(null);
 
+  // Score counter
   useEffect(() => {
     if (!gameStarted || gameOver) return;
-    const scoreInterval = setInterval(() => {
-      setScore((s) => {
-        const newScore = s + 1;
-        if (newScore % 50 === 0) {
-          setObstacleSpeed((prev) => Math.max(0.8, prev - 0.1));
-        }
-        return newScore;
-      });
-    }, 100);
+    const scoreInterval = setInterval(() => setScore((s) => s + 1), 100);
     return () => clearInterval(scoreInterval);
   }, [gameStarted, gameOver]);
 
+  // Jump logic
   const handleJump = () => {
     if (!gameStarted || isJumping || gameOver) return;
     setIsJumping(true);
     setTimeout(() => setIsJumping(false), 500);
   };
 
+  // Restart
   const restartGame = () => {
     setGameOver(false);
     setScore(0);
     setGameStarted(false);
     setIsJumping(false);
-    setObstacleSpeed(1.5);
     if (obstacleRef.current) {
       obstacleRef.current.style.animation = "none";
-      void obstacleRef.current.offsetHeight;
+      void obstacleRef.current.offsetHeight; // trigger reflow
       obstacleRef.current.style.animation = "";
     }
   };
 
+  // Collision detection
   useEffect(() => {
     if (!gameStarted || gameOver) return;
-    const check = setInterval(() => {
+    const checkInterval = setInterval(() => {
       if (!dinoRef.current || !obstacleRef.current) return;
-      const dinoTop = parseInt(
-        getComputedStyle(dinoRef.current).getPropertyValue("top")
-      );
-      const obsLeft = parseInt(
-        getComputedStyle(obstacleRef.current).getPropertyValue("left")
-      );
+      const dinoTop = parseInt(getComputedStyle(dinoRef.current).getPropertyValue("top"));
+      const obsLeft = parseInt(getComputedStyle(obstacleRef.current).getPropertyValue("left"));
       if (obsLeft < 60 && obsLeft > 0 && dinoTop >= 130) {
         setGameOver(true);
-        clearInterval(check);
       }
     }, 10);
-    return () => clearInterval(check);
+    return () => clearInterval(checkInterval);
   }, [gameStarted, gameOver]);
 
+  // Spacebar handling
   useEffect(() => {
     const listener = (e) => {
       if (e.code === "Space" || e.code === "ArrowUp") {
@@ -68,7 +59,7 @@ export default function DinoGame() {
           setGameStarted(true);
         } else if (!gameOver) {
           handleJump();
-        } else if (gameOver) {
+        } else {
           restartGame();
         }
       }
@@ -77,28 +68,21 @@ export default function DinoGame() {
     return () => window.removeEventListener("keydown", listener);
   }, [gameStarted, isJumping, gameOver]);
 
+  // Randomize obstacle image
   useEffect(() => {
     if (!gameStarted || gameOver) return;
-    const ticker = setInterval(() => {
-      const opts = ["🌴", "🔥"];
-      setObstacleEmoji(opts[Math.floor(Math.random() * opts.length)]);
+    const interval = setInterval(() => {
+      const opts = ["/images/tree.png", "/images/fire.png"];
+      setObstacleSrc(opts[Math.floor(Math.random() * opts.length)]);
     }, 2000);
-    return () => clearInterval(ticker);
+    return () => clearInterval(interval);
   }, [gameStarted, gameOver]);
-
-  const jumpDuration = Math.max(0.3, 0.5 - score / 1000); // Min 0.3s
 
   return (
     <div className="game-container">
       <div className="score">Score: {score}</div>
 
-      <div
-        ref={dinoRef}
-        className={`dino ${isJumping ? "jump" : ""}`}
-        style={{
-          animation: isJumping ? `jumpAnim ${jumpDuration}s ease-out` : undefined,
-        }}
-      >
+      <div ref={dinoRef} className={`dino ${isJumping ? "jump" : ""}`}>
         🐵
       </div>
 
@@ -106,9 +90,8 @@ export default function DinoGame() {
         <div
           ref={obstacleRef}
           className={`obstacle ${gameOver ? "stop" : ""}`}
-          style={{ animationDuration: `${obstacleSpeed}s` }}
         >
-          {obstacleEmoji}
+          <img src={obstacleSrc} alt="obstacle" />
         </div>
       )}
 
@@ -155,13 +138,18 @@ export default function DinoGame() {
           bottom: 20px;
           left: 50px;
           transition: top 0.2s;
+          top: 130px;
           line-height: 1;
         }
 
+        .dino.jump {
+          animation: jumpAnim 0.5s ease-out;
+        }
+
         @keyframes jumpAnim {
-          0% { bottom: 20px; }
-          50% { bottom: 105px; }
-          100% { bottom: 20px; }
+          0% { top: 130px; }
+          50% { top: 60px; }
+          100% { top: 130px; }
         }
 
         .obstacle {
@@ -169,35 +157,26 @@ export default function DinoGame() {
           bottom: 20px;
           left: 100%;
           width: 50px;
-          height: 65px;
+          height: 80px;
           display: flex;
           align-items: flex-end;
           justify-content: center;
-          font-size: 40px;
-          line-height: 1;
-          animation-name: obstacleAnim;
-          animation-timing-function: linear;
-          animation-iteration-count: infinite;
+          animation: obstacleAnim 1.5s linear infinite;
         }
 
         .obstacle.stop {
           animation-play-state: paused;
         }
 
+        .obstacle img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+        }
+
         @keyframes obstacleAnim {
           0% { left: 100%; }
           100% { left: -50px; }
-        }
-
-        .obstacle::before {
-          content: "";
-          position: absolute;
-          bottom: -20px;
-          left: 0;
-          width: 100%;
-          height: 24px;
-          background: rgba(255,255,255,0.3);
-          border-radius: 4px;
         }
 
         .message, .game-over {
@@ -214,7 +193,6 @@ export default function DinoGame() {
 
         .game-over {
           padding: 16px 24px;
-          border-radius: 10px;
           font-size: 18px;
         }
 
