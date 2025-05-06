@@ -11,6 +11,7 @@ interface DownloadButtonProps extends Omit<ButtonProps, 'onClick'> {
   variant?: 'default' | 'secondary' | 'outline' | 'destructive' | 'ghost' | 'link';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   onClick?: () => void;
+  children?: React.ReactNode;
 }
 
 const DownloadButton = ({ 
@@ -21,6 +22,7 @@ const DownloadButton = ({
   size = 'default',
   className,
   onClick,
+  children,
   ...props 
 }: DownloadButtonProps) => {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -42,8 +44,9 @@ const DownloadButton = ({
     return `${prefix}_${timestamp}${getFileExtension()}`;
   };
 
-  const handleDownload = async () => {
+  const handleDownload = async (e: React.MouseEvent) => {
     if (isDownloading) return;
+    e.preventDefault();
     
     setIsDownloading(true);
     const toastId = toast.loading(`Preparing ${fileType} for download...`);
@@ -56,6 +59,7 @@ const DownloadButton = ({
       link.href = url;
       link.download = filename || getDefaultFilename();
       link.target = '_blank'; // Helps with cross-origin downloads
+      link.rel = 'noopener noreferrer';
       
       // Append to document, click, and remove
       document.body.appendChild(link);
@@ -84,6 +88,14 @@ const DownloadButton = ({
     }
   };
 
+  // If children are provided, render them, otherwise use default content
+  const buttonContent = children || (
+    <>
+      <Download className="mr-2 h-4 w-4" />
+      {isDownloading ? 'Downloading...' : `Download ${fileType.charAt(0).toUpperCase() + fileType.slice(1)}`}
+    </>
+  );
+
   return (
     <Button 
       onClick={handleDownload}
@@ -93,8 +105,7 @@ const DownloadButton = ({
       disabled={isDownloading}
       {...props}
     >
-      <Download className="mr-2 h-4 w-4" />
-      {isDownloading ? 'Downloading...' : `Download ${fileType.charAt(0).toUpperCase() + fileType.slice(1)}`}
+      {buttonContent}
     </Button>
   );
 };

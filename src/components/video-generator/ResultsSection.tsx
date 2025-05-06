@@ -134,9 +134,6 @@ const ResultCard = ({ icon, title, description, url, isPrimary = false }: Result
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 rounded-full hover:bg-slate-200/70 dark:hover:bg-slate-700/70 p-0"
-                onClick={() => {
-                  console.log(`Starting download for ${title}`);
-                }}
               >
                 <Download className="h-4 w-4" />
                 <span className="sr-only">Download {title}</span>
