@@ -24,6 +24,7 @@ export interface VideoGenerationParams {
 export interface VideoGenerationResponse {
   status: string;
   task_id: string;
+  originalTopic?: string; // Add this field to support the topic preservation
 }
 
 export interface VideoStatusResponse {
@@ -38,5 +39,6 @@ export interface VideoStatusResponse {
   audio_duration?: number;
   voice?: string;
   frame_fps?: number;
-  task_id?: string; // Add the missing task_id property
+  task_id?: string; 
+  originalTopic?: string; // Add this field to support the topic preservation
 }

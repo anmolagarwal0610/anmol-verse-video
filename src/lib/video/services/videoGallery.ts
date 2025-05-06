@@ -53,7 +53,7 @@ export const saveVideoToGallery = async (
     // 4. "Untitled Video" as last resort
     
     console.log('[VIDEO GALLERY] Topic determination data:', {
-      originalTopic: result.originalTopic,
+      originalTopic: result.originalTopic || 'not provided',
       topicField: result.topic,
       taskId: result.task_id
     });

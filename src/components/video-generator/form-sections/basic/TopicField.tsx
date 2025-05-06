@@ -38,6 +38,9 @@ const TopicField = () => {
                 console.log("[TOPIC FIELD] Topic changed to:", e.target.value);
                 field.onChange(e);
               }}
+              onBlur={() => {
+                console.log("[TOPIC FIELD] Topic field blurred, final value:", field.value);
+              }}
             />
           </FormControl>
           <FormDescription>
