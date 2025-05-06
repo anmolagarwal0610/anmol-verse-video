@@ -58,7 +58,6 @@ const DownloadButton = ({
       const link = document.createElement('a');
       link.href = url;
       link.download = filename || getDefaultFilename();
-      link.target = '_blank'; // Helps with cross-origin downloads
       link.rel = 'noopener noreferrer';
       
       // Append to document, click, and remove
