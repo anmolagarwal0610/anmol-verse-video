@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -6,6 +5,7 @@ import { Wand2, Loader2, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { VideoGenerationParams } from '@/lib/video/types';
+import { generateVideo } from '@/lib/video/services/videoGeneration';
 import { useCredit } from '@/lib/creditService';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
@@ -84,7 +84,7 @@ const PromptForm = ({ onVideoGenerated }: PromptFormProps) => {
       console.log('Sending video generation params:', params);
       const result = await generateVideo(params);
       toast.success('Your video has been generated!');
-      onVideoGenerated(result.task_id);
+      onVideoGenerated(result.videoId);
     } catch (error) {
       console.error('Error generating video:', error);
       toast.error('Failed to generate video. Please try again.');
