@@ -1,3 +1,4 @@
+
 import { API_CONFIG } from '../apiUtils';
 import type { VideoGenerationParams, VideoGenerationResponse, VideoStatusResponse } from './types';
 
@@ -25,11 +26,15 @@ export const generateVideo = async (params: VideoGenerationParams): Promise<Vide
         'Content-Type': 'application/json',
         'x-api-key': API_CONFIG.API_KEY
       },
-      body: JSON.stringify(normalizedParams),
+      body: JSON.stringify({
+        ...normalizedParams,
+        original_topic: params.topic // Explicitly include original topic to ensure it's preserved
+      }),
     };
     
     console.log("Sending video generation request to API:", apiUrl);
     console.log("With normalized voice parameter:", normalizedParams.voice);
+    console.log("Original topic:", params.topic);
     
     // Make the request
     const response = await fetch(apiUrl, requestOptions);
@@ -42,7 +47,11 @@ export const generateVideo = async (params: VideoGenerationParams): Promise<Vide
     const data = await response.json();
     console.log("Video generation response:", data);
     
-    return data;
+    // Ensure the original parameters are included in the response
+    return {
+      ...data,
+      original_params: params
+    };
   } catch (error) {
     console.error('Error generating video:', error);
     throw error;

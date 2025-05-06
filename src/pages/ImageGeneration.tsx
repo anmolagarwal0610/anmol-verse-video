@@ -8,6 +8,7 @@ import { useImageGenerator } from '@/hooks/use-image-generator';
 import { useAuth } from '@/hooks/use-auth';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import { Toaster } from '@/components/ui/sonner';
 
 const ImageGeneration = () => {
   const { 
@@ -52,6 +53,9 @@ const ImageGeneration = () => {
       </main>
       
       <FooterSection />
+      
+      {/* Add Toaster with closeButton enabled */}
+      <Toaster closeButton position="top-center" />
     </div>
   );
 };

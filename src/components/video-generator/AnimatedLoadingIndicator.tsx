@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { LoaderCircle, Video, CheckCircle, AlertCircle } from 'lucide-react';
+import { LoaderCircle, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface AnimatedLoadingIndicatorProps {
   progress: number;
@@ -56,15 +56,15 @@ const AnimatedLoadingIndicator = ({ progress, status }: AnimatedLoadingIndicator
     },
     preparing_assets: {
       color: "#60a5fa", // Blue
-      icon: <Video className="h-6 w-6" />
+      icon: <LoaderCircle className="h-6 w-6 animate-spin" />
     },
     generating_content: {
       color: "#34d399", // Emerald
-      icon: <Video className="h-6 w-6" />
+      icon: <LoaderCircle className="h-6 w-6 animate-spin" />
     },
     processing_video: {
       color: "#a78bfa", // Violet
-      icon: <Video className="h-6 w-6" />
+      icon: <LoaderCircle className="h-6 w-6 animate-spin" />
     },
     finalizing: {
       color: "#f472b6", // Pink

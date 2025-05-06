@@ -47,20 +47,25 @@ export const saveVideoToGallery = async (
     }
 
     // Validate topic - ensure we have a non-empty topic
+    // Extract topic from result or parameters
     let videoTopic = 'Untitled Video';
     
-    // Enhanced topic validation and logging
-    if (result.topic) {
-      console.log('🔎 [saveVideoToGallery] Raw topic from result:', result.topic);
-      const trimmedTopic = result.topic.trim();
-      if (trimmedTopic) {
-        videoTopic = trimmedTopic;
-        console.log('🔎 [saveVideoToGallery] Using valid topic:', videoTopic);
+    // Enhanced topic extraction - first check from result.topic
+    if (result.topic && typeof result.topic === 'string' && result.topic.trim()) {
+      videoTopic = result.topic.trim();
+      console.log('🔎 [saveVideoToGallery] Using topic from result:', videoTopic);
+    } 
+    // Try to get from original parameters if available
+    else if (result.original_params && result.original_params.topic) {
+      const paramsTopic = result.original_params.topic.trim();
+      if (paramsTopic) {
+        videoTopic = paramsTopic;
+        console.log('🔎 [saveVideoToGallery] Using topic from original params:', videoTopic);
       } else {
-        console.warn('🔎 [saveVideoToGallery] Topic was empty after trimming');
+        console.warn('🔎 [saveVideoToGallery] Topic from params was empty after trimming');
       }
     } else {
-      console.warn('🔎 [saveVideoToGallery] No topic provided in result object');
+      console.warn('🔎 [saveVideoToGallery] No valid topic found in result or params');
     }
     
     // Calculate expiry time (7 days from now)
