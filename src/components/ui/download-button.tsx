@@ -47,45 +47,51 @@ const DownloadButton = ({
   const handleDownload = async (e: React.MouseEvent) => {
     if (isDownloading) return;
     e.preventDefault();
-    
+  
     setIsDownloading(true);
     const toastId = toast.loading(`Preparing ${fileType} for download...`);
-    
+  
     try {
-      console.log('Starting download for URL:', url);
-      
-      // Create direct download link
+      console.log('Attempting to fetch file for download:', url);
+  
+      const response = await fetch(url, { mode: 'cors' });
+  
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+  
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = url;
+      link.href = blobUrl;
       link.download = filename || getDefaultFilename();
-      link.rel = 'noopener noreferrer';
-      
-      // Append to document, click, and remove
+  
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+      window.URL.revokeObjectURL(blobUrl);
+  
       toast.dismiss(toastId);
-      toast.success(`${fileType.charAt(0).toUpperCase() + fileType.slice(1)} download started`);
-      
-      // Call the optional onClick callback if provided
-      if (onClick) {
-        onClick();
-      }
+      toast.success(`${fileType} download started`);
+  
+      if (onClick) onClick();
     } catch (error) {
-      console.error('Download error:', error);
+      console.warn('Download failed, falling back to opening in new tab:', error);
       toast.dismiss(toastId);
-      toast.error(`We couldn't automatically download your ${fileType}`);
-      
-      // Show fallback message
-      toast("If automatic download doesn't work, right-click on the link and select 'Save Link As...'", {
-        duration: 5000,
+      toast.warning(`Could not download ${fileType} directly due to CORS. Opening in new tab...`);
+  
+      // Fallback: open in new tab
+      window.open(url, '_blank', 'noopener');
+  
+      toast("If download doesn't start, right-click the new tab and select 'Save As...'", {
+        duration: 6000,
         position: 'top-center',
       });
     } finally {
       setIsDownloading(false);
     }
   };
+
 
   // If children are provided, render them, otherwise use default content
   const buttonContent = children || (
