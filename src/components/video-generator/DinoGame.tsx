@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 
 export default function DinoGame() {
@@ -7,39 +6,43 @@ export default function DinoGame() {
   const [score, setScore] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [obstacleEmoji, setObstacleEmoji] = useState("🌴");
+  const [obstacleSpeed, setObstacleSpeed] = useState(1.5);
   const dinoRef = useRef(null);
   const obstacleRef = useRef(null);
 
-  // Score counter
   useEffect(() => {
     if (!gameStarted || gameOver) return;
-    const scoreInterval = setInterval(() => setScore((s) => s + 1), 100);
+    const scoreInterval = setInterval(() => {
+      setScore((s) => {
+        const newScore = s + 1;
+        if (newScore % 50 === 0) {
+          setObstacleSpeed((prev) => Math.max(0.8, prev - 0.1));
+        }
+        return newScore;
+      });
+    }, 100);
     return () => clearInterval(scoreInterval);
   }, [gameStarted, gameOver]);
 
-  // Jump logic
   const handleJump = () => {
     if (!gameStarted || isJumping || gameOver) return;
     setIsJumping(true);
     setTimeout(() => setIsJumping(false), 500);
   };
 
-  // Function to restart the game
   const restartGame = () => {
     setGameOver(false);
     setScore(0);
     setGameStarted(false);
     setIsJumping(false);
-    // reset obstacle animation
+    setObstacleSpeed(1.5);
     if (obstacleRef.current) {
       obstacleRef.current.style.animation = "none";
-      // force reflow
       void obstacleRef.current.offsetHeight;
       obstacleRef.current.style.animation = "";
     }
   };
 
-  // Collision detection
   useEffect(() => {
     if (!gameStarted || gameOver) return;
     const check = setInterval(() => {
@@ -50,7 +53,6 @@ export default function DinoGame() {
       const obsLeft = parseInt(
         getComputedStyle(obstacleRef.current).getPropertyValue("left")
       );
-      // if obstacle overlaps dino and dino is low
       if (obsLeft < 60 && obsLeft > 0 && dinoTop >= 130) {
         setGameOver(true);
         clearInterval(check);
@@ -59,7 +61,6 @@ export default function DinoGame() {
     return () => clearInterval(check);
   }, [gameStarted, gameOver]);
 
-  // Start / jump / restart on Space
   useEffect(() => {
     const listener = (e) => {
       if (e.code === "Space" || e.code === "ArrowUp") {
@@ -68,7 +69,6 @@ export default function DinoGame() {
         } else if (!gameOver) {
           handleJump();
         } else if (gameOver) {
-          // Add spacebar restart functionality
           restartGame();
         }
       }
@@ -77,7 +77,6 @@ export default function DinoGame() {
     return () => window.removeEventListener("keydown", listener);
   }, [gameStarted, isJumping, gameOver]);
 
-  // Randomize obstacle emoji
   useEffect(() => {
     if (!gameStarted || gameOver) return;
     const ticker = setInterval(() => {
@@ -87,11 +86,19 @@ export default function DinoGame() {
     return () => clearInterval(ticker);
   }, [gameStarted, gameOver]);
 
+  const jumpDuration = Math.max(0.3, 0.5 - score / 1000); // Min 0.3s
+
   return (
     <div className="game-container">
       <div className="score">Score: {score}</div>
 
-      <div ref={dinoRef} className={`dino ${isJumping ? "jump" : ""}`}>
+      <div
+        ref={dinoRef}
+        className={`dino ${isJumping ? "jump" : ""}`}
+        style={{
+          animation: isJumping ? `jumpAnim ${jumpDuration}s ease-out` : undefined,
+        }}
+      >
         🐵
       </div>
 
@@ -99,6 +106,7 @@ export default function DinoGame() {
         <div
           ref={obstacleRef}
           className={`obstacle ${gameOver ? "stop" : ""}`}
+          style={{ animationDuration: `${obstacleSpeed}s` }}
         >
           {obstacleEmoji}
         </div>
@@ -144,24 +152,21 @@ export default function DinoGame() {
         .dino {
           position: absolute;
           font-size: 40px;
-          bottom: 20px; /* ride on "ground" */
+          bottom: 20px;
           left: 50px;
           transition: top 0.2s;
-          top: 130px;
           line-height: 1;
         }
-        .dino.jump {
-          animation: jumpAnim 0.5s ease-out;
-        }
+
         @keyframes jumpAnim {
-          0% { top: 130px; }
-          50% { top: 60px; }
-          100% { top: 130px; }
+          0% { bottom: 20px; }
+          50% { bottom: 105px; }
+          100% { bottom: 20px; }
         }
 
         .obstacle {
           position: absolute;
-          bottom: 20px; /* same ground offset */
+          bottom: 20px;
           left: 100%;
           width: 50px;
           height: 65px;
@@ -170,23 +175,27 @@ export default function DinoGame() {
           justify-content: center;
           font-size: 40px;
           line-height: 1;
-          animation: obstacleAnim 1.5s linear infinite; /* 10% faster than 1.7s = 1.53, rounded to 1.5 */
+          animation-name: obstacleAnim;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
         }
+
         .obstacle.stop {
           animation-play-state: paused;
         }
+
         @keyframes obstacleAnim {
           0% { left: 100%; }
           100% { left: -50px; }
         }
-        /* little ground block under each obstacle */
+
         .obstacle::before {
           content: "";
           position: absolute;
           bottom: -20px;
           left: 0;
           width: 100%;
-          height: 24px; /* increased by 20% from 20px to 24px */
+          height: 24px;
           background: rgba(255,255,255,0.3);
           border-radius: 4px;
         }
@@ -202,12 +211,13 @@ export default function DinoGame() {
           border-radius: 8px;
           text-align: center;
         }
+
         .game-over {
-          background: rgba(78, 67, 118, 0.8);
           padding: 16px 24px;
           border-radius: 10px;
           font-size: 18px;
         }
+
         .game-over button {
           margin-top: 10px;
           background: white;
@@ -219,6 +229,7 @@ export default function DinoGame() {
           font-weight: bold;
           transition: all 0.2s ease;
         }
+
         .game-over button:hover {
           background: #f2d5ff;
           transform: scale(1.05);
