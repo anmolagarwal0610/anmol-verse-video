@@ -164,7 +164,7 @@ export default function DinoGame() {
           bottom: 20px; /* same ground offset */
           left: 100%;
           width: 50px;
-          height: 50px;
+          height: 65px;
           display: flex;
           align-items: flex-end;
           justify-content: center;
