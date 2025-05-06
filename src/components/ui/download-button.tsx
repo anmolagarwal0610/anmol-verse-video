@@ -44,27 +44,48 @@ const DownloadButton = ({
     return `${prefix}_${timestamp}${getFileExtension()}`;
   };
 
-  const handleDownload = (e: React.MouseEvent) => {
+  const handleDownload = async (e: React.MouseEvent) => {
     if (isDownloading) return;
     e.preventDefault();
   
     setIsDownloading(true);
   
+    // Show a lightweight toast for feedback
     toast(`Preparing ${fileType} for download...`, {
       closeButton: true,
       duration: 4000,
     });
   
+    // === SPECIAL CASE FOR IMAGES ===
+    if (fileType === 'image') {
+      // Skip fetch — go directly to new tab
+      window.open(url, '_blank', 'noopener');
+      toast.warning('Please downlaod the image using right-click and then save-as', {
+        closeButton: true,
+        duration: 4000,
+      });
+      setIsDownloading(false);
+      return;
+    }
+  
+    // === DEFAULT CASE FOR OTHER FILE TYPES ===
     try {
+      const response = await fetch(url, { mode: 'cors' });
+  
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+  
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = url;
+      link.href = blobUrl;
       link.download = filename || getDefaultFilename();
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
   
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
   
       toast.success(`${fileType} download started`, {
         closeButton: true,
@@ -73,6 +94,8 @@ const DownloadButton = ({
   
       if (onClick) onClick();
     } catch (error) {
+      console.warn('Fallback to opening in new tab due to error:', error);
+  
       toast.warning(`Could not download ${fileType}. Opening in new tab...`, {
         closeButton: true,
         duration: 4000,
@@ -83,6 +106,7 @@ const DownloadButton = ({
       setIsDownloading(false);
     }
   };
+
 
 
 
