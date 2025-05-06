@@ -22,8 +22,10 @@ import { useForm } from 'react-hook-form';
 interface FormInputProps {
   prompt: string;
   scriptModel: 'chatgpt' | 'deepseek';
+  language: 'English' | 'Hindi' | 'Hinglish';
   onPromptChange: (value: string) => void;
   onScriptModelChange: (value: 'chatgpt' | 'deepseek') => void;
+  onLanguageChange: (value: 'English' | 'Hindi' | 'Hinglish') => void;
   onSubmit: (e: React.FormEvent) => void;
   isGenerating: boolean;
 }
@@ -31,14 +33,17 @@ interface FormInputProps {
 export const FormInput = ({ 
   prompt, 
   scriptModel,
+  language,
   onPromptChange, 
   onScriptModelChange,
+  onLanguageChange,
   onSubmit, 
   isGenerating 
 }: FormInputProps) => {
   const form = useForm({
     defaultValues: {
-      script_model: scriptModel
+      script_model: scriptModel,
+      language: language
     }
   });
 
@@ -60,33 +65,64 @@ export const FormInput = ({
           disabled={isGenerating}
         />
 
-        <FormField
-          control={form.control}
-          name="script_model"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Script Model</FormLabel>
-              <Select
-                value={scriptModel}
-                onValueChange={onScriptModelChange}
-                disabled={isGenerating}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select script model" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="chatgpt">ChatGPT</SelectItem>
-                  <SelectItem value="deepseek">Deepseek</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                Choose the AI model that will generate your transcript
-              </FormDescription>
-            </FormItem>
-          )}
-        />
+        <div className="flex flex-row gap-4 items-end">
+          <FormField
+            control={form.control}
+            name="script_model"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Script Model</FormLabel>
+                <Select
+                  value={scriptModel}
+                  onValueChange={onScriptModelChange}
+                  disabled={isGenerating}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select script model" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="chatgpt">ChatGPT</SelectItem>
+                    <SelectItem value="deepseek">Deepseek</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Choose the AI model for transcript generation
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="language"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Language</FormLabel>
+                <Select
+                  value={language}
+                  onValueChange={onLanguageChange}
+                  disabled={isGenerating}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="English">English</SelectItem>
+                    <SelectItem value="Hindi">Hindi</SelectItem>
+                    <SelectItem value="Hinglish">Hinglish</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Choose the language for your transcript
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+        </div>
         
         <Button 
           type="submit" 

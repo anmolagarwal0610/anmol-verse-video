@@ -6,6 +6,7 @@ import { FormInput } from '@/components/transcript/FormInput';
 import { LoadingIndicator } from '@/components/transcript/LoadingIndicator';
 import { ErrorDisplay } from '@/components/transcript/ErrorDisplay';
 import { TranscriptDisplay } from '@/components/transcript/TranscriptDisplay';
+import { GuideDisplay } from '@/components/transcript/GuideDisplay';
 import { AuthDialog } from '@/components/transcript/AuthDialog';
 
 interface TranscriptFormProps {
@@ -19,7 +20,10 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
     setPrompt,
     scriptModel,
     setScriptModel,
+    language,
+    setLanguage,
     transcript,
+    guide,
     isGenerating,
     error,
     debugInfo,
@@ -46,8 +50,10 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
         <FormInput 
           prompt={prompt}
           scriptModel={scriptModel}
+          language={language}
           onPromptChange={setPrompt}
           onScriptModelChange={setScriptModel}
+          onLanguageChange={setLanguage}
           onSubmit={handleGenerate}
           isGenerating={isGenerating}
         />
@@ -68,6 +74,10 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
 
         {transcript && !error && (
           <TranscriptDisplay transcript={transcript} />
+        )}
+        
+        {guide && !error && (
+          <GuideDisplay guide={guide} />
         )}
       </motion.div>
 

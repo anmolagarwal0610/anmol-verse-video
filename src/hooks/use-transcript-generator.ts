@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { generateTranscript } from '@/lib/api';
@@ -7,7 +8,9 @@ import { useAuth } from '@/hooks/use-auth';
 export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: string) => void) => {
   const [prompt, setPrompt] = useState('');
   const [scriptModel, setScriptModel] = useState<'chatgpt' | 'deepseek'>('chatgpt');
+  const [language, setLanguage] = useState<'English' | 'Hindi' | 'Hinglish'>('English');
   const [transcript, setTranscript] = useState('');
+  const [guide, setGuide] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
@@ -33,6 +36,7 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
     setError(null);
     setDebugInfo(null);
     setTranscript('');
+    setGuide('');
     setGenerationProgress(10);
     
     try {
@@ -44,28 +48,29 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
         return;
       }
       
-      console.log("Submitting prompt for transcript generation:", { prompt, scriptModel });
+      console.log("Submitting prompt for transcript generation:", { prompt, scriptModel, language });
       
       // Show loading progress
       const progressInterval = setInterval(() => {
         setGenerationProgress(prev => Math.min(prev + 5, 90));
       }, 1000);
       
-      const result = await generateTranscript(prompt, scriptModel);
+      const result = await generateTranscript(prompt, scriptModel, language);
       
       clearInterval(progressInterval);
       setGenerationProgress(100);
       
-      if (result.transcript.startsWith('Failed to generate transcript') || 
-          result.transcript.startsWith('Error:')) {
+      if (result.transcript && result.transcript.startsWith('Failed to generate transcript') || 
+          result.transcript && result.transcript.startsWith('Error:')) {
         setError(result.transcript);
         setDebugInfo(`Time: ${new Date().toISOString()}, Prompt: "${prompt}"`);
         toast.error('Failed to generate transcript');
       } else {
-        setTranscript(result.transcript);
+        setTranscript(result.transcript || '');
+        setGuide(result.guide || '');
         toast.success('Your transcript has been generated!');
         
-        if (onTranscriptGenerated) {
+        if (onTranscriptGenerated && result.transcript) {
           onTranscriptGenerated(result.transcript);
         }
       }
@@ -89,7 +94,10 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
     setPrompt,
     scriptModel,
     setScriptModel,
+    language,
+    setLanguage,
     transcript,
+    guide,
     isGenerating,
     error,
     debugInfo,

@@ -3,17 +3,19 @@ import { API_CONFIG, fetchWithCorsProxy } from './apiUtils';
 
 export const generateTranscript = async (
   prompt: string, 
-  scriptModel: 'chatgpt' | 'deepseek' = 'chatgpt'
-): Promise<{ transcript: string }> => {
+  scriptModel: 'chatgpt' | 'deepseek' = 'chatgpt',
+  language: 'English' | 'Hindi' | 'Hinglish' = 'English'
+): Promise<{ transcript: string, guide: string }> => {
   try {
-    console.log("Sending request to generate transcript with:", { prompt, scriptModel });
+    console.log("Sending request to generate transcript with:", { prompt, scriptModel, language });
     
     const apiUrl = `${API_CONFIG.BASE_URL}/generate_transcript`;
     
     // Prepare the request payload
     const payload = {
       prompt: prompt,
-      script_model: scriptModel
+      script_model: scriptModel,
+      language: language
     };
     
     // Prepare request options with API key
@@ -38,16 +40,41 @@ export const generateTranscript = async (
         const data = await response.json();
         console.log("Direct API response data:", data);
         
+        // Handle direct transcript in response
         if (data.transcript) {
-          return { transcript: data.transcript };
+          return { 
+            transcript: data.transcript,
+            guide: data.guide || ''
+          };
         }
         
+        // Handle transcript_url and guide_url in response
         if (data.transcript_url) {
           console.log("Fetching transcript from URL:", data.transcript_url);
+          let transcriptText = '';
+          let guideText = '';
+          
+          // Fetch transcript
           const transcriptResponse = await fetch(data.transcript_url);
-          const transcriptText = await transcriptResponse.text();
-          console.log("Fetched transcript (first 100 chars):", transcriptText.substring(0, 100));
-          return { transcript: transcriptText };
+          if (transcriptResponse.ok) {
+            transcriptText = await transcriptResponse.text();
+            console.log("Fetched transcript (first 100 chars):", transcriptText.substring(0, 100));
+          }
+          
+          // Fetch guide if available
+          if (data.guide_url) {
+            console.log("Fetching guide from URL:", data.guide_url);
+            const guideResponse = await fetch(data.guide_url);
+            if (guideResponse.ok) {
+              guideText = await guideResponse.text();
+              console.log("Fetched guide (first 100 chars):", guideText.substring(0, 100));
+            }
+          }
+          
+          return { 
+            transcript: transcriptText,
+            guide: guideText
+          };
         }
       }
       // If direct request fails, continue to proxy fallbacks
@@ -81,14 +108,19 @@ export const generateTranscript = async (
     // If the API returns a transcript directly, use it
     if (data.transcript) {
       console.log("Received direct transcript:", data.transcript.substring(0, 100) + "...");
-      return { transcript: data.transcript };
+      return { 
+        transcript: data.transcript,
+        guide: data.guide || ''
+      };
     }
     
-    // Handle case where API returns a URL to fetch the transcript
+    // Handle case where API returns URLs to fetch the transcript and guide
     if (data.transcript_url) {
       console.log("Attempting to fetch transcript from URL:", data.transcript_url);
+      let transcriptText = '';
+      let guideText = '';
       
-      // Try direct fetch first
+      // Try direct fetch for transcript
       try {
         const transcriptResponse = await fetch(data.transcript_url, {
           headers: {
@@ -99,40 +131,78 @@ export const generateTranscript = async (
         });
         
         if (transcriptResponse.ok) {
-          const transcriptText = await transcriptResponse.text();
+          transcriptText = await transcriptResponse.text();
           console.log("Fetched transcript (first 100 chars):", transcriptText.substring(0, 100));
-          return { transcript: transcriptText };
         }
       } catch (directFetchError) {
         console.error("Direct transcript fetch failed:", directFetchError);
-        // Fall back to proxy
+        // Fall back to proxy for transcript
+        const transcriptResponse = await fetchWithCorsProxy(
+          data.transcript_url,
+          {
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0'
+            },
+            mode: 'cors',
+            cache: 'no-cache'
+          }
+        );
+        
+        transcriptText = await transcriptResponse.text();
       }
       
-      // If direct fetch fails, try with proxy
-      const transcriptResponse = await fetchWithCorsProxy(
-        data.transcript_url,
-        {
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          },
-          mode: 'cors',
-          cache: 'no-cache'
+      // Try to fetch guide if available
+      if (data.guide_url) {
+        console.log("Attempting to fetch guide from URL:", data.guide_url);
+        
+        try {
+          const guideResponse = await fetch(data.guide_url, {
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0'
+            }
+          });
+          
+          if (guideResponse.ok) {
+            guideText = await guideResponse.text();
+            console.log("Fetched guide (first 100 chars):", guideText.substring(0, 100));
+          }
+        } catch (directGuideFetchError) {
+          console.error("Direct guide fetch failed:", directGuideFetchError);
+          // Fall back to proxy for guide
+          try {
+            const guideResponse = await fetchWithCorsProxy(
+              data.guide_url,
+              {
+                headers: {
+                  'Cache-Control': 'no-cache, no-store, must-revalidate',
+                  'Pragma': 'no-cache',
+                  'Expires': '0'
+                },
+                mode: 'cors',
+                cache: 'no-cache'
+              }
+            );
+            
+            guideText = await guideResponse.text();
+          } catch (proxyGuideFetchError) {
+            console.error("Proxy guide fetch failed:", proxyGuideFetchError);
+            // Continue without guide if it fails
+          }
         }
-      );
-      
-      console.log("Transcript fetch status:", transcriptResponse.status);
-      
-      // Get transcript text with error handling
-      const transcriptText = await transcriptResponse.text();
-      console.log("Fetched transcript (first 100 chars):", transcriptText.substring(0, 100));
+      }
       
       if (!transcriptText || transcriptText.trim() === '') {
         throw new Error("Received empty transcript from server");
       }
       
-      return { transcript: transcriptText };
+      return { 
+        transcript: transcriptText,
+        guide: guideText
+      };
     }
     
     // If we reach here, the API didn't provide either a transcript or a URL
@@ -141,7 +211,8 @@ export const generateTranscript = async (
   } catch (error) {
     console.error('Error generating transcript:', error);
     return { 
-      transcript: `Failed to generate transcript. Error: ${error.message}` 
+      transcript: `Failed to generate transcript. Error: ${error.message}`,
+      guide: '' 
     };
   }
 };
