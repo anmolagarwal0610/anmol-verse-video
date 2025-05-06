@@ -1,11 +1,11 @@
+
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { Wand2, Loader2, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { VideoGenerationParams } from '@/lib/video/types';
-import { generateVideo } from '@/lib/video/services/videoGeneration';
+import { VideoGenerationParams, generateVideo } from '@/lib/api';
 import { useCredit } from '@/lib/creditService';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
@@ -58,33 +58,16 @@ const PromptForm = ({ onVideoGenerated }: PromptFormProps) => {
         return;
       }
       
-      // Create proper VideoGenerationParams object with all required properties
+      // Create proper VideoGenerationParams object
       const params: VideoGenerationParams = {
         username: user.email?.split('@')[0] || 'user',
         topic: prompt,
-        // Add all required properties from VideoGenerationParams interface
-        script_model: 'chatgpt',
-        image_model: 'sd1.5',
-        image_ratio: '16:9',
-        image_pixel: '1024',
-        pixelOption: '1080p',
-        video_duration: 25,
-        frame_fps: 5,
-        subtitle_color: 'white',
-        subtitle_font: 'Arial',
-        video_category: 'Hollywood Script',
-        transition_style: 'fade',
-        image_style: [],
-        audio_language: 'English',
-        voice: 'google_male',
-        subtitle_style: 'Default',
-        subtitle_script: 'English'
+        // Default values will be filled by the API
       };
       
-      console.log('Sending video generation params:', params);
       const result = await generateVideo(params);
       toast.success('Your video has been generated!');
-      onVideoGenerated(result.videoId);
+      onVideoGenerated(result.task_id);
     } catch (error) {
       console.error('Error generating video:', error);
       toast.error('Failed to generate video. Please try again.');

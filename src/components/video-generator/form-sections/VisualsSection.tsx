@@ -1,4 +1,3 @@
-
 import {
   FormField,
   FormItem,
@@ -29,8 +28,8 @@ const VisualsSection = () => {
     if (pixelOption === 'custom' && pixelOptionValue) {
       form.setValue('image_pixel', pixelOptionValue);
     } else if (pixelOption !== 'custom') {
-      const pixelValue = PIXEL_OPTIONS[pixelOption as keyof typeof PIXEL_OPTIONS];
-      form.setValue('image_pixel', String(pixelValue)); // Convert to string
+      const pixelValue = PIXEL_OPTIONS[pixelOption as keyof typeof PIXEL_OPTIONS] as number;
+      form.setValue('image_pixel', pixelValue);
     }
   }, [pixelOption, pixelOptionValue, form]);
   

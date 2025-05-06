@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import { Separator } from '@/components/ui/separator';
-import VideoGenerationForm from '@/components/VideoGenerationForm';
+import VideoGenerationForm from '@/components/video-generator/VideoGenerationForm';
 import ProgressCard from '@/components/video-generator/ProgressCard';
 import ResultsSection from '@/components/video-generator/ResultsSection';
 import ErrorDisplay from '@/components/video-generator/ErrorDisplay';
@@ -13,7 +13,6 @@ import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 import { Button } from '@/components/ui/button';
 import { LogIn } from 'lucide-react';
 import { toast } from 'sonner';
-import { Toaster } from '@/components/ui/sonner';
 import { useCredit } from '@/lib/creditService';
 import { checkCredits } from '@/lib/creditService';
 
@@ -321,9 +320,6 @@ const VideoGeneration = () => {
           )}
         </div>
       </main>
-      
-      {/* Add Toaster with closeButton enabled */}
-      <Toaster closeButton position="top-center" />
     </div>
   );
 };
