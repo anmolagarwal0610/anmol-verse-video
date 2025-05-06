@@ -58,11 +58,18 @@ export const saveVideoToGallery = async (
       console.log('[VIDEO GALLERY] Trimmed topic:', trimmedTopic);
       console.log('[VIDEO GALLERY] Trimmed topic length:', trimmedTopic.length);
       
-      if (trimmedTopic.length > 0) {
+      if (trimmedTopic.length > 0 && trimmedTopic !== 'Untitled Video') {
         videoTopic = trimmedTopic;
         console.log('[VIDEO GALLERY] Using valid topic:', videoTopic);
       } else {
-        console.warn('[VIDEO GALLERY] Topic was empty after trimming, using default');
+        console.warn('[VIDEO GALLERY] Topic was empty or "Untitled Video" after trimming, checking for task_id');
+        // If we have a task_id but no valid topic, try to use that as a fallback
+        if (result.task_id) {
+          console.log('[VIDEO GALLERY] Using task_id as fallback for title:', result.task_id);
+          videoTopic = `Video ${result.task_id.substring(0, 8)}`;
+        } else {
+          console.warn('[VIDEO GALLERY] No valid topic or task_id, using default');
+        }
       }
     } else {
       console.warn('[VIDEO GALLERY] No topic provided in result object, using default');
@@ -145,7 +152,9 @@ export const getVideos = async (): Promise<VideoData[]> => {
       }
       
       // Make sure we have a title, even if topic is null/empty
-      const title = video.topic && video.topic.trim() ? video.topic : 'Untitled Video';
+      const title = video.topic && video.topic.trim() && video.topic !== 'Untitled Video' 
+        ? video.topic 
+        : 'Untitled Video';
       console.log('[VIDEO GALLERY] Using title for video', video.id, ':', title);
       
       return {

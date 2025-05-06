@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { generateVideo, checkVideoStatus } from '@/lib/video/api';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
@@ -93,8 +92,13 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   const pollStatus = async (id: string) => {
     try {
       console.log(`[VIDEO GENERATOR] Polling status for task: ${id}`);
-      const statusResponse = await checkVideoStatus(id);
+      console.log(`[VIDEO GENERATOR] Using original topic for poll: ${currentTopic}`);
+      
+      // Pass the original topic to the checkVideoStatus function
+      const statusResponse = await checkVideoStatus(id, currentTopic);
+      
       console.log('[VIDEO GENERATOR] Status response:', statusResponse);
+      console.log('[VIDEO GENERATOR] Original topic:', currentTopic);
       console.log('[VIDEO GENERATOR] Topic from API response:', statusResponse.topic);
       
       // Update progress based on time
@@ -105,36 +109,19 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         setStatus('completed');
         setProgress(100);
         
-        console.log('[VIDEO GENERATOR] Current stored topic:', currentTopic);
-        console.log('[VIDEO GENERATOR] Topic from API response:', statusResponse.topic);
-        
         // CRITICAL: Ensure topic is correctly set
-        // Priority order: 1. Original params topic, 2. Stored currentTopic, 3. API response topic
-        let finalTopic = currentTopic || '';
-        
-        if (currentParams?.topic && currentParams.topic.trim().length > 0) {
-          // 1. Use original topic from params if available (highest priority)
-          finalTopic = currentParams.topic.trim();
-          console.log('[VIDEO GENERATOR] Using original params topic:', finalTopic);
-        } else if (currentTopic && currentTopic.trim().length > 0) {
-          // 2. Fall back to stored currentTopic
-          finalTopic = currentTopic;
-          console.log('[VIDEO GENERATOR] Using stored current topic:', finalTopic);
-        } else if (statusResponse.topic && statusResponse.topic.trim().length > 0) {
-          // 3. Fall back to API response topic
-          finalTopic = statusResponse.topic.trim();
-          console.log('[VIDEO GENERATOR] Using API response topic:', finalTopic);
-        } else {
-          // 4. Last resort default
-          finalTopic = 'Untitled Video';
-          console.log('[VIDEO GENERATOR] No valid topic found, using default:', finalTopic);
-        }
-        
+        // Use the topic from the original params as highest priority
+        const finalTopic = currentTopic && currentTopic.trim()
+          ? currentTopic.trim()
+          : (statusResponse.topic && statusResponse.topic !== 'Untitled Video')
+            ? statusResponse.topic
+            : (currentParams?.topic || 'Untitled Video');
+            
         console.log('[VIDEO GENERATOR] Final topic being set:', finalTopic);
         
         setResult({
           ...statusResponse,
-          topic: finalTopic, // Explicitly ensure topic is set correctly
+          topic: finalTopic, // Use our determined final topic
           // Ensure the voice parameter from the original request is preserved
           voice: currentParams?.voice || statusResponse.voice,
           // Ensure frame_fps is preserved from params if not in response
@@ -164,22 +151,33 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
       reset();
       setStatus('generating');
       
-      // Store the original topic immediately
-      console.log('[VIDEO GENERATOR] Setting current topic from params:', params.topic);
-      setCurrentTopic(params.topic);
+      // Validate topic and make sure it's not empty
+      const sanitizedTopic = params.topic.trim();
+      if (!sanitizedTopic) {
+        throw new Error('Topic cannot be empty');
+      }
+      
+      // Store the original topic immediately - this is critical
+      console.log('[VIDEO GENERATOR] Setting current topic from params:', sanitizedTopic);
+      setCurrentTopic(sanitizedTopic);
       
       // Store the original params for later use
       setCurrentParams(params);
       
       console.log('[VIDEO GENERATOR] Generating video with params:', params);
-      console.log('[VIDEO GENERATOR] Topic being sent to API:', params.topic);
+      console.log('[VIDEO GENERATOR] Topic being sent to API:', sanitizedTopic);
       
       startTimeRef.current = Date.now();
       
-      const response = await generateVideo(params);
+      // Include the topic explicitly in params
+      const response = await generateVideo({
+        ...params,
+        topic: sanitizedTopic // Ensure the topic is explicitly set and sanitized
+      });
       
       if (response && response.task_id) {
         console.log(`[VIDEO GENERATOR] Received task_id: ${response.task_id}`);
+        console.log(`[VIDEO GENERATOR] Original topic preserved: ${sanitizedTopic}`);
         setTaskId(response.task_id);
         setStatus('polling');
         setProgress(5); // Initial progress

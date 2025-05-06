@@ -45,16 +45,21 @@ export const generateVideo = async (params: VideoGenerationParams): Promise<Vide
     const data = await response.json();
     console.log("[VIDEO API] Video generation response:", data);
     
-    return data;
+    // Add the original topic to the response to preserve it throughout the process
+    return {
+      ...data,
+      originalTopic: params.topic
+    };
   } catch (error) {
     console.error('[VIDEO API] Error generating video:', error);
     throw error;
   }
 };
 
-export const checkVideoStatus = async (taskId: string): Promise<VideoStatusResponse> => {
+export const checkVideoStatus = async (taskId: string, originalTopic?: string): Promise<VideoStatusResponse> => {
   try {
     console.log("[VIDEO API] Checking video status for task:", taskId);
+    console.log("[VIDEO API] Original topic (if provided):", originalTopic || "Not provided");
     
     const apiUrl = `${API_CONFIG.BASE_URL}/check_status?task_id=${taskId}`;
     
@@ -75,11 +80,15 @@ export const checkVideoStatus = async (taskId: string): Promise<VideoStatusRespo
     
     const data = await response.json();
     console.log("[VIDEO API] Video status response:", data);
-    console.log("[VIDEO API] Topic in status response:", data.topic);
+    
+    // If the API returns "Untitled Video" but we have an original topic, use the original topic
+    const finalTopic = (data.topic === "Untitled Video" && originalTopic) ? originalTopic : data.topic;
+    console.log("[VIDEO API] Final topic to be used:", finalTopic);
     
     // Add the task_id to the response so it's available throughout the app
     return {
       ...data,
+      topic: finalTopic,
       task_id: taskId
     };
   } catch (error) {
