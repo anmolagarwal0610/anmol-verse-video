@@ -9,6 +9,7 @@ import { VideoGenerationFormProvider } from '@/components/video-generator/VideoG
 import VideoGenerationConfirmDialog from './dialogs/VideoGenerationConfirmDialog';
 import { useVideoGenerationFormSubmit } from './hooks/useVideoGenerationFormSubmit';
 import { PIXEL_OPTIONS } from '@/lib/constants/pixelOptions';
+import { useEffect, useRef } from 'react';
 
 // Import form section components
 import BasicFormFields from './form-sections/BasicFormFields';
