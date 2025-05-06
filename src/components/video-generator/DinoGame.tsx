@@ -5,8 +5,7 @@ export default function DinoGame() {
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
-  const [obstacleSrc, setObstacleSrc] = useState("/images/tree.png");
-
+  const [obstacleEmoji, setObstacleEmoji] = useState("🌴");
   const dinoRef = useRef(null);
   const obstacleRef = useRef(null);
 
@@ -32,7 +31,7 @@ export default function DinoGame() {
     setIsJumping(false);
     if (obstacleRef.current) {
       obstacleRef.current.style.animation = "none";
-      void obstacleRef.current.offsetHeight; // trigger reflow
+      void obstacleRef.current.offsetHeight;
       obstacleRef.current.style.animation = "";
     }
   };
@@ -40,18 +39,23 @@ export default function DinoGame() {
   // Collision detection
   useEffect(() => {
     if (!gameStarted || gameOver) return;
-    const checkInterval = setInterval(() => {
+    const check = setInterval(() => {
       if (!dinoRef.current || !obstacleRef.current) return;
-      const dinoTop = parseInt(getComputedStyle(dinoRef.current).getPropertyValue("top"));
-      const obsLeft = parseInt(getComputedStyle(obstacleRef.current).getPropertyValue("left"));
+      const dinoTop = parseInt(
+        getComputedStyle(dinoRef.current).getPropertyValue("top")
+      );
+      const obsLeft = parseInt(
+        getComputedStyle(obstacleRef.current).getPropertyValue("left")
+      );
       if (obsLeft < 60 && obsLeft > 0 && dinoTop >= 130) {
         setGameOver(true);
+        clearInterval(check);
       }
     }, 10);
-    return () => clearInterval(checkInterval);
+    return () => clearInterval(check);
   }, [gameStarted, gameOver]);
 
-  // Spacebar handling
+  // Spacebar start & restart
   useEffect(() => {
     const listener = (e) => {
       if (e.code === "Space" || e.code === "ArrowUp") {
@@ -59,7 +63,7 @@ export default function DinoGame() {
           setGameStarted(true);
         } else if (!gameOver) {
           handleJump();
-        } else {
+        } else if (gameOver) {
           restartGame();
         }
       }
@@ -68,14 +72,14 @@ export default function DinoGame() {
     return () => window.removeEventListener("keydown", listener);
   }, [gameStarted, isJumping, gameOver]);
 
-  // Randomize obstacle image
+  // Obstacle emoji
   useEffect(() => {
     if (!gameStarted || gameOver) return;
-    const interval = setInterval(() => {
-      const opts = ["/images/tree.png", "/images/fire.png"];
-      setObstacleSrc(opts[Math.floor(Math.random() * opts.length)]);
+    const ticker = setInterval(() => {
+      const opts = ["🌴", "🔥"];
+      setObstacleEmoji(opts[Math.floor(Math.random() * opts.length)]);
     }, 2000);
-    return () => clearInterval(interval);
+    return () => clearInterval(ticker);
   }, [gameStarted, gameOver]);
 
   return (
@@ -91,7 +95,7 @@ export default function DinoGame() {
           ref={obstacleRef}
           className={`obstacle ${gameOver ? "stop" : ""}`}
         >
-          <img src={obstacleSrc} alt="obstacle" />
+          {obstacleEmoji}
         </div>
       )}
 
@@ -138,7 +142,6 @@ export default function DinoGame() {
           bottom: 20px;
           left: 50px;
           transition: top 0.2s;
-          top: 130px;
           line-height: 1;
         }
 
@@ -147,9 +150,9 @@ export default function DinoGame() {
         }
 
         @keyframes jumpAnim {
-          0% { top: 130px; }
-          50% { top: 60px; }
-          100% { top: 130px; }
+          0% { bottom: 20px; }
+          50% { bottom: 105px; }
+          100% { bottom: 20px; }
         }
 
         .obstacle {
@@ -157,10 +160,12 @@ export default function DinoGame() {
           bottom: 20px;
           left: 100%;
           width: 50px;
-          height: 80px;
+          height: 65px;
           display: flex;
           align-items: flex-end;
           justify-content: center;
+          font-size: 40px;
+          line-height: 1;
           animation: obstacleAnim 1.5s linear infinite;
         }
 
@@ -168,15 +173,20 @@ export default function DinoGame() {
           animation-play-state: paused;
         }
 
-        .obstacle img {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-        }
-
         @keyframes obstacleAnim {
           0% { left: 100%; }
           100% { left: -50px; }
+        }
+
+        .obstacle::before {
+          content: "";
+          position: absolute;
+          bottom: -20px;
+          left: 0;
+          width: 100%;
+          height: 30px;
+          background: rgba(255,255,255,0.3);
+          border-radius: 4px;
         }
 
         .message, .game-over {
@@ -193,6 +203,7 @@ export default function DinoGame() {
 
         .game-over {
           padding: 16px 24px;
+          border-radius: 10px;
           font-size: 18px;
         }
 
