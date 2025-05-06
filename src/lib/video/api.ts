@@ -4,8 +4,8 @@ import type { VideoGenerationParams, VideoGenerationResponse, VideoStatusRespons
 
 export const generateVideo = async (params: VideoGenerationParams): Promise<VideoGenerationResponse> => {
   try {
-    console.log("Generating video with params:", params);
-    console.log("Topic being sent to API:", params.topic);
+    console.log("[VIDEO API] Generating video with params:", params);
+    console.log("[VIDEO API] Topic being sent to API:", params.topic);
     
     // Normalize Google voice IDs by removing language suffixes
     let normalizedParams = { ...params };
@@ -13,7 +13,7 @@ export const generateVideo = async (params: VideoGenerationParams): Promise<Vide
       // Extract the base voice type (google_male or google_female) by removing any language suffix
       const baseVoiceType = normalizedParams.voice.match(/^(google_male|google_female)/)?.[0];
       if (baseVoiceType) {
-        console.log(`Normalizing voice ID from ${normalizedParams.voice} to ${baseVoiceType}`);
+        console.log(`[VIDEO API] Normalizing voice ID from ${normalizedParams.voice} to ${baseVoiceType}`);
         normalizedParams.voice = baseVoiceType;
       }
     }
@@ -30,8 +30,9 @@ export const generateVideo = async (params: VideoGenerationParams): Promise<Vide
       body: JSON.stringify(normalizedParams),
     };
     
-    console.log("Sending video generation request to API:", apiUrl);
-    console.log("With normalized voice parameter:", normalizedParams.voice);
+    console.log("[VIDEO API] Sending video generation request to API:", apiUrl);
+    console.log("[VIDEO API] With normalized voice parameter:", normalizedParams.voice);
+    console.log("[VIDEO API] With topic parameter:", normalizedParams.topic);
     
     // Make the request
     const response = await fetch(apiUrl, requestOptions);
@@ -42,18 +43,18 @@ export const generateVideo = async (params: VideoGenerationParams): Promise<Vide
     }
     
     const data = await response.json();
-    console.log("Video generation response:", data);
+    console.log("[VIDEO API] Video generation response:", data);
     
     return data;
   } catch (error) {
-    console.error('Error generating video:', error);
+    console.error('[VIDEO API] Error generating video:', error);
     throw error;
   }
 };
 
 export const checkVideoStatus = async (taskId: string): Promise<VideoStatusResponse> => {
   try {
-    console.log("Checking video status for task:", taskId);
+    console.log("[VIDEO API] Checking video status for task:", taskId);
     
     const apiUrl = `${API_CONFIG.BASE_URL}/check_status?task_id=${taskId}`;
     
@@ -73,8 +74,8 @@ export const checkVideoStatus = async (taskId: string): Promise<VideoStatusRespo
     }
     
     const data = await response.json();
-    console.log("Video status response:", data);
-    console.log("Topic in status response:", data.topic);
+    console.log("[VIDEO API] Video status response:", data);
+    console.log("[VIDEO API] Topic in status response:", data.topic);
     
     // Add the task_id to the response so it's available throughout the app
     return {
@@ -82,7 +83,7 @@ export const checkVideoStatus = async (taskId: string): Promise<VideoStatusRespo
       task_id: taskId
     };
   } catch (error) {
-    console.error('Error checking video status:', error);
+    console.error('[VIDEO API] Error checking video status:', error);
     throw error;
   }
 };

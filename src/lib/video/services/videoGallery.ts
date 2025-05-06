@@ -12,12 +12,13 @@ export const saveVideoToGallery = async (
   userId: string
 ): Promise<boolean> => {
   try {
-    console.log('🔎 [saveVideoToGallery] Starting save operation with userId:', userId);
-    console.log('🔎 [saveVideoToGallery] Result object received:', JSON.stringify(result, null, 2));
+    console.log('[VIDEO GALLERY] Starting save operation with userId:', userId);
+    console.log('[VIDEO GALLERY] Result object received:', JSON.stringify(result, null, 2));
+    console.log('[VIDEO GALLERY] Topic from result:', result.topic);
     
     // Skip if no video URL (indicates incomplete generation)
     if (!result.video_url) {
-      console.warn('🔎 [saveVideoToGallery] No video URL provided, skipping save');
+      console.warn('[VIDEO GALLERY] No video URL provided, skipping save');
       return false;
     }
     
@@ -26,7 +27,7 @@ export const saveVideoToGallery = async (
     
     // Check if we've already saved this video URL in this session
     if (savedVideoUrls.has(videoUrl)) {
-      console.log('🔎 [saveVideoToGallery] Video already saved in this session, preventing duplicate');
+      console.log('[VIDEO GALLERY] Video already saved in this session, preventing duplicate');
       return true;
     }
     
@@ -38,33 +39,33 @@ export const saveVideoToGallery = async (
       .limit(1);
       
     if (checkError) {
-      console.error('🔎 [saveVideoToGallery] Error checking for existing video:', checkError);
+      console.error('[VIDEO GALLERY] Error checking for existing video:', checkError);
     } else if (existingVideos && existingVideos.length > 0) {
-      console.log('🔎 [saveVideoToGallery] Video with this URL already exists in database');
+      console.log('[VIDEO GALLERY] Video with this URL already exists in database');
       // Mark as saved in our memory cache
       savedVideoUrls.add(videoUrl);
       return true;
     }
 
     // Validate topic - enhanced topic validation with detailed logging
-    console.log('🔎 [saveVideoToGallery] Topic from result object:', result.topic);
-    console.log('🔎 [saveVideoToGallery] Topic type:', typeof result.topic);
+    console.log('[VIDEO GALLERY] Topic type check: ', typeof result.topic);
+    console.log('[VIDEO GALLERY] Topic value:', result.topic);
     
     let videoTopic = 'Untitled Video';
     
     if (result.topic) {
       const trimmedTopic = result.topic.trim();
-      console.log('🔎 [saveVideoToGallery] Trimmed topic:', trimmedTopic);
-      console.log('🔎 [saveVideoToGallery] Trimmed topic length:', trimmedTopic.length);
+      console.log('[VIDEO GALLERY] Trimmed topic:', trimmedTopic);
+      console.log('[VIDEO GALLERY] Trimmed topic length:', trimmedTopic.length);
       
       if (trimmedTopic.length > 0) {
         videoTopic = trimmedTopic;
-        console.log('🔎 [saveVideoToGallery] Using valid topic:', videoTopic);
+        console.log('[VIDEO GALLERY] Using valid topic:', videoTopic);
       } else {
-        console.warn('🔎 [saveVideoToGallery] Topic was empty after trimming, using default');
+        console.warn('[VIDEO GALLERY] Topic was empty after trimming, using default');
       }
     } else {
-      console.warn('🔎 [saveVideoToGallery] No topic provided in result object, using default');
+      console.warn('[VIDEO GALLERY] No topic provided in result object, using default');
     }
     
     // Calculate expiry time (7 days from now)
@@ -86,12 +87,12 @@ export const saveVideoToGallery = async (
       .select();
     
     if (error) {
-      console.error('🔎 [saveVideoToGallery] Error saving video to database:', error);
+      console.error('[VIDEO GALLERY] Error saving video to database:', error);
       toast.error(`Failed to save video to gallery: ${error.message || 'Unknown error'}`);
       return false;
     } else {
-      console.log('🔎 [saveVideoToGallery] Video saved successfully with topic:', videoTopic);
-      console.log('🔎 [saveVideoToGallery] Database response:', data);
+      console.log('[VIDEO GALLERY] Video saved successfully with topic:', videoTopic);
+      console.log('[VIDEO GALLERY] Database response:', data);
       // Mark this video URL as saved to prevent duplicates in this session
       savedVideoUrls.add(videoUrl);
       toast.success('Video saved to your gallery! Videos are automatically deleted after 7 days.');
@@ -99,7 +100,7 @@ export const saveVideoToGallery = async (
     }
     
   } catch (err) {
-    console.error('🔎 [saveVideoToGallery] Exception saving video to database:', err);
+    console.error('[VIDEO GALLERY] Exception saving video to database:', err);
     toast.error(`Failed to save to gallery: ${err instanceof Error ? err.message : 'Unknown error'}`);
     return false;
   }
@@ -107,7 +108,7 @@ export const saveVideoToGallery = async (
 
 export const getVideos = async (): Promise<VideoData[]> => {
   try {
-    console.log('🔎 [getVideos] Fetching videos from database...');
+    console.log('[VIDEO GALLERY] Fetching videos from database...');
     
     // Get videos from Supabase
     const { data: videos, error } = await supabase
@@ -116,22 +117,21 @@ export const getVideos = async (): Promise<VideoData[]> => {
       .order('created_at', { ascending: false });
       
     if (error) {
-      console.error('🔎 [getVideos] Error fetching videos from database:', error);
+      console.error('[VIDEO GALLERY] Error fetching videos from database:', error);
       throw error;
     }
     
     if (!videos || videos.length === 0) {
-      console.log('🔎 [getVideos] No videos found in database');
+      console.log('[VIDEO GALLERY] No videos found in database');
       return [];
     }
     
-    console.log(`🔎 [getVideos] Found ${videos.length} videos in database`);
+    console.log(`[VIDEO GALLERY] Found ${videos.length} videos in database`);
     
-    // Log a few video URLs for debugging
-    if (videos.length > 0) {
-      console.log('🔎 [getVideos] Sample video_url from database:', videos[0].video_url);
-      console.log('🔎 [getVideos] Sample topic from database:', videos[0].topic);
-    }
+    // Log all video topics to identify the issue
+    videos.forEach((video, index) => {
+      console.log(`[VIDEO GALLERY] Video ${index} topic: "${video.topic}"`);
+    });
     
     // Map database videos to VideoData format
     const mappedVideos = videos.map(video => {
@@ -141,14 +141,12 @@ export const getVideos = async (): Promise<VideoData[]> => {
       // Verify video URL and log it for debugging
       const videoUrl = video.video_url || '';
       if (!videoUrl) {
-        console.warn('🔎 [getVideos] Video missing URL:', video.id);
-      } else {
-        console.log('🔎 [getVideos] Video URL for ID', video.id, ':', videoUrl);
+        console.warn('[VIDEO GALLERY] Video missing URL:', video.id);
       }
       
       // Make sure we have a title, even if topic is null/empty
       const title = video.topic && video.topic.trim() ? video.topic : 'Untitled Video';
-      console.log('🔎 [getVideos] Using title for video', video.id, ':', title);
+      console.log('[VIDEO GALLERY] Using title for video', video.id, ':', title);
       
       return {
         id: video.id,
@@ -165,7 +163,7 @@ export const getVideos = async (): Promise<VideoData[]> => {
     
     return mappedVideos;
   } catch (error) {
-    console.error('🔎 [getVideos] Error fetching videos:', error);
+    console.error('[VIDEO GALLERY] Error fetching videos:', error);
     return [];
   }
 };

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { generateVideo, checkVideoStatus } from '@/lib/video/api';
 import { VideoGenerationParams, VideoStatusResponse } from '@/lib/video/types';
@@ -39,7 +40,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   const ESTIMATED_TIME = 300000; // 5 minutes for progress bar
   
   const cleanup = () => {
-    console.log('🔎 [useVideoGenerator] Cleanup called - clearing intervals and timeouts');
+    console.log('[VIDEO GENERATOR] Cleanup called - clearing intervals and timeouts');
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
       pollingRef.current = null;
@@ -57,7 +58,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   };
   
   const reset = () => {
-    console.log('🔎 [useVideoGenerator] Reset called - resetting all state');
+    console.log('[VIDEO GENERATOR] Reset called - resetting all state');
     cleanup();
     setStatus('idle');
     setProgress(0);
@@ -80,13 +81,10 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
     const elapsed = Date.now() - startTimeRef.current;
     const calculatedProgress = Math.min(99, (elapsed / ESTIMATED_TIME) * 100);
     
-    console.log(`Progress calculation: elapsed=${elapsed}ms, calculatedProgress=${calculatedProgress.toFixed(2)}%`);
-    
     // Only update if progress has increased by at least 1%
     if (calculatedProgress > lastProgressUpdateRef.current + 1) {
       lastProgressUpdateRef.current = Math.floor(calculatedProgress);
       setProgress(lastProgressUpdateRef.current);
-      console.log(`Progress updated to ${lastProgressUpdateRef.current}%`);
     }
     
     return calculatedProgress;
@@ -94,41 +92,45 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
 
   const pollStatus = async (id: string) => {
     try {
-      console.log(`🔎 [useVideoGenerator] Polling status for task: ${id}`);
+      console.log(`[VIDEO GENERATOR] Polling status for task: ${id}`);
       const statusResponse = await checkVideoStatus(id);
-      console.log('🔎 [useVideoGenerator] Status response:', statusResponse);
+      console.log('[VIDEO GENERATOR] Status response:', statusResponse);
+      console.log('[VIDEO GENERATOR] Topic from API response:', statusResponse.topic);
       
       // Update progress based on time
       updateProgressBasedOnTime();
       
       if (statusResponse.status === 'Completed') {
-        console.log('🔎 [useVideoGenerator] Video generation completed successfully');
+        console.log('[VIDEO GENERATOR] Video generation completed successfully');
         setStatus('completed');
         setProgress(100);
         
-        console.log('🔎 [useVideoGenerator] Current stored topic:', currentTopic);
-        console.log('🔎 [useVideoGenerator] Topic from API response:', statusResponse.topic);
+        console.log('[VIDEO GENERATOR] Current stored topic:', currentTopic);
+        console.log('[VIDEO GENERATOR] Topic from API response:', statusResponse.topic);
         
-        // Log detailed information about the response and current params
-        console.log('🔎 [useVideoGenerator] Response details:', {
-          status: statusResponse.status,
-          topic: currentTopic || statusResponse.topic,
-          voice: currentParams?.voice || statusResponse.voice,
-          audio_duration: statusResponse.audio_duration,
-          frame_fps: statusResponse.frame_fps || currentParams?.frame_fps,
-          task_id: id
-        });
+        // CRITICAL: Ensure topic is correctly set
+        // Priority order: 1. Original params topic, 2. Stored currentTopic, 3. API response topic
+        let finalTopic = currentTopic || '';
         
-        console.log('🔎 [useVideoGenerator] Original params details:', {
-          topic: currentParams?.topic,
-          voice: currentParams?.voice,
-          frame_fps: currentParams?.frame_fps,
-          video_duration: currentParams?.video_duration
-        });
+        if (currentParams?.topic && currentParams.topic.trim().length > 0) {
+          // 1. Use original topic from params if available (highest priority)
+          finalTopic = currentParams.topic.trim();
+          console.log('[VIDEO GENERATOR] Using original params topic:', finalTopic);
+        } else if (currentTopic && currentTopic.trim().length > 0) {
+          // 2. Fall back to stored currentTopic
+          finalTopic = currentTopic;
+          console.log('[VIDEO GENERATOR] Using stored current topic:', finalTopic);
+        } else if (statusResponse.topic && statusResponse.topic.trim().length > 0) {
+          // 3. Fall back to API response topic
+          finalTopic = statusResponse.topic.trim();
+          console.log('[VIDEO GENERATOR] Using API response topic:', finalTopic);
+        } else {
+          // 4. Last resort default
+          finalTopic = 'Untitled Video';
+          console.log('[VIDEO GENERATOR] No valid topic found, using default:', finalTopic);
+        }
         
-        // ENSURE TOPIC IS CORRECTLY SET: Prioritize the original topic from params
-        const finalTopic = currentParams?.topic || currentTopic || statusResponse.topic || 'Untitled Video';
-        console.log('🔎 [useVideoGenerator] Final topic being set:', finalTopic);
+        console.log('[VIDEO GENERATOR] Final topic being set:', finalTopic);
         
         setResult({
           ...statusResponse,
@@ -144,16 +146,16 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
         cleanup();
         toast.success('Video generation completed!');
       } else if (statusResponse.status === 'Error') {
-        console.error('🔎 [useVideoGenerator] Error in video generation:', statusResponse.message);
+        console.error('[VIDEO GENERATOR] Error in video generation:', statusResponse.message);
         setStatus('error');
         setError(statusResponse.message || 'Unknown error occurred');
         cleanup();
         toast.error(`Error: ${statusResponse.message || 'Unknown error'}`);
       } else {
-        console.log(`🔎 [useVideoGenerator] Video still processing: ${statusResponse.status}`);
+        console.log(`[VIDEO GENERATOR] Video still processing: ${statusResponse.status}`);
       }
     } catch (err) {
-      console.error('🔎 [useVideoGenerator] Error polling status:', err);
+      console.error('[VIDEO GENERATOR] Error polling status:', err);
     }
   };
   
@@ -162,41 +164,35 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
       reset();
       setStatus('generating');
       
-      // IMPORTANT: Store the topic immediately from params
-      console.log('🔎 [useVideoGenerator] Setting current topic:', params.topic);
+      // Store the original topic immediately
+      console.log('[VIDEO GENERATOR] Setting current topic from params:', params.topic);
       setCurrentTopic(params.topic);
       
       // Store the original params for later use
       setCurrentParams(params);
       
-      console.log('🔎 [useVideoGenerator] Generating video with params:', params);
-      console.log('🔎 [useVideoGenerator] Topic being set:', params.topic);
-      console.log('🔎 [useVideoGenerator] Voice being used:', params.voice);
-      console.log('🔎 [useVideoGenerator] Frame FPS (image rate):', params.frame_fps);
+      console.log('[VIDEO GENERATOR] Generating video with params:', params);
+      console.log('[VIDEO GENERATOR] Topic being sent to API:', params.topic);
       
       startTimeRef.current = Date.now();
-      console.log('🔎 [useVideoGenerator] Start time set:', new Date(startTimeRef.current).toISOString());
       
       const response = await generateVideo(params);
       
       if (response && response.task_id) {
-        console.log(`🔎 [useVideoGenerator] Received task_id: ${response.task_id}`);
+        console.log(`[VIDEO GENERATOR] Received task_id: ${response.task_id}`);
         setTaskId(response.task_id);
         setStatus('polling');
         setProgress(5); // Initial progress
-        console.log('🔎 [useVideoGenerator] Status set to polling, initial progress: 5%');
         
         // Setup polling
-        console.log(`🔎 [useVideoGenerator] Setting up polling interval: ${POLLING_INTERVAL}ms`);
         pollingRef.current = setInterval(() => {
           pollStatus(response.task_id);
         }, POLLING_INTERVAL);
         
         // Setup timeout
-        console.log(`🔎 [useVideoGenerator] Setting up max timeout: ${MAX_TIMEOUT}ms`);
         timeoutRef.current = setTimeout(() => {
           if (status !== 'completed' && status !== 'error') {
-            console.warn('🔎 [useVideoGenerator] Generation timed out after 8 minutes');
+            console.warn('[VIDEO GENERATOR] Generation timed out after 8 minutes');
             setStatus('error');
             setError('Generation timed out after 8 minutes');
             cleanup();
@@ -219,7 +215,7 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      console.error('🔎 [useVideoGenerator] Error generating video:', errorMessage);
+      console.error('[VIDEO GENERATOR] Error generating video:', errorMessage);
       setStatus('error');
       setError(errorMessage);
       toast.error(`Failed to start video generation: ${errorMessage}`);

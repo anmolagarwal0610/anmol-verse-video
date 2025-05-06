@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { getVideos } from '@/lib/video/services/videoGallery';
 import VideoCard from '@/components/video-card';
@@ -23,33 +22,34 @@ const VideosTab = () => {
       setIsLoading(true);
       setError(null);
       try {
-        console.log('🔎 [VideosTab] Fetching videos, user authenticated:', !!user);
+        console.log('[VIDEOS TAB] Fetching videos, user authenticated:', !!user);
         
         if (!user) {
-          console.log('🔎 [VideosTab] No authenticated user, cannot fetch videos');
+          console.log('[VIDEOS TAB] No authenticated user, cannot fetch videos');
           setVideos([]);
           setIsLoading(false);
           return;
         }
 
-        console.log('🔎 [VideosTab] User ID for video fetch:', user.id);
+        console.log('[VIDEOS TAB] User ID for video fetch:', user.id);
         const fetchedVideos = await getVideos();
-        console.log('🔎 [VideosTab] Videos fetched:', fetchedVideos.length);
+        console.log('[VIDEOS TAB] Videos fetched:', fetchedVideos.length);
         
-        if (fetchedVideos.length > 0) {
-          console.log('🔎 [VideosTab] Sample video URL:', fetchedVideos[0].url);
-        }
+        // Log each video's title for debugging
+        fetchedVideos.forEach((video, index) => {
+          console.log(`[VIDEOS TAB] Video ${index} - ID: ${video.id}, Title: "${video.title}", Prompt: "${video.prompt}"`);
+        });
         
         // Filter out invalid videos (missing URL)
         const validVideos = fetchedVideos.filter(video => {
           const hasValidUrl = video.url && video.url.startsWith('http');
           if (!hasValidUrl) {
-            console.warn('🔎 [VideosTab] Filtering out video with invalid URL:', video.id);
+            console.warn('[VIDEOS TAB] Filtering out video with invalid URL:', video.id);
           }
           return hasValidUrl;
         });
         
-        console.log('🔎 [VideosTab] Valid videos after URL check:', validVideos.length);
+        console.log('[VIDEOS TAB] Valid videos after URL check:', validVideos.length);
         
         // Filter out duplicate videos based on URL - keeping the newest one with each URL
         const uniqueVideos = validVideos.reduce<VideoData[]>((acc, current) => {
@@ -62,6 +62,8 @@ const VideosTab = () => {
             const currentDate = new Date(current.created_at).getTime();
             
             if (currentDate > existingDate) {
+              console.log(`[VIDEOS TAB] Replacing older duplicate video for URL: ${current.url}`);
+              console.log(`[VIDEOS TAB] Old title: "${acc[existingVideoIndex].title}", New title: "${current.title}"`);
               acc[existingVideoIndex] = current;
             }
           } else {
@@ -77,15 +79,15 @@ const VideosTab = () => {
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
         
-        console.log('🔎 [VideosTab] Unique videos after filtering:', uniqueVideos.length);
+        console.log('[VIDEOS TAB] Unique videos after filtering:', uniqueVideos.length);
         
         if (uniqueVideos.length > 0) {
-          console.log('🔎 [VideosTab] First video sample:', JSON.stringify(uniqueVideos[0], null, 2));
+          console.log('[VIDEOS TAB] First video sample:', JSON.stringify(uniqueVideos[0], null, 2));
         }
         
         setVideos(uniqueVideos);
       } catch (fetchError: any) {
-        console.error('🔎 [VideosTab] Error fetching videos:', fetchError);
+        console.error('[VIDEOS TAB] Error fetching videos:', fetchError);
         setError(fetchError?.message || 'Failed to load videos');
         toast.error('Failed to load your videos.');
         setVideos([]);

@@ -35,14 +35,34 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
   
   // Log video data when component mounts for debugging
   useEffect(() => {
-    console.log(`VideoCard: Rendering video card:`, {
+    console.log(`[VIDEO CARD] Rendering video card:`, {
       id: video.id,
       title: video.title || video.prompt,
+      prompt: video.prompt,
+      usingTitle: !!video.title,
       hasUrl: !!video.url,
       url: video.url,
-      thumbnailUrl,
     });
-  }, [video, thumbnailUrl]);
+  }, [video]);
+
+  // Determine the display title with clear priority logic
+  const displayTitle = (() => {
+    // If we have a title that's not "Untitled Video", use it
+    if (video.title && video.title !== "Untitled Video") {
+      console.log(`[VIDEO CARD] Using title for video ${video.id}: "${video.title}"`);
+      return video.title;
+    }
+    
+    // If we have a prompt that's not "Untitled Video", use it
+    if (video.prompt && video.prompt !== "Untitled Video") {
+      console.log(`[VIDEO CARD] Using prompt as title for video ${video.id}: "${video.prompt}"`);
+      return video.prompt;
+    }
+    
+    // Fall back to the title, whatever it is
+    console.log(`[VIDEO CARD] Falling back to default title for video ${video.id}: "${video.title || "Untitled Video"}"`);
+    return video.title || "Untitled Video";
+  })();
 
   const handleCardClick = () => {
     if (!video.url) {
@@ -51,7 +71,7 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
     }
     
     // We could navigate to a dedicated video page, but for now directly open the video
-    console.log("VideoCard clicked, URL:", video.url);
+    console.log("[VIDEO CARD] VideoCard clicked, URL:", video.url);
     window.open(video.url, '_blank');
   };
 
@@ -68,14 +88,14 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
       >
         <VideoThumbnail 
           thumbnail={thumbnailUrl}
-          title={video.title || video.prompt}
+          title={displayTitle}
           url={video.url}
         />
         
         <div className="p-3 flex-grow flex flex-col justify-between">
           <div>
             <h3 className="font-medium mb-1 line-clamp-1">
-              {video.title || truncatedPrompt || "Untitled Video"}
+              {displayTitle}
             </h3>
             <PromptPopover 
               prompt={video.prompt}
