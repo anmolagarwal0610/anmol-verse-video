@@ -57,6 +57,9 @@ const DownloadButton = ({
       const link = document.createElement('a');
       link.href = url;
       link.download = filename || getDefaultFilename();
+      link.target = '_blank'; // ✅ Opens in new tab if download fails
+      link.rel = 'noopener noreferrer';
+  
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -72,11 +75,14 @@ const DownloadButton = ({
       toast.warning(`Could not trigger download. Opening in new tab...`, {
         closeButton: true,
       });
+  
+      // ✅ Explicitly open in new tab to prevent current tab navigation
       window.open(url, '_blank', 'noopener');
     } finally {
       setIsDownloading(false);
     }
   };
+
 
 
 
