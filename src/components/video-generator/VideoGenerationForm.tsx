@@ -1,4 +1,3 @@
-
 import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -34,7 +33,7 @@ const VideoGenerationForm = ({
       topic: '',
       image_model: IMAGE_MODELS.advanced.value,
       image_ratio: '16:9',
-      image_pixel: PIXEL_OPTIONS['1080p'],
+      image_pixel: String(PIXEL_OPTIONS['1080p']), // Convert to string to match type
       pixelOption: '1080p',
       pixelOptionValue: undefined,
       video_duration: 25,

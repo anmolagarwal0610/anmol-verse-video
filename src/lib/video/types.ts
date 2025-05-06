@@ -1,6 +1,5 @@
 
-import { VideoGenerationParams } from './types';
-
+// Remove the circular import
 export interface VideoGenerationParams {
   script_model: string;
   topic: string;
