@@ -167,6 +167,8 @@ export default function DinoGame() {
           font-size: 40px;
           line-height: 1;
           animation: obstacleAnim 1.5s linear infinite;
+          /* 👇 NEW line to lift the emoji above the base */
+          padding-bottom: 6px;
         }
 
         .obstacle.stop {
