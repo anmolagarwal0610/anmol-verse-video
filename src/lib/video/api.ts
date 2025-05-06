@@ -7,6 +7,14 @@ export const generateVideo = async (params: VideoGenerationParams): Promise<Vide
     console.log("[VIDEO API] Generating video with params:", params);
     console.log("[VIDEO API] Topic being sent to API:", params.topic);
     
+    // Store original topic in sessionStorage as backup
+    try {
+      sessionStorage.setItem('originalVideoTopic', params.topic);
+      console.log("[VIDEO API] Original topic stored in sessionStorage:", params.topic);
+    } catch (e) {
+      console.error("[VIDEO API] Failed to store topic in sessionStorage:", e);
+    }
+    
     // Normalize Google voice IDs by removing language suffixes
     let normalizedParams = { ...params };
     if (normalizedParams.voice?.startsWith('google_')) {
@@ -47,10 +55,14 @@ export const generateVideo = async (params: VideoGenerationParams): Promise<Vide
     
     // Add the original topic to the response to preserve it throughout the process
     // Make sure we add it regardless of what the API returns
-    return {
+    const enrichedResponse: VideoGenerationResponse = {
       ...data,
       originalTopic: params.topic
     };
+    
+    console.log("[VIDEO API] Enriched response with originalTopic:", enrichedResponse);
+    
+    return enrichedResponse;
   } catch (error) {
     console.error('[VIDEO API] Error generating video:', error);
     throw error;
@@ -61,6 +73,19 @@ export const checkVideoStatus = async (taskId: string, originalTopic?: string): 
   try {
     console.log("[VIDEO API] Checking video status for task:", taskId);
     console.log("[VIDEO API] Original topic (if provided):", originalTopic || "Not provided");
+    
+    // Try to get the topic from sessionStorage as fallback
+    if (!originalTopic) {
+      try {
+        const storedTopic = sessionStorage.getItem('originalVideoTopic');
+        if (storedTopic) {
+          originalTopic = storedTopic;
+          console.log("[VIDEO API] Retrieved topic from sessionStorage:", originalTopic);
+        }
+      } catch (e) {
+        console.error("[VIDEO API] Failed to retrieve topic from sessionStorage:", e);
+      }
+    }
     
     const apiUrl = `${API_CONFIG.BASE_URL}/check_status?task_id=${taskId}`;
     
@@ -101,12 +126,16 @@ export const checkVideoStatus = async (taskId: string, originalTopic?: string): 
     });
     
     // Add the task_id and originalTopic to the response so they're available throughout the app
-    return {
+    const enrichedResponse: VideoStatusResponse = {
       ...data,
       topic: finalTopic,
       originalTopic: originalTopic, // Explicitly pass through the originalTopic
       task_id: taskId
     };
+    
+    console.log("[VIDEO API] Enriched status response:", enrichedResponse);
+    
+    return enrichedResponse;
   } catch (error) {
     console.error('[VIDEO API] Error checking video status:', error);
     throw error;

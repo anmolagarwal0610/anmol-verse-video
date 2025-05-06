@@ -28,10 +28,21 @@ const VideoGenerationForm = ({
   // Get first English voice as default
   const defaultVoice = Object.values(VOICE_OPTIONS).find(voice => voice.language === 'English')?.id || Object.keys(VOICE_OPTIONS)[0];
   
+  // Try to restore previous topic from sessionStorage if available
+  let restoredTopic = '';
+  try {
+    restoredTopic = sessionStorage.getItem('lastVideoTopic') || '';
+    if (restoredTopic) {
+      console.log("[VIDEO FORM] Restored topic from sessionStorage:", restoredTopic);
+    }
+  } catch (e) {
+    console.error("[VIDEO FORM] Failed to restore topic from sessionStorage:", e);
+  }
+  
   const form = useForm<VideoGenerationParams>({
     defaultValues: {
       script_model: 'chatgpt',
-      topic: '',
+      topic: restoredTopic || '',
       image_model: IMAGE_MODELS.advanced.value,
       image_ratio: '16:9',
       image_pixel: PIXEL_OPTIONS['1080p'],
@@ -56,6 +67,12 @@ const VideoGenerationForm = ({
   const selectedVoice = form.watch('voice');
   const videoDuration = form.watch('video_duration');
   const frameFPS = form.watch('frame_fps');
+  const topicValue = form.watch('topic');
+  
+  // Log topic whenever it changes for debugging
+  useEffect(() => {
+    console.log("[VIDEO FORM] Current topic value:", topicValue);
+  }, [topicValue]);
   
   const {
     showConfirmDialog,

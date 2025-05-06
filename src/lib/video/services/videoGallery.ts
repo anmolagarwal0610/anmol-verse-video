@@ -47,12 +47,23 @@ export const saveVideoToGallery = async (
     }
 
     // TOPIC DETERMINATION - use a clear priority order:
-    // 1. originalTopic field from the result (highest priority)
-    // 2. topic field if it's not "Untitled Video"
-    // 3. task_id as a fallback
-    // 4. "Untitled Video" as last resort
+    // 1. Try to get from sessionStorage first (highest priority)
+    // 2. originalTopic field from the result
+    // 3. topic field if it's not "Untitled Video"
+    // 4. task_id as a fallback
+    // 5. "Untitled Video" as last resort
+    
+    // Try to get the last saved topic from sessionStorage
+    let storedTopic = '';
+    try {
+      storedTopic = sessionStorage.getItem('originalVideoTopic') || '';
+      console.log('[VIDEO GALLERY] Topic from sessionStorage:', storedTopic);
+    } catch (e) {
+      console.error('[VIDEO GALLERY] Error reading from sessionStorage:', e);
+    }
     
     console.log('[VIDEO GALLERY] Topic determination data:', {
+      sessionStorageTopic: storedTopic,
       originalTopic: result.originalTopic || 'not provided',
       topicField: result.topic,
       taskId: result.task_id
@@ -60,17 +71,22 @@ export const saveVideoToGallery = async (
     
     let videoTopic = 'Untitled Video';
     
-    // First priority: originalTopic field (explicitly stored from form input)
-    if (result.originalTopic && result.originalTopic.trim() && result.originalTopic.trim() !== 'Untitled Video') {
+    // First priority: sessionStorage
+    if (storedTopic && storedTopic.trim() && storedTopic.trim() !== 'Untitled Video') {
+      videoTopic = storedTopic.trim();
+      console.log('[VIDEO GALLERY] Using sessionStorage for title:', videoTopic);
+    }
+    // Second priority: originalTopic field (explicitly stored from form input)
+    else if (result.originalTopic && result.originalTopic.trim() && result.originalTopic.trim() !== 'Untitled Video') {
       videoTopic = result.originalTopic.trim();
       console.log('[VIDEO GALLERY] Using originalTopic field for title:', videoTopic);
     }
-    // Second priority: topic field if valid
+    // Third priority: topic field if valid
     else if (result.topic && result.topic.trim() && result.topic.trim() !== 'Untitled Video') {
       videoTopic = result.topic.trim();
       console.log('[VIDEO GALLERY] Using topic field for title:', videoTopic);
     }
-    // Third priority: task_id as fallback
+    // Fourth priority: task_id as fallback
     else if (result.task_id) {
       videoTopic = `Video ${result.task_id.substring(0, 8)}`;
       console.log('[VIDEO GALLERY] Using task_id for title fallback:', videoTopic);

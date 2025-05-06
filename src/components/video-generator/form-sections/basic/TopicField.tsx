@@ -9,16 +9,33 @@ import {
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { useVideoGenerationForm } from '../../VideoGenerationFormContext';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 const TopicField = () => {
   const { form, isGenerating } = useVideoGenerationForm();
+  const initialRender = useRef(true);
   
   // Add logging to track topic changes
   const topicValue = form.watch("topic");
   
   useEffect(() => {
+    // Skip the first render logging
+    if (initialRender.current) {
+      initialRender.current = false;
+      return;
+    }
+    
     console.log("[TOPIC FIELD] Current topic value:", topicValue);
+    
+    // Add to sessionStorage for backup
+    if (topicValue && topicValue.trim() !== '') {
+      try {
+        sessionStorage.setItem('lastVideoTopic', topicValue.trim());
+        console.log("[TOPIC FIELD] Topic saved to sessionStorage:", topicValue.trim());
+      } catch (e) {
+        console.error("[TOPIC FIELD] Failed to save topic to sessionStorage:", e);
+      }
+    }
   }, [topicValue]);
   
   return (
@@ -35,7 +52,8 @@ const TopicField = () => {
               {...field}
               disabled={isGenerating}
               onChange={(e) => {
-                console.log("[TOPIC FIELD] Topic changed to:", e.target.value);
+                const value = e.target.value;
+                console.log("[TOPIC FIELD] Topic changed to:", value);
                 field.onChange(e);
               }}
               onBlur={() => {

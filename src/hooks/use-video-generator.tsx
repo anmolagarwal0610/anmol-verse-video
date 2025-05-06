@@ -169,6 +169,14 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
       console.log('[VIDEO GENERATOR] Setting current topic from params:', sanitizedTopic);
       setCurrentTopic(sanitizedTopic);
       
+      // Also store in sessionStorage as a fallback
+      try {
+        sessionStorage.setItem('originalVideoTopic', sanitizedTopic);
+        console.log('[VIDEO GENERATOR] Original topic stored in sessionStorage:', sanitizedTopic);
+      } catch (e) {
+        console.error('[VIDEO GENERATOR] Failed to store topic in sessionStorage:', e);
+      }
+      
       // Store the original params for later use
       setCurrentParams(params);
       

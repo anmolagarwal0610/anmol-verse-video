@@ -128,7 +128,11 @@ const AnimatedLoadingIndicator = ({ progress, status }: AnimatedLoadingIndicator
             variants={iconVariants}
             style={{ color: currentAnimation.color }}
           >
-            {currentAnimation.icon}
+            {milestone === "initializing" && <Loader2 className="h-8 w-8 animate-spin" />}
+            {milestone === "preparing_assets" && <Image className="h-8 w-8" />}
+            {milestone === "generating_content" && <Film className="h-8 w-8" />}
+            {milestone === "processing_video" && <Clapperboard className="h-8 w-8" />}
+            {milestone === "finalizing" && <CheckCircle className="h-8 w-8" />}
           </motion.div>
           <p className="text-lg font-semibold mt-1">
             {Math.round(progress)}%
@@ -146,7 +150,7 @@ const AnimatedLoadingIndicator = ({ progress, status }: AnimatedLoadingIndicator
           {milestoneLabel[milestone as keyof typeof milestoneLabel]}
         </h3>
         <p className="text-sm text-muted-foreground max-w-md">
-          {status === 'generating' ? 'Setting up your video request...' : 'Your AI video is being created...'}
+          {status}
         </p>
       </motion.div>
       
