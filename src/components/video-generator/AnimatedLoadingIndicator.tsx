@@ -52,23 +52,18 @@ const AnimatedLoadingIndicator = ({ progress, status }: AnimatedLoadingIndicator
   const milestoneAnimations = {
     initializing: {
       color: "#818cf8", // Indigo
-      icon: <LoaderCircle className="h-6 w-6 animate-spin" />
     },
     preparing_assets: {
       color: "#60a5fa", // Blue
-      icon: <Video className="h-6 w-6" />
     },
     generating_content: {
       color: "#34d399", // Emerald
-      icon: <Video className="h-6 w-6" />
     },
     processing_video: {
       color: "#a78bfa", // Violet
-      icon: <Video className="h-6 w-6" />
     },
     finalizing: {
       color: "#f472b6", // Pink
-      icon: <CheckCircle className="h-6 w-6" />
     },
     error: {
       color: "#f87171", // Red
