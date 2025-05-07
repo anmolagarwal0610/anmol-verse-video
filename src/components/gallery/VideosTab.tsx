@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { getVideos } from '@/lib/video/services/videoGallery';
 import VideoCard from '@/components/video-card';
@@ -9,11 +10,14 @@ import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import GalleryNotice from './GalleryNotice';
+import VideoPlayerModal from './VideoPlayerModal';
 
 const VideosTab = () => {
   const [videos, setVideos] = useState<VideoData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<VideoData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   
@@ -99,6 +103,26 @@ const VideosTab = () => {
     fetchVideos();
   }, [user]);
   
+  const handleOpenVideo = (video: VideoData) => {
+    if (!video.url) {
+      toast.error("Sorry, this video doesn't have a playable URL");
+      return;
+    }
+    
+    console.log("[VIDEOS TAB] Opening video in modal:", video.url);
+    setSelectedVideo(video);
+    setIsModalOpen(true);
+  };
+  
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    // Give a small delay before removing the video from state
+    // This avoids flickering during the closing animation
+    setTimeout(() => {
+      setSelectedVideo(null);
+    }, 300);
+  };
+  
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-10">
@@ -148,9 +172,21 @@ const VideosTab = () => {
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {videos.map((video, index) => (
-          <VideoCard key={video.id || index} video={video} index={index} />
+          <div 
+            key={video.id || index} 
+            onClick={() => handleOpenVideo(video)}
+          >
+            <VideoCard video={video} index={index} />
+          </div>
         ))}
       </div>
+      
+      {/* Video Player Modal */}
+      <VideoPlayerModal 
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        video={selectedVideo}
+      />
     </>
   );
 };

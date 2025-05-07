@@ -64,17 +64,6 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
     return video.title || "Untitled Video";
   })();
 
-  const handleCardClick = () => {
-    if (!video.url) {
-      toast.error("Sorry, this video doesn't have a playable URL");
-      return;
-    }
-    
-    // We could navigate to a dedicated video page, but for now directly open the video
-    console.log("[VIDEO CARD] VideoCard clicked, URL:", video.url);
-    window.open(video.url, '_blank');
-  };
-
   return (
     <motion.div
       variants={fadeInVariants}
@@ -84,7 +73,6 @@ const VideoCard = ({ video, index }: VideoCardProps) => {
     >
       <Card 
         className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-lg group cursor-pointer" 
-        onClick={handleCardClick}
       >
         <VideoThumbnail 
           thumbnail={thumbnailUrl}

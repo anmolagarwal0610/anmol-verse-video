@@ -28,22 +28,60 @@ import {
 import { Info } from 'lucide-react';
 import { ASPECT_RATIOS, TRANSITION_STYLES } from '@/lib/api';
 import { useVideoGenerationForm } from '../VideoGenerationFormContext';
+import { useEffect, useState } from 'react';
+
+// Define the transition preview URLs with the new GIF links
+const TRANSITION_PREVIEWS = {
+  fade: "https://storage.googleapis.com/dumblabs-object/Video%20type%20transitions/transition_video_fade.gif",
+  circleopen: "https://storage.googleapis.com/dumblabs-object/Video%20type%20transitions/transition_video_circleopen.gif",
+  radial: "https://storage.googleapis.com/dumblabs-object/Video%20type%20transitions/transition_video_radial.gif",
+  slideleft: "https://storage.googleapis.com/dumblabs-object/Video%20type%20transitions/transition_video_slideleft.gif"
+};
+
+// Create a preloader for the GIFs to load them in the background
+const TransitionPreviewPreloader = () => {
+  const [loaded, setLoaded] = useState(false);
+  
+  useEffect(() => {
+    // Only start loading when component mounts (after form is visible)
+    const preloadImages = async () => {
+      try {
+        const promises = Object.values(TRANSITION_PREVIEWS).map(url => {
+          return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = url;
+          });
+        });
+        
+        await Promise.all(promises);
+        console.log('All transition GIFs preloaded successfully');
+        setLoaded(true);
+      } catch (error) {
+        console.error('Error preloading transition GIFs:', error);
+      }
+    };
+    
+    preloadImages();
+  }, []);
+  
+  return null; // This component doesn't render anything visible
+};
 
 const TransitionPreview = ({ style }: { style: string }) => {
-  const previewUrls = {
-    fade: "/transitions/fade.gif",
-    circleopen: "/transitions/circleopen.gif",
-    radial: "/transitions/radial.gif",
-    slideleft: "/transitions/slideleft.gif"
-  };
-
   return (
-    <div className="relative w-32 h-24 rounded-md overflow-hidden">
-      <img 
-        src={previewUrls[style as keyof typeof previewUrls]} 
-        alt={`${style} transition preview`}
-        className="w-full h-full object-cover"
-      />
+    <div className="relative w-48 h-36 rounded-md overflow-hidden bg-muted flex items-center justify-center">
+      {TRANSITION_PREVIEWS[style as keyof typeof TRANSITION_PREVIEWS] ? (
+        <img 
+          src={TRANSITION_PREVIEWS[style as keyof typeof TRANSITION_PREVIEWS]} 
+          alt={`${style} transition preview`}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+      ) : (
+        <div className="text-sm text-muted-foreground">Preview not available</div>
+      )}
     </div>
   );
 };
@@ -76,6 +114,9 @@ const RatioAndTransitionFields = () => {
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Preload GIFs in the background */}
+      <TransitionPreviewPreloader />
+      
       {/* Image Ratio */}
       <FormField
         control={form.control}
@@ -145,8 +186,11 @@ const RatioAndTransitionFields = () => {
                           {label}
                         </SelectItem>
                       </HoverCardTrigger>
-                      <HoverCardContent side="right" className="w-fit z-[70]">
-                        <TransitionPreview style={value} />
+                      <HoverCardContent side="right" className="w-fit p-2 z-[70]">
+                        <div className="flex flex-col gap-1">
+                          <h4 className="font-medium text-sm">{label} Transition</h4>
+                          <TransitionPreview style={value} />
+                        </div>
                       </HoverCardContent>
                     </HoverCard>
                   ))}
@@ -155,7 +199,16 @@ const RatioAndTransitionFields = () => {
             </FormControl>
             <FormDescription className="flex items-center gap-2">
               How frames transition in your video
-              <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Hover over options to see transition preview</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </FormDescription>
             <FormMessage />
           </FormItem>
