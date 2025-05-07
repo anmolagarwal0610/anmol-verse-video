@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Play, Pause, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import DownloadButton from '@/components/ui/download-button';
 
 interface VideoControlsProps {
   isPlaying: boolean;
@@ -107,13 +106,7 @@ const VideoControls = ({
             />
           </div>
           
-          <DownloadButton 
-            url={videoUrl}
-            fileType="video"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-white hover:bg-white/10 p-0"
-          />
+          {/* Download button removed */}
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import {
   FileText,
   LayoutGrid,
   Film,
+  MessageSquareMore,
 } from 'lucide-react';
 import FeatureCard from './FeatureCard';
 
@@ -42,6 +43,16 @@ const FeatureSection = () => {
       path: "/gallery",
       color: "from-purple-500 to-purple-600",
       delay: 0.4
+    },
+    {
+      title: "Chat Genie",
+      description: "Enchant your messaging experience with intelligent WhatsApp and Instagram chat automation.",
+      icon: <MessageSquareMore className="h-8 w-8 text-teal-500" />,
+      path: "/chat",
+      color: "from-teal-500 to-teal-600",
+      delay: 0.5,
+      comingSoon: true,
+      disabled: true
     }
   ];
 

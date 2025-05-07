@@ -127,8 +127,7 @@ const HeroSection = () => {
         className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4"
         variants={itemVariants}
       >
-        Your elegant creative studio powered by sophisticated AI. Create stunning images, 
-        videos, and transcripts with unparalleled precision.
+        Create images, videos & transcripts in seconds—no AI expertise required.
       </motion.p>
       
       <motion.div 

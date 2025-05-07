@@ -82,6 +82,9 @@ const TransitionPreview = ({ style, label }: { style: string, label: string }) =
             alt={`${style} transition preview`}
             className="w-full h-full object-cover"
             loading="lazy"
+            // Adding loop and autoplay attributes for continuous playback
+            loop="infinite"
+            style={{ objectFit: "cover" }}
           />
         ) : (
           <div className="text-sm text-muted-foreground">Preview not available</div>
@@ -98,11 +101,11 @@ const TransitionsDialog = ({ selectedValue }: { selectedValue: string }) => {
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
-          className="w-full flex justify-between items-center"
+          className="w-full flex justify-between items-center text-muted-foreground border-muted-foreground/30 bg-transparent hover:bg-accent/50"
           size="sm"
         >
           <span>Preview Transitions</span>
-          <Info className="h-4 w-4 text-muted-foreground ml-2" />
+          <Info className="h-4 w-4 text-muted-foreground/70 ml-2" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-xl">
