@@ -82,8 +82,6 @@ const TransitionPreview = ({ style, label }: { style: string, label: string }) =
             alt={`${style} transition preview`}
             className="w-full h-full object-cover"
             loading="lazy"
-            // Adding loop and autoplay attributes for continuous playback
-            loop="infinite"
             style={{ objectFit: "cover" }}
           />
         ) : (
