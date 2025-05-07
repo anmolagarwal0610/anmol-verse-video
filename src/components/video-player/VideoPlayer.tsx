@@ -9,6 +9,7 @@ import { VideoPlayerProps } from './types';
 
 const VideoPlayer = ({ videoUrl, poster, className }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -17,6 +18,7 @@ const VideoPlayer = ({ videoUrl, poster, className }: VideoPlayerProps) => {
   const [isMuted, setIsMuted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isControlsVisible, setIsControlsVisible] = useState(true);
+  const [aspectRatio, setAspectRatio] = useState<string>('auto');
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -26,6 +28,22 @@ const VideoPlayer = ({ videoUrl, poster, className }: VideoPlayerProps) => {
     const onLoadedMetadata = () => {
       setDuration(video.duration);
       setIsLoading(false);
+      
+      // Calculate aspect ratio
+      if (video.videoWidth && video.videoHeight) {
+        // Check video dimensions to determine if it's vertical, square, or horizontal
+        const ratio = video.videoWidth / video.videoHeight;
+        
+        if (ratio > 1.2) { // Horizontal video
+          setAspectRatio('16/9');
+        } else if (ratio < 0.8) { // Vertical video
+          setAspectRatio('9/16');
+        } else { // Square-ish video
+          setAspectRatio('1/1');
+        }
+        
+        console.log(`Video dimensions: ${video.videoWidth}x${video.videoHeight}, ratio: ${ratio}, set aspect: ${aspectRatio}`);
+      }
     };
 
     const onTimeUpdate = () => {
@@ -134,15 +152,18 @@ const VideoPlayer = ({ videoUrl, poster, className }: VideoPlayerProps) => {
 
   return (
     <motion.div
+      ref={containerRef}
       className={cn(
-        "relative overflow-hidden rounded-xl bg-black aspect-[9/16] max-h-full w-full",
+        "relative overflow-hidden rounded-xl bg-black",
         className
       )}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
       onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsControlsVisible(true)}
       onMouseLeave={() => isPlaying && setIsControlsVisible(false)}
+      style={{ aspectRatio }}
     >
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center">
@@ -154,7 +175,7 @@ const VideoPlayer = ({ videoUrl, poster, className }: VideoPlayerProps) => {
         ref={videoRef}
         src={videoUrl}
         poster={poster}
-        className="h-full w-full object-cover"
+        className="h-full w-full object-contain"
         onClick={togglePlay}
         playsInline
       />

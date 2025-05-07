@@ -15,10 +15,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Tooltip,
   TooltipContent,
@@ -29,8 +31,9 @@ import { Info } from 'lucide-react';
 import { ASPECT_RATIOS, TRANSITION_STYLES } from '@/lib/api';
 import { useVideoGenerationForm } from '../VideoGenerationFormContext';
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 
-// Define the transition preview URLs with the new GIF links
+// Define the transition preview URLs with the GIF links
 const TRANSITION_PREVIEWS = {
   fade: "https://storage.googleapis.com/dumblabs-object/Video%20type%20transitions/transition_video_fade.gif",
   circleopen: "https://storage.googleapis.com/dumblabs-object/Video%20type%20transitions/transition_video_circleopen.gif",
@@ -69,20 +72,54 @@ const TransitionPreviewPreloader = () => {
   return null; // This component doesn't render anything visible
 };
 
-const TransitionPreview = ({ style }: { style: string }) => {
+const TransitionPreview = ({ style, label }: { style: string, label: string }) => {
   return (
-    <div className="relative w-48 h-36 rounded-md overflow-hidden bg-muted flex items-center justify-center">
-      {TRANSITION_PREVIEWS[style as keyof typeof TRANSITION_PREVIEWS] ? (
-        <img 
-          src={TRANSITION_PREVIEWS[style as keyof typeof TRANSITION_PREVIEWS]} 
-          alt={`${style} transition preview`}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
-      ) : (
-        <div className="text-sm text-muted-foreground">Preview not available</div>
-      )}
+    <div className="flex flex-col items-center">
+      <div className="relative w-full h-40 rounded-md overflow-hidden bg-muted flex items-center justify-center">
+        {TRANSITION_PREVIEWS[style as keyof typeof TRANSITION_PREVIEWS] ? (
+          <img 
+            src={TRANSITION_PREVIEWS[style as keyof typeof TRANSITION_PREVIEWS]} 
+            alt={`${style} transition preview`}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="text-sm text-muted-foreground">Preview not available</div>
+        )}
+      </div>
+      <span className="mt-2 text-center font-medium">{label}</span>
     </div>
+  );
+};
+
+const TransitionsDialog = ({ selectedValue }: { selectedValue: string }) => {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button 
+          variant="outline" 
+          className="w-full flex justify-between items-center"
+          size="sm"
+        >
+          <span>Preview Transitions</span>
+          <Info className="h-4 w-4 text-muted-foreground ml-2" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Transition Style Previews</DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-2 gap-6 py-4">
+          {Object.entries(TRANSITION_STYLES).map(([value, label]) => (
+            <TransitionPreview 
+              key={value} 
+              style={value} 
+              label={label}
+            />
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -111,6 +148,7 @@ const AspectRatioPreview = ({ ratio }: { ratio: string }) => {
 
 const RatioAndTransitionFields = () => {
   const { form, isGenerating } = useVideoGenerationForm();
+  const selectedTransition = form.watch('transition_style');
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -180,36 +218,19 @@ const RatioAndTransitionFields = () => {
                 </SelectTrigger>
                 <SelectContent className="max-h-[300px] z-50 bg-background border shadow-lg">
                   {Object.entries(TRANSITION_STYLES).map(([value, label]) => (
-                    <HoverCard key={value}>
-                      <HoverCardTrigger asChild>
-                        <SelectItem value={value} className="hover:cursor-help">
-                          {label}
-                        </SelectItem>
-                      </HoverCardTrigger>
-                      <HoverCardContent side="right" className="w-fit p-2 z-[70]">
-                        <div className="flex flex-col gap-1">
-                          <h4 className="font-medium text-sm">{label} Transition</h4>
-                          <TransitionPreview style={value} />
-                        </div>
-                      </HoverCardContent>
-                    </HoverCard>
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormDescription className="flex items-center gap-2">
-              How frames transition in your video
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Hover over options to see transition preview</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </FormDescription>
+            <div className="flex items-center justify-between mt-2">
+              <FormDescription>
+                How frames transition in your video
+              </FormDescription>
+              <TransitionsDialog selectedValue={field.value} />
+            </div>
             <FormMessage />
           </FormItem>
         )}
