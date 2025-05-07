@@ -99,11 +99,11 @@ const TransitionsDialog = ({ selectedValue }: { selectedValue: string }) => {
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
-          className="w-full flex justify-between items-center text-muted-foreground border-muted-foreground/30 bg-transparent hover:bg-accent/50"
           size="sm"
+          className="text-xs px-2 py-1 h-7 text-muted-foreground border-muted-foreground/20 bg-transparent hover:bg-accent/50 mt-0"
         >
-          <span>Preview Transitions</span>
-          <Info className="h-4 w-4 text-muted-foreground/70 ml-2" />
+          <Info className="h-3 w-3 text-muted-foreground/70 mr-1" />
+          <span>Preview</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-xl">
@@ -227,7 +227,7 @@ const RatioAndTransitionFields = () => {
               </Select>
             </FormControl>
             <div className="flex items-center justify-between mt-2">
-              <FormDescription>
+              <FormDescription className="flex-1">
                 How frames transition in your video
               </FormDescription>
               <TransitionsDialog selectedValue={field.value} />

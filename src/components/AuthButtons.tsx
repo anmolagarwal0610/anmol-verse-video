@@ -36,13 +36,28 @@ export default function AuthButtons() {
     return <UserMenu />;
   }
 
-  // Navigate to auth page when login button is clicked
+  // Navigate to auth page with the sign-up tab selected when the Get Started button is clicked
+  const handleGetStarted = () => {
+    console.log('[AuthButtons] Get Started button clicked, navigating to /auth with sign-up tab');
+    
+    // If we're not already on the auth page, store the current path for redirect after login
+    if (window.location.pathname !== '/auth') {
+      sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
+      sessionStorage.setItem('authDefaultTab', 'sign-up');
+      console.log('[AuthButtons] Stored current path for redirect:', window.location.pathname);
+    }
+    
+    navigate("/auth");
+  };
+  
+  // Navigate to auth page when login icon is clicked
   const handleSignIn = () => {
     console.log('[AuthButtons] Sign in button clicked, navigating to /auth');
     
     // If we're not already on the auth page, store the current path for redirect after login
     if (window.location.pathname !== '/auth') {
       sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
+      sessionStorage.setItem('authDefaultTab', 'sign-in');
       console.log('[AuthButtons] Stored current path for redirect:', window.location.pathname);
     }
     
@@ -50,14 +65,25 @@ export default function AuthButtons() {
   };
 
   // Show login button if not logged in
-  console.log('[AuthButtons] Rendering login button (not authenticated)');
+  console.log('[AuthButtons] Rendering login buttons (not authenticated)');
   return (
-    <Button 
-      onClick={handleSignIn}
-      className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium px-4 flex items-center gap-2 rounded-full shadow-sm hover:shadow-md transition-all"
-    >
-      <LogIn className="h-4 w-4" />
-      <span>Sign In</span>
-    </Button>
+    <div className="flex items-center gap-3">
+      <Button 
+        onClick={handleGetStarted}
+        className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium px-4 rounded-full shadow-sm hover:shadow-md transition-all"
+      >
+        Get Started for Free
+      </Button>
+      
+      <Button 
+        onClick={handleSignIn}
+        variant="ghost"
+        size="icon"
+        className="text-muted-foreground hover:bg-slate-100 dark:hover:bg-slate-800"
+        aria-label="Sign In"
+      >
+        <LogIn className="h-5 w-5" />
+      </Button>
+    </div>
   );
 }

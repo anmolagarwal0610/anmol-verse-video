@@ -11,6 +11,17 @@ export default function Auth() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [defaultTab, setDefaultTab] = useState('sign-in');
+
+  useEffect(() => {
+    // Check if there's a default tab stored in sessionStorage
+    const storedDefaultTab = sessionStorage.getItem('authDefaultTab');
+    if (storedDefaultTab === 'sign-up' || storedDefaultTab === 'sign-in') {
+      setDefaultTab(storedDefaultTab);
+      // Clear it after using
+      sessionStorage.removeItem('authDefaultTab');
+    }
+  }, []);
 
   useEffect(() => {
     if (!loading && user) {
@@ -89,7 +100,8 @@ export default function Auth() {
         >
           <AuthTabs 
             isLoading={isLoading} 
-            setIsLoading={setIsLoading} 
+            setIsLoading={setIsLoading}
+            defaultTab={defaultTab}
           />
         </motion.div>
       </div>
