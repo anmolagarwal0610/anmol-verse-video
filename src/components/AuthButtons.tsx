@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import UserMenu from "./UserMenu";
 import { LogIn } from "lucide-react";
@@ -10,18 +10,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function AuthButtons() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation(); // Add useLocation hook
   const [mounted, setMounted] = useState(false);
   const [isAuthPage, setIsAuthPage] = useState(false);
+
+  // Check if we're on the auth page whenever location changes
+  useEffect(() => {
+    const currentPath = location.pathname;
+    setIsAuthPage(currentPath === '/auth');
+    console.log('[AuthButtons] Location changed, current path:', currentPath, 'isAuthPage:', currentPath === '/auth');
+  }, [location]);
 
   // Only render after component is mounted to avoid hydration mismatch
   useEffect(() => {
     console.log('[AuthButtons] Component mounted, loading:', loading, 'user:', user ? 'exists' : 'null');
     setMounted(true);
-    
-    // Check if we're on the auth page
-    const currentPath = window.location.pathname;
-    setIsAuthPage(currentPath === '/auth');
-    console.log('[AuthButtons] Current path:', currentPath, 'isAuthPage:', currentPath === '/auth');
   }, []);
 
   // Debug effect for auth state changes
@@ -30,23 +33,6 @@ export default function AuthButtons() {
       console.log('[AuthButtons] Auth state changed - loading:', loading, 'user:', user ? user.email : 'null');
     }
   }, [loading, user, mounted]);
-
-  // Check if we should render auth buttons
-  // Don't render on auth page
-  useEffect(() => {
-    const handleRouteChange = () => {
-      const currentPath = window.location.pathname;
-      setIsAuthPage(currentPath === '/auth');
-      console.log('[AuthButtons] Route changed to:', currentPath, 'isAuthPage:', currentPath === '/auth');
-    };
-
-    // Listen for route changes
-    window.addEventListener('popstate', handleRouteChange);
-    
-    return () => {
-      window.removeEventListener('popstate', handleRouteChange);
-    };
-  }, []);
 
   // Show loading skeleton when not mounted or while auth is loading
   if (!mounted || loading) {
@@ -70,15 +56,14 @@ export default function AuthButtons() {
     console.log('[AuthButtons] Get Started button clicked, navigating to /auth with sign-up tab');
     
     // If we're not already on the auth page, store the current path for redirect after login
-    if (window.location.pathname !== '/auth') {
-      sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
+    if (location.pathname !== '/auth') {
+      sessionStorage.setItem('pendingRedirectPath', location.pathname);
       // Always set the default tab to sign-up for the Get Started button
       sessionStorage.setItem('authDefaultTab', 'sign-up');
       console.log('[AuthButtons] Stored authDefaultTab as "sign-up" for redirect');
     }
     
     navigate("/auth");
-    setIsAuthPage(true); // Update state immediately
   };
   
   // Navigate to auth page when login icon is clicked
@@ -86,14 +71,13 @@ export default function AuthButtons() {
     console.log('[AuthButtons] Sign in button clicked, navigating to /auth');
     
     // If we're not already on the auth page, store the current path for redirect after login
-    if (window.location.pathname !== '/auth') {
-      sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
+    if (location.pathname !== '/auth') {
+      sessionStorage.setItem('pendingRedirectPath', location.pathname);
       sessionStorage.setItem('authDefaultTab', 'sign-in');
       console.log('[AuthButtons] Stored authDefaultTab as "sign-in" for redirect');
     }
     
     navigate("/auth");
-    setIsAuthPage(true); // Update state immediately
   };
 
   // Show login button if not logged in
