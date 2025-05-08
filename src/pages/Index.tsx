@@ -11,18 +11,12 @@ import ThemeToggle from '@/components/home/ThemeToggle';
 import BackgroundImage from '@/components/home/BackgroundImage';
 import MainContent from '@/components/home/MainContent';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 
 const Index = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { user } = useAuth();
-
-  // Function to navigate to sign-up page
-  const handleGetStarted = () => {
-    navigate('/auth?tab=register');
-  };
 
   // Preload all routes in the background
   useEffect(() => {
@@ -50,17 +44,7 @@ const Index = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-black">
       <Navbar />
       
-      {/* Get Started Button for non-authenticated users */}
-      {!user && (
-        <div className="absolute top-4 right-4 md:right-8 z-50">
-          <Button 
-            onClick={handleGetStarted}
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md"
-          >
-            Get Started for Free
-          </Button>
-        </div>
-      )}
+      {/* Removed the duplicate "Get Started for Free" button */}
 
       <div className="relative w-full">
         <BackgroundImage />

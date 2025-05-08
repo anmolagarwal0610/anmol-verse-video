@@ -43,6 +43,7 @@ export default function AuthButtons() {
     // If we're not already on the auth page, store the current path for redirect after login
     if (window.location.pathname !== '/auth') {
       sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
+      // Always set the default tab to sign-up for the Get Started button
       sessionStorage.setItem('authDefaultTab', 'sign-up');
       console.log('[AuthButtons] Stored current path for redirect:', window.location.pathname);
     }
