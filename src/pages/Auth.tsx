@@ -16,7 +16,10 @@ export default function Auth() {
   useEffect(() => {
     // Check if there's a default tab stored in sessionStorage
     const storedDefaultTab = sessionStorage.getItem('authDefaultTab');
+    console.log('[Auth] Checking for stored default tab:', storedDefaultTab);
+    
     if (storedDefaultTab === 'sign-up' || storedDefaultTab === 'sign-in') {
+      console.log('[Auth] Setting default tab to:', storedDefaultTab);
       setDefaultTab(storedDefaultTab);
       // Clear it after using
       sessionStorage.removeItem('authDefaultTab');
@@ -28,6 +31,8 @@ export default function Auth() {
       navigate('/');
     }
   }, [user, loading, navigate]);
+
+  console.log('[Auth] Rendering with defaultTab:', defaultTab);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-black">

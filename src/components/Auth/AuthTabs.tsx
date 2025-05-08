@@ -4,6 +4,7 @@ import { Separator } from '@/components/ui/separator';
 import EmailForm from './EmailForm';
 import SocialAuth from './SocialAuth';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 interface AuthTabsProps {
   isLoading: boolean;
@@ -13,6 +14,11 @@ interface AuthTabsProps {
 
 const AuthTabs = ({ isLoading, setIsLoading, defaultTab = "sign-in" }: AuthTabsProps) => {
   const navigate = useNavigate();
+  
+  // Debug the defaultTab prop when component mounts
+  useEffect(() => {
+    console.log('[AuthTabs] Received defaultTab prop:', defaultTab);
+  }, [defaultTab]);
   
   return (
     <Tabs defaultValue={defaultTab} className="space-y-6">

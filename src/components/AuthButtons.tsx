@@ -45,7 +45,7 @@ export default function AuthButtons() {
       sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
       // Always set the default tab to sign-up for the Get Started button
       sessionStorage.setItem('authDefaultTab', 'sign-up');
-      console.log('[AuthButtons] Stored current path for redirect:', window.location.pathname);
+      console.log('[AuthButtons] Stored authDefaultTab as "sign-up" for redirect');
     }
     
     navigate("/auth");
@@ -59,11 +59,17 @@ export default function AuthButtons() {
     if (window.location.pathname !== '/auth') {
       sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
       sessionStorage.setItem('authDefaultTab', 'sign-in');
-      console.log('[AuthButtons] Stored current path for redirect:', window.location.pathname);
+      console.log('[AuthButtons] Stored authDefaultTab as "sign-in" for redirect');
     }
     
     navigate("/auth");
   };
+
+  // Only show nav buttons if not on auth page
+  if (window.location.pathname === '/auth') {
+    console.log('[AuthButtons] On auth page, not rendering auth buttons');
+    return null;
+  }
 
   // Show login button if not logged in
   console.log('[AuthButtons] Rendering login buttons (not authenticated)');
