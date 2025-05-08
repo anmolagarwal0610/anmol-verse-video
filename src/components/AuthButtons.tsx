@@ -11,11 +11,17 @@ export default function AuthButtons() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
+  const [isAuthPage, setIsAuthPage] = useState(false);
 
   // Only render after component is mounted to avoid hydration mismatch
   useEffect(() => {
     console.log('[AuthButtons] Component mounted, loading:', loading, 'user:', user ? 'exists' : 'null');
     setMounted(true);
+    
+    // Check if we're on the auth page
+    const currentPath = window.location.pathname;
+    setIsAuthPage(currentPath === '/auth');
+    console.log('[AuthButtons] Current path:', currentPath, 'isAuthPage:', currentPath === '/auth');
   }, []);
 
   // Debug effect for auth state changes
@@ -25,9 +31,32 @@ export default function AuthButtons() {
     }
   }, [loading, user, mounted]);
 
+  // Check if we should render auth buttons
+  // Don't render on auth page
+  useEffect(() => {
+    const handleRouteChange = () => {
+      const currentPath = window.location.pathname;
+      setIsAuthPage(currentPath === '/auth');
+      console.log('[AuthButtons] Route changed to:', currentPath, 'isAuthPage:', currentPath === '/auth');
+    };
+
+    // Listen for route changes
+    window.addEventListener('popstate', handleRouteChange);
+    
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, []);
+
   // Show loading skeleton when not mounted or while auth is loading
   if (!mounted || loading) {
     return <Skeleton className="h-9 w-24" />;
+  }
+
+  // Don't render anything on auth page
+  if (isAuthPage) {
+    console.log('[AuthButtons] On auth page, not rendering auth buttons');
+    return null;
   }
 
   // Show user menu if logged in
@@ -49,6 +78,7 @@ export default function AuthButtons() {
     }
     
     navigate("/auth");
+    setIsAuthPage(true); // Update state immediately
   };
   
   // Navigate to auth page when login icon is clicked
@@ -63,13 +93,8 @@ export default function AuthButtons() {
     }
     
     navigate("/auth");
+    setIsAuthPage(true); // Update state immediately
   };
-
-  // Only show nav buttons if not on auth page
-  if (window.location.pathname === '/auth') {
-    console.log('[AuthButtons] On auth page, not rendering auth buttons');
-    return null;
-  }
 
   // Show login button if not logged in
   console.log('[AuthButtons] Rendering login buttons (not authenticated)');

@@ -4,7 +4,7 @@ import { Separator } from '@/components/ui/separator';
 import EmailForm from './EmailForm';
 import SocialAuth from './SocialAuth';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface AuthTabsProps {
   isLoading: boolean;
@@ -14,14 +14,16 @@ interface AuthTabsProps {
 
 const AuthTabs = ({ isLoading, setIsLoading, defaultTab = "sign-in" }: AuthTabsProps) => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState(defaultTab);
   
-  // Debug the defaultTab prop when component mounts
+  // Update active tab when defaultTab prop changes
   useEffect(() => {
     console.log('[AuthTabs] Received defaultTab prop:', defaultTab);
+    setActiveTab(defaultTab);
   }, [defaultTab]);
   
   return (
-    <Tabs defaultValue={defaultTab} className="space-y-6">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
       <TabsList className="grid grid-cols-2 w-full">
         <TabsTrigger value="sign-in">Sign In</TabsTrigger>
         <TabsTrigger value="sign-up">Sign Up</TabsTrigger>

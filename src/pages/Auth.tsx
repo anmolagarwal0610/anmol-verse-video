@@ -12,8 +12,13 @@ export default function Auth() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [defaultTab, setDefaultTab] = useState('sign-in');
+  const [mounted, setMounted] = useState(false);
 
+  // Initialize from sessionStorage
   useEffect(() => {
+    console.log('[Auth] Component mounted');
+    setMounted(true);
+    
     // Check if there's a default tab stored in sessionStorage
     const storedDefaultTab = sessionStorage.getItem('authDefaultTab');
     console.log('[Auth] Checking for stored default tab:', storedDefaultTab);
@@ -26,8 +31,10 @@ export default function Auth() {
     }
   }, []);
 
+  // Redirect if already logged in
   useEffect(() => {
     if (!loading && user) {
+      console.log('[Auth] User already logged in, redirecting to home');
       navigate('/');
     }
   }, [user, loading, navigate]);
@@ -103,11 +110,13 @@ export default function Auth() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <AuthTabs 
-            isLoading={isLoading} 
-            setIsLoading={setIsLoading}
-            defaultTab={defaultTab}
-          />
+          {mounted && (
+            <AuthTabs 
+              isLoading={isLoading} 
+              setIsLoading={setIsLoading}
+              defaultTab={defaultTab}
+            />
+          )}
         </motion.div>
       </div>
       
