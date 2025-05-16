@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useState, useEffect } from 'react';
 import { ASPECT_RATIOS } from '@/lib/imageApi';
 import { FormValues } from '@/hooks/use-image-generator';
+import { cn } from '@/lib/utils';
 
 interface AspectRatioSelectProps {
   form: UseFormReturn<FormValues>;
@@ -89,7 +90,7 @@ const AspectRatioSelect = ({
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select aspect ratio" />
                 </SelectTrigger>
-                <SelectContent position="popper" className="w-full z-50 bg-background border shadow-lg">
+                <SelectContent position="popper" className={cn("w-full bg-background border shadow-lg")}>
                   {Object.entries(ASPECT_RATIOS).map(([value, label]) => (
                     <SelectItem key={value} value={value}>
                       <div className="flex items-center gap-2">
@@ -127,3 +128,4 @@ const AspectRatioSelect = ({
 };
 
 export default AspectRatioSelect;
+

@@ -5,7 +5,7 @@ import { CheckIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { IMAGE_STYLES } from '@/lib/imageApi';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; // PopoverContent is now z-[100]
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -57,7 +57,11 @@ const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
                     : "Select styles..."}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 z-50 bg-background border" align="start" sideOffset={4}>
+              <PopoverContent 
+                className="w-[var(--radix-popover-trigger-width)] p-0 border" // Removed z-50 as it's now default z-[100], kept bg-background via PopoverContent's own default
+                align="start" 
+                sideOffset={4}
+              >
                 <Command>
                   <CommandInput placeholder="Search styles..." />
                   <CommandList>
@@ -75,13 +79,13 @@ const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
                               isSelected && "bg-accent"
                             )}
                           >
-                            <div className={cn(
-                              "flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                              isSelected && "bg-primary text-primary-foreground"
-                            )}>
-                              {isSelected && <CheckIcon className="h-3 w-3" />}
-                            </div>
-                            <span>{label}</span>
+                              <div className={cn(
+                                "flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                                isSelected && "bg-primary text-primary-foreground"
+                              )}>
+                                {isSelected && <CheckIcon className="h-3 w-3" />}
+                              </div>
+                              <span>{label}</span>
                           </CommandItem>
                         );
                       })}
@@ -101,3 +105,4 @@ const ImagePreferenceSelect = ({ form }: ImagePreferenceSelectProps) => {
 };
 
 export default ImagePreferenceSelect;
+

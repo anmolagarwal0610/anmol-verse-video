@@ -1,6 +1,7 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AUDIO_LANGUAGES } from "@/lib/video/constants/audio";
+import { cn } from "@/lib/utils";
 
 interface SelectBoxProps {
   value: string;
@@ -26,7 +27,7 @@ export const SelectBox = ({
       <SelectTrigger className="w-full">
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent position="popper" className="w-full z-50 bg-background border shadow-lg">
+      <SelectContent position="popper" className={cn("w-full bg-background border shadow-lg")}>
         {Object.entries(options).map(([key, label]) => (
           <SelectItem key={key} value={key}>
             {label}

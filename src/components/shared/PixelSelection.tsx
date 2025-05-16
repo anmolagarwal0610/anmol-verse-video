@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   FormControl,
@@ -17,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { UseFormReturn } from 'react-hook-form';
 import { PIXEL_OPTIONS, MIN_PIXEL_VALUE, MAX_PIXEL_VALUE } from '@/lib/constants/pixelOptions';
+import { cn } from '@/lib/utils';
 
 interface PixelSelectionProps {
   form: UseFormReturn<any>;
@@ -51,7 +51,6 @@ const PixelSelection = ({
                   field.onChange(value);
                   setIsCustom(value === "custom");
                   
-                  // If switching from custom to preset, ensure we clear any custom value
                   if (value !== "custom" && form.getValues(customValueName)) {
                     form.setValue(customValueName, undefined);
                   }
@@ -61,7 +60,7 @@ const PixelSelection = ({
                 <SelectTrigger>
                   <SelectValue placeholder="Select resolution" />
                 </SelectTrigger>
-                <SelectContent className="z-[100]">
+                <SelectContent className={cn("bg-background border shadow-lg")}>
                   {Object.entries(PIXEL_OPTIONS).map(([key, value]) => (
                     <SelectItem key={key} value={key}>
                       {key === "custom" ? "Custom" : `${key}`}

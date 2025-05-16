@@ -5,6 +5,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { MODEL_DESCRIPTIONS } from '@/lib/imageApi';
 import { FormValues } from '@/hooks/use-image-generator';
 import { useAuth } from '@/hooks/use-auth';
+import { cn } from '@/lib/utils';
 
 interface ModelSelectProps {
   form: UseFormReturn<FormValues>;
@@ -27,7 +28,7 @@ const ModelSelect = ({
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select model" />
               </SelectTrigger>
-              <SelectContent position="popper" className="w-full z-50 bg-background border shadow-lg">
+              <SelectContent position="popper" className={cn("w-full bg-background border shadow-lg")}>
                 <SelectItem value="basic">
                   <div className="flex flex-col">
                     <span className="font-medium">Basic</span>
@@ -62,3 +63,4 @@ const ModelSelect = ({
 };
 
 export default ModelSelect;
+
