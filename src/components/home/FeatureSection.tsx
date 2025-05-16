@@ -21,22 +21,12 @@ const FeatureSection = () => {
       disabled: false
     },
     {
-      title: "Chat Genie",
-      description: "Enchant your messaging experience with intelligent WhatsApp and Instagram chat automation.",
-      icon: <MessageSquareMore className="h-8 w-8 text-teal-500" />,
-      path: "/chat",
-      color: "from-teal-500 to-teal-600",
-      delay: 0.2,
-      comingSoon: true,
-      disabled: true
-    },
-    {
       title: "AI Image Creation",
       description: "Generate elegant visuals from text descriptions with advanced AI models.",
       icon: <ImageIcon className="h-8 w-8 text-indigo-500" />,
       path: "/images",
       color: "from-indigo-500 to-indigo-600",
-      delay: 0.3
+      delay: 0.2
     },
     {
       title: "Smart Transcription",
@@ -44,7 +34,7 @@ const FeatureSection = () => {
       icon: <FileText className="h-8 w-8 text-green-500" />,
       path: "/transcript",
       color: "from-green-500 to-green-600",
-      delay: 0.4
+      delay: 0.3
     },
     {
       title: "Media Collection",
@@ -52,12 +42,22 @@ const FeatureSection = () => {
       icon: <LayoutGrid className="h-8 w-8 text-purple-500" />,
       path: "/gallery",
       color: "from-purple-500 to-purple-600",
-      delay: 0.5
+      delay: 0.4
+    },
+    {
+      title: "Chat Genie",
+      description: "Enchant your messaging experience with intelligent WhatsApp and Instagram chat automation.",
+      icon: <MessageSquareMore className="h-8 w-8 text-teal-500" />,
+      path: "/chat",
+      color: "from-teal-500 to-teal-600",
+      delay: 0.5,
+      comingSoon: true,
+      disabled: true
     }
   ];
 
   return (
-    <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-16">
+    <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-16">
       {features.map((feature, index) => (
         <FeatureCard key={index} {...feature} />
       ))}

@@ -1,12 +1,8 @@
 
 import { motion } from 'framer-motion';
 import { Sparkles, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
 
 const HeroSection = () => {
-  const navigate = useNavigate();
-  
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -133,29 +129,6 @@ const HeroSection = () => {
       >
         Create images, videos & transcripts in seconds—no AI expertise required.
       </motion.p>
-      
-      <motion.div 
-        className="flex justify-center items-center gap-6 mt-8"
-        variants={itemVariants}
-      >
-        <Button 
-          className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-6 rounded-full font-medium text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
-          onClick={() => navigate('/auth')}
-        >
-          Start Creating
-        </Button>
-        
-        <Button 
-          variant="outline" 
-          className="border-2 border-indigo-500/30 hover:border-indigo-600 px-6 py-6 rounded-full font-medium text-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all duration-300"
-          onClick={() => {
-            const featuresSection = document.querySelector('#features');
-            featuresSection?.scrollIntoView({ behavior: 'smooth' });
-          }}
-        >
-          Explore Features
-        </Button>
-      </motion.div>
       
       <motion.div 
         className="flex gap-2 justify-center items-center mt-6"

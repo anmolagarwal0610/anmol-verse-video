@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 const BackgroundImage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const imageUrl = 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?q=80&w=1200'; // Better quality image
+  const imageUrl = 'https://images.unsplash.com/photo-1486718448742-163732cd1544?q=80&w=1200'; // Reduced quality
 
   useEffect(() => {
     console.log('BackgroundImage: Starting to load image');
@@ -48,25 +48,22 @@ const BackgroundImage = () => {
         />
       )}
       
-      {/* Parallax background image */}
+      {/* Animated background image */}
       <motion.div 
-        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-300 ${isLoaded ? 'opacity-15 dark:opacity-20' : 'opacity-0'}`}
+        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-300 ${isLoaded ? 'opacity-10 dark:opacity-20' : 'opacity-0'}`}
         style={{ backgroundImage: isLoaded ? `url('${imageUrl}')` : 'none' }}
         initial={{ scale: 1.05 }}
         animate={isLoaded ? { scale: 1 } : {}}
         transition={{ duration: 10, ease: "easeOut" }}
       />
       
-      {/* Animated grid overlay */}
-      <div className="absolute inset-0 bg-grid opacity-30 dark:opacity-10"></div>
-      
       {/* Floating particles effect */}
       {isLoaded && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {Array.from({ length: 30 }).map((_, i) => (
+          {Array.from({ length: 20 }).map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-1 h-1 md:w-2 md:h-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
+              className="absolute w-1 h-1 md:w-2 md:h-2 rounded-full bg-indigo-500 dark:bg-indigo-400"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
@@ -88,11 +85,6 @@ const BackgroundImage = () => {
           ))}
         </div>
       )}
-      
-      {/* Color blobs for visual interest */}
-      <div className="absolute top-1/3 left-1/4 w-64 h-64 rounded-full bg-purple-500/10 blur-3xl"></div>
-      <div className="absolute bottom-1/4 right-1/3 w-80 h-80 rounded-full bg-indigo-500/10 blur-3xl"></div>
-      <div className="absolute top-2/3 right-1/4 w-40 h-40 rounded-full bg-blue-500/10 blur-3xl"></div>
     </>
   );
 };
