@@ -1,4 +1,6 @@
 
+import { Link } from 'react-router-dom';
+
 const FooterSection = () => {
   return (
     <footer className="py-8 border-t border-indigo-100 dark:border-indigo-900/30">
@@ -12,9 +14,9 @@ const FooterSection = () => {
           </p>
         </div>
         <div className="flex items-center space-x-6">
-          <a href="#" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Terms</a>
-          <a href="#" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacy</a>
-          <a href="#" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Contact</a>
+          <Link to="#" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Terms</Link>
+          <Link to="#" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacy</Link>
+          <Link to="/contact" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Contact</Link>
         </div>
       </div>
     </footer>
@@ -22,3 +24,4 @@ const FooterSection = () => {
 };
 
 export default FooterSection;
+

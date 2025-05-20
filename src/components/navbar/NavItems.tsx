@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Film, ImageIcon, FileText, Video, MessageCircle } from 'lucide-react';
+import { Film, ImageIcon, FileText, Video } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import VideoGenerationStatusIndicator from '@/components/VideoGenerationStatusIndicator';
@@ -38,13 +38,6 @@ export const navItems: NavItem[] = [
     path: '/gallery', 
     label: 'Gallery', 
     icon: <Video className="h-4 w-4 mr-2" />,
-    disabled: false,
-    comingSoon: false
-  },
-  { 
-    path: '/contact', 
-    label: 'Contact', 
-    icon: <MessageCircle className="h-4 w-4 mr-2" />,
     disabled: false,
     comingSoon: false
   },

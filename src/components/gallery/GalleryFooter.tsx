@@ -1,4 +1,6 @@
 
+import { Link } from 'react-router-dom';
+
 const GalleryFooter = () => {
   return (
     <footer className="py-6 border-t">
@@ -7,9 +9,9 @@ const GalleryFooter = () => {
           © {new Date().getFullYear()} ShortsGen. All rights reserved.
         </p>
         <div className="flex items-center space-x-4 mt-4 md:mt-0">
-          <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Terms</a>
-          <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Privacy</a>
-          <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Contact</a>
+          <Link to="#" className="text-sm text-muted-foreground hover:text-foreground">Terms</Link>
+          <Link to="#" className="text-sm text-muted-foreground hover:text-foreground">Privacy</Link>
+          <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link>
         </div>
       </div>
     </footer>
@@ -17,3 +19,4 @@ const GalleryFooter = () => {
 };
 
 export default GalleryFooter;
+
