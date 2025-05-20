@@ -44,7 +44,7 @@ const VoiceSelectionField = () => {
             <SelectContent>
               {availableVoices.map((voice) => (
                 <SelectItem key={voice.id} value={voice.id}>
-                  {voice.name} ({voice.gender})
+                  {voice.name}
                 </SelectItem>
               ))}
             </SelectContent>
