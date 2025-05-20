@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 const BackgroundImage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   // Updated image URL
-  const imageUrl = 'https://images.unsplash.com/photo-1488972685288-c3fd157d7c7a?q=80&w=1920'; // Low Angle Gray Building
+  const imageUrl = 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?q=80&w=1920'; // Building with Wavy Lines
 
   useEffect(() => {
     console.log('BackgroundImage: Starting to load image');
