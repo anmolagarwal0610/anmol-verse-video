@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { Sparkles, Star } from 'lucide-react';
 
@@ -107,7 +106,7 @@ const HeroSection = () => {
         className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight"
         variants={itemVariants}
       >
-        Welcome to{" "}
+        Transform Your Ideas into Reality with{" "}
         <motion.span 
           className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 inline-block"
           animate={{
@@ -119,7 +118,7 @@ const HeroSection = () => {
             ease: "easeInOut"
           }}
         >
-          DumbLabs.AI
+          AI-Powered Creativity
         </motion.span>
       </motion.h1>
       
@@ -127,7 +126,7 @@ const HeroSection = () => {
         className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4"
         variants={itemVariants}
       >
-        Create images, videos & transcripts in seconds—no AI expertise required.
+        DumbLabs.AI empowers you to effortlessly create stunning images, captivating videos, and accurate transcripts in seconds. Unleash your creative potential, no AI expertise required.
       </motion.p>
       
       <motion.div 

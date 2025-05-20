@@ -12,7 +12,7 @@ const FeatureSection = () => {
   const features = [
     {
       title: "Video Genie",
-      description: "Turn a single idea into a complete, voice-backed, image-rich video instantly and effortlessly.",
+      description: "Instantly transform a single idea into a complete, voice-backed, image-rich video, bringing your stories to life effortlessly.",
       icon: <Film className="h-8 w-8 text-blue-500" />,
       path: "/videos/generate",
       color: "from-blue-500 to-blue-600",
@@ -22,7 +22,7 @@ const FeatureSection = () => {
     },
     {
       title: "AI Image Creation",
-      description: "Generate elegant visuals from text descriptions with advanced AI models.",
+      description: "Generate unique, high-quality visuals from simple text descriptions using advanced AI models. Perfect for marketing, art, and more.",
       icon: <ImageIcon className="h-8 w-8 text-indigo-500" />,
       path: "/images",
       color: "from-indigo-500 to-indigo-600",
@@ -30,7 +30,7 @@ const FeatureSection = () => {
     },
     {
       title: "Smart Transcription",
-      description: "Create precise transcripts from audio and video content with AI technology.",
+      description: "Convert audio and video content into precise, readable transcripts with our AI-powered technology, saving you time and effort.",
       icon: <FileText className="h-8 w-8 text-green-500" />,
       path: "/transcript",
       color: "from-green-500 to-green-600",
@@ -38,7 +38,7 @@ const FeatureSection = () => {
     },
     {
       title: "Media Collection",
-      description: "Organize and manage your generated content in an elegant interface.",
+      description: "Effortlessly organize, manage, and access all your AI-generated content within an elegant and intuitive interface.",
       icon: <LayoutGrid className="h-8 w-8 text-purple-500" />,
       path: "/gallery",
       color: "from-purple-500 to-purple-600",
@@ -46,7 +46,7 @@ const FeatureSection = () => {
     },
     {
       title: "Chat Genie",
-      description: "Enchant your messaging experience with intelligent WhatsApp and Instagram chat automation.",
+      description: "Revolutionize your customer interactions with intelligent, automated WhatsApp and Instagram chat solutions.",
       icon: <MessageSquareMore className="h-8 w-8 text-teal-500" />,
       path: "/chat",
       color: "from-teal-500 to-teal-600",
