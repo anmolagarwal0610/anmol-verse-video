@@ -1,1 +1,8 @@
+
 project_id = "nlrxzpszbkifkkuyfinx"
+api_host = "api.supabase.com"
+functions_host = "functions.supabase.com"
+
+[functions.send-contact-email]
+# verify_jwt = true # Default is true, set to false if the function should be public
+# timeout_ms = 5000 # Default is 5000ms (5 seconds)

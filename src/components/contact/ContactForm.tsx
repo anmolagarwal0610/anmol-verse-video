@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Send } from 'lucide-react';
-import { toast } from 'sonner'; // Using sonner for toasts
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client'; // Import Supabase client
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -30,13 +31,34 @@ const ContactForm = () => {
     },
   });
 
-  const onSubmit = (data: ContactFormValues) => {
-    console.log('Contact form submitted:', data);
-    // Here you would typically send the data to a backend or email service
-    toast.success("Message Sent!", {
-      description: "Thank you for reaching out. We'll get back to you soon.",
-    });
-    form.reset();
+  const onSubmit = async (data: ContactFormValues) => {
+    form.control.handleSubmit // to ensure isSubmitting is true
+    try {
+      console.log('Attempting to send contact form data:', data);
+      const { data: responseData, error }
+        = await supabase.functions.invoke('send-contact-email', {
+          body: data,
+        });
+
+      if (error) {
+        console.error('Error sending message:', error);
+        toast.error("Message Failed!", {
+          description: `There was an issue sending your message: ${error.message}. Please try again.`,
+        });
+        return;
+      }
+
+      console.log('Message sent successfully:', responseData);
+      toast.success("Message Sent!", {
+        description: "Thank you for reaching out. We'll get back to you soon.",
+      });
+      form.reset();
+    } catch (e: any) {
+      console.error('Unexpected error sending message:', e);
+      toast.error("Message Failed!", {
+        description: "An unexpected error occurred. Please try again.",
+      });
+    }
   };
 
   return (
@@ -94,9 +116,9 @@ const ContactForm = () => {
             </FormItem>
           )}
         />
-        <Button 
-          type="submit" 
-          size="lg" 
+        <Button
+          type="submit"
+          size="lg"
           className="w-full bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white"
           disabled={form.formState.isSubmitting}
         >

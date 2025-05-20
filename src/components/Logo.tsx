@@ -1,101 +1,67 @@
 
 import { motion } from 'framer-motion';
+import { Star, Sparkles } from 'lucide-react';
+
+const orbVariants = {
+  initial: { scale: 1, opacity: 0.5 },
+  animate: {
+    scale: [1, 1.03, 1],
+    opacity: [0.5, 0.7, 0.5],
+    transition: {
+      repeat: Infinity,
+      repeatType: "mirror" as const,
+      duration: 2.5
+    }
+  }
+};
+
+const sparkleVariants = {
+  initial: { rotate: 0, scale: 0.8 },
+  animate: {
+    rotate: [0, 360],
+    scale: [0.8, 1, 0.8],
+    transition: {
+      repeat: Infinity,
+      duration: 4,
+      ease: "linear"
+    }
+  }
+};
 
 const Logo = () => {
   return (
-    <motion.div 
-      className="relative h-8 w-8"
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+    <motion.div
+      className="relative h-8 w-8" // Corresponds to 32px
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+      initial="initial"
+      animate="animate"
     >
-      <motion.svg
-        viewBox="0 0 100 100"
-        className="w-full h-full text-indigo-600"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        {/* Main Circle Shape */}
-        <motion.circle
-          cx="50"
-          cy="50"
-          r="30" // Radius of the main circle
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="4"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 1, ease: "easeInOut" }}
-        />
-
-        {/* Rotating Spark (adjusted position to be centered) */}
-        <motion.g
-          transform="translate(0, 5)" // Adjust vertical position if needed
-          animate={{ 
-            rotate: 360
-          }}
-          transition={{ 
-            duration: 3,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-        >
-          <path
-            d="M45 35 L55 35 L50 25 Z" // Kept original spark shape
-            fill="currentColor"
-          />
-        </motion.g>
-
-        {/* Effervescence Bubbles (adjusted position relative to circle center) */}
-        <motion.g
-          initial={{ opacity: 0, y: 0 }}
-          animate={{ 
-            opacity: [0, 1, 0],
-            y: [-5, -20] // Adjusted y animation relative to new center
-          }}
-          transition={{ 
-            duration: 2,
-            repeat: Infinity,
-            repeatDelay: 0.5
-          }}
-        >
-          <circle cx="45" cy="55" r="2" fill="currentColor" /> 
-          <circle cx="50" cy="50" r="3" fill="currentColor" /> 
-          <circle cx="55" cy="53" r="2" fill="currentColor" />
-        </motion.g>
-
-        {/* Blast Effect at Top (adjusted position relative to circle top) */}
-        <motion.g
-          transform="translate(0, -20)" // Position blast above the circle
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ 
-            scale: [0.8, 1.2, 0.8],
-            opacity: [0, 1, 0]
-          }}
-          transition={{ 
-            duration: 1.5,
-            repeat: Infinity,
-            repeatDelay: 0.5
-          }}
-        >
-          <path
-            d="M35 15 L50 5 L65 15" // Kept original blast shape
-            stroke="currentColor"
-            strokeWidth="2"
-            fill="none"
-            strokeLinecap="round"
-          />
-        </motion.g>
-      </motion.svg>
-      
-      {/* Gradient overlay - applied to a circle shape as well */}
-      <div 
-        className="absolute inset-0 bg-gradient-to-br from-indigo-500/50 to-purple-600/50 animate-pulse blur-sm -z-10"
-        style={{ borderRadius: '50%' }} // Ensure gradient overlay is circular
+      {/* Pulsing Orb Background */}
+      <motion.div
+        className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-700 blur-sm opacity-70"
+        variants={orbVariants}
       />
+      
+      {/* Inner Circle with Content */}
+      <div className="absolute inset-[3px] bg-white dark:bg-gray-950 rounded-full flex items-center justify-center overflow-hidden">
+        <div className="relative w-full h-full">
+          {/* Star Icon */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Star className="w-[18px] h-[18px] text-transparent stroke-[2px] bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+          </div>
+          
+          {/* Rotating Sparkles */}
+          <motion.div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            variants={sparkleVariants}
+          >
+            <Sparkles className="w-2.5 h-2.5 text-indigo-400" />
+          </motion.div>
+        </div>
+      </div>
     </motion.div>
   );
 };
 
 export default Logo;
-
