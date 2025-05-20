@@ -55,16 +55,14 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
   const handleLanguageToggleChange = (newLanguage: string) => {
     if (newLanguage && newLanguage !== selectedInternalLanguage) {
       setSelectedInternalLanguage(newLanguage);
-      // Reset selected voice if the new language doesn't have the currently selected voice,
-      // or select the first available voice for the new language.
       const voicesInNewLanguage = allVoicesArray.filter(v => v.language === newLanguage);
       if (voicesInNewLanguage.length > 0) {
         const currentSelectionIsValidForNewLang = voicesInNewLanguage.some(v => v.id === selectedVoiceInDialog);
         if (!currentSelectionIsValidForNewLang) {
-          setSelectedVoiceInDialog(voicesInNewLanguage[0].id); // Select the first voice of the new language
+          setSelectedVoiceInDialog(voicesInNewLanguage[0].id);
         }
       } else {
-        setSelectedVoiceInDialog(''); // No voices for this language
+        setSelectedVoiceInDialog('');
       }
     }
   };
@@ -73,7 +71,7 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] md:max-w-[750px] lg:max-w-[900px] max-h-[90vh] flex flex-col p-0">
+      <DialogContent className="sm:max-w-[600px] md:max-w-[750px] lg:max-w-[900px] max-h-[90vh] flex flex-col p-0 gap-0">
         <DialogHeader className="p-6 pb-4">
           <DialogTitle>Select a Voice</DialogTitle>
           <DialogDescription>
@@ -87,11 +85,11 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
             type="single"
             value={selectedInternalLanguage}
             onValueChange={handleLanguageToggleChange}
-            className="justify-start"
+            className="justify-start flex-wrap" // Added flex-wrap for better responsiveness
             disabled={isGenerating}
           >
             {languageOptions.map((lang) => (
-              <ToggleGroupItem key={lang} value={lang} aria-label={`Toggle ${lang}`}>
+              <ToggleGroupItem key={lang} value={lang} aria-label={`Toggle ${lang}`} className="mb-1 mr-1"> {/* Added margin for wrapped items */}
                 {lang}
               </ToggleGroupItem>
             ))}
@@ -99,7 +97,7 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
            {selectedInternalLanguage ? <p className="text-xs text-muted-foreground mt-1">Showing voices for: <strong>{selectedInternalLanguage}</strong></p> : <p className="text-xs text-red-500 mt-1">Select a language to see available voices.</p>}
         </div>
         
-        <ScrollArea className="flex-grow px-6 py-4 min-h-0"> {/* Added min-h-0 here */}
+        <ScrollArea className="flex-1 min-h-0 px-6 py-4"> {/* Updated classes here */}
           {availableVoices.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {availableVoices.map((voice) => (
@@ -119,7 +117,7 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
             </p>
           )}
         </ScrollArea>
-        <DialogFooter className="mt-auto p-6 pt-4 border-t">
+        <DialogFooter className="p-6 pt-4 border-t"> {/* Removed mt-auto, flex-1 on ScrollArea should handle positioning */}
           <DialogClose asChild>
             <Button variant="outline" type="button" disabled={isGenerating}>Cancel</Button>
           </DialogClose>
