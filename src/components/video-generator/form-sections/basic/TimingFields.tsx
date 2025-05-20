@@ -69,14 +69,14 @@ const TimingFields = () => {
             <div className="flex justify-between items-center">
               <FormLabel className="flex items-center">
                 Approximate Video Duration
-                <TooltipProvider delayDuration={200}>
+                <TooltipProvider delayDuration={0}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <button type="button" className="inline-flex">
-                        <Info className="h-4 w-4 ml-2 text-muted-foreground cursor-help" />
+                      <button type="button" className="inline-flex items-center justify-center ml-2 rounded-full hover:bg-muted p-1">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent className="z-50">
+                    <TooltipContent>
                       <p className="max-w-xs">Your video might run a bit longer—just enough to let the story fully shine.</p>
                     </TooltipContent>
                   </Tooltip>
@@ -121,14 +121,14 @@ const TimingFields = () => {
             <div className="flex justify-between items-center">
               <FormLabel className="flex items-center">
                 Image Rate
-                <TooltipProvider delayDuration={200}>
+                <TooltipProvider delayDuration={0}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <button type="button" className="inline-flex">
-                        <Info className="h-4 w-4 ml-2 text-muted-foreground cursor-help" />
+                      <button type="button" className="inline-flex items-center justify-center ml-2 rounded-full hover:bg-muted p-1">
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent className="z-50">
+                    <TooltipContent>
                       <p className="max-w-xs">Rate at which the images will change in the video</p>
                     </TooltipContent>
                   </Tooltip>
