@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -15,8 +15,8 @@ const Footer = () => {
           </p>
         </div>
         <div className="flex items-center space-x-4 md:space-x-6">
-          <a href="#" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Terms</a>
-          <a href="#" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacy</a>
+          <Link to="#" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Terms</Link>
+          <Link to="#" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacy</Link>
           <Link to="/contact" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Contact</Link>
         </div>
       </div>
