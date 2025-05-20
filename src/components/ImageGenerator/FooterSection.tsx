@@ -14,7 +14,7 @@ const FooterSection = () => {
           </p>
         </div>
         <div className="flex items-center space-x-6">
-          <Link to="#" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Terms</Link>
+          <Link to="/terms-of-use" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Terms</Link>
           <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacy</Link>
           <Link to="/contact" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Contact</Link>
         </div>
@@ -24,4 +24,3 @@ const FooterSection = () => {
 };
 
 export default FooterSection;
-

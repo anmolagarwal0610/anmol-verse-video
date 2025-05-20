@@ -19,7 +19,8 @@ const Gallery = lazy(() => import('@/pages/Gallery'))
 const Profile = lazy(() => import('@/pages/Profile'))
 const Settings = lazy(() => import('@/pages/Settings'))
 const Contact = lazy(() => import('@/pages/Contact'));
-const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy')); // Added PrivacyPolicy page
+const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
+const TermsOfUse = lazy(() => import('@/pages/TermsOfUse')); // Added TermsOfUse page
 const NotFound = lazy(() => import('@/pages/NotFound'))
 
 // Loading fallback component
@@ -47,7 +48,8 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} /> {/* Added PrivacyPolicy route */}
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-use" element={<TermsOfUse />} /> {/* Added TermsOfUse route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
@@ -58,4 +60,3 @@ const App = () => {
 };
 
 export default App;
-
