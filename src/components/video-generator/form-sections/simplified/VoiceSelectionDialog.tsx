@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react'; // Added useRef
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { VoiceItem } from '../audio/VoiceItem';
-import { VOICE_OPTIONS } from '@/lib/api';
+import { VOICE_OPTIONS } from '@/lib/api'; // VOICE_OPTIONS is in lib/api
 import { useVideoGenerationForm } from '../../VideoGenerationFormContext';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { AUDIO_LANGUAGES } from '@/lib/video/constants/audio';
@@ -31,12 +31,55 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
   const [selectedInternalLanguage, setSelectedInternalLanguage] = useState<string>(currentLanguageInForm);
   const [selectedVoiceInDialog, setSelectedVoiceInDialog] = useState<string>(currentVoiceInForm);
 
+  // Refs for logging heights
+  const dialogContentRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const languageSectionRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const scrollAreaContentRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (open) {
       setSelectedInternalLanguage(currentLanguageInForm);
       setSelectedVoiceInDialog(currentVoiceInForm);
+
+      // Log heights after a short delay to allow layout to settle
+      setTimeout(() => {
+        console.log('--- VoiceSelectionDialog: Height Diagnostics ---');
+        if (dialogContentRef.current) {
+          console.log('DialogContent offsetHeight:', dialogContentRef.current.offsetHeight);
+          console.log('DialogContent clientHeight:', dialogContentRef.current.clientHeight);
+        }
+        if (headerRef.current) {
+          console.log('Header offsetHeight:', headerRef.current.offsetHeight);
+        }
+        if (languageSectionRef.current) {
+          console.log('LanguageSection offsetHeight:', languageSectionRef.current.offsetHeight);
+        }
+        if (scrollAreaRef.current) {
+          console.log('ScrollArea Component offsetHeight:', scrollAreaRef.current.offsetHeight);
+          // Attempt to find the Radix viewport
+          const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+          if (viewport) {
+            console.log('ScrollArea Viewport offsetHeight:', (viewport as HTMLElement).offsetHeight);
+            console.log('ScrollArea Viewport clientHeight:', (viewport as HTMLElement).clientHeight);
+            console.log('ScrollArea Viewport scrollHeight (content height inside viewport):', (viewport as HTMLElement).scrollHeight);
+          } else {
+            console.log('ScrollArea Viewport: Not found via [data-radix-scroll-area-viewport]');
+          }
+        }
+        if (scrollAreaContentRef.current) {
+          // This is the direct child we render inside ScrollArea, its height should match Viewport.scrollHeight
+          console.log('ScrollArea Inner Content Grid (ref) offsetHeight:', scrollAreaContentRef.current.offsetHeight);
+        }
+        if (footerRef.current) {
+          console.log('Footer offsetHeight:', footerRef.current.offsetHeight);
+        }
+        console.log('--- End Height Diagnostics ---');
+      }, 100);
     }
-  }, [currentLanguageInForm, currentVoiceInForm, open]);
+  }, [open, currentLanguageInForm, currentVoiceInForm, selectedInternalLanguage, availableVoices]); // Added availableVoices as it affects content
 
   const allVoicesArray = Object.entries(VOICE_OPTIONS).map(([id, voice]) => ({ ...voice, id }));
 
@@ -44,7 +87,6 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
     .filter(voice => voice.language === selectedInternalLanguage);
 
   const handleConfirmSelection = () => {
-    // Update form language only if it has changed in the dialog
     if (selectedInternalLanguage !== currentLanguageInForm) {
       form.setValue('audio_language', selectedInternalLanguage, { shouldDirty: true, shouldValidate: true });
     }
@@ -58,7 +100,7 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
       const voicesInNewLanguage = allVoicesArray.filter(v => v.language === newLanguage);
       if (voicesInNewLanguage.length > 0) {
         const currentSelectionIsValidForNewLang = voicesInNewLanguage.some(v => v.id === selectedVoiceInDialog);
-        if (!currentSelectionIsValidForNewLang) {
+        if (!currentSelectionIsValidForNewLang || selectedVoiceInDialog === '') { // Also auto-select if current selection is empty
           setSelectedVoiceInDialog(voicesInNewLanguage[0].id);
         }
       } else {
@@ -71,25 +113,25 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] md:max-w-[750px] lg:max-w-[900px] max-h-[90vh] flex flex-col p-0 gap-0">
-        <DialogHeader className="p-6 pb-4">
+      <DialogContent ref={dialogContentRef} className="sm:max-w-[600px] md:max-w-[750px] lg:max-w-[900px] max-h-[90vh] flex flex-col p-0 gap-0">
+        <DialogHeader ref={headerRef} className="p-6 pb-4">
           <DialogTitle>Select a Voice</DialogTitle>
           <DialogDescription>
             Choose a voice for your video. Preview by clicking the play button.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="px-6 pb-4 border-b">
+        <div ref={languageSectionRef} className="px-6 pb-4 border-b">
           <label className="text-sm font-medium mb-2 block">Select Language</label>
           <ToggleGroup
             type="single"
             value={selectedInternalLanguage}
             onValueChange={handleLanguageToggleChange}
-            className="justify-start flex-wrap" // Added flex-wrap for better responsiveness
+            className="justify-start flex-wrap"
             disabled={isGenerating}
           >
             {languageOptions.map((lang) => (
-              <ToggleGroupItem key={lang} value={lang} aria-label={`Toggle ${lang}`} className="mb-1 mr-1"> {/* Added margin for wrapped items */}
+              <ToggleGroupItem key={lang} value={lang} aria-label={`Toggle ${lang}`} className="mb-1 mr-1">
                 {lang}
               </ToggleGroupItem>
             ))}
@@ -97,9 +139,9 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
            {selectedInternalLanguage ? <p className="text-xs text-muted-foreground mt-1">Showing voices for: <strong>{selectedInternalLanguage}</strong></p> : <p className="text-xs text-red-500 mt-1">Select a language to see available voices.</p>}
         </div>
         
-        <ScrollArea className="flex-1 min-h-0 px-6 py-4"> {/* Updated classes here */}
+        <ScrollArea ref={scrollAreaRef} className="flex-1 min-h-0 px-6 py-4">
           {availableVoices.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div ref={scrollAreaContentRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {availableVoices.map((voice) => (
                 <VoiceItem
                   key={voice.id}
@@ -117,7 +159,7 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
             </p>
           )}
         </ScrollArea>
-        <DialogFooter className="p-6 pt-4 border-t"> {/* Removed mt-auto, flex-1 on ScrollArea should handle positioning */}
+        <DialogFooter ref={footerRef} className="p-6 pt-4 border-t">
           <DialogClose asChild>
             <Button variant="outline" type="button" disabled={isGenerating}>Cancel</Button>
           </DialogClose>
