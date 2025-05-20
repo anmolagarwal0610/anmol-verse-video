@@ -1,9 +1,8 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import { Separator } from '@/components/ui/separator';
-import VideoGenerationForm from '@/components/video-generator/VideoGenerationForm';
+import SimplifiedVideoGenerationForm from '@/components/video-generator/SimplifiedVideoGenerationForm';
 import ProgressCard from '@/components/video-generator/ProgressCard';
 import ResultsSection from '@/components/video-generator/ResultsSection';
 import ErrorDisplay from '@/components/video-generator/ErrorDisplay';
@@ -258,31 +257,32 @@ const VideoGeneration = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-purple-50 to-indigo-100 dark:from-slate-950 dark:via-purple-950/70 dark:to-indigo-950/80">
       <Navbar />
       
       <main className="container max-w-4xl mx-auto py-8 px-4 mt-16">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Video Genie</h1>
-          <p className="mt-2 text-muted-foreground">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-purple-600 via-indigo-500 to-pink-500 bg-clip-text text-transparent">
+            Video Genie
+          </h1>
+          <p className="mt-3 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
             Turn a single idea into a complete, voice-backed, image-rich video—instantly and effortlessly.
           </p>
         </div>
         
-        <Separator className="my-6" />
+        <Separator className="my-8 bg-gradient-to-r from-transparent via-purple-300 dark:via-purple-700 to-transparent h-[2px]" />
         
         <div className="w-full">
-          {/* Show login prompt if user is not authenticated */}
           {!loading && !user && (
-            <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-8 mb-8 text-center">
+            <div className="bg-white dark:bg-slate-900/80 border border-purple-200 dark:border-purple-800/60 rounded-xl p-8 mb-8 text-center shadow-xl backdrop-blur-sm">
               <h2 className="text-2xl font-semibold mb-4">Authentication Required</h2>
-              <p className="mb-6">
-                Please sign in to generate videos. You can browse the video generation options below, but will need to authenticate before creating new videos.
+              <p className="mb-6 text-muted-foreground">
+                Please sign in to generate videos. You can explore the options, but will need to authenticate before creating videos.
               </p>
               <Button 
                 onClick={handleSignIn}
                 size="lg"
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all"
               >
                 <LogIn className="mr-2 h-5 w-5" />
                 Sign In to Continue
@@ -290,30 +290,28 @@ const VideoGeneration = () => {
             </div>
           )}
         
-          {/* Use helper functions to determine what to render */}
-          {(status === 'idle' || status === 'error') && (
-            <VideoGenerationForm 
+          {(status === 'idle' || status === 'error' || status === 'completed') && !isGenerating && ( // Show form if idle, error, or completed AND not currently generating a new one
+            <SimplifiedVideoGenerationForm // Use the new simplified form
               onSubmit={handleSubmit} 
               isGenerating={isGenerating} 
             />
           )}
           
-          {isGenerating && (
+          {isGenerating && ( // Only show progress if actively generating
             <ProgressCard 
               progress={progress} 
-              status={status === 'generating' ? 'Starting generation...' : 'Processing video'} 
+              status={status === 'generating' ? 'Starting generation...' : (status === 'polling' ? `Processing video... ${progress}%` : 'Preparing...')}
             />
           )}
           
-          {status === 'error' && error && (
+          {status === 'error' && error && !isGenerating && ( // Show error only if not currently generating something else
             <ErrorDisplay 
               message={error} 
               onReset={cancelGeneration} 
             />
           )}
           
-          {/* Results section - only shown when completed */}
-          {status === 'completed' && result && (
+          {status === 'completed' && result && !isGenerating && ( // Show results only if completed and not generating something new
             <div id="results-section" className="mt-8">
               <ResultsSection result={result} />
             </div>
