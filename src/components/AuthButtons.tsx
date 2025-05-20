@@ -88,7 +88,8 @@ export default function AuthButtons() {
         onClick={handleGetStarted}
         className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium px-4 rounded-full shadow-sm hover:shadow-md transition-all"
       >
-        Get Started for Free
+        <span className="hidden sm:inline">Get Started for Free</span>
+        <span className="sm:hidden">Sign Up</span>
       </Button>
       
       <Button 
@@ -103,3 +104,4 @@ export default function AuthButtons() {
     </div>
   );
 }
+
