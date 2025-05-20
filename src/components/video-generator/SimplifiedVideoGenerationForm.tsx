@@ -48,10 +48,10 @@ const SimplifiedVideoGenerationForm = ({
       image_ratio: '16:9',
       image_pixel: PIXEL_OPTIONS['1080p'],
       pixelOption: '1080p',
-      video_duration: 25,
+      video_duration: 30, // Changed from 25 to 30
       frame_fps: 5,
       subtitle_color: 'white',
-      subtitle_font: 'Arial',
+      subtitle_font: 'LiberationMono-Bold', // Changed from 'Arial'
       video_category: 'Hollywood Script',
       transition_style: 'fade',
       image_style: [], 

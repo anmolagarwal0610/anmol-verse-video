@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,37 +25,50 @@ interface VoiceSelectionDialogProps {
 
 const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelectionDialogProps) => {
   const { form, isGenerating } = useVideoGenerationForm();
-  const currentLanguage = form.watch('audio_language');
+  const currentLanguageInForm = form.watch('audio_language');
   const currentVoiceInForm = form.watch('voice');
 
+  const [selectedInternalLanguage, setSelectedInternalLanguage] = useState<string>(currentLanguageInForm);
   const [selectedVoiceInDialog, setSelectedVoiceInDialog] = useState<string>(currentVoiceInForm);
 
   useEffect(() => {
     if (open) {
+      setSelectedInternalLanguage(currentLanguageInForm);
       setSelectedVoiceInDialog(currentVoiceInForm);
     }
-  }, [currentVoiceInForm, open]);
+  }, [currentLanguageInForm, currentVoiceInForm, open]);
 
   const allVoicesArray = Object.entries(VOICE_OPTIONS).map(([id, voice]) => ({ ...voice, id }));
 
   const availableVoices = allVoicesArray
-    .filter(voice => voice.language === currentLanguage);
+    .filter(voice => voice.language === selectedInternalLanguage);
 
   const handleConfirmSelection = () => {
+    // Update form language only if it has changed in the dialog
+    if (selectedInternalLanguage !== currentLanguageInForm) {
+      form.setValue('audio_language', selectedInternalLanguage, { shouldDirty: true, shouldValidate: true });
+    }
     onVoiceSelect(selectedVoiceInDialog);
     onOpenChange(false);
   };
 
-  const handleLanguageChange = (newLanguage: string) => {
-    if (newLanguage && newLanguage !== currentLanguage) {
-      form.setValue('audio_language', newLanguage, { shouldDirty: true, shouldValidate: true });
-      // The useEffect in AdvancedAudioSettingsFields will handle resetting the voice if incompatible
-      // or setting a default voice for the new language.
-      // We might also want to clear selectedVoiceInDialog or set it to a default for the new language.
-      // For now, let's keep it simple, the confirm button will be disabled if no voice is selected or if the current selection is invalid.
+  const handleLanguageToggleChange = (newLanguage: string) => {
+    if (newLanguage && newLanguage !== selectedInternalLanguage) {
+      setSelectedInternalLanguage(newLanguage);
+      // Reset selected voice if the new language doesn't have the currently selected voice,
+      // or select the first available voice for the new language.
+      const voicesInNewLanguage = allVoicesArray.filter(v => v.language === newLanguage);
+      if (voicesInNewLanguage.length > 0) {
+        const currentSelectionIsValidForNewLang = voicesInNewLanguage.some(v => v.id === selectedVoiceInDialog);
+        if (!currentSelectionIsValidForNewLang) {
+          setSelectedVoiceInDialog(voicesInNewLanguage[0].id); // Select the first voice of the new language
+        }
+      } else {
+        setSelectedVoiceInDialog(''); // No voices for this language
+      }
     }
   };
-
+  
   const languageOptions = Object.values(AUDIO_LANGUAGES);
 
   return (
@@ -71,8 +85,8 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
           <label className="text-sm font-medium mb-2 block">Select Language</label>
           <ToggleGroup
             type="single"
-            value={currentLanguage}
-            onValueChange={handleLanguageChange}
+            value={selectedInternalLanguage}
+            onValueChange={handleLanguageToggleChange}
             className="justify-start"
             disabled={isGenerating}
           >
@@ -82,10 +96,10 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
-           {currentLanguage ? <p className="text-xs text-muted-foreground mt-1">Showing voices for: <strong>{currentLanguage}</strong></p> : <p className="text-xs text-red-500 mt-1">Select a language to see available voices.</p>}
+           {selectedInternalLanguage ? <p className="text-xs text-muted-foreground mt-1">Showing voices for: <strong>{selectedInternalLanguage}</strong></p> : <p className="text-xs text-red-500 mt-1">Select a language to see available voices.</p>}
         </div>
         
-        <ScrollArea className="flex-grow px-6 py-4">
+        <ScrollArea className="flex-grow px-6 py-4 min-h-0"> {/* Added min-h-0 here */}
           {availableVoices.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {availableVoices.map((voice) => (
@@ -101,7 +115,7 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
             </div>
           ) : (
             <p className="text-center text-muted-foreground py-8">
-              {currentLanguage ? `No voices available for "${currentLanguage}".` : "Please select a language above to see available voices."}
+              {selectedInternalLanguage ? `No voices available for "${selectedInternalLanguage}".` : "Please select a language above to see available voices."}
             </p>
           )}
         </ScrollArea>
@@ -111,7 +125,7 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
           </DialogClose>
           <Button
             onClick={handleConfirmSelection}
-            disabled={!selectedVoiceInDialog || isGenerating || selectedVoiceInDialog === currentVoiceInForm || !availableVoices.find(v => v.id === selectedVoiceInDialog)}
+            disabled={!selectedVoiceInDialog || isGenerating || (selectedVoiceInDialog === currentVoiceInForm && selectedInternalLanguage === currentLanguageInForm) || !availableVoices.find(v => v.id === selectedVoiceInDialog)}
             type="button"
           >
             Confirm Selection
