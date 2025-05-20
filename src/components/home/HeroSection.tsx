@@ -1,3 +1,4 @@
+
 import { motion } from 'framer-motion';
 import { Sparkles, Star } from 'lucide-react';
 
@@ -126,7 +127,7 @@ const HeroSection = () => {
         className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4"
         variants={itemVariants}
       >
-        DumbLabs.AI empowers you to effortlessly create stunning images, captivating videos, and accurate transcripts in seconds. Unleash your creative potential, no AI expertise required.
+        No AI expertise required.
       </motion.p>
       
     </motion.div>
