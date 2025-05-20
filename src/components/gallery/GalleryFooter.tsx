@@ -10,7 +10,7 @@ const GalleryFooter = () => {
         </p>
         <div className="flex items-center space-x-4 mt-4 md:mt-0">
           <Link to="#" className="text-sm text-muted-foreground hover:text-foreground">Terms</Link>
-          <Link to="#" className="text-sm text-muted-foreground hover:text-foreground">Privacy</Link>
+          <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-foreground">Privacy</Link>
           <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link>
         </div>
       </div>

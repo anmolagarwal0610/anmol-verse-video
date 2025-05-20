@@ -18,7 +18,8 @@ const ImageGeneration = lazy(() => import('@/pages/ImageGeneration'))
 const Gallery = lazy(() => import('@/pages/Gallery'))
 const Profile = lazy(() => import('@/pages/Profile'))
 const Settings = lazy(() => import('@/pages/Settings'))
-const Contact = lazy(() => import('@/pages/Contact')); // Added Contact page
+const Contact = lazy(() => import('@/pages/Contact'));
+const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy')); // Added PrivacyPolicy page
 const NotFound = lazy(() => import('@/pages/NotFound'))
 
 // Loading fallback component
@@ -45,7 +46,8 @@ const App = () => {
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/contact" element={<Contact />} /> {/* Added Contact route */}
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} /> {/* Added PrivacyPolicy route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
@@ -56,3 +58,4 @@ const App = () => {
 };
 
 export default App;
+
