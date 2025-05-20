@@ -40,7 +40,7 @@ serve(async (req: Request) => {
 
     // Email to Admin
     const adminEmailResult = await resend.emails.send({
-      from: "DumbLabs.AI Contact Form <onboarding@resend.dev>", // Replace with your verified domain for production
+      from: "DumbLabs.AI Contact Form <hello@dumblabs.ai>", // Updated from address
       to: ADMIN_EMAIL,
       subject: `New Contact Form Submission: ${data.subject}`,
       html: `
@@ -56,7 +56,7 @@ serve(async (req: Request) => {
 
     // Confirmation Email to User
     const userEmailResult = await resend.emails.send({
-      from: "DumbLabs.AI <onboarding@resend.dev>", // Replace with your verified domain for production
+      from: "DumbLabs.AI <hello@dumblabs.ai>", // Updated from address
       to: data.email,
       subject: "We've received your message!",
       html: `
@@ -69,7 +69,10 @@ serve(async (req: Request) => {
 
     if (adminEmailResult.error || userEmailResult.error) {
         console.error("[send-contact-email] Error sending email(s):", adminEmailResult.error, userEmailResult.error);
-        throw new Error(`Failed to send one or more emails. Admin: ${adminEmailResult.error?.message}, User: ${userEmailResult.error?.message}`);
+        // Propagate the error message from Resend if available
+        const adminErrorMessage = adminEmailResult.error ? adminEmailResult.error.message : "Unknown error";
+        const userErrorMessage = userEmailResult.error ? userEmailResult.error.message : "Unknown error";
+        throw new Error(`Failed to send one or more emails. Admin: ${adminErrorMessage}, User: ${userErrorMessage}`);
     }
 
     return new Response(JSON.stringify({ message: "Emails sent successfully!" }), {
@@ -85,3 +88,4 @@ serve(async (req: Request) => {
     });
   }
 });
+
