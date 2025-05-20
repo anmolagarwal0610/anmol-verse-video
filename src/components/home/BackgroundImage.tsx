@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 const BackgroundImage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   // Updated image URL
-  const imageUrl = 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?q=80&w=1920'; // Building with Wavy Lines
+  const imageUrl = 'https://images.unsplash.com/photo-1506765515384-028b60a970df?q=80&w=1920'; // Clear Glass Roof
 
   useEffect(() => {
     console.log('BackgroundImage: Starting to load image');
