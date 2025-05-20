@@ -15,9 +15,11 @@ const Logo = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Conical Funnel */}
-        <motion.path
-          d="M40 20 L60 20 L70 70 L30 70 Z"
+        {/* Main Circle Shape */}
+        <motion.circle
+          cx="50"
+          cy="50"
+          r="30" // Radius of the main circle
           fill="none"
           stroke="currentColor"
           strokeWidth="4"
@@ -26,8 +28,9 @@ const Logo = () => {
           transition={{ duration: 1, ease: "easeInOut" }}
         />
 
-        {/* Rotating Spark */}
+        {/* Rotating Spark (adjusted position to be centered) */}
         <motion.g
+          transform="translate(0, 5)" // Adjust vertical position if needed
           animate={{ 
             rotate: 360
           }}
@@ -38,17 +41,17 @@ const Logo = () => {
           }}
         >
           <path
-            d="M45 35 L55 35 L50 25 Z"
+            d="M45 35 L55 35 L50 25 Z" // Kept original spark shape
             fill="currentColor"
           />
         </motion.g>
 
-        {/* Effervescence Bubbles */}
+        {/* Effervescence Bubbles (adjusted position relative to circle center) */}
         <motion.g
           initial={{ opacity: 0, y: 0 }}
           animate={{ 
             opacity: [0, 1, 0],
-            y: [-10, -30]
+            y: [-5, -20] // Adjusted y animation relative to new center
           }}
           transition={{ 
             duration: 2,
@@ -56,13 +59,14 @@ const Logo = () => {
             repeatDelay: 0.5
           }}
         >
-          <circle cx="45" cy="65" r="2" fill="currentColor" />
-          <circle cx="50" cy="60" r="3" fill="currentColor" />
-          <circle cx="55" cy="63" r="2" fill="currentColor" />
+          <circle cx="45" cy="55" r="2" fill="currentColor" /> 
+          <circle cx="50" cy="50" r="3" fill="currentColor" /> 
+          <circle cx="55" cy="53" r="2" fill="currentColor" />
         </motion.g>
 
-        {/* Blast Effect at Top */}
+        {/* Blast Effect at Top (adjusted position relative to circle top) */}
         <motion.g
+          transform="translate(0, -20)" // Position blast above the circle
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ 
             scale: [0.8, 1.2, 0.8],
@@ -75,7 +79,7 @@ const Logo = () => {
           }}
         >
           <path
-            d="M35 15 L50 5 L65 15"
+            d="M35 15 L50 5 L65 15" // Kept original blast shape
             stroke="currentColor"
             strokeWidth="2"
             fill="none"
@@ -84,10 +88,14 @@ const Logo = () => {
         </motion.g>
       </motion.svg>
       
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/50 to-purple-600/50 rounded-lg animate-pulse blur-sm -z-10" />
+      {/* Gradient overlay - applied to a circle shape as well */}
+      <div 
+        className="absolute inset-0 bg-gradient-to-br from-indigo-500/50 to-purple-600/50 animate-pulse blur-sm -z-10"
+        style={{ borderRadius: '50%' }} // Ensure gradient overlay is circular
+      />
     </motion.div>
   );
 };
 
 export default Logo;
+
