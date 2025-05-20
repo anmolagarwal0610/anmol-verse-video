@@ -14,8 +14,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { VoiceItem } from '../audio/VoiceItem';
 import { VOICE_OPTIONS } from '@/lib/api';
 import { useVideoGenerationForm } from '../../VideoGenerationFormContext';
-import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+// Removed Search icon and Input component import
 
 interface VoiceSelectionDialogProps {
   open: boolean;
@@ -27,12 +26,10 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
   const { form, isGenerating } = useVideoGenerationForm();
   const currentLanguage = form.watch('audio_language');
   const currentVoiceInForm = form.watch('voice');
-  const [searchTerm, setSearchTerm] = useState('');
+  // Removed searchTerm state
 
-  // Local state for the voice selected *within* the dialog before confirmation
   const [selectedVoiceInDialog, setSelectedVoiceInDialog] = useState<string>(currentVoiceInForm);
 
-  // Sync dialog's selected voice with form's voice when dialog opens or form voice changes
   useEffect(() => {
     if (open) {
       setSelectedVoiceInDialog(currentVoiceInForm);
@@ -42,30 +39,24 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
   const allVoicesArray = Object.entries(VOICE_OPTIONS).map(([id, voice]) => ({ ...voice, id }));
 
   const availableVoices = allVoicesArray
-    .filter(voice => voice.language === currentLanguage)
-    .filter(voice => 
-      voice.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      voice.category.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    .filter(voice => voice.language === currentLanguage);
+  // Removed filtering by searchTerm
 
   const handleConfirmSelection = () => {
     onVoiceSelect(selectedVoiceInDialog);
-    onOpenChange(false); // Close dialog
+    onOpenChange(false); 
   };
   
-  const handleDialogClose = (isOpen: boolean) => {
-    if (!isOpen) {
-        // Reset search term when dialog closes
-        setSearchTerm('');
-    }
-    onOpenChange(isOpen);
-  };
+  // Simplified onOpenChange handling, no need to reset search term
+  // const handleDialogClose = (isOpen: boolean) => {
+  //   onOpenChange(isOpen);
+  // };
 
 
   return (
-    <Dialog open={open} onOpenChange={handleDialogClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] md:max-w-[750px] lg:max-w-[900px] max-h-[90vh] flex flex-col p-0">
-        <DialogHeader className="p-6 pb-0">
+        <DialogHeader className="p-6 pb-4"> {/* Adjusted padding */}
           <DialogTitle>Select a Voice</DialogTitle>
           <DialogDescription>
             Choose a voice for your video. Preview by clicking the play button. <br />
@@ -74,22 +65,11 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
           </DialogDescription>
         </DialogHeader>
         
-        <div className="px-6 pt-4 pb-2">
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search voices by name or category..."
-                  className="pl-10 w-full"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
-        </div>
+        {/* Removed search input section */}
 
-        <ScrollArea className="flex-grow px-6">
+        <ScrollArea className="flex-grow px-6 py-4"> {/* Added py-4 for spacing */}
           {availableVoices.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"> {/* Removed py-4 from here as added to ScrollArea */}
               {availableVoices.map((voice) => (
                 <VoiceItem
                   key={voice.id}
@@ -103,7 +83,8 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
             </div>
           ) : (
             <p className="text-center text-muted-foreground py-8">
-              No voices available for "{currentLanguage}"{searchTerm && ` matching "${searchTerm}"`}.
+              No voices available for "{currentLanguage}".
+              {/* Removed searchTerm specific message part */}
             </p>
           )}
         </ScrollArea>

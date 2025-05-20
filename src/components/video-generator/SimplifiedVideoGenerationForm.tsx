@@ -1,4 +1,3 @@
-
 import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import VideoGenerationConfirmDialog from './dialogs/VideoGenerationConfirmDialog
 import { useVideoGenerationFormSubmit } from './hooks/useVideoGenerationFormSubmit';
 import { PIXEL_OPTIONS } from '@/lib/constants/pixelOptions';
 import { Settings } from 'lucide-react';
+import { useState } from 'react';
 
 // Simplified and Advanced Form Sections
 import TopicField from './form-sections/basic/TopicField';
@@ -54,7 +54,7 @@ const SimplifiedVideoGenerationForm = ({
       subtitle_font: 'Arial',
       video_category: 'Hollywood Script',
       transition_style: 'fade',
-      image_style: [], // Default to empty array, user will select one.
+      image_style: [], 
       audio_language: 'English',
       voice: defaultVoice,
       subtitle_style: 'Default',
@@ -66,6 +66,8 @@ const SimplifiedVideoGenerationForm = ({
   const selectedVoice = form.watch('voice');
   const videoDuration = form.watch('video_duration');
   const frameFPS = form.watch('frame_fps');
+
+  const [advancedAccordionValue, setAdvancedAccordionValue] = useState<string | undefined>('');
 
   const {
     showConfirmDialog,
@@ -84,6 +86,8 @@ const SimplifiedVideoGenerationForm = ({
     video_duration: videoDuration,
     frame_fps: frameFPS,
   });
+
+  const isAdvancedAccordionOpen = advancedAccordionValue === "advanced-options";
 
   return (
     <Card className="w-full shadow-xl border-purple-200/30 bg-gradient-to-br from-slate-50/80 to-purple-50/60 dark:from-slate-900/80 dark:to-purple-950/60 backdrop-blur-md">
@@ -107,12 +111,18 @@ const SimplifiedVideoGenerationForm = ({
                 <CardContent className="space-y-6">
                   <TopicField />
                   <ImageStyleField />
-                  <VoiceSelectionField />
+                  {!isAdvancedAccordionOpen && <VoiceSelectionField />} 
                 </CardContent>
               </Card>
 
               {/* Advanced Options Accordion */}
-              <Accordion type="single" collapsible className="w-full">
+              <Accordion 
+                type="single" 
+                collapsible 
+                className="w-full"
+                value={advancedAccordionValue}
+                onValueChange={setAdvancedAccordionValue}
+              >
                 <AccordionItem value="advanced-options" className="border-t border-b-0 border-slate-300 dark:border-slate-700 rounded-lg overflow-hidden shadow-sm bg-white/50 dark:bg-slate-800/50">
                   <AccordionTrigger className="text-lg font-semibold hover:no-underline px-6 py-4 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
                     <div className="flex items-center space-x-3">
@@ -138,8 +148,8 @@ const SimplifiedVideoGenerationForm = ({
                     </div>
                     
                     <div className="pt-4 space-y-6">
-                        <h3 className="text-lg font-medium text-muted-foreground border-b pb-2">Voice Language</h3>
-                        <AdvancedAudioSettingsFields />
+                        <h3 className="text-lg font-medium text-muted-foreground border-b pb-2">Voice Language & Voice</h3>
+                        <AdvancedAudioSettingsFields /> {/* VoiceSelectionField will be rendered inside this if accordion is open */}
                     </div>
 
                     <div className="pt-4 space-y-6">
