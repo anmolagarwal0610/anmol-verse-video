@@ -1,4 +1,3 @@
-
 import {
   FormField,
   FormItem,
@@ -120,7 +119,7 @@ const TimingFields = () => {
         render={({ field: { value, onChange } }) => (
           <FormItem>
             <div className="flex justify-between items-center">
-              <FormLabel>
+              <FormLabel className="flex items-center">
                 Image Rate
                 <TooltipProvider delayDuration={200}>
                   <Tooltip>
@@ -135,7 +134,10 @@ const TimingFields = () => {
                   </Tooltip>
                 </TooltipProvider>
               </FormLabel>
-              <span className="text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">{value} seconds</span>
+              <div className="text-right">
+                <span className="text-sm font-medium bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">{value} seconds</span>
+                <div className="text-xs text-muted-foreground">&nbsp;</div>
+              </div>
             </div>
             <FormControl>
               <EnhancedSlider
