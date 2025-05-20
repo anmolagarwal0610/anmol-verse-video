@@ -1,3 +1,4 @@
+
 import {
   FormField,
   FormItem,
@@ -76,7 +77,7 @@ const TimingFields = () => {
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent side="right" align="center">
                       <p className="max-w-xs">Your video might run a bit longer—just enough to let the story fully shine.</p>
                     </TooltipContent>
                   </Tooltip>
@@ -128,7 +129,7 @@ const TimingFields = () => {
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent side="right" align="center">
                       <p className="max-w-xs">Rate at which the images will change in the video</p>
                     </TooltipContent>
                   </Tooltip>
@@ -177,3 +178,4 @@ const TimingFields = () => {
 };
 
 export default TimingFields;
+
