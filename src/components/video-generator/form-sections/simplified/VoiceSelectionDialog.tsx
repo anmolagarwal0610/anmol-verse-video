@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -32,11 +31,10 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
   const [selectedVoiceInDialog, setSelectedVoiceInDialog] = useState<string>(currentVoiceInForm);
 
   const dialogContentRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null); // Will remain null if not attached
+  // Removed headerRef and footerRef as they are not used and DialogHeader/Footer don't accept refs
   const languageSelectionRef = useRef<HTMLDivElement>(null);
-  const scrollAreaRef = useRef<React.ElementRef<typeof ScrollArea>>(null); // Correct type for ScrollArea ref
+  const scrollAreaRef = useRef<React.ElementRef<typeof ScrollArea>>(null); 
   const voiceListRef = useRef<HTMLDivElement>(null);
-  const footerRef = useRef<HTMLDivElement>(null); // Will remain null if not attached
 
   const allVoicesArray = Object.entries(VOICE_OPTIONS).map(([id, voice]) => ({ ...voice, id }));
   
@@ -49,47 +47,30 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
       setSelectedVoiceInDialog(currentVoiceInForm);
       
       setTimeout(() => {
-        console.log('DialogContent height:', dialogContentRef.current?.offsetHeight);
-        // headerRef.current will be null, so headerRef.current?.offsetHeight will be undefined
-        console.log('Header height:', headerRef.current?.offsetHeight); 
-        console.log('LanguageSelection height:', languageSelectionRef.current?.offsetHeight);
-        console.log('ScrollArea available height (ScrollArea element itself):', scrollAreaRef.current?.offsetHeight);
-        // To get viewport height of ScrollArea, you might need to inspect its children if direct access isn't straightforward.
-        // For now, let's log the voice list wrapper if needed for content height.
-        console.log('VoiceList (content wrapper) height:', voiceListRef.current?.offsetHeight);
-        // footerRef.current will be null
-        console.log('Footer height:', footerRef.current?.offsetHeight);
+        // console.log('DialogContent height:', dialogContentRef.current?.offsetHeight);
+        // console.log('LanguageSelection height:', languageSelectionRef.current?.offsetHeight);
+        // console.log('ScrollArea available height (ScrollArea element itself):', scrollAreaRef.current?.offsetHeight);
+        // console.log('VoiceList (content wrapper) height:', voiceListRef.current?.offsetHeight);
         
-        if (dialogContentRef.current && languageSelectionRef.current && headerRef.current && footerRef.current) {
-           // This calculation might be less accurate now since headerRef and footerRef won't provide height
-           const headerH = headerRef.current?.offsetHeight || 0; // Default to 0 if not available
-           const footerH = footerRef.current?.offsetHeight || 0; // Default to 0
+        // Simplified height calculation logging
+        if (dialogContentRef.current && languageSelectionRef.current) {
            const langSelectionH = languageSelectionRef.current?.offsetHeight || 0;
+           const dialogContentH = dialogContentRef.current?.offsetHeight || 0;
+           // Assuming footer height is somewhat constant if needed for more precise calculation, but ScrollArea with flex-1 should handle it
+           const approxFooterHeight = 70; // Estimate if needed, DialogFooter height is not directly available via ref
+           const approxHeaderHeight = 70; // Estimate if needed, DialogHeader height is not directly available via ref
 
-          if (dialogContentRef.current && languageSelectionRef.current) { // Check for refs that are actually attached
-            const availableHeightForScroll = dialogContentRef.current.offsetHeight - 
-                                            headerH - // Will be 0
-                                            langSelectionH - 
-                                            footerH; // Will be 0
-            console.log('Calculated available height for ScrollArea (approximate):', availableHeightForScroll);
-          }
+           const availableHeightForScroll = dialogContentH - langSelectionH - approxHeaderHeight - approxFooterHeight - 24; // 24 for p-6 on DialogContent (top+bottom) if not p-0
+           // console.log('Calculated available height for ScrollArea (approximate):', availableHeightForScroll);
         } else {
-            console.log('One or more refs for height calculation are null. Refs status:', {
-                dialogContent: !!dialogContentRef.current,
-                header: !!headerRef.current, // Expected to be false
-                languageSelection: !!languageSelectionRef.current,
-                footer: !!footerRef.current, // Expected to be false
-            });
+            // console.log('One or more refs for height calculation are null. Refs status:', {
+            //     dialogContent: !!dialogContentRef.current,
+            //     languageSelection: !!languageSelectionRef.current,
+            // });
         }
       }, 100);
     }
   }, [currentLanguageInForm, currentVoiceInForm, open]);
-
-  const allVoicesArray = Object.entries(VOICE_OPTIONS).map(([id, voice]) => ({ ...voice, id }));
-
-  // Moved availableVoices declaration up
-  const availableVoices = allVoicesArray
-    .filter(voice => voice.language === selectedInternalLanguage);
 
   const handleConfirmSelection = () => {
     // Update form language only if it has changed in the dialog
@@ -119,9 +100,7 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {/* DialogContent is a flex container, column direction, with max height. p-0 and gap-0 to remove default padding/gap if children handle it. */}
       <DialogContent ref={dialogContentRef} className="sm:max-w-[600px] md:max-w-[750px] lg:max-w-[900px] max-h-[90vh] flex flex-col p-0 gap-0">
-        {/* DialogHeader does NOT accept ref. Removed ref={headerRef} */}
         <DialogHeader className="p-6 pb-4 border-b">
           <DialogTitle>Select a Voice</DialogTitle>
           <DialogDescription>
@@ -129,7 +108,6 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
           </DialogDescription>
         </DialogHeader>
 
-        {/* This div is for language selection, it has a fixed height based on its content. */}
         <div ref={languageSelectionRef} className="px-6 py-4 border-b">
           <label className="text-sm font-medium mb-2 block">Select Language</label>
           <ToggleGroup
@@ -148,9 +126,7 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
            {selectedInternalLanguage ? <p className="text-xs text-muted-foreground mt-1">Showing voices for: <strong>{selectedInternalLanguage}</strong></p> : <p className="text-xs text-red-500 mt-1">Select a language to see available voices.</p>}
         </div>
         
-        {/* ScrollArea needs to take the remaining vertical space. flex-1 and min-h-0 allow it to shrink and grow. */}
         <ScrollArea ref={scrollAreaRef} className="flex-1 min-h-0">
-          {/* This inner div is for padding the content inside the scroll area. */}
           <div ref={voiceListRef} className="p-6">
             {availableVoices.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -173,7 +149,6 @@ const VoiceSelectionDialog = ({ open, onOpenChange, onVoiceSelect }: VoiceSelect
           </div>
         </ScrollArea>
 
-        {/* DialogFooter does NOT accept ref. Removed ref={footerRef} */}
         <DialogFooter className="p-6 pt-4 border-t">
           <DialogClose asChild>
             <Button variant="outline" type="button" disabled={isGenerating}>Cancel</Button>
