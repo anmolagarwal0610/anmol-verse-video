@@ -150,7 +150,7 @@ const TimingFields = () => {
                     label: (
                       <div className="flex flex-col items-center">
                         <span>5s</span>
-                        <span className="text-xs text-muted-foreground">(Recommended)</span>
+                        {/* Removed the (Recommended) span below */}
                       </div>
                     )
                   },

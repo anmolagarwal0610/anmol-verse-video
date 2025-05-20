@@ -6,7 +6,7 @@ import { Resend } from "npm:resend@3.4.0"; // Using a recent version of resend
 const resendApiKey = Deno.env.get("RESEND_API_KEY");
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
-const ADMIN_EMAIL = "hello@dumblabs.ai"; // Your email address
+const ADMIN_EMAIL = "enquiry@dumblabs.ai"; // Your email address - UPDATED
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -88,4 +88,3 @@ serve(async (req: Request) => {
     });
   }
 });
-
