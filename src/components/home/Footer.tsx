@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom'; // Import Link
 
 const Footer = () => {
   return (
@@ -13,10 +14,10 @@ const Footer = () => {
             © {new Date().getFullYear()} All rights reserved.
           </p>
         </div>
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-4 md:space-x-6">
           <a href="#" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Terms</a>
           <a href="#" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacy</a>
-          <a href="#" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Contact</a>
+          <Link to="/contact" className="text-sm text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Contact</Link>
         </div>
       </div>
     </footer>
