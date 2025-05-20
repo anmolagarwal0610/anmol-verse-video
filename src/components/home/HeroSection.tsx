@@ -129,36 +129,6 @@ const HeroSection = () => {
         DumbLabs.AI empowers you to effortlessly create stunning images, captivating videos, and accurate transcripts in seconds. Unleash your creative potential, no AI expertise required.
       </motion.p>
       
-      <motion.div 
-        className="flex gap-2 justify-center items-center mt-6"
-        variants={itemVariants}
-      >
-        {["🎬", "🎨", "✨", "🤖", "🎭"].map((emoji, index) => (
-          <motion.span
-            key={index}
-            className="inline-block text-2xl"
-            initial={{ scale: 0 }}
-            animate={{ 
-              scale: 1,
-              rotate: [0, 10, 0, -10, 0],
-            }}
-            transition={{ 
-              type: "spring",
-              stiffness: 500,
-              damping: 15,
-              delay: 1 + index * 0.1,
-              rotate: {
-                delay: 2 + index * 0.1,
-                duration: 0.5,
-                repeat: 3,
-                repeatDelay: 10
-              }
-            }}
-          >
-            {emoji}
-          </motion.span>
-        ))}
-      </motion.div>
     </motion.div>
   );
 };
