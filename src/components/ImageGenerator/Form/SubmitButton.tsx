@@ -1,3 +1,4 @@
+
 import { Wand2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -31,8 +32,8 @@ const SubmitButton = ({ isGenerating, model, creditCost, onAuthRequired }: Submi
   return (
     <Button 
       type="submit" 
-      // Sky Blue Tint background, Off-Black text (default Button variant)
-      className="w-full bg-accent text-accent-foreground hover:bg-accent/90" 
+      // Royal Purple to Sky Blue gradient for the button
+      className="w-full bg-gradient-to-r from-[#6A0DAD] to-[#4FC3F7] hover:from-[#520A83] hover:to-[#36A5D7] text-primary-foreground" 
       size={isMobile ? "default" : "lg"}
       disabled={isGenerating}
       onClick={handleButtonClick}
@@ -53,3 +54,4 @@ const SubmitButton = ({ isGenerating, model, creditCost, onAuthRequired }: Submi
 };
 
 export default SubmitButton;
+

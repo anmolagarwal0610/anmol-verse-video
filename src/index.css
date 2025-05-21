@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
@@ -7,78 +6,66 @@
 
 @layer base {
   :root {
-    /* New Color Palette */
-    --background-rgb: 16, 24, 32; /* #101820 Off-Black */
-    --foreground-rgb: 245, 245, 245; /* #F5F5F5 Cloud White */
-    --card-rgb: 12, 19, 26; /* #0C131A Slightly Darker Off-Black */
-    --primary-rgb: 180, 167, 255; /* #B4A7FF Cool Lilac */
-    --secondary-rgb: 245, 245, 245; /* Using Cloud White for secondary text for now, can adjust */
-    --accent-rgb: 142, 197, 252; /* #8EC5FC Sky Blue Tint */
-    --highlight-rgb: 207, 250, 254; /* #CFFAFE Light Cyan */
-    --muted-rgb: 160, 174, 192; /* #A0AEC0 Light Gray for muted text */
+    /* Primary: Royal Purple (#6A0DAD), Secondary: Midnight Blue (#0A0F3C), Accent: Sky Blue (#4FC3F7) */
+    --background: 0 0% 100%; /* White */
+    --foreground: 233 77% 14%; /* Midnight Blue */
 
+    --card: 0 0% 100%;
+    --card-foreground: 233 77% 14%;
 
-    /* Shadcn UI Theme Variables - Light mode will also be dark */
-    --background: var(--background-rgb); /* #101820 */
-    --foreground: var(--foreground-rgb); /* #F5F5F5 */
+    --popover: 0 0% 100%;
+    --popover-foreground: 233 77% 14%;
 
-    --card: var(--card-rgb); /* #0C131A */
-    --card-foreground: var(--foreground-rgb); /* #F5F5F5 */
+    --primary: 271 76% 41%; /* Royal Purple */
+    --primary-foreground: 0 0% 98%; /* White */
 
-    --popover: var(--card-rgb);
-    --popover-foreground: var(--foreground-rgb);
+    --secondary: 233 77% 90%; /* Light Midnight Blue/Gray */
+    --secondary-foreground: 233 77% 14%; /* Midnight Blue */
 
-    --primary: var(--primary-rgb); /* #B4A7FF Cool Lilac */
-    --primary-foreground: var(--background-rgb); /* Off-Black for text on primary */
+    --muted: 240 4.8% 95.9%; /* Neutral Light Gray */
+    --muted-foreground: 240 3.8% 46.1%; /* Neutral Dark Gray */
 
-    --secondary: 50 50 50; /* Darker gray for secondary elements, adjust as needed */
-    --secondary-foreground: var(--foreground-rgb);
+    --accent: 199 90% 64%; /* Sky Blue */
+    --accent-foreground: 233 77% 14%; /* Midnight Blue */
 
-    --muted: var(--muted-rgb); /* #A0AEC0 */
-    --muted-foreground: 100 100 100; /* Lighter gray for muted foreground */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
-    --accent: var(--accent-rgb); /* #8EC5FC Sky Blue Tint */
-    --accent-foreground: var(--background-rgb); /* Off-Black for text on accent */
-
-    --destructive: 0 84.2% 60.2%; /* Default red for destructive actions */
-    --destructive-foreground: var(--foreground-rgb);
-
-    --border: 40 40 40; /* Darker border */
-    --input: 50 50 50; /* Darker input background */
-    --ring: var(--highlight-rgb); /* #CFFAFE Light Cyan for focus rings */
+    --border: 271 76% 85%; /* Light Royal Purple */
+    --input: 271 76% 90%; /* Lighter Royal Purple */
+    --ring: 199 90% 64%; /* Sky Blue */
 
     --radius: 0.75rem;
   }
 
   .dark {
-    /* Dark mode is the same as light mode for this theme */
-    --background: var(--background-rgb);
-    --foreground: var(--foreground-rgb);
+    --background: 233 77% 10%; /* Very Dark Midnight Blue */
+    --foreground: 0 0% 98%; /* White */
 
-    --card: var(--card-rgb);
-    --card-foreground: var(--foreground-rgb);
+    --card: 233 77% 14%; /* Midnight Blue */
+    --card-foreground: 0 0% 98%;
 
-    --popover: var(--card-rgb);
-    --popover-foreground: var(--foreground-rgb);
+    --popover: 233 77% 14%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: var(--primary-rgb);
-    --primary-foreground: var(--background-rgb);
+    --primary: 271 76% 55%; /* Brighter Royal Purple */
+    --primary-foreground: 0 0% 98%; /* White */
 
-    --secondary: 50 50 50;
-    --secondary-foreground: var(--foreground-rgb);
+    --secondary: 233 77% 20%; /* Darker Midnight Blue */
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: var(--muted-rgb);
-    --muted-foreground: 100 100 100;
+    --muted: 233 77% 20%;
+    --muted-foreground: 240 5% 64.9%; /* Light Gray */
 
-    --accent: var(--accent-rgb);
-    --accent-foreground: var(--background-rgb);
+    --accent: 199 90% 64%; /* Sky Blue */
+    --accent-foreground: 233 77% 14%; /* Midnight Blue */
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: var(--foreground-rgb);
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 40 40 40;
-    --input: 50 50 50;
-    --ring: var(--highlight-rgb);
+    --border: 271 76% 30%; /* Dark Royal Purple */
+    --input: 233 77% 25%; /* Slightly Lighter Midnight Blue */
+    --ring: 199 90% 70%; /* Brighter Sky Blue */
   }
 }
 
@@ -93,10 +80,7 @@
   }
 
   body {
-    @apply bg-background text-foreground; /* Uses #101820 and #F5F5F5 */
-    /* Use rgb values for background for opacity compatibility */
-    background-color: rgb(var(--background-rgb));
-    color: rgb(var(--foreground-rgb));
+    @apply bg-background text-foreground;
     height: 100dvh;
     overflow-x: hidden;
   }
@@ -107,15 +91,18 @@
   }
 
   .glass-panel {
-    @apply backdrop-blur-md bg-[rgba(var(--card-rgb),0.8)] border border-[rgba(var(--border),0.5)]; /* #0C131A with opacity */
+    /* Updated to use theme variables for consistency */
+    @apply backdrop-blur-md bg-[hsl(var(--card))]/80 border border-[hsl(var(--border))] dark:bg-[hsl(var(--card))]/80 dark:border-[hsl(var(--border))];
   }
 
   .neo-glass {
-    @apply backdrop-blur-xl bg-[rgba(var(--background-rgb),0.1)] border border-[rgba(var(--foreground-rgb),0.1)] shadow-lg;
+    /* Updated to use theme variables, consider adjusting opacity/colors if needed */
+    @apply backdrop-blur-xl bg-[hsl(var(--background))]/10 dark:bg-[hsl(var(--background))]/30 border border-[hsl(var(--foreground))]/10 dark:border-[hsl(var(--foreground))]/10 shadow-lg;
   }
   
   .futuristic-border {
-    @apply border border-[rgba(var(--accent-rgb),0.3)] rounded-lg shadow-lg shadow-[rgba(var(--accent-rgb),0.05)]; /* Sky Blue Tint border */
+    /* Uses accent color */
+    @apply border border-[hsl(var(--accent))]/30 dark:border-[hsl(var(--accent))]/30 rounded-lg shadow-lg shadow-[hsl(var(--accent))]/5;
   }
 
   .glow-effect {
@@ -124,12 +111,12 @@
 
   .glow-effect::after {
     content: '';
-    /* Uses Cool Lilac to Sky Blue Tint gradient */
-    @apply absolute -inset-0.5 bg-gradient-to-r from-[rgb(var(--primary-rgb))] to-[rgb(var(--accent-rgb))] rounded-lg blur opacity-30 -z-10 transition-opacity duration-300;
+    /* Uses primary to accent gradient */
+    @apply absolute -inset-0.5 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))] rounded-lg blur opacity-30 -z-10 transition-opacity duration-300;
   }
 
   .glow-effect:hover::after {
-    @apply opacity-50;
+    @apply opacity-60;
   }
 
   .text-balance {
@@ -141,26 +128,20 @@
   }
 
   .shimmer::before {
-    /* Shimmer effect for dark theme, using light cyan */
-    @apply absolute top-0 left-0 h-full w-[200%] bg-gradient-to-r from-transparent via-[rgba(var(--highlight-rgb),0.2)] to-transparent animate-shimmer;
+    @apply absolute top-0 left-0 h-full w-[200%] bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer;
     content: '';
   }
   
   .bg-grid {
-    /* Adjusted grid color for dark theme */
     background-size: 40px 40px;
     background-image: 
-      linear-gradient(to right, rgba(var(--foreground-rgb), 0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(var(--foreground-rgb), 0.03) 1px, transparent 1px);
+      linear-gradient(to right, rgba(128, 128, 128, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(128, 128, 128, 0.05) 1px, transparent 1px);
   }
   
-  .text-gradient-primary-accent {
-    /* Uses Cool Lilac to Sky Blue Tint gradient for text */
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[rgb(var(--primary-rgb))] to-[rgb(var(--accent-rgb))];
-  }
-  .text-gradient-accent-highlight {
-    /* Uses Sky Blue Tint to Light Cyan gradient for text */
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[rgb(var(--accent-rgb))] to-[rgb(var(--highlight-rgb))];
+  .text-gradient {
+    /* Uses primary to accent gradient */
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))];
   }
 }
 
@@ -179,8 +160,7 @@
   }
   
   .frost-glass {
-    /* Adjusted for new dark theme */
-    @apply backdrop-blur-md bg-[rgba(var(--card-rgb),0.2)] border border-[rgba(var(--foreground-rgb),0.1)];
+    @apply backdrop-blur-md bg-white/20 dark:bg-black/20 border border-white/30 dark:border-white/10;
   }
   
   .hover-lift {

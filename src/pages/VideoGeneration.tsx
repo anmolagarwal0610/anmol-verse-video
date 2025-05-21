@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -11,7 +10,6 @@ import { VideoGenerationParams } from '@/lib/video/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'; // Added this line
 import { LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCredit } from '@/lib/creditService';
@@ -259,12 +257,12 @@ const VideoGeneration = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-purple-50 to-indigo-100 dark:from-slate-950 dark:via-purple-950/70 dark:to-indigo-950/80">
       <Navbar />
       
-      <main className="container max-w-4xl mx-auto py-8 px-4 mt-16 md:mt-24"> {/* Increased top margin */}
+      <main className="container max-w-4xl mx-auto py-8 px-4 mt-16">
         <div className="mb-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gradient-primary-accent"> {/* Cool Lilac to Sky Blue Tint gradient */}
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-purple-600 via-indigo-500 to-pink-500 bg-clip-text text-transparent">
             Video Genie
           </h1>
           <p className="mt-3 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -272,30 +270,24 @@ const VideoGeneration = () => {
           </p>
         </div>
         
-        {/* Separator gradient: Cool Lilac to Sky Blue Tint */}
-        <Separator className="my-8 bg-gradient-to-r from-transparent via-[rgb(var(--primary-rgb))] dark:via-[rgb(var(--accent-rgb))] to-transparent h-[2px] opacity-50" />
+        <Separator className="my-8 bg-gradient-to-r from-transparent via-purple-300 dark:via-purple-700 to-transparent h-[2px]" />
         
         <div className="w-full">
           {!loading && !user && (
-            // Card will use new theme. Button uses default (Sky Blue Tint bg)
-            <Card className="p-8 mb-8 text-center shadow-xl bg-card-darker"> {/* Updated background */}
-              <CardHeader>
-                <CardTitle className="text-2xl font-semibold mb-4 text-foreground">Authentication Required</CardTitle> {/* Ensure CardTitle uses foreground */}
-              </CardHeader>
-              <CardContent>
-                <p className="mb-6 text-muted-foreground">
-                  Please sign in to generate videos. You can explore the options, but will need to authenticate before creating videos.
-                </p>
-                <Button 
-                  onClick={handleSignIn}
-                  size="lg"
-                  className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-md hover:shadow-lg transition-all"
-                >
-                  <LogIn className="mr-2 h-5 w-5" />
-                  Sign In to Continue
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="bg-white dark:bg-slate-900/80 border border-purple-200 dark:border-purple-800/60 rounded-xl p-8 mb-8 text-center shadow-xl backdrop-blur-sm">
+              <h2 className="text-2xl font-semibold mb-4">Authentication Required</h2>
+              <p className="mb-6 text-muted-foreground">
+                Please sign in to generate videos. You can explore the options, but will need to authenticate before creating videos.
+              </p>
+              <Button 
+                onClick={handleSignIn}
+                size="lg"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all"
+              >
+                <LogIn className="mr-2 h-5 w-5" />
+                Sign In to Continue
+              </Button>
+            </div>
           )}
         
           {(status === 'idle' || status === 'error' || status === 'completed') && !isGenerating && ( // Show form if idle, error, or completed AND not currently generating a new one

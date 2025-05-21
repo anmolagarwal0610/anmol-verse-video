@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 
 const BackgroundImage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  // Updated image URL
   const imageUrl = 'https://images.unsplash.com/photo-1506765515384-028b60a970df?q=80&w=1920'; // Clear Glass Roof
 
   useEffect(() => {
@@ -27,55 +28,59 @@ const BackgroundImage = () => {
 
   return (
     <>
-      {/* Animated gradient placeholder while loading - Darker Off-Black to subtle Cool Lilac */}
+      {/* Animated gradient placeholder while loading */}
       {!isLoaded && (
         <motion.div 
-          className="absolute inset-0" 
-          style={{ background: 'rgb(var(--background-rgb))' }} // Solid Off-Black for loading
+          className="absolute inset-0 bg-gradient-to-b from-[rgba(10,15,60,0.2)] to-[rgba(106,13,173,0.2)]" // Midnight Blue to Royal Purple
           animate={{
-             opacity: [0.5, 0.7, 0.5] // Subtle pulse
+            background: [
+              "linear-gradient(to bottom, rgba(10, 15, 60, 0.2), rgba(106, 13, 173, 0.2))", // Midnight Blue to Royal Purple
+              "linear-gradient(to bottom, rgba(106, 13, 173, 0.2), rgba(10, 15, 60, 0.2))", // Royal Purple to Midnight Blue
+              "linear-gradient(to bottom, rgba(10, 15, 60, 0.2), rgba(106, 13, 173, 0.2))",
+              "linear-gradient(to bottom, rgba(106, 13, 173, 0.2), rgba(10, 15, 60, 0.2))"
+            ]
           }}
           transition={{
-            duration: 4,
+            duration: 8,
             repeat: Infinity,
             repeatType: "reverse"
           }}
         />
       )}
       
-      {/* Animated background image - Adjusted opacity for dark theme */}
+      {/* Animated background image */}
       <motion.div 
-        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${isLoaded ? 'opacity-[0.03] dark:opacity-[0.04]' : 'opacity-0'}`} // Very subtle
+        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-300 ${isLoaded ? 'opacity-10 dark:opacity-20' : 'opacity-0'}`}
         style={{ backgroundImage: isLoaded ? `url('${imageUrl}')` : 'none' }}
         initial={{ scale: 1.05 }}
         animate={isLoaded ? { scale: 1 } : {}}
         transition={{ duration: 10, ease: "easeOut" }}
       />
       
-      {/* Floating particles effect - Sky Blue Tint */}
+      {/* Floating particles effect */}
       {isLoaded && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {Array.from({ length: 25 }).map((_, i) => (
+          {Array.from({ length: 20 }).map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-1 h-1 md:w-[3px] md:h-[3px] rounded-full bg-[#8EC5FC]" // Sky Blue Tint
+              // Particles changed to Sky Blue
+              className="absolute w-1 h-1 md:w-2 md:h-2 rounded-full bg-[#4FC3F7] dark:bg-[#4FC3F7]/80"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                opacity: Math.random() * 0.2 + 0.05 // More subtle opacity
+                opacity: Math.random() * 0.5
               }}
               animate={{
-                y: [0, -(Math.random() * 200 + 100)], // Slower, longer travel
-                x: [0, (Math.random() - 0.5) * 100], // Slight horizontal drift
-                opacity: [Math.random() * 0.15 + 0.05, 0],
-                scale: [1, Math.random() * 0.5 + 0.5]
+                y: [0, -(Math.random() * 100 + 50)],
+                opacity: [Math.random() * 0.3 + 0.1, 0],
+                scale: [1, Math.random() + 0.5]
               }}
               transition={{
-                duration: Math.random() * 20 + 15, // Longer duration
+                duration: Math.random() * 10 + 10,
                 repeat: Infinity,
                 repeatType: "loop",
-                ease: "linear", // Changed to linear for smoother constant drift
-                delay: Math.random() * 10
+                ease: "easeInOut",
+                delay: Math.random() * 5
               }}
             />
           ))}

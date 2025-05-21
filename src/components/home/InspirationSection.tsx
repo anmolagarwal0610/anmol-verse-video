@@ -1,3 +1,4 @@
+
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -33,17 +34,17 @@ const InspirationSection = () => {
 
   return (
     <motion.div
-      className="w-full max-w-6xl mb-16 px-4"
+      className="w-full max-w-6xl mb-16"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.6, duration: 0.5 }}
     >
       <div className="text-center mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold flex items-center justify-center gap-2 text-foreground">
-          {/* Sparkles color updated to Cool Lilac */}
-          <Sparkles className="h-5 w-5 text-[#B4A7FF]" />
+        <h2 className="text-2xl md:text-3xl font-bold flex items-center justify-center gap-2">
+          {/* Sparkles color updated to Royal Purple */}
+          <Sparkles className="h-5 w-5 text-[#6A0DAD]" />
           AI Generation Inspiration
-          <Sparkles className="h-5 w-5 text-[#B4A7FF]" />
+          <Sparkles className="h-5 w-5 text-[#6A0DAD]" />
         </h2>
         <p className="text-muted-foreground mt-2">Explore what's possible with our AI tools</p>
       </div>
@@ -52,7 +53,6 @@ const InspirationSection = () => {
         {inspirationImages.map((image, index) => (
           <motion.div
             key={index}
-            // glass-panel will use new theme from index.css
             className="relative group rounded-lg overflow-hidden aspect-square glass-panel"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -63,9 +63,9 @@ const InspirationSection = () => {
               alt={image.title} 
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[rgba(var(--background-rgb),0.8)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
               <div className="p-4 w-full">
-                <p className="text-foreground font-medium text-lg">{image.title}</p>
+                <p className="text-white font-medium text-lg">{image.title}</p>
               </div>
             </div>
           </motion.div>
@@ -75,9 +75,8 @@ const InspirationSection = () => {
       <div className="text-center mt-6">
         <Button 
           onClick={() => navigate('/images')}
-          // Button uses default variant (Sky Blue Tint bg, Off-Black text)
-          // Hover will be handled by buttonVariants in button.tsx
-          className="bg-accent text-accent-foreground hover:bg-accent/90"
+          // Button gradient updated to Royal Purple to Sky Blue
+          className="bg-gradient-to-r from-[#6A0DAD] to-[#4FC3F7] hover:from-[#520A83] hover:to-[#36A5D7] text-primary-foreground"
         >
           Create Your Own <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
@@ -87,3 +86,4 @@ const InspirationSection = () => {
 };
 
 export default InspirationSection;
+

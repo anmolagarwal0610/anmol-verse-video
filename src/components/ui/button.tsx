@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -10,15 +9,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-accent text-accent-foreground hover:bg-accent/90", // Sky Blue Tint bg, Off-Black text
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
-          "border border-input bg-transparent hover:bg-[rgb(var(--highlight-rgb))] hover:text-background text-foreground", // Light Cyan hover bg, Off-Black hover text
+          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80", // Dark gray bg, Cloud White text
-        ghost: "hover:bg-[rgba(var(--highlight-rgb),0.3)] hover:text-accent-foreground", // Light Cyan hover bg (semi-transparent), Off-Black text
-        link: "text-primary underline-offset-4 hover:text-[rgb(var(--highlight-rgb))] hover:underline", // Cool Lilac text, Light Cyan hover
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
         default: "h-10 px-4 py-2",

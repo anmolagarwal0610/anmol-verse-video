@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { Sparkles, Star } from 'lucide-react';
 
@@ -68,7 +67,7 @@ const HeroSection = () => {
 
   return (
     <motion.div 
-      className="max-w-4xl w-full text-center space-y-6 mb-12 pt-16 md:pt-24" // Added padding top for navbar
+      className="max-w-4xl w-full text-center space-y-6 mb-12"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -79,17 +78,17 @@ const HeroSection = () => {
       >
         <div className="relative w-32 h-32 mx-auto">
           <motion.div 
-            className="absolute inset-0 rounded-full bg-gradient-to-r from-[#B4A7FF] via-[#8EC5FC] to-[#B4A7FF] blur-md opacity-70" // Cool Lilac to Sky Blue Tint
+            className="absolute inset-0 rounded-full bg-gradient-to-r from-[#6A0DAD] via-[#4FC3F7] to-[#6A0DAD] blur-md opacity-70"
             initial="initial"
             animate="animate"
             variants={orbVariants}
           />
           
-          <div className="absolute inset-3 bg-background rounded-full flex items-center justify-center overflow-hidden"> {/* bg-background will be #101820 */}
+          <div className="absolute inset-3 bg-background dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden">
             <div className="relative w-full h-full">
               <div className="absolute inset-0 flex items-center justify-center">
-                {/* Star gradient: Cool Lilac via Sky Blue Tint to Card Background */}
-                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-[#B4A7FF] via-[#8EC5FC] to-[rgb(var(--card-rgb))]" />
+                {/* Star gradient: Royal Purple via Sky Blue to Midnight Blue */}
+                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-[#6A0DAD] via-[#4FC3F7] to-[#0A0F3C]" />
               </div>
               <motion.div 
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -97,8 +96,8 @@ const HeroSection = () => {
                 animate="animate"
                 variants={sparkleVariants}
               >
-                {/* Sparkles color: Sky Blue Tint */}
-                <Sparkles className="w-6 h-6 text-[#8EC5FC]" />
+                {/* Sparkles color: Sky Blue */}
+                <Sparkles className="w-6 h-6 text-[#4FC3F7]" />
               </motion.div>
             </div>
           </div>
@@ -106,12 +105,12 @@ const HeroSection = () => {
       </motion.div>
       
       <motion.h1 
-        className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground" // text-foreground is Cloud White
+        className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight"
         variants={itemVariants}
       >
         Transform Your Ideas into Reality with{" "}
         <motion.span 
-          className="bg-clip-text text-transparent bg-gradient-to-r from-[#B4A7FF] via-[#8EC5FC] to-[#B4A7FF] inline-block" // Cool Lilac to Sky Blue Tint
+          className="bg-clip-text text-transparent bg-gradient-to-r from-[#6A0DAD] via-[#4FC3F7] to-[#6A0DAD] inline-block"
           animate={{
             backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
           }}
@@ -126,7 +125,7 @@ const HeroSection = () => {
       </motion.h1>
       
       <motion.p 
-        className="text-lg md:text-xl text-muted max-w-2xl mx-auto mt-4" // text-muted is Light Gray
+        className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4"
         variants={itemVariants}
       >
         No AI expertise required.

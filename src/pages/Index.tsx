@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import Navbar from '@/components/Navbar';
@@ -40,13 +41,14 @@ const Index = () => {
   }, []);
 
   return (
-    // Updated to solid Off-Black background
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-black">
       <Navbar />
       
-      <div className="relative w-full flex-1"> {/* Ensure content area takes up space */}
+      {/* Removed the duplicate "Get Started for Free" button */}
+
+      <div className="relative w-full">
         <BackgroundImage />
-        <MainContent /> {/* MainContent will be on top of BackgroundImage */}
+        <MainContent />
       </div>
       
       <Footer />
