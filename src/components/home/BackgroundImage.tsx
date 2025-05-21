@@ -41,12 +41,14 @@ const BackgroundImage = () => {
       )}
       
       {/* Animated background image with very low opacity for subtlety */}
+      {/* Changed opacity: light mode opacity-[0.01], dark mode opacity-[0.08] */}
+      {/* Changed transition duration: from 10s to 3s */}
       <motion.div 
-        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${isLoaded ? 'opacity-5 dark:opacity-10' : 'opacity-0'}`}
+        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${isLoaded ? 'opacity-[0.01] dark:opacity-[0.08]' : 'opacity-0'}`}
         style={{ backgroundImage: isLoaded ? `url('${imageUrl}')` : 'none' }}
         initial={{ scale: 1.05, opacity: 0 }}
         animate={isLoaded ? { scale: 1, opacity: 1 } : {}}
-        transition={{ duration: 10, ease: "easeOut" }}
+        transition={{ duration: 3, ease: "easeOut" }} // Shortened duration
       />
       
       {/* Floating particles effect - Using theme primary and accent colors */}
@@ -80,6 +82,7 @@ const BackgroundImage = () => {
         </div>
       )}
       {/* Optional: Add a very subtle noise overlay */}
+      {/* Consider making noise overlay opacity theme-dependent if still an issue: e.g., opacity-[0.005] dark:opacity-[0.015] */}
       <div 
         className="absolute inset-0 opacity-[0.015] pointer-events-none" 
         style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }}
