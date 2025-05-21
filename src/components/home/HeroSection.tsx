@@ -79,7 +79,7 @@ const HeroSection = () => {
       >
         <div className="relative w-32 h-32 mx-auto">
           <motion.div 
-            className="absolute inset-0 rounded-full bg-gradient-to-r from-primary via-accent to-primary blur-md opacity-70" // Changed to theme colors
+            className="absolute inset-0 rounded-full blur-md opacity-70 dark:bg-gradient-to-r dark:from-[#B4A7FF] dark:via-[#8EC5FC] dark:to-[#B4A7FF] bg-gradient-to-r from-[#B4A7FF] via-[#8EC5FC] to-[#B4A7FF]"
             initial="initial"
             animate="animate"
             variants={orbVariants}
