@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -10,6 +11,7 @@ import { VideoGenerationParams } from '@/lib/video/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useVideoGenerationContext } from '@/contexts/VideoGenerationContext';
 import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'; // Added this line
 import { LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCredit } from '@/lib/creditService';
@@ -276,9 +278,9 @@ const VideoGeneration = () => {
         <div className="w-full">
           {!loading && !user && (
             // Card will use new theme. Button uses default (Sky Blue Tint bg)
-            <Card className="p-8 mb-8 text-center shadow-xl">
+            <Card className="p-8 mb-8 text-center shadow-xl bg-card-darker"> {/* Updated background */}
               <CardHeader>
-                <CardTitle className="text-2xl font-semibold mb-4">Authentication Required</CardTitle>
+                <CardTitle className="text-2xl font-semibold mb-4 text-foreground">Authentication Required</CardTitle> {/* Ensure CardTitle uses foreground */}
               </CardHeader>
               <CardContent>
                 <p className="mb-6 text-muted-foreground">
