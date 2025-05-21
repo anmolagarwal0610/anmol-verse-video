@@ -1,4 +1,3 @@
-
 import Navbar from '@/components/Navbar';
 import TipsSection from '@/components/ImageGenerator/TipsSection';
 import HeaderSection from '@/components/ImageGenerator/HeaderSection';
@@ -33,11 +32,12 @@ const ImageGeneration = () => {
   }, [user]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-black">
+    // Updated to solid Off-Black background
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       <Navbar />
       
-      <main className="flex-1 flex flex-col items-center px-4 py-16 mt-10">
-        <HeaderSection />
+      <main className="flex-1 flex flex-col items-center px-4 py-16 mt-10 md:mt-16"> {/* Added more top margin for fixed navbar */}
+        <HeaderSection /> {/* Will use new theme */}
         
         <MainContent 
           form={form}
@@ -46,12 +46,12 @@ const ImageGeneration = () => {
           imageUrl={imageUrl}
           showGalleryMessage={showGalleryMessage}
           calculateEstimatedCreditCost={calculateEstimatedCreditCost}
-        />
+        /> {/* Components inside will use new Card, Button styles */}
         
-        <TipsSection />
+        <TipsSection /> {/* Will use new Card styles */}
       </main>
       
-      <FooterSection />
+      <FooterSection /> {/* Will use new theme */}
     </div>
   );
 };

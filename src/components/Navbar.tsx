@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -9,6 +8,7 @@ import { BrandLogo } from './navbar/BrandLogo';
 import { DesktopNav } from './navbar/DesktopNav';
 import { MobileMenu } from './navbar/MobileMenu';
 import { MenuToggle } from './navbar/MenuToggle';
+import { useAuth } from '@/hooks/use-auth';
 
 const Navbar = () => {
   const location = useLocation();
@@ -16,6 +16,7 @@ const Navbar = () => {
   const [scrollY, setScrollY] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useIsMobile();
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -56,7 +57,7 @@ const Navbar = () => {
 
   return (
     <motion.header 
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-4 md:px-6 py-3 backdrop-blur-lg bg-white/70 dark:bg-black/70 shadow-sm"
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-4 md:px-6 py-3 backdrop-blur-lg bg-[rgba(var(--background-rgb),0.7)] shadow-sm border-b border-[rgba(var(--border),0.3)]"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}

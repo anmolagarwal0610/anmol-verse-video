@@ -11,9 +11,9 @@ const PlayButton = ({ onClick }: PlayButtonProps) => {
     <div className="absolute inset-0 flex items-center justify-center">
       <Button 
         size="icon" 
-        variant="secondary" // Secondary variant will now use new theme colors
-        // Added primary color with opacity for the button background
-        className="h-16 w-16 rounded-full bg-primary/30 hover:bg-primary/50 backdrop-blur text-primary-foreground"
+        variant="secondary" // Secondary variant uses new theme colors (dark gray bg, white text)
+        // Updated background to use Cool Lilac with opacity, text Cloud White
+        className="h-16 w-16 rounded-full bg-[rgba(var(--primary-rgb),0.3)] hover:bg-[rgba(var(--primary-rgb),0.5)] backdrop-blur text-foreground"
         onClick={onClick}
       >
         <Play className="h-8 w-8" />

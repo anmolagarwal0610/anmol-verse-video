@@ -95,18 +95,17 @@ const VideoGenerationForm = ({
     frame_fps: frameFPS
   });
 
-  return <Card className="w-full shadow-lg">
+  return (
+    // Card uses new theme
+    <Card className="w-full shadow-lg">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">Generate Video</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-2xl font-bold text-foreground">Generate Video</CardTitle>
+        <CardDescription className="text-muted-foreground">
           Create engaging videos in just a few minutes with our AI generator
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <VideoGenerationFormProvider value={{
-        form,
-        isGenerating
-      }}>
+        <VideoGenerationFormProvider value={{ form, isGenerating }}>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(validateAndShowConfirmation)} className="space-y-8">
               <div className="space-y-6">
@@ -129,9 +128,13 @@ const VideoGenerationForm = ({
                 <SubtitlesSection audioLanguage={audioLanguage} />
               </div>
               
-              {/* Button gradient updated to Royal Purple to Sky Blue */}
-              <Button type="submit" disabled={isGenerating} className="w-full bg-gradient-to-r from-[#6A0DAD] to-[#4FC3F7] hover:from-[#520A83] hover:to-[#36A5D7] text-primary-foreground">
-                {isGenerating ? 'Generating...' : `Generate Video (Est. ${creditCost} credits*)`}
+              {/* Button: Sky Blue Tint background, Off-Black text */}
+              <Button 
+                type="submit" 
+                disabled={isGenerating || isCheckingCredits || !hasSufficientCredits} 
+                className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
+              >
+                {isGenerating ? 'Generating...' : isCheckingCredits ? 'Checking credits...' : !hasSufficientCredits && formData ? 'Insufficient Credits' : `Generate Video (Est. ${creditCost} credits*)`}
               </Button>
               
               <p className="text-xs text-muted-foreground text-center">
@@ -151,6 +154,7 @@ const VideoGenerationForm = ({
           hasSufficientCredits={hasSufficientCredits}
         />
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };
 export default VideoGenerationForm;
