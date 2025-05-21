@@ -10,6 +10,7 @@ export interface FeatureProps {
   description: string;
   icon: React.ReactNode;
   path: string;
+  // color prop is removed
   delay: number;
   comingSoon?: boolean;
   disabled?: boolean;
@@ -20,6 +21,7 @@ const FeatureCard = ({
   description,
   icon,
   path,
+  // color, // Removed
   delay,
   comingSoon,
   disabled
@@ -29,9 +31,8 @@ const FeatureCard = ({
   return (
     <motion.div
       className={cn(
-        "rounded-xl p-6 md:p-8 border border-border hover:border-sky-blue-tint/50 relative overflow-hidden group transition-all duration-300 ease-in-out",
-        "bg-darker-card-bg", // Use darker card background
-        disabled ? "opacity-60" : "cursor-pointer hover:shadow-xl hover:shadow-sky-blue-tint/10"
+        "glass-panel rounded-xl p-4 md:p-6 border border-transparent hover:border-primary/20 relative overflow-hidden group",
+        disabled ? "opacity-70" : "cursor-pointer"
       )}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -39,39 +40,36 @@ const FeatureCard = ({
       onClick={() => !disabled && navigate(path)}
       style={{ pointerEvents: disabled ? 'none' : 'auto' }}
     >
-      {/* Subtle background glow effect on hover */}
-      <div className="absolute -bottom-1/3 -right-1/3 w-2/3 h-2/3 rounded-full bg-gradient-to-r from-cool-lilac/5 to-sky-blue-tint/5 opacity-0 group-hover:opacity-100 blur-3xl transition-opacity duration-700 ease-in-out" />
+      {/* Updated to use primary to accent gradient directly from theme variables */}
+      <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 rounded-full bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))] opacity-20 blur-2xl group-hover:opacity-30 transition-opacity duration-500 ease-in-out" />
       
-      <div className="relative z-10 flex flex-col h-full"> {/* Flex column for structure */}
-        <div className="mb-4 inline-flex items-center justify-center rounded-full w-14 h-14 bg-sky-blue-tint/10 text-sky-blue-tint">
-          {/* Icon is passed directly, ensure its color is set to Sky Blue Tint where defined */}
+      <div className="relative z-10">
+        <div className="mb-4 inline-flex items-center justify-center rounded-full w-14 h-14">
           {icon}
         </div>
         
-        <h3 className="text-xl md:text-2xl font-semibold mb-3 text-cloud-white flex items-center gap-2">
+        <h3 className="text-xl md:text-2xl font-semibold mb-3 flex items-center gap-2">
           {title}
           {comingSoon && (
-            <span className="bg-cool-lilac/20 text-cool-lilac text-xs px-2 py-0.5 rounded-full font-medium">
+            <span className="bg-yellow-500 text-black text-xs px-2 py-0.5 rounded-full">
               Coming Soon
             </span>
           )}
         </h3>
-        <p className="text-light-gray-text mb-6 text-sm font-light flex-grow">{description}</p> {/* flex-grow to push button down */}
+        <p className="text-muted-foreground mb-4">{description}</p>
         
         {!disabled ? (
           <Button 
-            variant="default" // Use default which should now be Sky Blue Tint
-            size="sm"
-            className="mt-auto bg-sky-blue-tint text-off-black hover:bg-light-cyan hover:text-off-black transition-all duration-300 w-fit" // Ensure button styling
+            variant="ghost" 
+            className="group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300"
           >
             Explore <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Button>
         ) : (
           <Button 
-            variant="outline" // Ghost might be too subtle, outline for disabled
-            size="sm"
+            variant="ghost" 
             disabled
-            className="mt-auto opacity-50 pointer-events-none border-muted-foreground/50 text-muted-foreground w-fit"
+            className="opacity-50 pointer-events-none"
           >
             Coming Soon
           </Button>
@@ -82,3 +80,4 @@ const FeatureCard = ({
 };
 
 export default FeatureCard;
+

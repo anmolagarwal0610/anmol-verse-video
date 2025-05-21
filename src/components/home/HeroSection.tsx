@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Star, Sparkles } from 'lucide-react'; // Keeping Star and Sparkles for the icon
+import { Sparkles, Star } from 'lucide-react';
 
 const HeroSection = () => {
   // Animation variants
@@ -40,14 +40,14 @@ const HeroSection = () => {
   };
   
   const orbVariants = {
-    initial: { scale: 1, opacity: 0.5 },
+    initial: { scale: 1, opacity: 0.7 },
     animate: {
       scale: [1, 1.05, 1],
-      opacity: [0.5, 0.8, 0.5], // Slightly increased opacity
+      opacity: [0.7, 1, 0.7],
       transition: {
         repeat: Infinity,
         repeatType: "mirror" as const,
-        duration: 3.5 // Slightly slower
+        duration: 3
       }
     }
   };
@@ -65,33 +65,30 @@ const HeroSection = () => {
     }
   };
 
-
   return (
     <motion.div 
-      className="max-w-4xl w-full text-center space-y-8 mb-16 pt-24 md:pt-32" // Added padding top
+      className="max-w-4xl w-full text-center space-y-6 mb-12"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      {/* Centered glowing icon */}
       <motion.div
         variants={logoVariants}
-        className="mx-auto mb-8" // Increased margin bottom
+        className="mx-auto mb-6"
       >
-        <div className="relative w-28 h-28 md:w-32 md:h-32 mx-auto"> {/* Slightly larger icon */}
+        <div className="relative w-32 h-32 mx-auto">
           <motion.div 
-            // Glowing orb using new accent colors: Cool Lilac to Sky Blue Tint
-            className="absolute inset-0 rounded-full bg-gradient-to-br from-cool-lilac via-sky-blue-tint to-cool-lilac blur-lg opacity-60"
+            className="absolute inset-0 rounded-full bg-gradient-to-r from-[#6A0DAD] via-[#4FC3F7] to-[#6A0DAD] blur-md opacity-70"
             initial="initial"
             animate="animate"
             variants={orbVariants}
           />
           
-          <div className="absolute inset-2 bg-off-black/80 backdrop-blur-sm rounded-full flex items-center justify-center overflow-hidden"> {/* Inner circle with slight transparency */}
+          <div className="absolute inset-3 bg-background dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden">
             <div className="relative w-full h-full">
               <div className="absolute inset-0 flex items-center justify-center">
-                {/* Star gradient: Light Cyan to Cool Lilac */}
-                <Star className="w-12 h-12 md:w-16 md:h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-light-cyan via-cool-lilac to-sky-blue-tint" />
+                {/* Star gradient: Royal Purple via Sky Blue to Midnight Blue */}
+                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-[#6A0DAD] via-[#4FC3F7] to-[#0A0F3C]" />
               </div>
               <motion.div 
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -99,8 +96,8 @@ const HeroSection = () => {
                 animate="animate"
                 variants={sparkleVariants}
               >
-                {/* Sparkles color: Sky Blue Tint */}
-                <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-sky-blue-tint" />
+                {/* Sparkles color: Sky Blue */}
+                <Sparkles className="w-6 h-6 text-[#4FC3F7]" />
               </motion.div>
             </div>
           </div>
@@ -108,24 +105,28 @@ const HeroSection = () => {
       </motion.div>
       
       <motion.h1 
-        className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-cloud-white" // Main heading in bold white
+        className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight"
         variants={itemVariants}
       >
-        Transform Your Ideas into Reality
+        Transform Your Ideas into Reality with{" "}
+        <motion.span 
+          className="bg-clip-text text-transparent bg-gradient-to-r from-[#6A0DAD] via-[#4FC3F7] to-[#6A0DAD] inline-block"
+          animate={{
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          AI-Powered Creativity
+        </motion.span>
       </motion.h1>
       
-      <motion.h2 
-        className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-cool-lilac" // Subheading in Cool Lilac
-        variants={itemVariants}
-        style={{ transitionDelay: '0.2s' }} // Stagger animation slightly
-      >
-        AI-Powered Creativity
-      </motion.h2>
-      
       <motion.p 
-        className="text-lg md:text-xl text-light-gray-text max-w-xl mx-auto mt-6 font-light" // Supporting line in light gray, font-light
+        className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4"
         variants={itemVariants}
-        style={{ transitionDelay: '0.4s' }} // Stagger animation
       >
         No AI expertise required.
       </motion.p>

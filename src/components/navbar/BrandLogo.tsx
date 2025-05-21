@@ -9,10 +9,11 @@ export const BrandLogo = () => {
   return (
     <Link to="/" className="flex items-center space-x-2">
       {!isHomePage && <Logo />}
-      {/* Updated brand name and text color */}
-      <span className="text-base sm:text-lg font-semibold text-cloud-white">
-        DumixLabs AI
+      {/* Updated to use the new Royal Purple to Sky Blue gradient */}
+      <span className="text-base sm:text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-[#6A0DAD] to-[#4FC3F7]">
+        DumbLabs.AI
       </span>
     </Link>
   );
 };
+

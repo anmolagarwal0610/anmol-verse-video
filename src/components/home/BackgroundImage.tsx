@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 
 const BackgroundImage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  // Using a darker, more abstract image suitable for the new theme
-  const imageUrl = 'https://images.unsplash.com/photo-1531306728370-e2ebd9d7bb99?q=80&w=1920'; // Abstract dark texture
+  // Updated image URL
+  const imageUrl = 'https://images.unsplash.com/photo-1506765515384-028b60a970df?q=80&w=1920'; // Clear Glass Roof
 
   useEffect(() => {
     console.log('BackgroundImage: Starting to load image');
@@ -24,63 +24,63 @@ const BackgroundImage = () => {
       // Set loaded to true anyway to show a fallback
       setIsLoaded(true);
     };
-  }, [imageUrl]);
+  }, []);
 
   return (
     <>
-      {/* Animated gradient placeholder while loading - Darker gradient */}
+      {/* Animated gradient placeholder while loading */}
       {!isLoaded && (
         <motion.div 
-          className="absolute inset-0 bg-gradient-to-b from-off-black to-darker-card-bg" 
+          className="absolute inset-0 bg-gradient-to-b from-[rgba(10,15,60,0.2)] to-[rgba(106,13,173,0.2)]" // Midnight Blue to Royal Purple
           animate={{
             background: [
-              "linear-gradient(to bottom, hsl(var(--background)), hsl(var(--card)))",
-              "linear-gradient(to bottom, hsl(var(--card)), hsl(var(--background)))",
-              "linear-gradient(to bottom, hsl(var(--background)), hsl(var(--card)))",
+              "linear-gradient(to bottom, rgba(10, 15, 60, 0.2), rgba(106, 13, 173, 0.2))", // Midnight Blue to Royal Purple
+              "linear-gradient(to bottom, rgba(106, 13, 173, 0.2), rgba(10, 15, 60, 0.2))", // Royal Purple to Midnight Blue
+              "linear-gradient(to bottom, rgba(10, 15, 60, 0.2), rgba(106, 13, 173, 0.2))",
+              "linear-gradient(to bottom, rgba(106, 13, 173, 0.2), rgba(10, 15, 60, 0.2))"
             ]
           }}
           transition={{
-            duration: 10, // Slower transition
+            duration: 8,
             repeat: Infinity,
             repeatType: "reverse"
           }}
         />
       )}
       
-      {/* Animated background image - Very subtle opacity for dark theme */}
+      {/* Animated background image */}
       <motion.div 
-        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${isLoaded ? 'opacity-[0.03] dark:opacity-[0.04]' : 'opacity-0'}`} // Much lower opacity
+        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-300 ${isLoaded ? 'opacity-10 dark:opacity-20' : 'opacity-0'}`}
         style={{ backgroundImage: isLoaded ? `url('${imageUrl}')` : 'none' }}
-        initial={{ scale: 1.02 }} // Slightly less zoom
+        initial={{ scale: 1.05 }}
         animate={isLoaded ? { scale: 1 } : {}}
-        transition={{ duration: 15, ease: "linear" }} // Slower, linear animation
+        transition={{ duration: 10, ease: "easeOut" }}
       />
       
-      {/* Floating particles effect - Using Cool Lilac and Sky Blue Tint */}
+      {/* Floating particles effect */}
       {isLoaded && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {Array.from({ length: 15 }).map((_, i) => ( // Fewer particles
+          {Array.from({ length: 20 }).map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-1 h-1 md:w-[3px] md:h-[3px] rounded-full" // Slightly smaller particles
+              // Particles changed to Sky Blue
+              className="absolute w-1 h-1 md:w-2 md:h-2 rounded-full bg-[#4FC3F7] dark:bg-[#4FC3F7]/80"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                opacity: Math.random() * 0.3 + 0.1, // Lower opacity
-                // Particles alternate between Cool Lilac and Sky Blue Tint
-                backgroundColor: i % 2 === 0 ? 'hsl(var(--secondary))' : 'hsl(var(--primary))', // Using HSL vars
+                opacity: Math.random() * 0.5
               }}
               animate={{
-                y: [0, -(Math.random() * 150 + 70)], // More vertical movement
-                opacity: [Math.random() * 0.2 + 0.05, 0], // Fade out more
-                scale: [1, Math.random() * 0.5 + 0.5] // Less scaling
+                y: [0, -(Math.random() * 100 + 50)],
+                opacity: [Math.random() * 0.3 + 0.1, 0],
+                scale: [1, Math.random() + 0.5]
               }}
               transition={{
-                duration: Math.random() * 15 + 15, // Slower duration
+                duration: Math.random() * 10 + 10,
                 repeat: Infinity,
                 repeatType: "loop",
-                ease: "linear", // Linear movement
-                delay: Math.random() * 8
+                ease: "easeInOut",
+                delay: Math.random() * 5
               }}
             />
           ))}

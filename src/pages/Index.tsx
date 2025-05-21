@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import Navbar from '@/components/Navbar';
@@ -40,12 +41,13 @@ const Index = () => {
   }, []);
 
   return (
-    // Updated main background to solid off-black
-    <div className="min-h-screen flex flex-col bg-off-black text-cloud-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-black">
       <Navbar />
       
-      <div className="relative w-full flex-grow"> {/* Added flex-grow to ensure content pushes footer down */}
-        <BackgroundImage /> {/* BackgroundImage will handle its own styling */}
+      {/* Removed the duplicate "Get Started for Free" button */}
+
+      <div className="relative w-full">
+        <BackgroundImage />
         <MainContent />
       </div>
       

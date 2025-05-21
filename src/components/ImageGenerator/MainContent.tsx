@@ -32,8 +32,7 @@ const MainContent = ({
     <div className="w-full max-w-6xl">
       <div className={`grid grid-cols-1 ${isMobile || !imageUrl ? 'md:grid-cols-2' : 'md:grid-cols-5'} gap-8 mb-8`}>
         <motion.div
-          // Updated panel styling
-          className={`bg-darker-card-bg p-6 rounded-xl border border-border md:order-1 ${isMobile || !imageUrl ? '' : 'md:col-span-2'}`}
+          className={`glass-panel p-6 rounded-xl md:order-1 ${isMobile || !imageUrl ? '' : 'md:col-span-2'}`}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
@@ -47,13 +46,12 @@ const MainContent = ({
         </motion.div>
         
         <motion.div
-          // Updated panel styling
-          className={`bg-darker-card-bg p-6 rounded-xl border border-border md:order-2 flex flex-col ${isMobile || !imageUrl ? '' : 'md:col-span-3'}`}
+          className={`glass-panel p-6 rounded-xl md:order-2 flex flex-col ${isMobile || !imageUrl ? '' : 'md:col-span-3'}`}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h3 className="text-lg font-medium mb-4 text-cloud-white">Preview</h3>
+          <h3 className="text-lg font-medium mb-4">Preview</h3>
           
           <PreviewPanel 
             isGenerating={isGenerating}
@@ -63,17 +61,16 @@ const MainContent = ({
           
           {showGalleryMessage && imageUrl && (
             <motion.div
-              // Notification styling adjusted
-              className="mt-4 p-3 bg-sky-blue-tint/10 border border-sky-blue-tint/20 rounded-lg text-sm flex items-center justify-between"
+              className="mt-4 p-3 bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 rounded-lg text-sm flex items-center justify-between"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.2 }}
             >
               <div className="flex items-center">
-                <ImageIcon size={16} className="text-sky-blue-tint mr-2" />
-                <span className="text-sky-blue-tint">This image has been saved to your gallery</span>
+                <ImageIcon size={16} className="text-indigo-600 dark:text-indigo-400 mr-2" />
+                <span className="text-indigo-800 dark:text-indigo-300">This image has been saved to your gallery</span>
               </div>
-              <Button asChild variant="ghost" size="sm" className="text-sky-blue-tint hover:text-light-cyan hover:bg-sky-blue-tint/10">
+              <Button asChild variant="ghost" size="sm" className="text-indigo-700 dark:text-indigo-300">
                 <Link to="/gallery" className="flex items-center">
                   View <ArrowRight size={14} className="ml-1" />
                 </Link>
