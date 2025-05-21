@@ -112,7 +112,7 @@ const HeroSection = () => {
         Transform Your Ideas into Reality
         <br /> {/* Force the subheading onto a new line */}
         <motion.span 
-          className="inline-block text-3xl md:text-4xl text-[#B4A7FF]" // <-- Fixed lavender color
+          className="inline-block text-4xl md:text-5xl text-[#B4A7FF]" // <-- Fixed lavender color
         >
           AI-Powered Creativity
         </motion.span>
