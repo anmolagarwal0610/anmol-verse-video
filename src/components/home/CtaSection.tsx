@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
@@ -9,17 +8,17 @@ const CtaSection = () => {
   
   return (
     <motion.div
-      className="relative w-full max-w-5xl my-16" // Added margin
+      className="relative w-full max-w-5xl my-16"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.7, duration: 0.5 }}
     >
-      {/* Background blur gradient: Cool Lilac to Sky Blue Tint */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--color-cool-lilac))]/20 to-[hsl(var(--color-sky-blue-tint))]/20 rounded-xl blur-xl -z-10" />
+      {/* Background blur gradient uses theme colors */}
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-xl blur-xl -z-10" />
       
       {/* Glass panel using card styling for dark BG */}
       <div className="relative bg-card text-card-foreground p-8 md:p-12 rounded-xl shadow-2xl border border-border">
-        <h2 className="text-2xl md:text-3xl font-semibold mb-4 text-center text-cool-lilac"> {/* Heading Cool Lilac */}
+        <h2 className="text-2xl md:text-3xl font-semibold mb-4 text-center text-primary"> {/* Heading uses primary theme color */}
           Ready to Unleash Your AI-Powered Creativity?
         </h2>
         
@@ -32,7 +31,8 @@ const CtaSection = () => {
           {/* Button: Sky Blue Tint background, Off-Black text, Light Cyan hover */}
           <Button 
             size="lg" 
-            className="bg-sky-blue-tint text-off-black hover:bg-light-cyan hover:text-off-black font-semibold shadow-lg hover:shadow-sky-blue-tint/30"
+            variant="default" // Use theme default variant (accent color)
+            className="font-semibold shadow-lg hover:shadow-accent/30" // Added specific shadow, text color will come from variant
             onClick={() => navigate('/images')} 
           >
             Explore Our AI Solutions

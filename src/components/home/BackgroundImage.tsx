@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
@@ -26,10 +25,10 @@ const BackgroundImage = () => {
 
   return (
     <>
-      {/* Animated gradient placeholder: Darker, subtle gradient */}
+      {/* Animated gradient placeholder using theme background colors */}
       {!isLoaded && (
         <motion.div 
-          className="absolute inset-0 bg-gradient-to-b from-[hsl(var(--color-off-black))] via-[hsl(210,33%,8%)] to-[hsl(var(--color-off-black))]" // Off-Black to slightly different Off-Black
+          className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background"
           animate={{
             opacity: [0.5, 0.7, 0.5]
           }}
@@ -43,14 +42,14 @@ const BackgroundImage = () => {
       
       {/* Animated background image with very low opacity for subtlety */}
       <motion.div 
-        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${isLoaded ? 'opacity-5 dark:opacity-10' : 'opacity-0'}`} // Very subtle
+        className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${isLoaded ? 'opacity-5 dark:opacity-10' : 'opacity-0'}`}
         style={{ backgroundImage: isLoaded ? `url('${imageUrl}')` : 'none' }}
         initial={{ scale: 1.05, opacity: 0 }}
         animate={isLoaded ? { scale: 1, opacity: 1 } : {}}
         transition={{ duration: 10, ease: "easeOut" }}
       />
       
-      {/* Floating particles effect - Light Cyan / Cool Lilac */}
+      {/* Floating particles effect - Using theme primary and accent colors */}
       {isLoaded && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {Array.from({ length: 25 }).map((_, i) => (
@@ -60,13 +59,12 @@ const BackgroundImage = () => {
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                opacity: Math.random() * 0.4 + 0.1, // Slightly more visible
-                // Mix of Cool Lilac and Light Cyan for particles
-                backgroundColor: i % 2 === 0 ? 'hsl(var(--color-cool-lilac))' : 'hsl(var(--color-light-cyan))'
+                opacity: Math.random() * 0.4 + 0.1,
+                backgroundColor: i % 2 === 0 ? 'hsl(var(--primary))' : 'hsl(var(--accent))'
               }}
               animate={{
-                y: [0, -(Math.random() * 150 + 70)], // Slower, longer travel
-                x: [0, (Math.random() - 0.5) * 50], // Slight horizontal drift
+                y: [0, -(Math.random() * 150 + 70)], 
+                x: [0, (Math.random() - 0.5) * 50], 
                 opacity: [Math.random() * 0.3 + 0.2, 0, Math.random() * 0.3 + 0.2],
                 scale: [1, Math.random() * 0.5 + 0.5, 1]
               }}
@@ -74,7 +72,7 @@ const BackgroundImage = () => {
                 duration: Math.random() * 15 + 10,
                 repeat: Infinity,
                 repeatType: "loop",
-                ease: "linear", // Smoother, less jerky
+                ease: "linear",
                 delay: Math.random() * 8
               }}
             />
