@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { Film, ImageIcon, FileText, Video } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -57,7 +58,8 @@ export const NavItems = ({ isActive, onMenuClose, isMobile }: NavItemsProps) => 
         size="sm"
         className={cn(
           "transition-all duration-300 relative",
-          isActive(item.path) ? "bg-gradient-to-r from-indigo-600 to-purple-700 text-white" : "",
+          // Use default variant for active state which is already Sky Blue Tint
+          // isActive(item.path) ? "bg-sky-blue-tint text-off-black" : "", // default variant handles this
           item.disabled ? "opacity-60 cursor-not-allowed" : "",
           isMobile && "justify-start w-full"
         )}
