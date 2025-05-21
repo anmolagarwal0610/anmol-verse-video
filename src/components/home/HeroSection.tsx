@@ -78,16 +78,17 @@ const HeroSection = () => {
       >
         <div className="relative w-32 h-32 mx-auto">
           <motion.div 
-            className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-blue-600 to-indigo-700 blur-md opacity-70"
+            className="absolute inset-0 rounded-full bg-gradient-to-r from-[#6A0DAD] via-[#4FC3F7] to-[#6A0DAD] blur-md opacity-70"
             initial="initial"
             animate="animate"
             variants={orbVariants}
           />
           
-          <div className="absolute inset-3 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-3 bg-background dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden">
             <div className="relative w-full h-full">
               <div className="absolute inset-0 flex items-center justify-center">
-                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700" />
+                {/* Star gradient: Royal Purple via Sky Blue to Midnight Blue */}
+                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-[#6A0DAD] via-[#4FC3F7] to-[#0A0F3C]" />
               </div>
               <motion.div 
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -95,7 +96,8 @@ const HeroSection = () => {
                 animate="animate"
                 variants={sparkleVariants}
               >
-                <Sparkles className="w-6 h-6 text-indigo-500" />
+                {/* Sparkles color: Sky Blue */}
+                <Sparkles className="w-6 h-6 text-[#4FC3F7]" />
               </motion.div>
             </div>
           </div>
@@ -108,7 +110,7 @@ const HeroSection = () => {
       >
         Transform Your Ideas into Reality with{" "}
         <motion.span 
-          className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 inline-block"
+          className="bg-clip-text text-transparent bg-gradient-to-r from-[#6A0DAD] via-[#4FC3F7] to-[#6A0DAD] inline-block"
           animate={{
             backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
           }}

@@ -10,7 +10,7 @@ export interface FeatureProps {
   description: string;
   icon: React.ReactNode;
   path: string;
-  color: string;
+  // color prop is removed
   delay: number;
   comingSoon?: boolean;
   disabled?: boolean;
@@ -21,7 +21,7 @@ const FeatureCard = ({
   description,
   icon,
   path,
-  color,
+  // color, // Removed
   delay,
   comingSoon,
   disabled
@@ -40,9 +40,8 @@ const FeatureCard = ({
       onClick={() => !disabled && navigate(path)}
       style={{ pointerEvents: disabled ? 'none' : 'auto' }}
     >
-      <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 rounded-full bg-gradient-to-r opacity-20 blur-2xl group-hover:opacity-30 transition-opacity duration-500 ease-in-out"
-        style={{ backgroundImage: `linear-gradient(to right, ${color.replace('from-', '').replace('to-', '')})` }}
-      />
+      {/* Updated to use primary to accent gradient directly from theme variables */}
+      <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 rounded-full bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))] opacity-20 blur-2xl group-hover:opacity-30 transition-opacity duration-500 ease-in-out" />
       
       <div className="relative z-10">
         <div className="mb-4 inline-flex items-center justify-center rounded-full w-14 h-14">
@@ -81,3 +80,4 @@ const FeatureCard = ({
 };
 
 export default FeatureCard;
+

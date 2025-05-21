@@ -1,3 +1,4 @@
+
 import { motion } from 'framer-motion';
 import { Star, Sparkles } from 'lucide-react';
 
@@ -36,26 +37,26 @@ const Logo = () => {
       initial="initial"
       animate="animate"
     >
-      {/* Pulsing Orb Background */}
+      {/* Pulsing Orb Background - Royal Purple via Sky Blue to Royal Purple */}
       <motion.div
-        className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-blue-600 to-indigo-700 blur-sm opacity-70"
+        className="absolute inset-0 rounded-full bg-gradient-to-r from-[#6A0DAD] via-[#4FC3F7] to-[#6A0DAD] blur-sm opacity-70"
         variants={orbVariants}
       />
       
       {/* Inner Circle with Content */}
-      <div className="absolute inset-[3px] bg-white dark:bg-gray-950 rounded-full flex items-center justify-center overflow-hidden">
+      <div className="absolute inset-[3px] bg-background rounded-full flex items-center justify-center overflow-hidden">
         <div className="relative w-full h-full">
-          {/* Star Icon */}
+          {/* Star Icon - Royal Purple via Sky Blue to Midnight Blue */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <Star className="w-[18px] h-[18px] text-transparent stroke-[2px] bg-clip-text bg-gradient-to-r from-indigo-500 via-blue-500 to-sky-500" />
+            <Star className="w-[18px] h-[18px] text-transparent stroke-[2px] bg-clip-text bg-gradient-to-r from-[#6A0DAD] via-[#4FC3F7] to-[#0A0F3C]" />
           </div>
           
-          {/* Rotating Sparkles */}
+          {/* Rotating Sparkles - Sky Blue */}
           <motion.div
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
             variants={sparkleVariants}
           >
-            <Sparkles className="w-2.5 h-2.5 text-indigo-400" />
+            <Sparkles className="w-2.5 h-2.5 text-[#4FC3F7]" />
           </motion.div>
         </div>
       </div>
@@ -64,3 +65,4 @@ const Logo = () => {
 };
 
 export default Logo;
+

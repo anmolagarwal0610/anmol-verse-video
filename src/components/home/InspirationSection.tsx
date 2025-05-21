@@ -41,9 +41,10 @@ const InspirationSection = () => {
     >
       <div className="text-center mb-8">
         <h2 className="text-2xl md:text-3xl font-bold flex items-center justify-center gap-2">
-          <Sparkles className="h-5 w-5 text-indigo-500" />
+          {/* Sparkles color updated to Royal Purple */}
+          <Sparkles className="h-5 w-5 text-[#6A0DAD]" />
           AI Generation Inspiration
-          <Sparkles className="h-5 w-5 text-indigo-500" />
+          <Sparkles className="h-5 w-5 text-[#6A0DAD]" />
         </h2>
         <p className="text-muted-foreground mt-2">Explore what's possible with our AI tools</p>
       </div>
@@ -74,7 +75,8 @@ const InspirationSection = () => {
       <div className="text-center mt-6">
         <Button 
           onClick={() => navigate('/images')}
-          className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white"
+          // Button gradient updated to Royal Purple to Sky Blue
+          className="bg-gradient-to-r from-[#6A0DAD] to-[#4FC3F7] hover:from-[#520A83] hover:to-[#36A5D7] text-primary-foreground"
         >
           Create Your Own <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
@@ -84,3 +86,4 @@ const InspirationSection = () => {
 };
 
 export default InspirationSection;
+

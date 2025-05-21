@@ -6,65 +6,66 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    /* Primary: Royal Purple (#6A0DAD), Secondary: Midnight Blue (#0A0F3C), Accent: Sky Blue (#4FC3F7) */
+    --background: 0 0% 100%; /* White */
+    --foreground: 233 77% 14%; /* Midnight Blue */
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 233 77% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 233 77% 14%;
 
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 271 76% 41%; /* Royal Purple */
+    --primary-foreground: 0 0% 98%; /* White */
 
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
+    --secondary: 233 77% 90%; /* Light Midnight Blue/Gray */
+    --secondary-foreground: 233 77% 14%; /* Midnight Blue */
 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted: 240 4.8% 95.9%; /* Neutral Light Gray */
+    --muted-foreground: 240 3.8% 46.1%; /* Neutral Dark Gray */
 
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: 199 90% 64%; /* Sky Blue */
+    --accent-foreground: 233 77% 14%; /* Midnight Blue */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
+    --border: 271 76% 85%; /* Light Royal Purple */
+    --input: 271 76% 90%; /* Lighter Royal Purple */
+    --ring: 199 90% 64%; /* Sky Blue */
 
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    --background: 233 77% 10%; /* Very Dark Midnight Blue */
+    --foreground: 0 0% 98%; /* White */
 
-    --card: 240 10% 3.9%;
+    --card: 233 77% 14%; /* Midnight Blue */
     --card-foreground: 0 0% 98%;
 
-    --popover: 240 10% 3.9%;
+    --popover: 233 77% 14%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
+    --primary: 271 76% 55%; /* Brighter Royal Purple */
+    --primary-foreground: 0 0% 98%; /* White */
 
-    --secondary: 240 3.7% 15.9%;
+    --secondary: 233 77% 20%; /* Darker Midnight Blue */
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 233 77% 20%;
+    --muted-foreground: 240 5% 64.9%; /* Light Gray */
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 199 90% 64%; /* Sky Blue */
+    --accent-foreground: 233 77% 14%; /* Midnight Blue */
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --border: 271 76% 30%; /* Dark Royal Purple */
+    --input: 233 77% 25%; /* Slightly Lighter Midnight Blue */
+    --ring: 199 90% 70%; /* Brighter Sky Blue */
   }
 }
 
@@ -90,15 +91,18 @@
   }
 
   .glass-panel {
-    @apply backdrop-blur-md bg-white/20 border border-white/30 dark:bg-black/20 dark:border-white/10;
+    /* Updated to use theme variables for consistency */
+    @apply backdrop-blur-md bg-[hsl(var(--card))]/80 border border-[hsl(var(--border))] dark:bg-[hsl(var(--card))]/80 dark:border-[hsl(var(--border))];
   }
 
   .neo-glass {
-    @apply backdrop-blur-xl bg-white/10 dark:bg-black/30 border border-white/20 dark:border-white/10 shadow-lg;
+    /* Updated to use theme variables, consider adjusting opacity/colors if needed */
+    @apply backdrop-blur-xl bg-[hsl(var(--background))]/10 dark:bg-[hsl(var(--background))]/30 border border-[hsl(var(--foreground))]/10 dark:border-[hsl(var(--foreground))]/10 shadow-lg;
   }
   
   .futuristic-border {
-    @apply border border-blue-300/30 dark:border-blue-500/30 rounded-lg shadow-lg shadow-blue-500/5;
+    /* Uses accent color */
+    @apply border border-[hsl(var(--accent))]/30 dark:border-[hsl(var(--accent))]/30 rounded-lg shadow-lg shadow-[hsl(var(--accent))]/5;
   }
 
   .glow-effect {
@@ -107,7 +111,8 @@
 
   .glow-effect::after {
     content: '';
-    @apply absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-lg blur opacity-30 -z-10 transition-opacity duration-300;
+    /* Uses primary to accent gradient */
+    @apply absolute -inset-0.5 bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))] rounded-lg blur opacity-30 -z-10 transition-opacity duration-300;
   }
 
   .glow-effect:hover::after {
@@ -135,7 +140,8 @@
   }
   
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-600;
+    /* Uses primary to accent gradient */
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))];
   }
 }
 

@@ -1,3 +1,4 @@
+
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
@@ -13,9 +14,11 @@ const CtaSection = () => {
       animate={{ opacity: 1 }}
       transition={{ delay: 0.7, duration: 0.5 }}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-blue-500/20 rounded-xl blur-xl" />
+      {/* Background blur gradient: Royal Purple to Sky Blue */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#6A0DAD]/20 to-[#4FC3F7]/20 rounded-xl blur-xl" />
       
-      <div className="relative glass-panel p-8 rounded-xl border border-indigo-200 dark:border-indigo-900">
+      {/* Glass panel styling will be updated by index.css, border color based on --border variable */}
+      <div className="relative glass-panel p-8 rounded-xl">
         <h2 className="text-2xl font-semibold mb-4 text-center">Ready to Unleash Your AI-Powered Creativity?</h2>
         
         <p className="text-center text-muted-foreground max-w-3xl mx-auto">
@@ -26,7 +29,8 @@ const CtaSection = () => {
         <div className="mt-8 flex justify-center">
           <Button 
             size="lg" 
-            className="bg-gradient-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white"
+            // Button gradient: Royal Purple to Sky Blue
+            className="bg-gradient-to-r from-[#6A0DAD] to-[#4FC3F7] hover:from-[#520A83] hover:to-[#36A5D7] text-primary-foreground"
             onClick={() => navigate('/images')} 
           >
             Explore Our AI Solutions
@@ -39,3 +43,4 @@ const CtaSection = () => {
 };
 
 export default CtaSection;
+

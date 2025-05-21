@@ -90,9 +90,9 @@ const SimplifiedVideoGenerationForm = ({
   const isAdvancedAccordionOpen = advancedAccordionValue === "advanced-options";
 
   return (
-    <Card className="w-full shadow-xl border-purple-200/30 bg-gradient-to-br from-slate-50/80 to-purple-50/60 dark:from-slate-900/80 dark:to-purple-950/60 backdrop-blur-md">
+    <Card className="w-full shadow-xl border-[hsl(var(--primary))]/30 bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--primary))]/10 dark:from-[hsl(var(--background))] dark:to-[hsl(var(--primary))]/20 backdrop-blur-md">
       <CardHeader className="pb-4">
-        <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+        <CardTitle className="text-3xl font-bold text-gradient">
           Create Your Video
         </CardTitle>
         <CardDescription className="text-base text-muted-foreground">
@@ -103,8 +103,8 @@ const SimplifiedVideoGenerationForm = ({
         <VideoGenerationFormProvider value={{ form, isGenerating }}>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(validateAndShowConfirmation)} className="space-y-8">
-              {/* Prominent Fields */}
-              <Card className="shadow-md bg-white/70 dark:bg-slate-800/70">
+              {/* Prominent Fields Card: using theme variables for background */}
+              <Card className="shadow-md bg-[hsl(var(--background))]/70 dark:bg-[hsl(var(--card))]/70">
                 <CardHeader>
                   <CardTitle className="text-xl font-semibold">Key Ingredients</CardTitle>
                 </CardHeader>
@@ -123,14 +123,18 @@ const SimplifiedVideoGenerationForm = ({
                 value={advancedAccordionValue}
                 onValueChange={setAdvancedAccordionValue}
               >
-                <AccordionItem value="advanced-options" className="border-t border-b-0 border-slate-300 dark:border-slate-700 rounded-lg overflow-hidden shadow-sm bg-white/50 dark:bg-slate-800/50">
-                  <AccordionTrigger className="text-lg font-semibold hover:no-underline px-6 py-4 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
+                {/* Accordion item uses theme variables for border and background */}
+                <AccordionItem value="advanced-options" className="border-t border-b-0 border-[hsl(var(--border))] dark:border-[hsl(var(--border))] rounded-lg overflow-hidden shadow-sm bg-[hsl(var(--background))]/50 dark:bg-[hsl(var(--card))]/50">
+                  {/* Accordion trigger hover uses primary color with opacity */}
+                  <AccordionTrigger className="text-lg font-semibold hover:no-underline px-6 py-4 hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors">
                     <div className="flex items-center space-x-3">
-                      <Settings className="h-5 w-5 text-purple-600" />
+                      {/* Settings icon uses primary color */}
+                      <Settings className="h-5 w-5 text-primary" />
                       <span>Advanced Configuration</span>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="px-6 pt-2 pb-6 space-y-6 bg-slate-50/70 dark:bg-slate-800/30">
+                  {/* Accordion content uses theme variables for background */}
+                  <AccordionContent className="px-6 pt-2 pb-6 space-y-6 bg-[hsl(var(--background))]/70 dark:bg-[hsl(var(--card))]/30">
                     
                     <div className="pt-4 space-y-6">
                         <h3 className="text-lg font-medium text-muted-foreground border-b pb-2">Story & Core Engine</h3>
@@ -149,7 +153,7 @@ const SimplifiedVideoGenerationForm = ({
                     
                     <div className="pt-4 space-y-6">
                         <h3 className="text-lg font-medium text-muted-foreground border-b pb-2">Voice Language & Voice</h3>
-                        <AdvancedAudioSettingsFields /> {/* VoiceSelectionField will be rendered inside this if accordion is open */}
+                        <AdvancedAudioSettingsFields />
                     </div>
 
                     <div className="pt-4 space-y-6">
@@ -164,7 +168,8 @@ const SimplifiedVideoGenerationForm = ({
                 type="submit"
                 disabled={isGenerating}
                 size="lg"
-                className="w-full text-lg font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                // Button gradient: Royal Purple to Sky Blue
+                className="w-full text-lg font-semibold bg-gradient-to-r from-[#6A0DAD] to-[#4FC3F7] hover:from-[#520A83] hover:to-[#36A5D7] text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
                 {isGenerating ? 'Generating...' : `Generate Video (Est. ${creditCost} credits*)`}
               </Button>
