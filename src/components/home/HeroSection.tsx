@@ -111,7 +111,7 @@ const HeroSection = () => {
       >
         Transform Your Ideas into Reality with{" "}
         <motion.span 
-          className="text-primary inline-block" // Changed text-cool-lilac to text-primary
+          className="inline-block text-[#B4A7FF]" // <-- Fixed lavender color
         >
           AI-Powered Creativity
         </motion.span>
