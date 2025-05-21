@@ -28,40 +28,33 @@ const config = {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: 'hsl(var(--primary))', // Cool Lilac in dark, Off-Black in light
-					foreground: 'hsl(var(--primary-foreground))' // Off-Black on Cool Lilac, Cloud White on Off-Black
+					DEFAULT: 'hsl(var(--primary))',
+					foreground: 'hsl(var(--primary-foreground))'
 				},
 				secondary: {
-					DEFAULT: 'hsl(var(--secondary))', // Slightly lighter Off-Black in dark, Light Gray in light
-					foreground: 'hsl(var(--secondary-foreground))' // Cloud White on Lighter Off-Black, Off-Black on Light Gray
+					DEFAULT: 'hsl(var(--secondary))',
+					foreground: 'hsl(var(--secondary-foreground))'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))'
 				},
 				muted: {
-					DEFAULT: 'hsl(var(--muted))', // Darker Muted BG in dark, Lighter Gray in light
-					foreground: 'hsl(var(--muted-foreground))' // Lighter gray muted text in dark, Darker Gray in light
+					DEFAULT: 'hsl(var(--muted))',
+					foreground: 'hsl(var(--muted-foreground))'
 				},
 				accent: {
-					DEFAULT: 'hsl(var(--accent))', // Sky Blue Tint
-					foreground: 'hsl(var(--accent-foreground))' // Off-Black on Sky Blue Tint
+					DEFAULT: 'hsl(var(--accent))',
+					foreground: 'hsl(var(--accent-foreground))'
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
 					foreground: 'hsl(var(--popover-foreground))'
 				},
 				card: {
-					DEFAULT: 'hsl(var(--card))', // Darker Card BG #0C131A in dark, White in light
-					foreground: 'hsl(var(--card-foreground))' // Cloud White on Darker Card, Off-Black on White
+					DEFAULT: 'hsl(var(--card))',
+					foreground: 'hsl(var(--card-foreground))'
 				},
-        // Explicit palette colors for direct use if needed
-        'off-black': 'hsl(var(--color-off-black))',
-        'cool-lilac': 'hsl(var(--color-cool-lilac))',
-        'sky-blue-tint': 'hsl(var(--color-sky-blue-tint))',
-        'light-cyan': 'hsl(var(--color-light-cyan))',
-        'cloud-white': 'hsl(var(--color-cloud-white))',
-        'card-dark': 'hsl(var(--color-card-dark))',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

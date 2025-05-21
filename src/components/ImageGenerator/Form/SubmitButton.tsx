@@ -22,6 +22,7 @@ const SubmitButton = ({ isGenerating, model, creditCost, onAuthRequired }: Submi
   };
 
   const handleButtonClick = (e: React.MouseEvent) => {
+    // If user is not authenticated and trying to use a premium feature, show auth dialog
     if (!user && model !== 'basic') {
       e.preventDefault();
       onAuthRequired();
@@ -31,8 +32,7 @@ const SubmitButton = ({ isGenerating, model, creditCost, onAuthRequired }: Submi
   return (
     <Button 
       type="submit" 
-      variant="default" // Use theme default variant (accent color)
-      className="w-full" // Keep w-full for layout
+      className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700" 
       size={isMobile ? "default" : "lg"}
       disabled={isGenerating}
       onClick={handleButtonClick}

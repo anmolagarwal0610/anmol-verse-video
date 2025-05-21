@@ -68,7 +68,7 @@ const HeroSection = () => {
 
   return (
     <motion.div 
-      className="max-w-4xl w-full text-center space-y-6 mb-12 text-foreground" // Changed text-cloud-white to text-foreground
+      className="max-w-4xl w-full text-center space-y-6 mb-12"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -79,17 +79,16 @@ const HeroSection = () => {
       >
         <div className="relative w-32 h-32 mx-auto">
           <motion.div 
-            className="absolute inset-0 rounded-full bg-gradient-to-r from-primary via-accent to-primary blur-md opacity-70" // Changed to theme colors
+            className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-700 blur-md opacity-70"
             initial="initial"
             animate="animate"
             variants={orbVariants}
           />
           
-          <div className="absolute inset-3 bg-background rounded-full flex items-center justify-center overflow-hidden"> {/* Uses bg-background (theme-aware) */}
+          <div className="absolute inset-3 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden">
             <div className="relative w-full h-full">
               <div className="absolute inset-0 flex items-center justify-center">
-                {/* Star gradient uses theme colors and fades to background */}
-                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-primary via-accent to-background" />
+                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700" />
               </div>
               <motion.div 
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -97,8 +96,7 @@ const HeroSection = () => {
                 animate="animate"
                 variants={sparkleVariants}
               >
-                {/* Sparkles use accent color */}
-                <Sparkles className="w-6 h-6 text-accent" />
+                <Sparkles className="w-6 h-6 text-indigo-500" />
               </motion.div>
             </div>
           </div>
@@ -106,19 +104,27 @@ const HeroSection = () => {
       </motion.div>
       
       <motion.h1 
-        className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground" // Changed text-cloud-white to text-foreground
+        className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight"
         variants={itemVariants}
       >
         Transform Your Ideas into Reality with{" "}
         <motion.span 
-          className="text-primary inline-block" // Changed text-cool-lilac to text-primary
+          className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 inline-block"
+          animate={{
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
         >
           AI-Powered Creativity
         </motion.span>
       </motion.h1>
       
       <motion.p 
-        className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4" // Already theme-aware
+        className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4"
         variants={itemVariants}
       >
         No AI expertise required.

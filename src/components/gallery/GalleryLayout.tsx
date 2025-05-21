@@ -10,18 +10,17 @@ interface GalleryLayoutProps {
 
 const GalleryLayout = ({ children }: GalleryLayoutProps) => {
   return (
-    // Main page background: Off-Black
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-black">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-16 mt-10"> {/* mt-10 for navbar */}
+      <main className="flex-1 container mx-auto px-4 py-16 mt-10">
         <motion.div
           className="max-w-6xl mx-auto"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          {children} {/* Children (Header, Tabs) should adapt to theme */}
+          {children}
         </motion.div>
       </main>
       

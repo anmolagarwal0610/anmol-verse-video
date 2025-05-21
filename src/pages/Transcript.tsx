@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 const Transcript = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-black">
       <Navbar />
       
       <main className="flex-1 flex flex-col items-center px-4 py-16 mt-10">
@@ -16,7 +16,7 @@ const Transcript = () => {
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <motion.div 
-            className="inline-block bg-cool-lilac text-off-black px-4 py-1 rounded-full text-sm font-medium mb-4"
+            className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-medium mb-4"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
@@ -25,7 +25,7 @@ const Transcript = () => {
           </motion.div>
           
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-balance">
-            Create engaging <span className="text-gradient">voiceover scripts</span>
+            Create engaging <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">voiceover scripts</span>
           </h1>
           
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">

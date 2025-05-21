@@ -1,3 +1,4 @@
+
 import { FileText, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -62,7 +63,7 @@ export const FormInput = ({
           value={prompt}
           onChange={(e) => onPromptChange(e.target.value)}
           placeholder="A short motivational speech about overcoming challenges..."
-          className="min-h-[120px] resize-none transition-all border-input bg-card focus-visible:ring-1 focus-visible:ring-ring"
+          className="min-h-[120px] resize-none transition-all border-gray-200 focus-visible:ring-1 focus-visible:ring-primary"
           disabled={isGenerating}
         />
 
@@ -127,8 +128,7 @@ export const FormInput = ({
         
         <Button 
           type="submit" 
-          variant="default" // Use default variant (Sky Blue Tint)
-          className="w-full sm:w-auto font-medium transition-all" 
+          className="w-full sm:w-auto font-medium transition-all bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white" 
           size="lg"
           disabled={isGenerating || !prompt.trim()}
         >

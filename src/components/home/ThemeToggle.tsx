@@ -1,35 +1,22 @@
 
 import { useState, useEffect } from 'react';
 import { Sun, Moon } from 'lucide-react';
-import { Toggle } from '@/components/ui/toggle'; // Ensure this is correctly styled by new button variants
+import { Toggle } from '@/components/ui/toggle';
 
 const ThemeToggle = () => {
-  const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    // Initialize based on system preference or saved preference
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-      setIsDarkMode(true);
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setIsDarkMode(isDark);
+    if (isDark) {
       document.documentElement.classList.add('dark');
-    } else {
-      setIsDarkMode(false);
-      document.documentElement.classList.remove('dark');
     }
   }, []);
 
   const toggleDarkMode = () => {
-    const newIsDarkMode = !isDarkMode;
-    setIsDarkMode(newIsDarkMode);
-    if (newIsDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.classList.toggle('dark');
   };
 
   return (
@@ -37,9 +24,8 @@ const ThemeToggle = () => {
       <Toggle 
         pressed={isDarkMode} 
         onPressedChange={toggleDarkMode}
-        aria-label="Toggle theme"
-        // Use ghost variant for better styling with new theme, icons will use foreground color
-        className="rounded-full p-2 data-[state=on]:bg-light-cyan data-[state=on]:text-off-black data-[state=off]:text-foreground"
+        aria-label="Toggle dark mode"
+        className="rounded-full p-2"
       >
         {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
       </Toggle>

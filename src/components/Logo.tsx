@@ -1,6 +1,6 @@
 
 import { motion } from 'framer-motion';
-import { Star, Sparkles } from 'lucide-react'; // Assuming these icons are available
+import { Star, Sparkles } from 'lucide-react';
 
 const orbVariants = {
   initial: { scale: 1, opacity: 0.5 },
@@ -31,31 +31,32 @@ const sparkleVariants = {
 const Logo = () => {
   return (
     <motion.div
-      className="relative h-8 w-8"
+      className="relative h-8 w-8" // Corresponds to 32px
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       initial="initial"
       animate="animate"
     >
-      {/* Pulsing Orb Background - Cool Lilac via Sky Blue to Cool Lilac */}
+      {/* Pulsing Orb Background */}
       <motion.div
-        className="absolute inset-0 rounded-full bg-gradient-to-r from-[hsl(var(--color-cool-lilac))] via-[hsl(var(--color-sky-blue-tint))] to-[hsl(var(--color-cool-lilac))] blur-sm opacity-70"
+        className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-700 blur-sm opacity-70"
         variants={orbVariants}
       />
       
-      <div className="absolute inset-[3px] bg-background rounded-full flex items-center justify-center overflow-hidden">
+      {/* Inner Circle with Content */}
+      <div className="absolute inset-[3px] bg-white dark:bg-gray-950 rounded-full flex items-center justify-center overflow-hidden">
         <div className="relative w-full h-full">
-          {/* Star Icon - Cool Lilac via Sky Blue to Off-Black (or a darker shade of Lilac) */}
+          {/* Star Icon */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <Star className="w-[18px] h-[18px] text-transparent stroke-[2px] bg-clip-text bg-gradient-to-r from-[hsl(var(--color-cool-lilac))] via-[hsl(var(--color-sky-blue-tint))] to-[hsl(var(--color-off-black))]" />
+            <Star className="w-[18px] h-[18px] text-transparent stroke-[2px] bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
           </div>
           
-          {/* Rotating Sparkles - Sky Blue Tint */}
+          {/* Rotating Sparkles */}
           <motion.div
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
             variants={sparkleVariants}
           >
-            <Sparkles className="w-2.5 h-2.5 text-[hsl(var(--color-sky-blue-tint))]" />
+            <Sparkles className="w-2.5 h-2.5 text-indigo-400" />
           </motion.div>
         </div>
       </div>
