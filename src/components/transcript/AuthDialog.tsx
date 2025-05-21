@@ -34,8 +34,7 @@ export const AuthDialog = ({ open, onOpenChange, onSignIn }: AuthDialogProps) =>
         <DialogFooter className="sm:justify-start">
           <Button
             type="button"
-            variant="default"
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+            variant="default" // Use default variant (Sky Blue Tint)
             onClick={onSignIn}
           >
             <LogIn className="mr-2 h-4 w-4" />

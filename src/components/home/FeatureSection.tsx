@@ -13,9 +13,8 @@ const FeatureSection = () => {
     {
       title: "Video Genie",
       description: "Instantly transform a single idea into a complete, voice-backed, image-rich video, bringing your stories to life effortlessly.",
-      icon: <Film className="h-8 w-8 text-blue-500" />,
+      icon: <Film className="h-8 w-8" />, // Removed text-[#4FC3F7], FeatureCard will color it using text-accent
       path: "/videos/generate",
-      color: "from-blue-500 to-blue-600",
       delay: 0.1,
       comingSoon: false,
       disabled: false
@@ -23,33 +22,29 @@ const FeatureSection = () => {
     {
       title: "AI Image Creation",
       description: "Generate unique, high-quality visuals from simple text descriptions using advanced AI models. Perfect for marketing, art, and more.",
-      icon: <ImageIcon className="h-8 w-8 text-indigo-500" />,
+      icon: <ImageIcon className="h-8 w-8" />, // Removed text-[#4FC3F7]
       path: "/images",
-      color: "from-indigo-500 to-indigo-600",
       delay: 0.2
     },
     {
       title: "Smart Transcription",
       description: "Convert audio and video content into precise, readable transcripts with our AI-powered technology, saving you time and effort.",
-      icon: <FileText className="h-8 w-8 text-green-500" />,
+      icon: <FileText className="h-8 w-8" />, // Removed text-[#4FC3F7]
       path: "/transcript",
-      color: "from-green-500 to-green-600",
       delay: 0.3
     },
     {
       title: "Media Collection",
       description: "Effortlessly organize, manage, and access all your AI-generated content within an elegant and intuitive interface.",
-      icon: <LayoutGrid className="h-8 w-8 text-purple-500" />,
+      icon: <LayoutGrid className="h-8 w-8" />, // Removed text-[#4FC3F7]
       path: "/gallery",
-      color: "from-purple-500 to-purple-600",
       delay: 0.4
     },
     {
       title: "Chat Genie",
       description: "Revolutionize your customer interactions with intelligent, automated WhatsApp and Instagram chat solutions.",
-      icon: <MessageSquareMore className="h-8 w-8 text-teal-500" />,
+      icon: <MessageSquareMore className="h-8 w-8" />, // Removed text-[#4FC3F7]
       path: "/chat",
-      color: "from-teal-500 to-teal-600",
       delay: 0.5,
       comingSoon: true,
       disabled: true

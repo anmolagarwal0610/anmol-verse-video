@@ -129,7 +129,8 @@ const VideoGenerationForm = ({
                 <SubtitlesSection audioLanguage={audioLanguage} />
               </div>
               
-              <Button type="submit" disabled={isGenerating} className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700">
+              {/* Button gradient updated to Royal Purple to Sky Blue */}
+              <Button type="submit" disabled={isGenerating} className="w-full bg-gradient-to-r from-[#6A0DAD] to-[#4FC3F7] hover:from-[#520A83] hover:to-[#36A5D7] text-primary-foreground">
                 {isGenerating ? 'Generating...' : `Generate Video (Est. ${creditCost} credits*)`}
               </Button>
               

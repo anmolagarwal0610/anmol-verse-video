@@ -17,7 +17,7 @@ const SubmitButton = ({ isGenerating, model, creditCost, onAuthRequired }: Submi
   
   const getButtonLabel = () => {
     if (isGenerating) return "Generating...";
-    if (model === 'basic') return "Generate Image (Free)";
+    if (model === 'basic') return "Generate Image (Free)"; // Basic model might not fit this theme if "free" is special
     return `Generate Image (${creditCost} credits)`;
   };
 
@@ -31,8 +31,8 @@ const SubmitButton = ({ isGenerating, model, creditCost, onAuthRequired }: Submi
   return (
     <Button 
       type="submit" 
-      variant="default" // Use theme default variant (accent color)
-      className="w-full" // Keep w-full for layout
+      // Button: Sky Blue Tint background, Off-Black text. Hover to Light Cyan.
+      className="w-full bg-sky-blue-tint text-off-black hover:bg-light-cyan hover:text-off-black font-semibold shadow-md hover:shadow-sky-blue-tint/30" 
       size={isMobile ? "default" : "lg"}
       disabled={isGenerating}
       onClick={handleButtonClick}

@@ -9,10 +9,10 @@ export const BrandLogo = () => {
   return (
     <Link to="/" className="flex items-center space-x-2">
       {!isHomePage && <Logo />}
-      <span className="text-base sm:text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-700">
+      {/* Cool Lilac to Sky Blue Tint gradient */}
+      <span className="text-base sm:text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-[hsl(var(--color-cool-lilac))] to-[hsl(var(--color-sky-blue-tint))]">
         DumbLabs.AI
       </span>
     </Link>
   );
 };
-

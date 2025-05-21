@@ -86,7 +86,9 @@ export default function AuthButtons() {
     <div className="flex items-center gap-3">
       <Button 
         onClick={handleGetStarted}
-        className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium px-4 rounded-full shadow-sm hover:shadow-md transition-all"
+        variant="default" // Use the default variant which is Sky Blue Tint
+        className="font-medium px-4 rounded-full shadow-sm hover:shadow-md transition-all"
+        // className="bg-sky-blue-tint hover:bg-sky-blue-tint/90 text-off-black font-medium px-4 rounded-full shadow-sm hover:shadow-md transition-all"
       >
         <span className="hidden sm:inline">Get Started for Free</span>
         <span className="sm:hidden">Sign Up</span>
@@ -96,7 +98,7 @@ export default function AuthButtons() {
         onClick={handleSignIn}
         variant="ghost"
         size="icon"
-        className="text-muted-foreground hover:bg-slate-100 dark:hover:bg-slate-800"
+        className="text-muted-foreground hover:bg-light-cyan/50 dark:hover:bg-light-cyan/20" // Adjusted hover for better visibility
         aria-label="Sign In"
       >
         <LogIn className="h-5 w-5" />
@@ -104,4 +106,3 @@ export default function AuthButtons() {
     </div>
   );
 }
-
