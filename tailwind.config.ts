@@ -1,3 +1,4 @@
+
 import { type Config } from "tailwindcss";
 
 const config = {
@@ -28,12 +29,12 @@ const config = {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					DEFAULT: 'hsl(var(--primary))', // Will be updated by CSS vars
+					foreground: 'hsl(var(--primary-foreground))' // Will be updated by CSS vars
 				},
 				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					DEFAULT: 'hsl(var(--secondary))', // Will be updated by CSS vars
+					foreground: 'hsl(var(--secondary-foreground))' // Will be updated by CSS vars
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -44,17 +45,25 @@ const config = {
 					foreground: 'hsl(var(--muted-foreground))'
 				},
 				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
+					DEFAULT: 'hsl(var(--accent))', // Will be updated by CSS vars
+					foreground: 'hsl(var(--accent-foreground))' // Will be updated by CSS vars
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
 					foreground: 'hsl(var(--popover-foreground))'
 				},
 				card: {
-					DEFAULT: 'hsl(var(--card))',
-					foreground: 'hsl(var(--card-foreground))'
+					DEFAULT: 'hsl(var(--card))', // Will be updated by CSS vars
+					foreground: 'hsl(var(--card-foreground))' // Will be updated by CSS vars
 				},
+        // New Color Palette
+        'off-black': '#101820',
+        'cool-lilac': '#B4A7FF',
+        'sky-blue-tint': '#8EC5FC',
+        'light-cyan': '#CFFAFE',
+        'cloud-white': '#F5F5F5',
+        'darker-card-bg': '#0C131A',
+        'light-gray-text': '#D1D5DB', // For supporting lines, similar to text-muted-foreground
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -150,3 +159,4 @@ const config = {
 } satisfies Config;
 
 export default config;
+

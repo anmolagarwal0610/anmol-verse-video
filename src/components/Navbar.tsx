@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Search } from 'lucide-react'; // Added Search icon
 import { useIsMobile } from '@/hooks/use-mobile';
 import AuthButtons from '@/components/AuthButtons';
 import UserCredits from '@/components/UserCredits';
@@ -9,6 +10,8 @@ import { BrandLogo } from './navbar/BrandLogo';
 import { DesktopNav } from './navbar/DesktopNav';
 import { MobileMenu } from './navbar/MobileMenu';
 import { MenuToggle } from './navbar/MenuToggle';
+import ThemeToggle from '@/components/home/ThemeToggle'; // Import ThemeToggle
+import { Button } from '@/components/ui/button'; // Import Button for Search icon
 
 const Navbar = () => {
   const location = useLocation();
@@ -56,17 +59,26 @@ const Navbar = () => {
 
   return (
     <motion.header 
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-4 md:px-6 py-3 backdrop-blur-lg bg-white/70 dark:bg-black/70 shadow-sm"
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-4 md:px-6 py-3 backdrop-blur-lg bg-off-black/70 shadow-md border-b border-border" // Updated background and border
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <BrandLogo />
-        <DesktopNav isActive={isActive} />
+        <div className="flex items-center gap-4"> {/* Container for logo and desktop nav */}
+          <BrandLogo />
+          <DesktopNav isActive={isActive} />
+        </div>
+        
         <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" className="text-cloud-white hover:bg-sky-blue-tint/20">
+            <Search className="h-5 w-5" />
+          </Button>
           <UserCredits />
           <AuthButtons />
+          <div className="relative"> {/* Wrapper for ThemeToggle to remove fixed positioning */}
+            <ThemeToggle />
+          </div>
           <MenuToggle isOpen={isMenuOpen} onToggle={toggleMenu} />
         </div>
       </div>

@@ -50,8 +50,8 @@ const VideoGenerationForm = ({
       pixelOptionValue: undefined,
       video_duration: 25,
       frame_fps: 5,
-      subtitle_color: 'white',
-      subtitle_font: 'Arial',
+      subtitle_color: 'white', // Will be cloud-white by default from text-foreground
+      subtitle_font: 'Arial', // Consider Raleway if possible
       video_category: 'Hollywood Script',
       transition_style: 'fade',
       image_style: [],
@@ -95,10 +95,10 @@ const VideoGenerationForm = ({
     frame_fps: frameFPS
   });
 
-  return <Card className="w-full shadow-lg">
+  return <Card className="w-full shadow-lg bg-darker-card-bg border-border">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">Generate Video</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-2xl font-bold text-cloud-white">Generate Video</CardTitle>
+        <CardDescription className="text-light-gray-text">
           Create engaging videos in just a few minutes with our AI generator
         </CardDescription>
       </CardHeader>
@@ -110,27 +110,27 @@ const VideoGenerationForm = ({
           <Form {...form}>
             <form onSubmit={form.handleSubmit(validateAndShowConfirmation)} className="space-y-8">
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold">Basic Settings</h3>
+                <h3 className="text-lg font-semibold text-cloud-white">Basic Settings</h3>
                 <BasicFormFields />
               </div>
               
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold">Visual Settings</h3>
+                <h3 className="text-lg font-semibold text-cloud-white">Visual Settings</h3>
                 <VisualsSection />
               </div>
               
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold">Audio Settings</h3>
+                <h3 className="text-lg font-semibold text-cloud-white">Audio Settings</h3>
                 <AudioSection />
               </div>
               
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold">Subtitle Settings</h3>
+                <h3 className="text-lg font-semibold text-cloud-white">Subtitle Settings</h3>
                 <SubtitlesSection audioLanguage={audioLanguage} />
               </div>
               
-              {/* Button gradient updated to Royal Purple to Sky Blue */}
-              <Button type="submit" disabled={isGenerating} className="w-full bg-gradient-to-r from-[#6A0DAD] to-[#4FC3F7] hover:from-[#520A83] hover:to-[#36A5D7] text-primary-foreground">
+              {/* Button: Sky Blue Tint, hover to Light Cyan */}
+              <Button type="submit" disabled={isGenerating} className="w-full bg-sky-blue-tint text-off-black hover:bg-light-cyan hover:text-off-black font-semibold">
                 {isGenerating ? 'Generating...' : `Generate Video (Est. ${creditCost} credits*)`}
               </Button>
               
