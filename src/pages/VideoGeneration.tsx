@@ -14,6 +14,7 @@ import { LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCredit } from '@/lib/creditService';
 import { checkCredits } from '@/lib/creditService';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Session storage key for tracking processed videos
 const PROCESSED_VIDEOS_STORAGE_KEY = "processedVideoIds";
@@ -109,7 +110,7 @@ const VideoGeneration = () => {
         resultsElement.scrollIntoView({ behavior: 'smooth' });
       }
     }
-  }, [status, result, progress, error, user, loading, currentParams, processedVideoIds]);
+  }, [status, result, progress, error, user, loading, currentParams, processedVideoIds, generateVideo, cancelGeneration]);
   
   // Function to calculate actual credit cost based on audio duration
   const calculateActualCreditCost = (audioDuration: number, voice: string, frameFps: number): number => {
@@ -257,61 +258,72 @@ const VideoGeneration = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-purple-50 to-indigo-100 dark:from-slate-950 dark:via-purple-950/70 dark:to-indigo-950/80">
+    // Main page background: Off-Black
+    <div className="min-h-screen bg-background text-foreground">
       <Navbar />
       
-      <main className="container max-w-4xl mx-auto py-8 px-4 mt-16">
+      <main className="container max-w-4xl mx-auto py-8 px-4 mt-16"> {/* mt-16 for navbar */}
         <div className="mb-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-purple-600 via-indigo-500 to-pink-500 bg-clip-text text-transparent">
+          {/* Heading Cool Lilac */}
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-cool-lilac">
             Video Genie
           </h1>
+          {/* Sub-heading Muted Cloud White */}
           <p className="mt-3 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
             Turn a single idea into a complete, voice-backed, image-rich video—instantly and effortlessly.
           </p>
         </div>
         
-        <Separator className="my-8 bg-gradient-to-r from-transparent via-purple-300 dark:via-purple-700 to-transparent h-[2px]" />
+        {/* Separator using accent (Sky Blue Tint) or primary (Cool Lilac) */}
+        <Separator className="my-8 bg-gradient-to-r from-transparent via-primary/50 to-transparent h-[1px]" />
         
         <div className="w-full">
           {!loading && !user && (
-            <div className="bg-white dark:bg-slate-900/80 border border-purple-200 dark:border-purple-800/60 rounded-xl p-8 mb-8 text-center shadow-xl backdrop-blur-sm">
-              <h2 className="text-2xl font-semibold mb-4">Authentication Required</h2>
-              <p className="mb-6 text-muted-foreground">
-                Please sign in to generate videos. You can explore the options, but will need to authenticate before creating videos.
-              </p>
-              <Button 
-                onClick={handleSignIn}
-                size="lg"
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all"
-              >
-                <LogIn className="mr-2 h-5 w-5" />
-                Sign In to Continue
-              </Button>
-            </div>
+            // Auth card using new card styles
+            <Card className="p-8 mb-8 text-center shadow-xl">
+              <CardHeader>
+                <CardTitle className="text-2xl font-semibold mb-4">Authentication Required</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-6 text-muted-foreground">
+                  Please sign in to generate videos. You can explore the options, but will need to authenticate before creating videos.
+                </p>
+                {/* Sign In Button: Sky Blue Tint background, Off-Black text, Light Cyan hover */}
+                <Button 
+                  onClick={handleSignIn}
+                  size="lg"
+                  className="bg-sky-blue-tint text-off-black hover:bg-light-cyan hover:text-off-black font-semibold shadow-md hover:shadow-sky-blue-tint/30"
+                >
+                  <LogIn className="mr-2 h-5 w-5" />
+                  Sign In to Continue
+                </Button>
+              </CardContent>
+            </Card>
           )}
         
-          {(status === 'idle' || status === 'error' || status === 'completed') && !isGenerating && ( // Show form if idle, error, or completed AND not currently generating a new one
-            <SimplifiedVideoGenerationForm // Use the new simplified form
+          {/* Form, Progress, Error, Results should all use new card/text/button styles implicitly */}
+          {(status === 'idle' || status === 'error' || status === 'completed') && !isGenerating && (
+            <SimplifiedVideoGenerationForm
               onSubmit={handleSubmit} 
               isGenerating={isGenerating} 
             />
           )}
           
-          {isGenerating && ( // Only show progress if actively generating
+          {isGenerating && (
             <ProgressCard 
               progress={progress} 
               status={status === 'generating' ? 'Starting generation...' : (status === 'polling' ? `Processing video... ${progress}%` : 'Preparing...')}
             />
           )}
           
-          {status === 'error' && error && !isGenerating && ( // Show error only if not currently generating something else
+          {status === 'error' && error && !isGenerating && (
             <ErrorDisplay 
               message={error} 
               onReset={cancelGeneration} 
             />
           )}
           
-          {status === 'completed' && result && !isGenerating && ( // Show results only if completed and not generating something new
+          {status === 'completed' && result && !isGenerating && (
             <div id="results-section" className="mt-8">
               <ResultsSection result={result} />
             </div>

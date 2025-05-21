@@ -1,6 +1,6 @@
 
 import { Button } from '@/components/ui/button';
-import { Play } from 'lucide-react';
+import { Play } from 'lucide-react'; // Ensure Play icon is available
 
 interface PlayButtonProps {
   onClick: () => void;
@@ -11,12 +11,11 @@ const PlayButton = ({ onClick }: PlayButtonProps) => {
     <div className="absolute inset-0 flex items-center justify-center">
       <Button 
         size="icon" 
-        variant="secondary" // Secondary variant will now use new theme colors
-        // Added primary color with opacity for the button background
-        className="h-16 w-16 rounded-full bg-primary/30 hover:bg-primary/50 backdrop-blur text-primary-foreground"
+        // Button styling: Semi-transparent Sky Blue Tint, hover to more opaque Light Cyan
+        className="h-16 w-16 rounded-full bg-sky-blue-tint/70 hover:bg-light-cyan/90 backdrop-blur-sm text-off-black shadow-lg"
         onClick={onClick}
       >
-        <Play className="h-8 w-8" />
+        <Play className="h-8 w-8 fill-current" /> {/* fill-current to use text-off-black */}
       </Button>
     </div>
   );

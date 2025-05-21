@@ -67,7 +67,7 @@ const HeroSection = () => {
 
   return (
     <motion.div 
-      className="max-w-4xl w-full text-center space-y-6 mb-12"
+      className="max-w-4xl w-full text-center space-y-6 mb-12 text-cloud-white"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -78,17 +78,16 @@ const HeroSection = () => {
       >
         <div className="relative w-32 h-32 mx-auto">
           <motion.div 
-            className="absolute inset-0 rounded-full bg-gradient-to-r from-[#6A0DAD] via-[#4FC3F7] to-[#6A0DAD] blur-md opacity-70"
+            className="absolute inset-0 rounded-full bg-gradient-to-r from-[hsl(var(--color-cool-lilac))] via-[hsl(var(--color-sky-blue-tint))] to-[hsl(var(--color-cool-lilac))] blur-md opacity-70"
             initial="initial"
             animate="animate"
             variants={orbVariants}
           />
           
-          <div className="absolute inset-3 bg-background dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-3 bg-background dark:bg-off-black rounded-full flex items-center justify-center overflow-hidden">
             <div className="relative w-full h-full">
               <div className="absolute inset-0 flex items-center justify-center">
-                {/* Star gradient: Royal Purple via Sky Blue to Midnight Blue */}
-                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-[#6A0DAD] via-[#4FC3F7] to-[#0A0F3C]" />
+                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-[hsl(var(--color-cool-lilac))] via-[hsl(var(--color-sky-blue-tint))] to-[hsl(var(--color-off-black))]" />
               </div>
               <motion.div 
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -96,8 +95,7 @@ const HeroSection = () => {
                 animate="animate"
                 variants={sparkleVariants}
               >
-                {/* Sparkles color: Sky Blue */}
-                <Sparkles className="w-6 h-6 text-[#4FC3F7]" />
+                <Sparkles className="w-6 h-6 text-[hsl(var(--color-sky-blue-tint))]" />
               </motion.div>
             </div>
           </div>
@@ -105,20 +103,12 @@ const HeroSection = () => {
       </motion.div>
       
       <motion.h1 
-        className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight"
+        className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-cloud-white"
         variants={itemVariants}
       >
         Transform Your Ideas into Reality with{" "}
         <motion.span 
-          className="bg-clip-text text-transparent bg-gradient-to-r from-[#6A0DAD] via-[#4FC3F7] to-[#6A0DAD] inline-block"
-          animate={{
-            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          className="text-cool-lilac inline-block"
         >
           AI-Powered Creativity
         </motion.span>

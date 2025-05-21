@@ -1,4 +1,3 @@
-
 import Navbar from '@/components/Navbar';
 import TipsSection from '@/components/ImageGenerator/TipsSection';
 import HeaderSection from '@/components/ImageGenerator/HeaderSection';
@@ -33,11 +32,12 @@ const ImageGeneration = () => {
   }, [user]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-black">
+    // Main page background: Off-Black
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       <Navbar />
       
-      <main className="flex-1 flex flex-col items-center px-4 py-16 mt-10">
-        <HeaderSection />
+      <main className="flex-1 flex flex-col items-center px-4 py-16 mt-10"> {/* mt-10 to avoid navbar overlap */}
+        <HeaderSection /> {/* HeaderSection needs theme update */}
         
         <MainContent 
           form={form}
@@ -46,12 +46,13 @@ const ImageGeneration = () => {
           imageUrl={imageUrl}
           showGalleryMessage={showGalleryMessage}
           calculateEstimatedCreditCost={calculateEstimatedCreditCost}
+          // MainContent components (form, preview) should inherit theme
         />
         
-        <TipsSection />
+        <TipsSection /> {/* TipsSection should adapt to dark theme (e.g. card styling) */}
       </main>
       
-      <FooterSection />
+      <FooterSection /> {/* FooterSection should adapt */}
     </div>
   );
 };
