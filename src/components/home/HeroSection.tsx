@@ -109,9 +109,10 @@ const HeroSection = () => {
         className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground" // Changed text-cloud-white to text-foreground
         variants={itemVariants}
       >
-        Transform Your Ideas into Reality{" "}
+        Transform Your Ideas into Reality
+        <br /> {/* Force the subheading onto a new line */}
         <motion.span 
-          className="inline-block text-[#B4A7FF]" // <-- Fixed lavender color
+          className="inline-block text-3xl md:text-4xl text-[#B4A7FF]" // <-- Fixed lavender color
         >
           AI-Powered Creativity
         </motion.span>
