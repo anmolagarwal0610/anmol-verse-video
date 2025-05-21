@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { Sparkles, Star } from 'lucide-react';
 
@@ -79,7 +78,7 @@ const HeroSection = () => {
       >
         <div className="relative w-32 h-32 mx-auto">
           <motion.div 
-            className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-700 blur-md opacity-70"
+            className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 via-blue-600 to-indigo-700 blur-md opacity-70"
             initial="initial"
             animate="animate"
             variants={orbVariants}
@@ -88,7 +87,7 @@ const HeroSection = () => {
           <div className="absolute inset-3 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden">
             <div className="relative w-full h-full">
               <div className="absolute inset-0 flex items-center justify-center">
-                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700" />
+                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700" />
               </div>
               <motion.div 
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -109,7 +108,7 @@ const HeroSection = () => {
       >
         Transform Your Ideas into Reality with{" "}
         <motion.span 
-          className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 inline-block"
+          className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 inline-block"
           animate={{
             backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
           }}

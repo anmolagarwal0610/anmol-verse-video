@@ -1,4 +1,3 @@
-
 import { 
   ImageIcon,
   FileText,
@@ -39,9 +38,9 @@ const FeatureSection = () => {
     {
       title: "Media Collection",
       description: "Effortlessly organize, manage, and access all your AI-generated content within an elegant and intuitive interface.",
-      icon: <LayoutGrid className="h-8 w-8 text-purple-500" />,
+      icon: <LayoutGrid className="h-8 w-8 text-sky-500" />,
       path: "/gallery",
-      color: "from-purple-500 to-purple-600",
+      color: "from-sky-500 to-sky-600",
       delay: 0.4
     },
     {

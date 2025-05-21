@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
@@ -32,13 +31,13 @@ const BackgroundImage = () => {
       {/* Animated gradient placeholder while loading */}
       {!isLoaded && (
         <motion.div 
-          className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-indigo-900/20"
+          className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-indigo-900/20" // Changed from-purple-900
           animate={{
             background: [
-              "linear-gradient(to bottom, rgba(91, 33, 182, 0.2), rgba(67, 56, 202, 0.2))",
-              "linear-gradient(to bottom, rgba(79, 70, 229, 0.2), rgba(91, 33, 182, 0.2))",
+              "linear-gradient(to bottom, rgba(55, 48, 163, 0.2), rgba(67, 56, 202, 0.2))", // blue-900/20 to indigo-900/20
+              "linear-gradient(to bottom, rgba(79, 70, 229, 0.2), rgba(55, 48, 163, 0.2))", // indigo-800/20 to blue-900/20
               "linear-gradient(to bottom, rgba(67, 56, 202, 0.2), rgba(79, 70, 229, 0.2))",
-              "linear-gradient(to bottom, rgba(91, 33, 182, 0.2), rgba(67, 56, 202, 0.2))"
+              "linear-gradient(to bottom, rgba(55, 48, 163, 0.2), rgba(67, 56, 202, 0.2))"
             ]
           }}
           transition={{
@@ -64,7 +63,7 @@ const BackgroundImage = () => {
           {Array.from({ length: 20 }).map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-1 h-1 md:w-2 md:h-2 rounded-full bg-indigo-500 dark:bg-indigo-400"
+              className="absolute w-1 h-1 md:w-2 md:h-2 rounded-full bg-blue-500 dark:bg-blue-400" // Changed from indigo
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,

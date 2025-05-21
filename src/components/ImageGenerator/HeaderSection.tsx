@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 
 const HeaderSection = () => {
@@ -10,7 +9,7 @@ const HeaderSection = () => {
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
       <motion.div 
-        className="inline-block bg-gradient-to-r from-indigo-600 to-purple-700 text-white px-4 py-1 rounded-full text-sm font-medium mb-4"
+        className="inline-block bg-gradient-to-r from-indigo-600 to-blue-700 text-white px-4 py-1 rounded-full text-sm font-medium mb-4"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2, duration: 0.5 }}
@@ -19,7 +18,7 @@ const HeaderSection = () => {
       </motion.div>
       
       <h1 className="text-3xl md:text-4xl font-bold tracking-tight break-words">
-        Generate sophisticated <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-700">images</span> from text
+        Generate sophisticated <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-700">images</span> from text
       </h1>
       
       <p className="text-xl text-muted-foreground max-w-2xl mx-auto">

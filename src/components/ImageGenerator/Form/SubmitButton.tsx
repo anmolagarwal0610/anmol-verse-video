@@ -1,4 +1,3 @@
-
 import { Wand2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -32,7 +31,7 @@ const SubmitButton = ({ isGenerating, model, creditCost, onAuthRequired }: Submi
   return (
     <Button 
       type="submit" 
-      className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700" 
+      className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700" 
       size={isMobile ? "default" : "lg"}
       disabled={isGenerating}
       onClick={handleButtonClick}

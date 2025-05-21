@@ -98,7 +98,7 @@
   }
   
   .futuristic-border {
-    @apply border border-purple-300/30 dark:border-purple-500/30 rounded-lg shadow-lg shadow-purple-500/5;
+    @apply border border-blue-300/30 dark:border-blue-500/30 rounded-lg shadow-lg shadow-blue-500/5;
   }
 
   .glow-effect {
@@ -107,7 +107,7 @@
 
   .glow-effect::after {
     content: '';
-    @apply absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur opacity-30 -z-10 transition-opacity duration-300;
+    @apply absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-lg blur opacity-30 -z-10 transition-opacity duration-300;
   }
 
   .glow-effect:hover::after {
@@ -135,7 +135,7 @@
   }
   
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-600;
   }
 }
 
