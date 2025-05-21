@@ -1,3 +1,4 @@
+
 import { motion } from 'framer-motion';
 import { Sparkles, Star } from 'lucide-react';
 
@@ -67,7 +68,7 @@ const HeroSection = () => {
 
   return (
     <motion.div 
-      className="max-w-4xl w-full text-center space-y-6 mb-12 text-cloud-white"
+      className="max-w-4xl w-full text-center space-y-6 mb-12 text-foreground" // Changed text-cloud-white to text-foreground
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -78,16 +79,17 @@ const HeroSection = () => {
       >
         <div className="relative w-32 h-32 mx-auto">
           <motion.div 
-            className="absolute inset-0 rounded-full bg-gradient-to-r from-[hsl(var(--color-cool-lilac))] via-[hsl(var(--color-sky-blue-tint))] to-[hsl(var(--color-cool-lilac))] blur-md opacity-70"
+            className="absolute inset-0 rounded-full bg-gradient-to-r from-primary via-accent to-primary blur-md opacity-70" // Changed to theme colors
             initial="initial"
             animate="animate"
             variants={orbVariants}
           />
           
-          <div className="absolute inset-3 bg-background dark:bg-off-black rounded-full flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-3 bg-background rounded-full flex items-center justify-center overflow-hidden"> {/* Uses bg-background (theme-aware) */}
             <div className="relative w-full h-full">
               <div className="absolute inset-0 flex items-center justify-center">
-                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-[hsl(var(--color-cool-lilac))] via-[hsl(var(--color-sky-blue-tint))] to-[hsl(var(--color-off-black))]" />
+                {/* Star gradient uses theme colors and fades to background */}
+                <Star className="w-16 h-16 text-transparent stroke-[1.5] bg-clip-text bg-gradient-to-r from-primary via-accent to-background" />
               </div>
               <motion.div 
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -95,7 +97,8 @@ const HeroSection = () => {
                 animate="animate"
                 variants={sparkleVariants}
               >
-                <Sparkles className="w-6 h-6 text-[hsl(var(--color-sky-blue-tint))]" />
+                {/* Sparkles use accent color */}
+                <Sparkles className="w-6 h-6 text-accent" />
               </motion.div>
             </div>
           </div>
@@ -103,19 +106,19 @@ const HeroSection = () => {
       </motion.div>
       
       <motion.h1 
-        className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-cloud-white"
+        className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground" // Changed text-cloud-white to text-foreground
         variants={itemVariants}
       >
         Transform Your Ideas into Reality with{" "}
         <motion.span 
-          className="text-cool-lilac inline-block"
+          className="text-primary inline-block" // Changed text-cool-lilac to text-primary
         >
           AI-Powered Creativity
         </motion.span>
       </motion.h1>
       
       <motion.p 
-        className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4"
+        className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4" // Already theme-aware
         variants={itemVariants}
       >
         No AI expertise required.
