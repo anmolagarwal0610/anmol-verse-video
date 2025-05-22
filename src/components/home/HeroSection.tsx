@@ -113,7 +113,7 @@ const HeroSection = () => {
         <motion.span 
           className="inline-block text-4xl md:text-5xl text-cool-lilac" // Updated to text-cool-lilac
         >
-          AI-Powered Creativity
+          No AI expertise required
         </motion.span>
       </motion.h1>
       
@@ -121,7 +121,7 @@ const HeroSection = () => {
         className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mt-4" // Already theme-aware
         variants={itemVariants}
       >
-        No AI expertise required.
+        Creative results, faster than expected.
       </motion.p>
       
     </motion.div>
