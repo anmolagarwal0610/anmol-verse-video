@@ -1,4 +1,3 @@
-
 import { useForm } from 'react-hook-form';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
@@ -111,7 +110,11 @@ const VideoGenerationForm = ({
                 <SubtitlesSection audioLanguage={audioLanguage} />
               </div>
               
-              <Button type="submit" disabled={isGenerating} className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700">
+              <Button 
+                type="submit" 
+                disabled={isGenerating} 
+                className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground hover:brightness-105 shadow-md hover:shadow-lg transition-all"
+              >
                 {isGenerating ? 'Generating...' : `Generate Video (Est. ${creditCost} credits*)`}
               </Button>
               

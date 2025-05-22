@@ -16,7 +16,10 @@ const GalleryHeader = () => {
         <Button asChild variant="outline" className="gap-2">
           <Link to="/images"><ImageIcon size={16} /> Create Image</Link>
         </Button>
-        <Button asChild className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+        <Button 
+          asChild 
+          className="gap-2 bg-gradient-to-r from-primary to-accent text-primary-foreground hover:brightness-105 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+        >
           <Link to="/"><VideoIcon size={16} /> Create Video</Link>
         </Button>
       </div>

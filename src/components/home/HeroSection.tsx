@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { Sparkles, Star } from 'lucide-react';
 
@@ -112,7 +111,7 @@ const HeroSection = () => {
         Transform Your Ideas into Reality
         <br /> {/* Force the subheading onto a new line */}
         <motion.span 
-          className="inline-block text-4xl md:text-5xl text-[#B4A7FF]" // <-- Fixed lavender color
+          className="inline-block text-4xl md:text-5xl text-cool-lilac" // Updated to text-cool-lilac
         >
           AI-Powered Creativity
         </motion.span>
