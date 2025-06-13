@@ -15,30 +15,71 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
     storageKey: 'anmol-verse-auth-token',
     storage: localStorage,
-    flowType: 'pkce', // Use PKCE flow for better security
-    detectSessionInUrl: true, // Enable session detection from URL
-    debug: true, // Enable debug mode for auth operations
+    flowType: 'pkce',
+    detectSessionInUrl: true,
+    debug: true,
   }
 });
 
-// Add debugging for OAuth session detection
+// Enhanced debugging for OAuth session detection and PKCE flow
 if (typeof window !== 'undefined') {
   console.log('🔍 [Supabase Client] Initializing with enhanced OAuth support');
   console.log('🔍 [Supabase Client] Current origin:', window.location.origin);
   console.log('🔍 [Supabase Client] Current URL:', window.location.href);
   console.log('🔍 [Supabase Client] Hash present:', !!window.location.hash);
+  console.log('🔍 [Supabase Client] Search params:', window.location.search);
+  
+  // Check for PKCE verifier in localStorage
+  const pkceVerifier = localStorage.getItem(`supabase.auth.pkce_verifier`);
+  console.log('🔍 [Supabase Client] PKCE verifier exists:', !!pkceVerifier);
   
   // Check if we have a session in localStorage
   const session = localStorage.getItem('anmol-verse-auth-token');
   console.log('🔍 [Supabase Client] Session in localStorage:', session ? 'exists' : 'not found');
 
-  // Enhanced auth state change listener
+  // Enhanced auth state change listener with comprehensive logging
   supabase.auth.onAuthStateChange((event, session) => {
     console.log('🔍 [Supabase Client] Auth state changed:', event);
     console.log('🔍 [Supabase Client] Session exists:', !!session);
+    console.log('🔍 [Supabase Client] Current URL during auth change:', window.location.href);
+    
     if (session) {
       console.log('🔍 [Supabase Client] User email:', session.user?.email);
       console.log('🔍 [Supabase Client] Session expires at:', new Date(session.expires_at! * 1000));
+      console.log('🔍 [Supabase Client] Access token exists:', !!session.access_token);
+      console.log('🔍 [Supabase Client] Refresh token exists:', !!session.refresh_token);
+    }
+
+    if (event === 'SIGNED_IN') {
+      console.log('🔍 [Supabase Client] User successfully signed in');
+      // Clear any pending redirect paths if sign in is successful
+      if (window.location.pathname === '/auth/callback' || window.location.hash.includes('/auth')) {
+        console.log('🔍 [Supabase Client] Clearing auth callback state');
+      }
+    }
+
+    if (event === 'TOKEN_REFRESHED') {
+      console.log('🔍 [Supabase Client] Token refreshed successfully');
+    }
+
+    if (event === 'SIGNED_OUT') {
+      console.log('🔍 [Supabase Client] User signed out');
+      // Clear PKCE verifier on sign out
+      localStorage.removeItem(`supabase.auth.pkce_verifier`);
+    }
+  });
+
+  // Listen for hash changes to detect OAuth redirects
+  window.addEventListener('hashchange', () => {
+    console.log('🔍 [Supabase Client] Hash changed to:', window.location.hash);
+    if (window.location.hash.includes('access_token') || window.location.hash.includes('code=')) {
+      console.log('🔍 [Supabase Client] OAuth tokens detected in hash, triggering session check');
+      // Small delay to allow Supabase to process the tokens
+      setTimeout(() => {
+        supabase.auth.getSession().then(({ data, error }) => {
+          console.log('🔍 [Supabase Client] Post-hash session check:', data.session ? 'session found' : 'no session', error);
+        });
+      }, 100);
     }
   });
 }

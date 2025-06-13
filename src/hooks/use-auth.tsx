@@ -22,17 +22,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Improved initialization logic
+  // Improved initialization logic with enhanced logging
   useEffect(() => {
     console.log('[Auth Provider] Setting up auth state...');
+    console.log('[Auth Provider] Current URL:', window.location.href);
     
     // First set up the auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         console.log('[Auth Provider] Auth state changed:', event);
+        console.log('[Auth Provider] Session from event:', currentSession ? 'exists' : 'null');
         
         if (currentSession) {
           console.log('[Auth Provider] Session found during auth change event');
+          console.log('[Auth Provider] User email:', currentSession.user?.email);
+          console.log('[Auth Provider] Session expires at:', new Date(currentSession.expires_at! * 1000));
           setSession(currentSession);
           setUser(currentSession.user);
         } else {
@@ -68,6 +72,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (data?.session) {
           console.log('[Auth Provider] Existing session found:', data.session.user.email);
+          console.log('[Auth Provider] Session details:', {
+            userId: data.session.user.id,
+            email: data.session.user.email,
+            expiresAt: new Date(data.session.expires_at! * 1000),
+            provider: data.session.user.app_metadata?.provider
+          });
           setSession(data.session);
           setUser(data.session.user);
         } else {
@@ -101,7 +111,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       console.log('[Auth Provider] Signing out...');
-      const { error } = await supabase.auth.signOut();
+      
+      // Clear all auth-related localStorage items
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-') || key === 'anmol-verse-auth-token') {
+          console.log('[Auth Provider] Clearing storage key:', key);
+          localStorage.removeItem(key);
+        }
+      });
+
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
       if (error) throw error;
       
       // Clear state after signout
@@ -109,6 +128,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(null);
       
       console.log('[Auth Provider] Sign out successful');
+      
+      // Force page refresh to ensure clean state
+      window.location.href = '/auth';
+      
     } catch (error) {
       console.error('[Auth Provider] Error signing out:', error);
     } finally {
