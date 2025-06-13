@@ -15,24 +15,30 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
     storageKey: 'anmol-verse-auth-token',
     storage: localStorage,
-    flowType: 'pkce', // Explicitly use PKCE flow for better security
-    detectSessionInUrl: true, // Ensure session hash is properly detected
+    flowType: 'pkce', // Use PKCE flow for better security
+    detectSessionInUrl: true, // Enable session detection from URL
     debug: true, // Enable debug mode for auth operations
   }
 });
 
-// Add some debugging for session detection
+// Add debugging for OAuth session detection
 if (typeof window !== 'undefined') {
-  console.log('[Supabase Client] Initializing with persistSession=true and autoRefreshToken=true');
-  console.log('[Supabase Client] Current origin:', window.location.origin);
-  console.log('[Supabase Client] Current URL:', window.location.href);
+  console.log('🔍 [Supabase Client] Initializing with enhanced OAuth support');
+  console.log('🔍 [Supabase Client] Current origin:', window.location.origin);
+  console.log('🔍 [Supabase Client] Current URL:', window.location.href);
+  console.log('🔍 [Supabase Client] Hash present:', !!window.location.hash);
   
   // Check if we have a session in localStorage
   const session = localStorage.getItem('anmol-verse-auth-token');
-  console.log('[Supabase Client] Session in localStorage:', session ? 'exists' : 'not found');
+  console.log('🔍 [Supabase Client] Session in localStorage:', session ? 'exists' : 'not found');
 
-  // Listen for auth state changes
+  // Enhanced auth state change listener
   supabase.auth.onAuthStateChange((event, session) => {
-    console.log('[Supabase Client] Auth state changed:', event, 'Session:', session ? 'exists' : 'null');
+    console.log('🔍 [Supabase Client] Auth state changed:', event);
+    console.log('🔍 [Supabase Client] Session exists:', !!session);
+    if (session) {
+      console.log('🔍 [Supabase Client] User email:', session.user?.email);
+      console.log('🔍 [Supabase Client] Session expires at:', new Date(session.expires_at! * 1000));
+    }
   });
 }

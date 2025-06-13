@@ -11,17 +11,18 @@ interface SocialAuthProps {
 const SocialAuth = ({ isLoading }: SocialAuthProps) => {
   const handleGoogleSignIn = async () => {
     try {
-      console.log('Starting Google sign in...');
-      console.log('Current URL:', window.location.href);
-      console.log('Redirect URL will be:', `${window.location.origin}/auth/callback`);
+      console.log('🔍 [SocialAuth] Starting Google sign in...');
+      console.log('🔍 [SocialAuth] Current URL:', window.location.href);
+      console.log('🔍 [SocialAuth] Current origin:', window.location.origin);
       
-      // Get the current browser info for debugging
-      console.log('User agent:', navigator.userAgent);
+      // Construct the exact redirect URL
+      const redirectTo = `${window.location.origin}/auth/callback`;
+      console.log('🔍 [SocialAuth] Redirect URL:', redirectTo);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -30,39 +31,56 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
       });
       
       if (error) {
-        console.error('Error signing in with Google:', error);
-        throw error;
+        console.error('🔍 [SocialAuth] Error signing in with Google:', error);
+        toast.error(error.message || 'Failed to initiate Google sign in');
+        return;
       }
       
-      console.log('Google sign in initiated successfully:', data);
+      console.log('🔍 [SocialAuth] Google sign in initiated successfully:', data);
+      
+      // Store current path for redirect after successful auth
+      if (window.location.pathname !== '/auth') {
+        sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
+        console.log('🔍 [SocialAuth] Stored pending redirect path:', window.location.pathname);
+      }
+      
     } catch (error: any) {
-      console.error('Error signing in with Google:', error);
-      toast.error(error.message || 'An error occurred during Google sign in');
+      console.error('🔍 [SocialAuth] Unexpected error during Google sign in:', error);
+      toast.error('An unexpected error occurred during sign in');
     }
   };
 
   const handleFacebookSignIn = async () => {
     try {
-      console.log('Starting Facebook sign in...');
-      console.log('Current URL:', window.location.href);
-      console.log('Redirect URL will be:', `${window.location.origin}/auth/callback`);
+      console.log('🔍 [SocialAuth] Starting Facebook sign in...');
+      
+      const redirectTo = `${window.location.origin}/auth/callback`;
+      console.log('🔍 [SocialAuth] Facebook redirect URL:', redirectTo);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo,
         },
       });
       
       if (error) {
-        console.error('Error signing in with Facebook:', error);
-        throw error;
+        console.error('🔍 [SocialAuth] Error signing in with Facebook:', error);
+        toast.error(error.message || 'Failed to initiate Facebook sign in');
+        return;
       }
       
-      console.log('Facebook sign in initiated successfully:', data);
+      console.log('🔍 [SocialAuth] Facebook sign in initiated successfully:', data);
+      
+      // Store current path for redirect after successful auth
+      if (window.location.pathname !== '/auth') {
+        sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
+        console.log('🔍 [SocialAuth] Stored pending redirect path:', window.location.pathname);
+      }
+      
     } catch (error: any) {
-      console.error('Error signing in with Facebook:', error);
-      toast.error(error.message || 'An error occurred during Facebook sign in');
+      console.error('🔍 [SocialAuth] Unexpected error during Facebook sign in:', error);
+      toast.error('An unexpected error occurred during sign in');
     }
   };
 
