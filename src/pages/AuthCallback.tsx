@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
@@ -162,20 +161,6 @@ const AuthCallback = () => {
 
     return () => clearTimeout(timeoutId);
   }, [session, loading, navigate]);
-
-  // Handle the case where user lands on homepage with hash fragment
-  useEffect(() => {
-    // Check if we're on the homepage but should be on auth callback
-    if (window.location.pathname === '/' && window.location.hash.includes('/auth')) {
-      console.log('🔍 [AuthCallback] Detected homepage with auth hash, redirecting to callback');
-      // Remove the hash and redirect to proper callback
-      const url = new URL(window.location.href);
-      const params = new URLSearchParams(url.search);
-      
-      // Preserve any query parameters
-      navigate(`/auth/callback${params.toString() ? '?' + params.toString() : ''}`);
-    }
-  }, [navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">

@@ -12,6 +12,19 @@ const Index = () => {
   const { user } = useAuth();
 
   useEffect(() => {
+    const hash = window.location.hash;
+    const search = window.location.search;
+
+    // This handles the case where OAuth redirects to the homepage instead of the callback page.
+    // We detect the auth tokens and forward the user to the correct page.
+    if (hash.includes('access_token') || hash.includes('code=') || search.includes('code=')) {
+      console.log('🔍 [IndexPage] Detected OAuth data in URL. Redirecting to auth callback page for processing.');
+      const destination = `/auth/callback${search}${hash}`;
+      navigate(destination, { replace: true });
+    }
+  }, [navigate]);
+
+  useEffect(() => {
     const preloadRoutes = () => {
       import('@/pages/Auth');
       import('@/pages/AuthCallback');
