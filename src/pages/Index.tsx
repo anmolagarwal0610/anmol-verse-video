@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import Navbar from '@/components/Navbar';
@@ -12,23 +13,27 @@ const Index = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    const hash = window.location.hash;
-    const search = window.location.search;
+    const { hash, search, pathname } = window.location;
 
-    // This handles the case where OAuth redirects to the homepage instead of the callback page.
-    // It correctly forwards the user to the auth callback page for processing.
-    let destination: string | null = null;
-
-    if (search.includes('code=')) {
-      console.log('🔍 [IndexPage] Detected OAuth code in URL search. Redirecting to auth callback.');
-      destination = `/auth/callback${search}`;
-    } else if (hash.includes('access_token=') || hash.includes('error=')) {
-      console.log('🔍 [IndexPage] Detected OAuth data in URL hash. Redirecting to auth callback.');
-      destination = `/auth/callback${hash}`;
-    }
-
-    if (destination) {
-      navigate(destination, { replace: true });
+    // Only redirect if on "/" root and we have tokens/query for oauth
+    if (pathname === "/") {
+      let destination: string | null = null;
+      // Don't stack both hash and query—use whichever is present
+      if (search.includes('code=')) {
+        destination = `/auth/callback${search}`;
+      } else if (hash.includes('access_token=') || hash.includes('code=') || hash.includes('error=')) {
+        // If hash looks like "#/auth/callback?code=...", extract only the query part
+        const hashMatch = hash.match(/[#|&]\/*auth\/callback\??(.*)$/);
+        if (hashMatch && hashMatch[1]) {
+          destination = `/auth/callback?${hashMatch[1]}`;
+        } else {
+          destination = `/auth/callback${hash}`;
+        }
+      }
+      if (destination && destination !== window.location.pathname + window.location.search) {
+        console.log('🔍 [IndexPage] Redirecting to:', destination);
+        navigate(destination, { replace: true });
+      }
     }
   }, [navigate]);
 
@@ -56,12 +61,10 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <Navbar />
-      
       <div className="relative w-full flex-grow flex flex-col">
         <BackgroundImage />
         <MainContent />
       </div>
-      
       <Footer />
     </div>
   );
