@@ -16,10 +16,18 @@ const Index = () => {
     const search = window.location.search;
 
     // This handles the case where OAuth redirects to the homepage instead of the callback page.
-    // We detect the auth tokens and forward the user to the correct page.
-    if (hash.includes('access_token') || hash.includes('code=') || search.includes('code=')) {
-      console.log('🔍 [IndexPage] Detected OAuth data in URL. Redirecting to auth callback page for processing.');
-      const destination = `/auth/callback${search}${hash}`;
+    // It correctly forwards the user to the auth callback page for processing.
+    let destination: string | null = null;
+
+    if (search.includes('code=')) {
+      console.log('🔍 [IndexPage] Detected OAuth code in URL search. Redirecting to auth callback.');
+      destination = `/auth/callback${search}`;
+    } else if (hash.includes('access_token=') || hash.includes('error=')) {
+      console.log('🔍 [IndexPage] Detected OAuth data in URL hash. Redirecting to auth callback.');
+      destination = `/auth/callback${hash}`;
+    }
+
+    if (destination) {
       navigate(destination, { replace: true });
     }
   }, [navigate]);

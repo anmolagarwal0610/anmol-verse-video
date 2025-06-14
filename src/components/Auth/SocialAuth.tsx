@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Chrome, Facebook } from 'lucide-react';
@@ -9,54 +8,19 @@ interface SocialAuthProps {
 }
 
 const SocialAuth = ({ isLoading }: SocialAuthProps) => {
-  // Clear any existing auth state before starting new OAuth flow
-  const clearAuthState = () => {
-    console.log('🔍 [SocialAuth] Clearing existing auth state');
-    
-    // Clear all Supabase auth keys
-    Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-') || key === 'anmol-verse-auth-token') {
-        console.log('🔍 [SocialAuth] Removing storage key:', key);
-        localStorage.removeItem(key);
-      }
-    });
-
-    // Clear session storage
-    Object.keys(sessionStorage).forEach((key) => {
-      if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-        console.log('🔍 [SocialAuth] Removing session storage key:', key);
-        sessionStorage.removeItem(key);
-      }
-    });
-  };
-
   const handleGoogleSignIn = async () => {
     try {
       console.log('🔍 [SocialAuth] Starting Google sign in...');
-      console.log('🔍 [SocialAuth] Current URL:', window.location.href);
       console.log('🔍 [SocialAuth] Current origin:', window.location.origin);
       
-      // Clear existing auth state first
-      clearAuthState();
-      
-      // Attempt to sign out any existing session
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-        console.log('🔍 [SocialAuth] Existing session signed out');
-      } catch (signOutError) {
-        console.log('🔍 [SocialAuth] No existing session to sign out:', signOutError);
-      }
-
-      // Small delay to ensure cleanup is complete
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Attempt to sign out any existing session without clearing storage aggressively
+      await supabase.auth.signOut().catch(error => {
+        console.log('🔍 [SocialAuth] No active session to sign out or error during sign out:', error);
+      });
       
       // Construct the exact redirect URL - this MUST match Supabase Dashboard configuration
       const redirectTo = `${window.location.origin}/auth/callback`;
       console.log('🔍 [SocialAuth] Redirect URL:', redirectTo);
-      
-      // Generate PKCE verifier for this session
-      const timestamp = Date.now();
-      console.log('🔍 [SocialAuth] Starting OAuth flow at timestamp:', timestamp);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -66,8 +30,6 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
             access_type: 'offline',
             prompt: 'consent',
           },
-          // Ensure PKCE is explicitly enabled
-          skipBrowserRedirect: false,
         },
       });
       
@@ -78,7 +40,6 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
       }
       
       console.log('🔍 [SocialAuth] Google sign in initiated successfully:', data);
-      console.log('🔍 [SocialAuth] OAuth URL:', data.url);
       
       // Store current path for redirect after successful auth
       if (window.location.pathname !== '/auth') {
@@ -87,7 +48,7 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
       }
 
       // Store timestamp for debugging OAuth flow timing
-      sessionStorage.setItem('oauthStartTime', timestamp.toString());
+      sessionStorage.setItem('oauthStartTime', Date.now().toString());
       
     } catch (error: any) {
       console.error('🔍 [SocialAuth] Unexpected error during Google sign in:', error);
@@ -99,8 +60,9 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
     try {
       console.log('🔍 [SocialAuth] Starting Facebook sign in...');
       
-      // Clear existing auth state first
-      clearAuthState();
+      await supabase.auth.signOut().catch(error => {
+        console.log('🔍 [SocialAuth] No active session to sign out or error during sign out:', error);
+      });
       
       const redirectTo = `${window.location.origin}/auth/callback`;
       console.log('🔍 [SocialAuth] Facebook redirect URL:', redirectTo);
