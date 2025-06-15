@@ -9,16 +9,10 @@ interface SocialAuthProps {
 }
 
 const SocialAuth = ({ isLoading }: SocialAuthProps) => {
-  // Launch the Google OAuth flow; do not clear storage or sign out!
+  // Just start the OAuth flow (Supabase handles PKCE/token automatically)
   const handleGoogleSignIn = async () => {
     try {
-      console.log('🔍 [SocialAuth] Starting Google sign in...');
-      // PKCE verifier debug (should be null before starting)
-      console.log('🔍 [SocialAuth] PKCE verifier before sign in:', localStorage.getItem('supabase.auth.pkce_verifier'));
       const redirectTo = `${window.location.origin}/auth/callback`;
-      console.log('🔍 [SocialAuth] Will redirect to:', redirectTo);
-
-      // Do NOT clear any local/session storage!
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -29,22 +23,10 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
           },
         },
       });
-
       if (error) {
         toast.error(error.message || 'Failed to initiate Google sign in');
         console.error('[SocialAuth] Google OAuth error:', error);
       }
-
-      // Optionally store pending path for post-auth
-      if (window.location.pathname !== '/auth') {
-        sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
-      }
-
-      // PKCE verifier status after starting flow (should now exist!)
-      setTimeout(() => {
-        console.log('🔍 [SocialAuth] PKCE verifier after sign in:', localStorage.getItem('supabase.auth.pkce_verifier'));
-      }, 50);
-
     } catch (e: any) {
       toast.error(e.message || 'Unexpected error with Google sign in');
       console.error('[SocialAuth] Unexpected error:', e);
