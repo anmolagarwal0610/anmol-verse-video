@@ -9,15 +9,16 @@ interface SocialAuthProps {
 }
 
 const SocialAuth = ({ isLoading }: SocialAuthProps) => {
-  // Just start the OAuth flow, do NOT clear storage or sign out!
+  // Launch the Google OAuth flow; do not clear storage or sign out!
   const handleGoogleSignIn = async () => {
     try {
       console.log('🔍 [SocialAuth] Starting Google sign in...');
-
+      // PKCE verifier debug (should be null before starting)
+      console.log('🔍 [SocialAuth] PKCE verifier before sign in:', localStorage.getItem('supabase.auth.pkce_verifier'));
       const redirectTo = `${window.location.origin}/auth/callback`;
       console.log('🔍 [SocialAuth] Will redirect to:', redirectTo);
 
-      // No storage cleaning! No signOut!
+      // Do NOT clear any local/session storage!
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -34,10 +35,16 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
         console.error('[SocialAuth] Google OAuth error:', error);
       }
 
-      // Save pending path for post-auth-redirect (optional for your UX)
+      // Optionally store pending path for post-auth
       if (window.location.pathname !== '/auth') {
         sessionStorage.setItem('pendingRedirectPath', window.location.pathname);
       }
+
+      // PKCE verifier status after starting flow (should now exist!)
+      setTimeout(() => {
+        console.log('🔍 [SocialAuth] PKCE verifier after sign in:', localStorage.getItem('supabase.auth.pkce_verifier'));
+      }, 50);
+
     } catch (e: any) {
       toast.error(e.message || 'Unexpected error with Google sign in');
       console.error('[SocialAuth] Unexpected error:', e);
@@ -46,7 +53,7 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
 
   return (
     <div className="grid gap-2">
-      <Button 
+      <Button
         variant="outline"
         onClick={handleGoogleSignIn}
         disabled={isLoading}
@@ -55,7 +62,6 @@ const SocialAuth = ({ isLoading }: SocialAuthProps) => {
         <Chrome className="h-4 w-4" />
         Google
       </Button>
-      {/* Add other providers/buttons as needed */}
     </div>
   );
 };

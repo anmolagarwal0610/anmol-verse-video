@@ -10,6 +10,7 @@ const AuthCallback = () => {
 
   useEffect(() => {
     console.log('🔍 [AuthCallback] Component mounted');
+    console.log('🔍 [AuthCallback] PKCE verifier at callback mount:', localStorage.getItem('supabase.auth.pkce_verifier'));
     console.log('🔍 [AuthCallback] Full URL:', window.location.href);
     console.log('🔍 [AuthCallback] Hash:', window.location.hash);
     console.log('🔍 [AuthCallback] Search:', window.location.search);
