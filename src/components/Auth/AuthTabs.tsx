@@ -2,7 +2,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import EmailForm from './EmailForm';
-import SocialAuth from './SocialAuth';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
@@ -35,19 +34,7 @@ const AuthTabs = ({ isLoading, setIsLoading, defaultTab = "sign-in" }: AuthTabsP
           isLoading={isLoading} 
           setIsLoading={setIsLoading}
         />
-        
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <Separator />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
-            </span>
-          </div>
-        </div>
-        
-        <SocialAuth isLoading={isLoading} />
+        {/* Removed SocialAuth for sign-in */}
       </TabsContent>
       
       <TabsContent value="sign-up" className="space-y-6">
@@ -56,22 +43,11 @@ const AuthTabs = ({ isLoading, setIsLoading, defaultTab = "sign-in" }: AuthTabsP
           isLoading={isLoading} 
           setIsLoading={setIsLoading}
         />
-        
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <Separator />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with
-            </span>
-          </div>
-        </div>
-        
-        <SocialAuth isLoading={isLoading} />
+        {/* Removed SocialAuth for sign-up */}
       </TabsContent>
     </Tabs>
   );
 };
 
 export default AuthTabs;
+
