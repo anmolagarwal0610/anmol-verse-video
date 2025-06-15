@@ -26,17 +26,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     console.log('[Auth Provider] Setting up auth state...');
     console.log('[Auth Provider] Current URL:', window.location.href);
+    console.log('[Auth Provider] URL search:', window.location.search);
+    console.log('[Auth Provider] URL hash:', window.location.hash);
+    
+    // Log storage state at initialization
+    const pkceVerifier = localStorage.getItem('supabase.auth.pkce_verifier');
+    const allSupabaseKeys = Object.keys(localStorage).filter(key => key.includes('supabase'));
+    console.log('[Auth Provider] PKCE verifier at init:', pkceVerifier ? 'exists' : 'missing');
+    console.log('[Auth Provider] All Supabase keys at init:', allSupabaseKeys);
     
     // First set up the auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         console.log('[Auth Provider] Auth state changed:', event);
         console.log('[Auth Provider] Session from event:', currentSession ? 'exists' : 'null');
+        console.log('[Auth Provider] Current URL during auth change:', window.location.href);
         
         if (currentSession) {
           console.log('[Auth Provider] Session found during auth change event');
-          console.log('[Auth Provider] User email:', currentSession.user?.email);
-          console.log('[Auth Provider] Session expires at:', new Date(currentSession.expires_at! * 1000));
+          console.log('[Auth Provider] Session details:', {
+            userId: currentSession.user?.id,
+            email: currentSession.user?.email,
+            expiresAt: new Date(currentSession.expires_at! * 1000),
+            accessToken: currentSession.access_token ? 'exists' : 'missing',
+            refreshToken: currentSession.refresh_token ? 'exists' : 'missing',
+            providerToken: currentSession.provider_token ? 'exists' : 'missing'
+          });
           setSession(currentSession);
           setUser(currentSession.user);
         } else {
@@ -66,17 +81,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (error) {
           console.error('[Auth Provider] Error getting session:', error);
+          console.log('[Auth Provider] Error details:', {
+            message: error.message,
+            status: error.status,
+            statusText: error.statusText
+          });
           setLoading(false);
           return;
         }
         
         if (data?.session) {
-          console.log('[Auth Provider] Existing session found:', data.session.user.email);
+          console.log('[Auth Provider] Existing session found');
           console.log('[Auth Provider] Session details:', {
             userId: data.session.user.id,
             email: data.session.user.email,
             expiresAt: new Date(data.session.expires_at! * 1000),
-            provider: data.session.user.app_metadata?.provider
+            provider: data.session.user.app_metadata?.provider,
+            accessToken: data.session.access_token ? 'exists' : 'missing',
+            refreshToken: data.session.refresh_token ? 'exists' : 'missing'
           });
           setSession(data.session);
           setUser(data.session.user);
@@ -97,6 +119,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const timeoutId = setTimeout(() => {
       if (loading) {
         console.warn('[Auth Provider] Auth initialization timeout after 10s, forcing loading to false');
+        console.log('[Auth Provider] Final timeout state:', {
+          session: session ? 'exists' : 'null',
+          loading,
+          currentUrl: window.location.href,
+          pkceVerifier: localStorage.getItem('supabase.auth.pkce_verifier') ? 'exists' : 'missing'
+        });
         setLoading(false);
       }
     }, 10000);
