@@ -10,7 +10,6 @@ import { useAuth } from '@/hooks/use-auth';
 
 export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: string) => void) => {
   const [prompt, setPrompt] = useState('');
-  const [scriptModel, setScriptModel] = useState<'chatgpt' | 'deepseek'>('chatgpt');
   const [language, setLanguage] = useState<'English' | 'Hindi' | 'Hinglish'>('English');
   const [transcript, setTranscript] = useState('');
   const [guide, setGuide] = useState('');
@@ -51,7 +50,7 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
       // Use the new service for transcript generation
       const options: TranscriptGenerationOptions = {
         prompt,
-        scriptModel,
+        scriptModel: 'chatgpt', // Always use ChatGPT as default
         language
       };
       
@@ -98,8 +97,6 @@ export const useTranscriptGenerator = (onTranscriptGenerated?: (transcript: stri
   return {
     prompt,
     setPrompt,
-    scriptModel,
-    setScriptModel,
     language,
     setLanguage,
     transcript,

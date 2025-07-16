@@ -20,10 +20,8 @@ import { useForm } from 'react-hook-form';
 
 interface FormInputProps {
   prompt: string;
-  scriptModel: 'chatgpt' | 'deepseek';
   language: 'English' | 'Hindi' | 'Hinglish';
   onPromptChange: (value: string) => void;
-  onScriptModelChange: (value: 'chatgpt' | 'deepseek') => void;
   onLanguageChange: (value: 'English' | 'Hindi' | 'Hinglish') => void;
   onSubmit: (e: React.FormEvent) => void;
   isGenerating: boolean;
@@ -32,10 +30,8 @@ interface FormInputProps {
 
 export const FormInput = ({ 
   prompt, 
-  scriptModel,
   language,
   onPromptChange, 
-  onScriptModelChange,
   onLanguageChange,
   onSubmit, 
   isGenerating,
@@ -43,7 +39,6 @@ export const FormInput = ({
 }: FormInputProps) => {
   const form = useForm({
     defaultValues: {
-      script_model: scriptModel,
       language: language
     }
   });
@@ -67,34 +62,6 @@ export const FormInput = ({
         />
 
         <div className="flex flex-row gap-4 items-end">
-          <FormField
-            control={form.control}
-            name="script_model"
-            render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormLabel>Script Model</FormLabel>
-                <Select
-                  value={scriptModel}
-                  onValueChange={onScriptModelChange}
-                  disabled={isGenerating}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select script model" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="chatgpt">ChatGPT</SelectItem>
-                    <SelectItem value="deepseek">Deepseek</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Choose the AI model for transcript generation
-                </FormDescription>
-              </FormItem>
-            )}
-          />
-          
           <FormField
             control={form.control}
             name="language"

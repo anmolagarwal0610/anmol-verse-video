@@ -83,8 +83,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.error('[Auth Provider] Error getting session:', error);
           console.log('[Auth Provider] Error details:', {
             message: error.message,
-            status: error.status,
-            statusText: error.statusText
+            status: error.status
           });
           setLoading(false);
           return;

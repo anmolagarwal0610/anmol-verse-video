@@ -18,8 +18,6 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
   const {
     prompt,
     setPrompt,
-    scriptModel,
-    setScriptModel,
     language,
     setLanguage,
     transcript,
@@ -53,10 +51,8 @@ const TranscriptForm = ({ onTranscriptGenerated }: TranscriptFormProps) => {
       >
         <FormInput 
           prompt={prompt}
-          scriptModel={scriptModel}
           language={language}
           onPromptChange={setPrompt}
-          onScriptModelChange={setScriptModel}
           onLanguageChange={setLanguage}
           onSubmit={handleGenerate}
           isGenerating={isGenerating}
