@@ -6,12 +6,12 @@ import {
   ImageGenerationResult, 
   ImageGenerationOptions,
   MODEL_CREDIT_COSTS
-} from './imageGeneration/types';
+} from './types';
 import { 
   enhancePromptWithStyles, 
   generateImage, 
   getDimensionsFromRatio 
-} from './imageGeneration/generators';
+} from './generators';
 import { calculateCreditCost } from '@/lib/constants/pixelOptions';
 import { checkCredits, useCredit } from '@/lib/creditService';
 
@@ -183,4 +183,4 @@ export async function generateImageFromPrompt(
 }
 
 // Export the type
-export type { ImageGenerationResult } from './imageGeneration/types';
+export type { ImageGenerationResult } from './types';
