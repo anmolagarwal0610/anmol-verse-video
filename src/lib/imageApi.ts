@@ -32,7 +32,8 @@ export interface ImageGenerationResponse {
 const MODEL_MAP = {
   basic: "black-forest-labs/FLUX.1-schnell-Free",
   advanced: "black-forest-labs/FLUX.1-schnell",
-  pro: "black-forest-labs/FLUX.1-dev" // Pro model
+  //pro: "black-forest-labs/FLUX.1-dev" // Pro model
+  pro: "black-forest-labs/FLUX.1-kontext-dev" // Pro model to make changes to base image
 };
 
 // Steps by model
