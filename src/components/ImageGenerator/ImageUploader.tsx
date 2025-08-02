@@ -17,7 +17,7 @@ const ImageUploader = ({ form }: ImageUploaderProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const model = form.watch('model');
   // Enable for both advanced and pro
-  const isAllowedModel = model === 'advanced' || model === 'pro';
+  const isAllowedModel = model === 'advanced' || model === 'pro' || model === 'pro-img2img';
   
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
