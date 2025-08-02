@@ -77,8 +77,12 @@ const ImageUploader = ({ form }: ImageUploaderProps) => {
       
       console.log('🔍 [ImageUploader] Public URL:', publicUrlData.publicUrl);
       
-      // Set the reference image URL in form
-      form.setValue('referenceImageUrl', publicUrlData.publicUrl);
+      // Set the appropriate field based on model type
+      if (model === 'pro-img2img') {
+        form.setValue('conditionImage', publicUrlData.publicUrl);
+      } else {
+        form.setValue('referenceImageUrl', publicUrlData.publicUrl);
+      }
       toast.success('Image uploaded successfully');
       
     } catch (error: any) {
@@ -91,12 +95,15 @@ const ImageUploader = ({ form }: ImageUploaderProps) => {
   
   const clearReferenceImage = () => {
     form.setValue('referenceImageUrl', '');
+    form.setValue('conditionImage', '');
     if (inputRef.current) {
       inputRef.current.value = '';
     }
   };
   
   const referenceImageUrl = form.watch('referenceImageUrl');
+  const conditionImage = form.watch('conditionImage');
+  const displayImage = model === 'pro-img2img' ? conditionImage : referenceImageUrl;
   
   return (
     <FormField
@@ -108,10 +115,10 @@ const ImageUploader = ({ form }: ImageUploaderProps) => {
             Reference Image {isAllowedModel ? "(Optional)" : ""}
           </FormLabel>
           <div className="space-y-3">
-            {referenceImageUrl ? (
+            {displayImage ? (
               <div className="relative w-full max-w-[300px] h-auto">
                 <img 
-                  src={referenceImageUrl} 
+                  src={displayImage} 
                   alt="Reference" 
                   className="rounded-md border border-gray-200 w-full h-auto" 
                 />
