@@ -11,6 +11,7 @@ export interface ImageGenerationParams {
   negative_prompt?: string;
   seed?: number;
   reference_image_url?: string;
+  condition_image?: string;
   steps?: number;
 }
 
@@ -32,15 +33,16 @@ export interface ImageGenerationResponse {
 const MODEL_MAP = {
   basic: "black-forest-labs/FLUX.1-schnell-Free",
   advanced: "black-forest-labs/FLUX.1-schnell",
-  //pro: "black-forest-labs/FLUX.1-dev" // Pro model
-  pro: "black-forest-labs/FLUX.1-kontext-dev" // Pro model to make changes to base image
+  pro: "black-forest-labs/FLUX.1-dev", // Original Pro model
+  "pro-img2img": "black-forest-labs/FLUX.1-kontext-dev" // Pro image to image model
 };
 
 // Steps by model
 const STEPS_MAP = {
   basic: 4,
   advanced: 4,
-  pro: 28
+  pro: 28,
+  "pro-img2img": 28
 };
 
 // Token to be replaced with proper authentication in production
@@ -53,7 +55,7 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
     const apiUrl = "https://api.together.xyz/v1/images/generations";
     
     // Get model-specific steps
-    const modelType = params.model as 'basic' | 'advanced' | 'pro';
+    const modelType = params.model as 'basic' | 'advanced' | 'pro' | 'pro-img2img';
     const steps = STEPS_MAP[modelType] || 4;
     
     // Prepare the request payload
@@ -78,8 +80,16 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
       payload.seed = params.seed;
     }
     
-    // Add reference image if provided (only for Pro model)
-    if (params.reference_image_url && params.model === 'pro') {
+    // Handle image input based on model type
+    const selectedModel = MODEL_MAP[params.model] || MODEL_MAP.basic;
+    
+    // Use condition_image for FLUX.1-kontext-dev (Pro: image to image)
+    if (selectedModel === "black-forest-labs/FLUX.1-kontext-dev") {
+      if (!params.condition_image) {
+        throw new Error("condition_image is required for Pro: image to image model");
+      }
+      payload.condition_image = params.condition_image;
+    } else if (params.reference_image_url && params.model === 'pro') {
       payload.reference_image_url = params.reference_image_url;
     }
     
@@ -163,5 +173,6 @@ export const IMAGE_STYLES = {
 export const MODEL_DESCRIPTIONS = {
   "basic": "Perfect for side projects and trying out ideas",
   "advanced": "Ideal for content creation and social media assets",
-  "pro": "Premium quality with advanced features (costs 5 credits)"
+  "pro": "Premium quality with advanced features (costs 5 credits)",
+  "pro-img2img": "Transform existing images with AI (costs 5 credits)"
 };

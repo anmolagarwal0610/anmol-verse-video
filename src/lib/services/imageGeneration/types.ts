@@ -26,11 +26,13 @@ export interface ImageGenerationOptions {
   seed?: number;
   imageStyles?: string[];
   referenceImageUrl?: string;
+  conditionImage?: string;
 }
 
 // Credit cost per model
 export const MODEL_CREDIT_COSTS = {
   basic: 1,
   advanced: 1,
-  pro: 5
+  pro: 5,
+  "pro-img2img": 5
 };

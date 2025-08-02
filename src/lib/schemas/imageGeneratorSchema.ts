@@ -5,7 +5,7 @@ import { PIXEL_OPTIONS, MIN_PIXEL_VALUE, MAX_PIXEL_VALUE } from '@/lib/constants
 // Form validation schema
 export const imageGeneratorSchema = z.object({
   prompt: z.string().min(2, { message: 'Please enter a prompt with at least 2 characters' }),
-  model: z.enum(['basic', 'advanced', 'pro']),
+  model: z.enum(['basic', 'advanced', 'pro', 'pro-img2img']),
   pixelOption: z.enum(Object.keys(PIXEL_OPTIONS) as [string, ...string[]]),
   pixelOptionValue: z.number()
     .min(MIN_PIXEL_VALUE, { message: `Minimum value is ${MIN_PIXEL_VALUE}` })
@@ -20,6 +20,7 @@ export const imageGeneratorSchema = z.object({
   negativePrompt: z.string().optional(),
   imageStyles: z.array(z.string()).default([]),
   referenceImageUrl: z.string().optional().default(''),
+  conditionImage: z.string().optional().default(''),
 });
 
 export type FormValues = z.infer<typeof imageGeneratorSchema>;

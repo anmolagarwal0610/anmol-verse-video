@@ -35,7 +35,8 @@ export async function generateImage(options: ImageGenerationOptions): Promise<st
       output_format: options.outputFormat,
       negative_prompt: options.negativePrompt,
       seed: options.seed,
-      reference_image_url: options.referenceImageUrl
+      reference_image_url: options.referenceImageUrl,
+      condition_image: options.conditionImage
     });
     
     if (!result.data || result.data.length === 0) {

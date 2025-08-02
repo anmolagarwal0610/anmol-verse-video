@@ -20,8 +20,8 @@ async function useModelCredits(userId: string, model: string): Promise<boolean> 
   try {
     const creditCost = MODEL_CREDIT_COSTS[model] || 1;
     
-    // For pro model we need 5 credits
-    if (model === 'pro') {
+    // For pro models we need 5 credits
+    if (model === 'pro' || model === 'pro-img2img') {
       // Custom procedure to use multiple credits at once
       // Use any type to bypass TypeScript's type checking for RPC functions
       const { data, error } = await (supabase.rpc as any)('use_multiple_credits', {
@@ -104,7 +104,8 @@ export async function generateImageFromPrompt(
       negativePrompt: values.negativePrompt,
       seed: values.showSeed ? values.seed : undefined,
       imageStyles: values.imageStyles,
-      referenceImageUrl: values.referenceImageUrl
+      referenceImageUrl: values.referenceImageUrl,
+      conditionImage: values.conditionImage
     };
     
     // Generate image

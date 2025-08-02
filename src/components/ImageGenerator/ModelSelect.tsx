@@ -53,6 +53,15 @@ const ModelSelect = ({
                     <span className="text-xs text-muted-foreground">{MODEL_DESCRIPTIONS.pro} (5 credits)</span>
                   </div>
                 </SelectItem>
+                <SelectItem 
+                  value="pro-img2img"
+                  disabled={!user}
+                >
+                  <div className="flex flex-col">
+                    <span className="font-medium">Pro: image to image {!user && "(Sign-in required)"}</span>
+                    <span className="text-xs text-muted-foreground">{MODEL_DESCRIPTIONS["pro-img2img"]} (5 credits)</span>
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
           </FormControl>
