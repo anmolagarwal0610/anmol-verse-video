@@ -70,7 +70,9 @@ export async function generateImageFromPrompt(
       customRatio: values.customRatio,
       pixelOption: values.pixelOption,
       pixelOptionValue: values.pixelOptionValue,
-      hasUserId: !!userId
+      hasUserId: !!userId,
+      hasReferenceImageUrl: !!values.referenceImageUrl,
+      hasConditionImage: !!values.conditionImage
     });
     
     // Early return if no user ID
@@ -121,8 +123,16 @@ export async function generateImageFromPrompt(
       negativePrompt: values.negativePrompt,
       seed: values.showSeed ? values.seed : undefined,
       imageStyles: values.imageStyles,
-      referenceImageUrl: values.referenceImageUrl
+      referenceImageUrl: values.referenceImageUrl,
+      conditionImage: values.conditionImage // Add this field
     };
+    
+    console.log('Generation options:', {
+      ...generationOptions,
+      prompt: generationOptions.prompt.substring(0, 50) + '...',
+      hasReferenceImageUrl: !!generationOptions.referenceImageUrl,
+      hasConditionImage: !!generationOptions.conditionImage
+    });
     
     // Generate image
     const generatedImageUrl = await generateImage(generationOptions);
