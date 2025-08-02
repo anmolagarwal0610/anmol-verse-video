@@ -6,49 +6,48 @@ import {
   ImageGenerationResult, 
   ImageGenerationOptions,
   MODEL_CREDIT_COSTS
-} from './types';
+} from './imageGeneration/types';
 import { 
   enhancePromptWithStyles, 
   generateImage, 
   getDimensionsFromRatio 
-} from './generators';
+} from './imageGeneration/generators';
+import { calculateCreditCost } from '@/lib/constants/pixelOptions';
+import { checkCredits, useCredit } from '@/lib/creditService';
 
 /**
- * Function to use the appropriate number of credits based on model
+ * Function to use the appropriate number of credits based on model and dimensions
  */
-async function useModelCredits(userId: string, model: string): Promise<boolean> {
+async function useModelCredits(userId: string, model: string, width: number, height: number, retryCount = 0): Promise<boolean> {
   try {
-    const creditCost = MODEL_CREDIT_COSTS[model] || 1;
+    if (model === 'basic') return true; // Basic model is free
     
-    // For pro models we need 5 credits
-    if (model === 'pro' || model === 'pro-img2img') {
-      // Custom procedure to use multiple credits at once
-      // Use any type to bypass TypeScript's type checking for RPC functions
-      const { data, error } = await (supabase.rpc as any)('use_multiple_credits', {
-        user_id: userId,
-        credit_amount: creditCost
-      });
+    const creditCost = calculateCreditCost(width, height, model);
+    console.log(`Using ${creditCost} credits for model ${model} with dimensions ${width}x${height}`);
+    
+    // Verify available credits before attempting to use them
+    const availableCredits = await checkCredits(true);
+    console.log(`User has ${availableCredits} credits available, needs ${creditCost}`);
+    
+    if (availableCredits < creditCost) {
+      toast.error(`Not enough credits. This image requires ${creditCost} credits. You have ${availableCredits}.`);
+      return false;
+    }
+    
+    // Use multiple credits
+    if (creditCost > 0) {
+      const success = await useCredit(creditCost);
       
-      if (error) {
-        console.error('Error using credits:', error);
-        toast.error(`Not enough credits. Pro model requires ${creditCost} credits.`);
-        return false;
+      if (!success && retryCount < 1) {
+        console.log('Credit deduction failed, retrying once...');
+        // Short delay before retry
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return useModelCredits(userId, model, width, height, retryCount + 1);
       }
       
-      return data === true;
+      return success;
     } else {
-      // Use the regular use_credit function for other models
-      const { data, error } = await supabase.rpc('use_credit', {
-        user_id: userId,
-      });
-      
-      if (error) {
-        console.error('Error using credit:', error);
-        toast.error(error.message || 'Failed to use credit');
-        return false;
-      }
-      
-      return data === true;
+      return true; // No credits needed (basic model)
     }
   } catch (error: any) {
     console.error('Unexpected error using credits:', error);
@@ -69,7 +68,11 @@ export async function generateImageFromPrompt(
       model: values.model,
       aspectRatio: values.aspectRatio,
       customRatio: values.customRatio,
-      hasUserId: !!userId
+      pixelOption: values.pixelOption,
+      pixelOptionValue: values.pixelOptionValue,
+      hasUserId: !!userId,
+      hasReferenceImageUrl: !!values.referenceImageUrl,
+      hasConditionImage: !!values.conditionImage
     });
     
     // Early return if no user ID
@@ -78,17 +81,33 @@ export async function generateImageFromPrompt(
       return null;
     }
     
-    // Credit check based on model
-    const hasSufficientCredits = await useModelCredits(userId, values.model);
+    // Calculate dimensions from aspect ratio and pixel option
+    const dimensions = getDimensionsFromRatio(
+      values.aspectRatio, 
+      values.pixelOption, 
+      values.pixelOptionValue,
+      values.customRatio
+    );
+    
+    console.log('Calculated dimensions:', dimensions);
+    
+    // Credit check based on model and dimensions
+    console.log('Performing credit check and deduction...');
+    const hasSufficientCredits = await useModelCredits(
+      userId, 
+      values.model, 
+      dimensions.width, 
+      dimensions.height
+    );
     
     if (!hasSufficientCredits) {
-      const creditCost = MODEL_CREDIT_COSTS[values.model] || 1;
-      toast.error(`Insufficient credits to generate image. ${values.model.charAt(0).toUpperCase() + values.model.slice(1)} model requires ${creditCost} credit(s).`);
+      const creditCost = calculateCreditCost(dimensions.width, dimensions.height, values.model);
+      console.error(`Credit check/deduction failed for cost: ${creditCost}`);
+      // Toast error is already shown in useModelCredits
       return null;
     }
     
-    // Calculate dimensions from aspect ratio
-    const dimensions = getDimensionsFromRatio(values.aspectRatio, values.customRatio);
+    console.log('Credit check/deduction successful, proceeding with image generation');
     
     // Enhance prompt with style preferences if provided
     const enhancedPrompt = enhancePromptWithStyles(values.prompt, values.imageStyles);
@@ -105,8 +124,15 @@ export async function generateImageFromPrompt(
       seed: values.showSeed ? values.seed : undefined,
       imageStyles: values.imageStyles,
       referenceImageUrl: values.referenceImageUrl,
-      conditionImage: values.conditionImage
+      conditionImage: values.conditionImage // Add this field
     };
+    
+    console.log('Generation options:', {
+      ...generationOptions,
+      prompt: generationOptions.prompt.substring(0, 50) + '...',
+      hasReferenceImageUrl: !!generationOptions.referenceImageUrl,
+      hasConditionImage: !!generationOptions.conditionImage
+    });
     
     // Generate image
     const generatedImageUrl = await generateImage(generationOptions);
@@ -157,4 +183,4 @@ export async function generateImageFromPrompt(
 }
 
 // Export the type
-export type { ImageGenerationResult } from './types';
+export type { ImageGenerationResult } from './imageGeneration/types';
