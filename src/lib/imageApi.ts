@@ -58,39 +58,71 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
     const modelType = params.model as 'basic' | 'advanced' | 'pro' | 'pro-img2img';
     const steps = STEPS_MAP[modelType] || 4;
     
-    // Prepare the request payload
-    const payload: Record<string, any> = {
-      model: MODEL_MAP[params.model] || MODEL_MAP.basic,
-      steps: steps,
-      n: 1,
-      height: params.height,
-      width: params.width,
-      guidance: params.guidance,
-      output_format: params.output_format,
-      prompt: params.prompt
-    };
-    
-    // Add negative prompt if provided
-    if (params.negative_prompt) {
-      payload.negative_prompt = params.negative_prompt;
-    }
-    
-    // Only add seed if it's provided
-    if (params.seed !== undefined) {
-      payload.seed = params.seed;
-    }
-    
     // Handle image input based on model type
     const selectedModel = MODEL_MAP[params.model] || MODEL_MAP.basic;
     
-    // Use condition_image for FLUX.1-kontext-dev (Pro: image to image)
+    // Declare payload variable
+    let payload: Record<string, any>;
+    
+    // FLUX.1-Kontext-dev requires special handling for image editing
     if (selectedModel === "black-forest-labs/FLUX.1-kontext-dev") {
       if (!params.condition_image) {
         throw new Error("condition_image is required for Pro: image to image model");
       }
-      payload.condition_image = params.condition_image;
-    } else if (params.reference_image_url && params.model === 'pro') {
-      payload.reference_image_url = params.reference_image_url;
+      
+      // For FLUX.1-Kontext-dev, use a different payload structure
+      payload = {
+        model: selectedModel,
+        prompt: params.prompt,
+        image: params.condition_image, // Use 'image' instead of 'condition_image' for kontext
+        steps: steps,
+        width: params.width,
+        height: params.height,
+        guidance_scale: params.guidance, // Use 'guidance_scale' instead of 'guidance'
+        output_format: params.output_format,
+        n: 1
+      };
+      
+      // Add negative prompt if provided
+      if (params.negative_prompt) {
+        payload.negative_prompt = params.negative_prompt;
+      }
+      
+      // Only add seed if it's provided
+      if (params.seed !== undefined) {
+        payload.seed = params.seed;
+      }
+      
+      console.log("FLUX.1-Kontext payload:", JSON.stringify(payload, null, 2));
+    } else {
+      // Standard payload for other models
+      payload = {
+        model: selectedModel,
+        steps: steps,
+        n: 1,
+        height: params.height,
+        width: params.width,
+        guidance: params.guidance,
+        output_format: params.output_format,
+        prompt: params.prompt
+      };
+      
+      // Add negative prompt if provided
+      if (params.negative_prompt) {
+        payload.negative_prompt = params.negative_prompt;
+      }
+      
+      // Only add seed if it's provided
+      if (params.seed !== undefined) {
+        payload.seed = params.seed;
+      }
+      
+      // Handle reference image for regular pro model
+      if (params.reference_image_url && params.model === 'pro') {
+        payload.reference_image_url = params.reference_image_url;
+      }
+      
+      console.log("Standard payload:", JSON.stringify(payload, null, 2));
     }
     
     // Prepare request options
