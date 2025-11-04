@@ -4,5 +4,16 @@ api_host = "api.supabase.com"
 functions_host = "functions.supabase.com"
 
 [functions.send-contact-email]
-# verify_jwt = true # Default is true, set to false if the function should be public
-# timeout_ms = 5000 # Default is 5000ms (5 seconds)
+verify_jwt = false
+
+[functions.generate-image]
+verify_jwt = true
+
+[functions.generate-video]
+verify_jwt = true
+
+[functions.generate-transcript]
+verify_jwt = true
+
+[functions.check-video-status]
+verify_jwt = true

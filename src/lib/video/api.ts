@@ -1,5 +1,5 @@
 
-import { API_CONFIG } from '../apiUtils';
+import { supabase } from '@/integrations/supabase/client';
 import type { VideoGenerationParams, VideoGenerationResponse, VideoStatusResponse } from './types';
 
 export const generateVideo = async (params: VideoGenerationParams): Promise<VideoGenerationResponse> => {
@@ -26,35 +26,23 @@ export const generateVideo = async (params: VideoGenerationParams): Promise<Vide
       }
     }
     
-    const apiUrl = `${API_CONFIG.BASE_URL}/generate_video`;
-    
-    // Prepare request options with API key
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_CONFIG.API_KEY
-      },
-      body: JSON.stringify(normalizedParams),
-    };
-    
-    console.log("[VIDEO API] Sending video generation request to API:", apiUrl);
+    console.log("[VIDEO API] Calling generate-video edge function");
     console.log("[VIDEO API] With normalized voice parameter:", normalizedParams.voice);
     console.log("[VIDEO API] With topic parameter:", normalizedParams.topic);
     
-    // Make the request
-    const response = await fetch(apiUrl, requestOptions);
+    // Call the Supabase edge function instead of the API directly
+    const { data, error } = await supabase.functions.invoke('generate-video', {
+      body: normalizedParams
+    });
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API error (${response.status}): ${errorText}`);
+    if (error) {
+      console.error('[VIDEO API] Edge function error:', error);
+      throw new Error(`Edge function error: ${error.message}`);
     }
     
-    const data = await response.json();
     console.log("[VIDEO API] Video generation response:", data);
     
     // Add the original topic to the response to preserve it throughout the process
-    // Make sure we add it regardless of what the API returns
     const enrichedResponse: VideoGenerationResponse = {
       ...data,
       originalTopic: params.topic
@@ -87,32 +75,19 @@ export const checkVideoStatus = async (taskId: string, originalTopic?: string): 
       }
     }
     
-    const apiUrl = `${API_CONFIG.BASE_URL}/check_status?task_id=${taskId}`;
+    // Call the Supabase edge function instead of the API directly
+    const { data, error } = await supabase.functions.invoke('check-video-status', {
+      body: { videoId: taskId }
+    });
     
-    // Add API key to status check request
-    const requestOptions = {
-      headers: {
-        'x-api-key': API_CONFIG.API_KEY
-      }
-    };
-    
-    // Make the request with API key
-    const response = await fetch(apiUrl, requestOptions);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API error (${response.status}): ${errorText}`);
+    if (error) {
+      console.error('[VIDEO API] Edge function error:', error);
+      throw new Error(`Edge function error: ${error.message}`);
     }
     
-    const data = await response.json();
     console.log("[VIDEO API] Video status response:", data);
     
     // If the API returns "Untitled Video" but we have an original topic, use the original topic
-    // The prioritization logic should be:
-    // 1. Original topic if available (highest priority)
-    // 2. Response topic if it's not "Untitled Video"
-    // 3. "Untitled Video" as last resort
-    
     const finalTopic = (originalTopic && originalTopic.trim() && originalTopic !== "Untitled Video")
       ? originalTopic
       : (data.topic && data.topic !== "Untitled Video")
@@ -125,11 +100,11 @@ export const checkVideoStatus = async (taskId: string, originalTopic?: string): 
       finalTopic
     });
     
-    // Add the task_id and originalTopic to the response so they're available throughout the app
+    // Add the task_id and originalTopic to the response
     const enrichedResponse: VideoStatusResponse = {
       ...data,
       topic: finalTopic,
-      originalTopic: originalTopic, // Explicitly pass through the originalTopic
+      originalTopic: originalTopic,
       task_id: taskId
     };
     

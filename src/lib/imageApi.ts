@@ -1,5 +1,5 @@
 
-import { API_CONFIG, fetchWithCorsProxy } from './apiUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface ImageGenerationParams {
   prompt: string;
@@ -45,14 +45,9 @@ const STEPS_MAP = {
   "pro-img2img": 28
 };
 
-// Token to be replaced with proper authentication in production
-const API_TOKEN = "18dedfe5741b2a1dd7e3acc31b15dc072a7499fe4b42954c24103f25c7db81bb";
-
 export const generateImage = async (params: ImageGenerationParams): Promise<ImageGenerationResponse> => {
   try {
     console.log("Generating image with params:", params);
-    
-    const apiUrl = "https://api.together.xyz/v1/images/generations";
     
     // Get model-specific steps
     const modelType = params.model as 'basic' | 'advanced' | 'pro' | 'pro-img2img';
@@ -125,30 +120,19 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
       console.log("Standard payload:", JSON.stringify(payload, null, 2));
     }
     
-    // Prepare request options
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_TOKEN}`
-      },
-      body: JSON.stringify(payload),
-      mode: 'cors' as RequestMode,
-      cache: 'no-cache' as RequestCache
-    };
+    console.log('Sending request to generate-image edge function with payload:', payload);
+
+    // Call the Supabase edge function instead of the API directly
+    const { data, error } = await supabase.functions.invoke('generate-image', {
+      body: payload
+    });
     
-    console.log("Sending image generation request to API");
-    
-    // Make the request
-    const response = await fetch(apiUrl, requestOptions);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API error (${response.status}): ${errorText}`);
+    if (error) {
+      console.error('Edge function error:', error);
+      throw new Error(`Edge function error: ${error.message}`);
     }
     
-    const data = await response.json();
-    console.log("Image generation response:", data);
+    console.log('Image generation response:', data);
     
     return data;
   } catch (error) {

@@ -1,22 +1,20 @@
 
 import { VideoGenerationParams } from '../types';
-import { API_CONFIG } from '@/lib/config/api';
+import { supabase } from '@/integrations/supabase/client';
 
 export const generateVideo = async (params: VideoGenerationParams): Promise<{ videoId: string }> => {
   try {
-    const response = await fetch(`${API_CONFIG.BASE_URL}/generate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(params)
+    console.log('Calling generate-video edge function with params:', params);
+    
+    const { data, error } = await supabase.functions.invoke('generate-video', {
+      body: params
     });
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+    if (error) {
+      console.error('Edge function error:', error);
+      throw new Error(`Edge function error: ${error.message}`);
     }
 
-    const data = await response.json();
     return { videoId: data.videoId || data.id };
   } catch (error) {
     console.error('Error generating video:', error);
