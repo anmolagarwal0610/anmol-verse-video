@@ -15,6 +15,26 @@ import { toast } from 'sonner';
 import { useCredit } from '@/lib/creditService';
 import { checkCredits } from '@/lib/creditService';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import MotionVideoSection from '@/components/video-generator/motion/MotionVideoSection';
+import { Images, Film } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+type VideoMode = 'story' | 'motion';
+
+const MODES: { key: VideoMode; title: string; description: string; icon: typeof Images }[] = [
+  {
+    key: 'story',
+    title: 'Image Story Video',
+    description: 'Voice-backed slideshow built from your topic',
+    icon: Images,
+  },
+  {
+    key: 'motion',
+    title: 'Motion AI Video',
+    description: 'Real moving footage from a prompt or a photo',
+    icon: Film,
+  },
+];
 
 // Session storage key for tracking processed videos
 const PROCESSED_VIDEOS_STORAGE_KEY = "processedVideoIds";
@@ -22,6 +42,7 @@ const PROCESSED_VIDEOS_STORAGE_KEY = "processedVideoIds";
 const VideoGeneration = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const [mode, setMode] = useState<VideoMode>('story');
   const { 
     status, 
     progress, 
@@ -301,32 +322,69 @@ const VideoGeneration = () => {
             </Card>
           )}
         
-          {/* Form, Progress, Error, Results should all use new card/text/button styles implicitly */}
-          {(status === 'idle' || status === 'error' || status === 'completed') && !isGenerating && (
-            <SimplifiedVideoGenerationForm
-              onSubmit={handleSubmit} 
-              isGenerating={isGenerating} 
-            />
-          )}
-          
-          {isGenerating && (
-            <ProgressCard 
-              progress={progress} 
-              status={status === 'generating' ? 'Starting generation...' : (status === 'polling' ? `Processing video... ${progress}%` : 'Preparing...')}
-            />
-          )}
-          
-          {status === 'error' && error && !isGenerating && (
-            <ErrorDisplay 
-              message={error} 
-              onReset={cancelGeneration} 
-            />
-          )}
-          
-          {status === 'completed' && result && !isGenerating && (
-            <div id="results-section" className="mt-8">
-              <ResultsSection result={result} />
-            </div>
+          {/* Mode selector */}
+          <div className="grid gap-4 sm:grid-cols-2 mb-8">
+            {MODES.map(({ key, title, description, icon: Icon }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setMode(key)}
+                aria-pressed={mode === key}
+                className={cn(
+                  'text-left rounded-xl border p-5 transition-all',
+                  mode === key
+                    ? 'border-primary bg-primary/5 shadow-md'
+                    : 'border-border bg-card hover:border-primary/40'
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <span className={cn(
+                    'flex h-10 w-10 items-center justify-center rounded-lg',
+                    mode === key ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground'
+                  )}>
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="font-semibold">{title}</p>
+                    <p className="text-sm text-muted-foreground">{description}</p>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {mode === 'story' ? (
+            <>
+              {/* Form, Progress, Error, Results should all use new card/text/button styles implicitly */}
+              {(status === 'idle' || status === 'error' || status === 'completed') && !isGenerating && (
+                <SimplifiedVideoGenerationForm
+                  onSubmit={handleSubmit} 
+                  isGenerating={isGenerating} 
+                />
+              )}
+              
+              {isGenerating && (
+                <ProgressCard 
+                  progress={progress} 
+                  status={status === 'generating' ? 'Starting generation...' : (status === 'polling' ? `Processing video... ${progress}%` : 'Preparing...')}
+                />
+              )}
+              
+              {status === 'error' && error && !isGenerating && (
+                <ErrorDisplay 
+                  message={error} 
+                  onReset={cancelGeneration} 
+                />
+              )}
+              
+              {status === 'completed' && result && !isGenerating && (
+                <div id="results-section" className="mt-8">
+                  <ResultsSection result={result} />
+                </div>
+              )}
+            </>
+          ) : (
+            <MotionVideoSection canGenerate={!!user} onAuthRequired={handleSignIn} />
           )}
         </div>
       </main>
