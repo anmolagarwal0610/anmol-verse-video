@@ -17,3 +17,12 @@ verify_jwt = true
 
 [functions.check-video-status]
 verify_jwt = true
+
+[functions.list-models]
+verify_jwt = false
+
+[functions.generate-motion-video]
+verify_jwt = true
+
+[functions.motion-video-status]
+verify_jwt = true

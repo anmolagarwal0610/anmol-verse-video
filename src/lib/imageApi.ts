@@ -64,15 +64,16 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
     const width = snapTo32(params.width);
     const height = snapTo32(params.height);
     
-    // Handle image input based on model type
-    const selectedModel = MODEL_MAP[params.model] || MODEL_MAP.basic;
+    // Resolve the model: tier keys map through MODEL_MAP, raw Together ids pass through
+    const selectedModel = MODEL_MAP[params.model]
+      || (params.model?.includes('/') ? params.model : MODEL_MAP.basic);
 
     
     // Declare payload variable
     let payload: Record<string, any>;
     
     // Image-to-image (pro-img2img) requires special handling for image editing
-    if (params.model === 'pro-img2img') {
+    if (params.model === 'pro-img2img' || params.condition_image) {
       if (!params.condition_image) {
         throw new Error("condition_image is required for Pro: image to image model");
       }
