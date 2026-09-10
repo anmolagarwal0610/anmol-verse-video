@@ -31,7 +31,7 @@ export interface ImageGenerationResponse {
 
 // Map model selection to actual API model
 const MODEL_MAP = {
-  basic: "black-forest-labs/FLUX.1-schnell",
+  basic: "black-forest-labs/FLUX.1.1-pro",
   advanced: "black-forest-labs/FLUX.1.1-pro",
   pro: "black-forest-labs/FLUX.1.1-pro",
   "pro-img2img": "black-forest-labs/FLUX.1-kontext-pro" // Pro image to image model
