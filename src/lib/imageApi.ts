@@ -31,10 +31,10 @@ export interface ImageGenerationResponse {
 
 // Map model selection to actual API model
 const MODEL_MAP = {
-  basic: "black-forest-labs/FLUX.1-schnell-Free",
-  advanced: "black-forest-labs/FLUX.1-schnell",
-  pro: "black-forest-labs/FLUX.1-dev", // Original Pro model
-  "pro-img2img": "black-forest-labs/FLUX.1-kontext-dev" // Pro image to image model
+  basic: "black-forest-labs/FLUX.2-klein",
+  advanced: "black-forest-labs/FLUX.2-klein",
+  pro: "black-forest-labs/FLUX.1.1-pro",
+  "pro-img2img": "black-forest-labs/FLUX.2-dev" // Pro image to image model
 };
 
 // Steps by model
@@ -59,17 +59,17 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
     // Declare payload variable
     let payload: Record<string, any>;
     
-    // FLUX.1-Kontext-dev requires special handling for image editing
-    if (selectedModel === "black-forest-labs/FLUX.1-kontext-dev") {
+    // Image-to-image (pro-img2img) requires special handling for image editing
+    if (params.model === 'pro-img2img') {
       if (!params.condition_image) {
         throw new Error("condition_image is required for Pro: image to image model");
       }
       
-      // For FLUX.1-Kontext-dev, use a different payload structure
+      // Together API expects reference_images as an array of strings
       payload = {
         model: selectedModel,
         prompt: params.prompt,
-        image: params.condition_image, // Use 'image' instead of 'condition_image' for kontext
+        reference_images: [params.condition_image], // array of strings, per Together API
         steps: steps,
         width: params.width,
         height: params.height,
