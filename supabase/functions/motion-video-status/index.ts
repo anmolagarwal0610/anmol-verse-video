@@ -1,3 +1,4 @@
+// Polls a Together motion-video job and returns its status/url.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
