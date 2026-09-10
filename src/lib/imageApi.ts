@@ -45,6 +45,12 @@ const STEPS_MAP = {
   "pro-img2img": 28
 };
 
+// Together API requires width/height to be multiples of 32
+const snapTo32 = (value: number): number => {
+  const snapped = Math.round(value / 32) * 32;
+  return Math.max(32, snapped);
+};
+
 export const generateImage = async (params: ImageGenerationParams): Promise<ImageGenerationResponse> => {
   try {
     console.log("Generating image with params:", params);
@@ -53,8 +59,13 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
     const modelType = params.model as 'basic' | 'advanced' | 'pro' | 'pro-img2img';
     const steps = STEPS_MAP[modelType] || 4;
     
+    // Ensure dimensions comply with API constraints
+    const width = snapTo32(params.width);
+    const height = snapTo32(params.height);
+    
     // Handle image input based on model type
     const selectedModel = MODEL_MAP[params.model] || MODEL_MAP.basic;
+
     
     // Declare payload variable
     let payload: Record<string, any>;
