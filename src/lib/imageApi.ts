@@ -173,9 +173,10 @@ export const calculateDimensions = (ratio: string): { width: number, height: num
     width = Math.round((widthRatio / heightRatio) * height);
   }
   
-  // Ensure dimensions are multiples of 16 by rounding down
-  width = Math.floor(width / 16) * 16;
-  height = Math.floor(height / 16) * 16;
+  // Ensure dimensions are multiples of 32 by rounding down
+  width = Math.max(32, Math.floor(width / 32) * 32);
+  height = Math.max(32, Math.floor(height / 32) * 32);
+
   
   return { width, height };
 };
