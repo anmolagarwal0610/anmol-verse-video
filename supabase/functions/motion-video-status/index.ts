@@ -59,7 +59,7 @@ serve(async (req) => {
       });
     }
 
-    const response = await fetch(`https://api.together.xyz/v1/videos/generations/${jobId}`, {
+    const response = await fetch(`https://api.together.ai/v1/videos/${jobId}`, {
       method: 'GET',
       headers: { Authorization: `Bearer ${TOGETHER_API_KEY}` },
     });
