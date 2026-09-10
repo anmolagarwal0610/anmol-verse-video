@@ -45,6 +45,12 @@ const STEPS_MAP = {
   "pro-img2img": 28
 };
 
+// Together API requires width/height to be multiples of 32
+const snapTo32 = (value: number): number => {
+  const snapped = Math.round(value / 32) * 32;
+  return Math.max(32, snapped);
+};
+
 export const generateImage = async (params: ImageGenerationParams): Promise<ImageGenerationResponse> => {
   try {
     console.log("Generating image with params:", params);
@@ -53,8 +59,13 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
     const modelType = params.model as 'basic' | 'advanced' | 'pro' | 'pro-img2img';
     const steps = STEPS_MAP[modelType] || 4;
     
+    // Ensure dimensions comply with API constraints
+    const width = snapTo32(params.width);
+    const height = snapTo32(params.height);
+    
     // Handle image input based on model type
     const selectedModel = MODEL_MAP[params.model] || MODEL_MAP.basic;
+
     
     // Declare payload variable
     let payload: Record<string, any>;
@@ -71,8 +82,9 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
         prompt: params.prompt,
         reference_images: [params.condition_image], // array of strings, per Together API
         steps: steps,
-        width: params.width,
-        height: params.height,
+        width,
+        height,
+
         guidance_scale: params.guidance, // Use 'guidance_scale' instead of 'guidance'
         output_format: params.output_format,
         n: 1
@@ -95,8 +107,9 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
         model: selectedModel,
         steps: steps,
         n: 1,
-        height: params.height,
-        width: params.width,
+        height,
+        width,
+
         guidance: params.guidance,
         output_format: params.output_format,
         prompt: params.prompt
@@ -160,9 +173,10 @@ export const calculateDimensions = (ratio: string): { width: number, height: num
     width = Math.round((widthRatio / heightRatio) * height);
   }
   
-  // Ensure dimensions are multiples of 16 by rounding down
-  width = Math.floor(width / 16) * 16;
-  height = Math.floor(height / 16) * 16;
+  // Ensure dimensions are multiples of 32 by rounding down
+  width = Math.max(32, Math.floor(width / 32) * 32);
+  height = Math.max(32, Math.floor(height / 32) * 32);
+
   
   return { width, height };
 };
