@@ -15,6 +15,26 @@ import { toast } from 'sonner';
 import { useCredit } from '@/lib/creditService';
 import { checkCredits } from '@/lib/creditService';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import MotionVideoSection from '@/components/video-generator/motion/MotionVideoSection';
+import { Images, Film } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+type VideoMode = 'story' | 'motion';
+
+const MODES: { key: VideoMode; title: string; description: string; icon: typeof Images }[] = [
+  {
+    key: 'story',
+    title: 'Image Story Video',
+    description: 'Voice-backed slideshow built from your topic',
+    icon: Images,
+  },
+  {
+    key: 'motion',
+    title: 'Motion AI Video',
+    description: 'Real moving footage from a prompt or a photo',
+    icon: Film,
+  },
+];
 
 // Session storage key for tracking processed videos
 const PROCESSED_VIDEOS_STORAGE_KEY = "processedVideoIds";
