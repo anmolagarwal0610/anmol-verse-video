@@ -82,8 +82,9 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
         prompt: params.prompt,
         reference_images: [params.condition_image], // array of strings, per Together API
         steps: steps,
-        width: params.width,
-        height: params.height,
+        width,
+        height,
+
         guidance_scale: params.guidance, // Use 'guidance_scale' instead of 'guidance'
         output_format: params.output_format,
         n: 1
