@@ -1,3 +1,4 @@
+// Lists Together image/video models for the app's model pickers.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
