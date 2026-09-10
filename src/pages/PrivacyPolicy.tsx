@@ -1,10 +1,16 @@
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/home/Footer'; // Using a common footer
+import Seo from '@/components/Seo';
 
 const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        title="Privacy Policy — DumbLabs.AI"
+        description="How DumbLabs.AI collects, uses, shares, and protects your personal information."
+        path="/privacy-policy"
+      />
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-8 pt-24"> {/* Added pt-24 for navbar offset */}
         <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>

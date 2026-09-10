@@ -7,6 +7,7 @@ import { useImageGenerator } from '@/hooks/use-image-generator';
 import { useAuth } from '@/hooks/use-auth';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import Seo from '@/components/Seo';
 
 const ImageGeneration = () => {
   const { 
@@ -34,6 +35,11 @@ const ImageGeneration = () => {
   return (
     // Main page background: Off-Black
     <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <Seo
+        title="Image Genie — AI Image Generator | DumbLabs.AI"
+        description="Generate sophisticated AI images from text prompts or reference photos, with model choice and instant previews."
+        path="/images"
+      />
       <Navbar />
       
       <main className="flex-1 flex flex-col items-center px-4 py-16 mt-10"> {/* mt-10 to avoid navbar overlap */}

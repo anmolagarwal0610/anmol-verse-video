@@ -6,10 +6,16 @@ import ContactForm from '@/components/contact/ContactForm';
 import ContactDetails from '@/components/contact/ContactDetails';
 import { motion } from 'framer-motion';
 import BackgroundImage from '@/components/home/BackgroundImage'; // Re-using home background
+import Seo from '@/components/Seo';
 
 const Contact = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50 dark:from-gray-950 dark:to-black">
+      <Seo
+        title="Contact Us — DumbLabs.AI"
+        description="Questions, feedback, or support requests? Get in touch with the DumbLabs.AI team."
+        path="/contact"
+      />
       <Navbar />
       <div className="relative w-full flex-grow">
         <BackgroundImage />

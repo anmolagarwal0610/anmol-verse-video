@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import GalleryLayout from '@/components/gallery/GalleryLayout';
 import GalleryHeader from '@/components/gallery/GalleryHeader';
 import GalleryTabs from '@/components/gallery/GalleryTabs';
+import Seo from '@/components/Seo';
 
 const Gallery = () => {
   const navigate = useNavigate();
@@ -21,6 +22,11 @@ const Gallery = () => {
   
   return (
     <GalleryLayout>
+      <Seo
+        title="Your Gallery — DumbLabs.AI"
+        description="Browse, download, and manage every AI image and video you have created on DumbLabs.AI."
+        path="/gallery"
+      />
       <GalleryHeader />
       <GalleryTabs />
     </GalleryLayout>

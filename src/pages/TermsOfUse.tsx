@@ -2,10 +2,16 @@
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/home/Footer';
+import Seo from '@/components/Seo';
 
 const TermsOfUse = () => {
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        title="Terms of Use — DumbLabs.AI"
+        description="The terms governing your access to and use of DumbLabs.AI's AI video and image services."
+        path="/terms-of-use"
+      />
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-8 pt-24 prose dark:prose-invert max-w-3xl">
         <h1>Terms of Use</h1>
