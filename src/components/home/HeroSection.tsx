@@ -19,7 +19,7 @@ const HeroSection = () => {
       opacity: 1, 
       y: 0,
       transition: { 
-        type: "spring",
+        type: "spring" as const,
         stiffness: 100
       }
     }
@@ -32,7 +32,7 @@ const HeroSection = () => {
       opacity: 1, 
       rotate: 0,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 200,
         damping: 20
       }
@@ -60,7 +60,7 @@ const HeroSection = () => {
       transition: {
         repeat: Infinity,
         duration: 5,
-        ease: "linear"
+        ease: "linear" as const
       }
     }
   };

@@ -23,7 +23,7 @@ const sparkleVariants = {
     transition: {
       repeat: Infinity,
       duration: 4,
-      ease: "linear"
+      ease: "linear" as const
     }
   }
 };
