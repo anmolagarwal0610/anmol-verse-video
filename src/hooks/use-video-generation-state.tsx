@@ -53,8 +53,8 @@ export const useVideoGenerationState = (): VideoGenerationState => {
   const [error, setError] = useState<string | null>(initial.error);
   const [currentTopic, setCurrentTopic] = useState<string>(initial.currentTopic);
 
-  const pollingRef = useRef<NodeJS.Timeout | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Function to persist state to localStorage
   const persist = (

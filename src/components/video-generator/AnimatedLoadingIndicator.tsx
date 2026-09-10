@@ -41,7 +41,7 @@ const AnimatedLoadingIndicator = ({ progress, status }: AnimatedLoadingIndicator
 
   const progressCircle = {
     hidden: { pathLength: 0 },
-    visible: { pathLength: progress / 100, transition: { duration: 1, ease: "easeInOut" } }
+    visible: { pathLength: progress / 100, transition: { duration: 1, ease: "easeInOut" as const } }
   };
   
   const pulseVariants = {
@@ -51,7 +51,7 @@ const AnimatedLoadingIndicator = ({ progress, status }: AnimatedLoadingIndicator
       transition: { 
         repeat: Infinity, 
         duration: 2,
-        ease: "easeInOut"
+        ease: "easeInOut" as const
       }
     }
   };

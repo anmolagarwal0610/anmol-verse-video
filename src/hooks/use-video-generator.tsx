@@ -27,11 +27,11 @@ export const useVideoGenerator = (): UseVideoGeneratorReturn => {
   const [currentTopic, setCurrentTopic] = useState<string>('');
   const [currentParams, setCurrentParams] = useState<VideoGenerationParams | null>(null);
   
-  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startTimeRef = useRef<number | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastProgressUpdateRef = useRef<number>(0);
-  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   const { user } = useAuth();
   

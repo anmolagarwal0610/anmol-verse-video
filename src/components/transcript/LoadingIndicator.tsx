@@ -41,7 +41,7 @@ export const LoadingIndicator = ({ progress }: LoadingIndicatorProps) => {
         repeat: Infinity,
         duration: 1.5,
         repeatType: "loop" as const, // Using 'as const' to specify literal type
-        ease: "easeInOut",
+        ease: "easeInOut" as const,
         times: [0, 0.5, 1]
       }
     }
@@ -76,7 +76,7 @@ export const LoadingIndicator = ({ progress }: LoadingIndicatorProps) => {
                 duration: 1,
                 repeat: Infinity,
                 delay: i * 0.2,
-                ease: "easeInOut"
+                ease: "easeInOut" as const
               }}
             />
           ))}
@@ -89,7 +89,7 @@ export const LoadingIndicator = ({ progress }: LoadingIndicatorProps) => {
             className="absolute top-0 left-0 h-full bg-primary rounded-full"
             initial={{ width: "0%" }}
             animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: 0.5, ease: "easeOut" as const }}
           />
         </div>
       </motion.div>
@@ -116,7 +116,7 @@ export const LoadingIndicator = ({ progress }: LoadingIndicatorProps) => {
             duration: 2,
             repeat: Infinity,
             repeatType: "mirror",
-            ease: "easeInOut"
+            ease: "easeInOut" as const
           }}
         >
           {["Processing audio", "Analyzing speech", "Creating transcript", "Finalizing"].map((step, i) => (
