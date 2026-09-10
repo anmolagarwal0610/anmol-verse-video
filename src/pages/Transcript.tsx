@@ -2,10 +2,17 @@
 import Navbar from '@/components/Navbar';
 import TranscriptForm from '@/components/TranscriptForm';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import Seo from '@/components/Seo';
 
 const Transcript = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <Seo
+        title="Transcript Generator — DumbLabs.AI"
+        description="Turn any idea into a ready-to-record video script with AI-written transcripts and scene guidance."
+        path="/transcript"
+      />
       <Navbar />
       
       <main className="flex-1 flex flex-col items-center px-4 py-16 mt-10">
@@ -80,12 +87,12 @@ const Transcript = () => {
       <footer className="py-6 border-t">
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} ShortsGen. All rights reserved.
+            © {new Date().getFullYear()} DumbLabs.AI. All rights reserved.
           </p>
           <div className="flex items-center space-x-4 mt-4 md:mt-0">
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Terms</a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Privacy</a>
-            <a href="#" className="text-sm text-muted-foreground hover:text-foreground">Contact</a>
+            <Link to="/terms-of-use" className="text-sm text-muted-foreground hover:text-foreground">Terms</Link>
+            <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-foreground">Privacy</Link>
+            <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground">Contact</Link>
           </div>
         </div>
       </footer>

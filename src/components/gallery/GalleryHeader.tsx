@@ -20,7 +20,7 @@ const GalleryHeader = () => {
           asChild 
           className="gap-2 bg-gradient-to-r from-primary to-accent text-primary-foreground hover:brightness-105 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
         >
-          <Link to="/"><VideoIcon size={16} /> Create Video</Link>
+          <Link to="/videos/generate"><VideoIcon size={16} /> Create Video</Link>
         </Button>
       </div>
     </div>

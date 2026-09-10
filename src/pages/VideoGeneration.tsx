@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MotionVideoSection from '@/components/video-generator/motion/MotionVideoSection';
 import { Images, Film } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Seo from '@/components/Seo';
 
 type VideoMode = 'story' | 'motion';
 
@@ -281,6 +282,11 @@ const VideoGeneration = () => {
   return (
     // Main page background: Off-Black
     <div className="min-h-screen bg-background text-foreground">
+      <Seo
+        title="Video Genie — AI Video Generator | DumbLabs.AI"
+        description="Turn one idea into a voice-backed image story video or real AI motion footage in minutes."
+        path="/videos/generate"
+      />
       <Navbar />
       
       <main className="container max-w-4xl mx-auto py-8 px-4 mt-16"> {/* mt-16 for navbar */}
