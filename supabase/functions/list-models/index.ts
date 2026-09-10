@@ -87,6 +87,17 @@ serve(async (req) => {
         pricing: m.pricing,
       }));
 
+    // Together's model listing doesn't always expose video models; top up from
+    // the curated catalogue so the video picker is never empty.
+    const seen = new Set(models.map((m) => m.id));
+    for (const curated of FALLBACK_MODELS) {
+      if (!seen.has(curated.id)) {
+        if (curated.type === 'video' && !models.some((m) => m.type === 'video')) {
+          models.push(curated);
+        }
+      }
+    }
+
     cache = { at: Date.now(), models };
 
     return new Response(JSON.stringify({ models, cached: false }), {
