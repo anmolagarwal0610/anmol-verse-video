@@ -19,7 +19,7 @@ const VideoPlayer = ({ videoUrl, poster, className }: VideoPlayerProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [aspectRatio, setAspectRatio] = useState<string>('auto');
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const video = videoRef.current;
