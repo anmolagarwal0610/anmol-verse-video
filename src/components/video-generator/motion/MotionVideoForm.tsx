@@ -208,6 +208,11 @@ const MotionVideoForm = ({ onSubmit, disabled }: MotionVideoFormProps) => {
                   </SelectContent>
                 </Select>
               )}
+              {didFallback && !isLoading && (
+                <p className="text-xs text-muted-foreground">
+                  Showing the standard model list while the live list is unavailable.
+                </p>
+              )}
             </div>
 
             {mode === 'text' && (
