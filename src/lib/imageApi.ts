@@ -107,8 +107,9 @@ export const generateImage = async (params: ImageGenerationParams): Promise<Imag
         model: selectedModel,
         steps: steps,
         n: 1,
-        height: params.height,
-        width: params.width,
+        height,
+        width,
+
         guidance: params.guidance,
         output_format: params.output_format,
         prompt: params.prompt
