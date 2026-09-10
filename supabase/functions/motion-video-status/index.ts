@@ -23,7 +23,7 @@ const findVideoUrl = (value: unknown): string | null => {
       const candidate = obj[key];
       if (typeof candidate === 'string' && candidate.startsWith('http')) return candidate;
     }
-    for (const key of ['output', 'data', 'result', 'assets', 'video']) {
+    for (const key of ['outputs', 'output', 'data', 'result', 'assets', 'video']) {
       if (key in obj) {
         const found = findVideoUrl(obj[key]);
         if (found) return found;
