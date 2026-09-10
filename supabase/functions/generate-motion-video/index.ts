@@ -1,3 +1,4 @@
+// Starts a Together motion-video job and returns its job id.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -36,12 +37,18 @@ serve(async (req) => {
       model,
       prompt: prompt.trim(),
     };
-    if (aspect_ratio) payload.aspect_ratio = aspect_ratio;
-    if (image_url) payload.image_url = image_url;
+    // Together's create-video body uses `ratio` for aspect ratio.
+    if (aspect_ratio) payload.ratio = aspect_ratio;
+    // Image-to-video: the source image is the first keyframe.
+    if (image_url) {
+      payload.media = {
+        frame_images: [{ input_image: image_url, frame: 0 }],
+      };
+    }
 
-    console.log('Creating Together video job:', JSON.stringify({ ...payload, image_url: image_url ? '[omitted]' : undefined }));
+    console.log('Creating Together video job:', JSON.stringify({ model, ratio: payload.ratio, hasImage: Boolean(image_url) }));
 
-    const response = await fetch('https://api.together.xyz/v1/videos/generations', {
+    const response = await fetch('https://api.together.ai/v1/videos', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${TOGETHER_API_KEY}`,

@@ -1,3 +1,4 @@
+// Polls a Together motion-video job and returns its status/url.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -22,7 +23,7 @@ const findVideoUrl = (value: unknown): string | null => {
       const candidate = obj[key];
       if (typeof candidate === 'string' && candidate.startsWith('http')) return candidate;
     }
-    for (const key of ['output', 'data', 'result', 'assets', 'video']) {
+    for (const key of ['outputs', 'output', 'data', 'result', 'assets', 'video']) {
       if (key in obj) {
         const found = findVideoUrl(obj[key]);
         if (found) return found;
@@ -58,7 +59,7 @@ serve(async (req) => {
       });
     }
 
-    const response = await fetch(`https://api.together.xyz/v1/videos/generations/${jobId}`, {
+    const response = await fetch(`https://api.together.ai/v1/videos/${jobId}`, {
       method: 'GET',
       headers: { Authorization: `Bearer ${TOGETHER_API_KEY}` },
     });

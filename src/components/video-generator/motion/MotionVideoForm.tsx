@@ -21,7 +21,7 @@ interface MotionVideoFormProps {
 const ASPECT_RATIOS = ['16:9', '9:16', '1:1'];
 
 const MotionVideoForm = ({ onSubmit, disabled }: MotionVideoFormProps) => {
-  const { models, isLoading } = useTogetherModels('video');
+  const { models, isLoading, didFallback, refetch } = useTogetherModels('video');
   const [mode, setMode] = useState<'text' | 'image'>('text');
   const [model, setModel] = useState('');
   const [prompt, setPrompt] = useState('');
@@ -75,11 +75,14 @@ const MotionVideoForm = ({ onSubmit, disabled }: MotionVideoFormProps) => {
   if (!isLoading && models.length === 0) {
     return (
       <Card className="shadow-lg">
-        <CardContent className="py-12 text-center space-y-2">
-          <p className="font-medium">No video models available on your account</p>
+        <CardContent className="py-12 text-center space-y-3">
+          <p className="font-medium">Couldn't load the video models</p>
           <p className="text-sm text-muted-foreground">
-            Motion AI Video needs a video model enabled on your Together account. Image Story Video still works.
+            The model list didn't come through. Try again in a moment — Image Story Video still works.
           </p>
+          <Button type="button" variant="outline" onClick={() => refetch()}>
+            Try again
+          </Button>
         </CardContent>
       </Card>
     );
@@ -204,6 +207,11 @@ const MotionVideoForm = ({ onSubmit, disabled }: MotionVideoFormProps) => {
                     ))}
                   </SelectContent>
                 </Select>
+              )}
+              {didFallback && !isLoading && (
+                <p className="text-xs text-muted-foreground">
+                  Showing the standard model list while the live list is unavailable.
+                </p>
               )}
             </div>
 
